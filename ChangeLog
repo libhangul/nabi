@@ -1,3 +1,6 @@
+2003-10-19  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: unicode 범위의 keyval은 forwarding하지 않고 바로 commit 함
+
 2003-10-15  Choe Hwanjin <krisna@kldp.org>
 	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: 한글자모 이외의
 	  글자를 처리하는 루틴을 개선
