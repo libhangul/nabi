@@ -1,0 +1,57 @@
+# this file is test keyboard map file for Nabi
+Name: Dubeolsik
+Type2
+
+0041	1106	# XK_A: choseong mieum
+0042	1172	# XK_B: jungseong yu
+0043	110e	# XK_C: choseong chieuch
+0044	110b	# XK_D: choseong ieung
+0045	1104	# XK_E: choseong ssangtikeut
+0046	1105	# XK_F: choseong rieul
+0047	1112	# XK_G: choseong hieuh
+0048	1169	# XK_H: jungseong o
+0049	1163	# XK_I: jungseong ya
+004a	1165	# XK_J: jungseong eo
+004b	1161	# XK_K: jungseong a
+004c	1175	# XK_L: jungseong i
+004d	1173	# XK_M: jungseong eu
+004e	116e	# XK_N: jungseong u
+004f	1164	# XK_O: jungseong yae
+0050	1168	# XK_P: jungseong ye
+0051	1108	# XK_Q: choseong ssangpieup
+0052	1101	# XK_R: choseong ssangkiyeok
+0053	1102	# XK_S: choseong nieun
+0054	110a	# XK_T: choseong ssangsios
+0055	1167	# XK_U: jungseong yeo
+0056	1111	# XK_V: choseong phieuph
+0057	110d	# XK_W: choseong ssangcieuc
+0058	1110	# XK_X: choseong thieuth
+0059	116d	# XK_Y: jungseong yo
+005a	110f	# XK_Z: choseong khieukh
+
+0061	1106	# XK_a: choseong mieum
+0062	1172	# XK_b: jungseong yu
+0063	110e	# XK_c: choseong chieuch
+0064	110b	# XK_d: choseong ieung
+0065	1103	# XK_e: choseong tikeut
+0066	1105	# XK_f: choseong rieul
+0067	1112	# XK_g: choseong hieuh
+0068	1169	# XK_h: jungseong o
+0069	1163	# XK_i: jungseong ya
+006a	1165	# XK_j: jungseong eo
+006b	1161	# XK_k: jungseong a
+006c	1175	# XK_l: jungseong i
+006d	1173	# XK_m: jungseong eu
+006e	116e	# XK_n: jungseong u
+006f	1162	# XK_o: jungseong ae
+0070	1166	# XK_p: jungseong e
+0071	1107	# XK_q: choseong pieup
+0072	1100	# XK_r: choseong kiyeok
+0073	1102	# XK_s: choseong nieun
+0074	1109	# XK_t: choseong sios
+0075	1167	# XK_u: jungseong yeo
+0076	1111	# XK_v: choseong phieuph
+0077	110c	# XK_w: choseong cieuc
+0078	1110	# XK_x: choseong thieuth
+0079	116d	# XK_y: jungseong yo
+007a	110f	# XK_z: choseong khieukh

@@ -1,0 +1,28 @@
+# test compose map file for Nabi
+Name: default
+
+1100	1100	1101	# choseong  kiyeok + kiyeok  = ssangkiyeok	
+1103	1103	1104	# choseong  tikeut + tikeut  = ssangtikeut	
+1107	1107	1108	# choseong  pieup  + pieup   = ssangpieup 	
+1109	1109	110a	# choseong  sios   + sios    = ssangsios	
+110c	110c	110d	# choseong  cieuc  + cieuc   = ssangcieuc	
+1169	1161	116a	# jungseong o      + a       = wa		
+1169	1162	116b	# jungseong o      + ae      = wae		
+1169	1175	116c	# jungseong o      + i       = oe		
+116e	1165	116f	# jungseong u      + eo      = weo		
+116e	1166	1170	# jungseong u      + e       = we		
+116e	1175	1171	# jungseong u      + i       = wi		
+1173	1175	1174	# jungseong eu     + i       = yi		
+11a8	11a8	11a9	# jongseong kiyeok + kiyeok  = ssangekiyeok 	
+11a8	11ba	11aa	# jongseong kiyeok + sios    = kiyeok-sois	
+11ab	11bd	11ac	# jongseong nieun  + cieuc   = nieun-cieuc	
+11ab	11c2	11ad	# jongseong nieun  + hieuh   = nieun-hieuh	
+11af	11a8	11b0	# jongseong rieul  + kiyeok  = rieul-kiyeok	
+11af	11b7	11b1	# jongseong rieul  + mieum   = rieul-mieum 	
+11af	11b8	11b2	# jongseong rieul  + pieup   = rieul-pieup	
+11af	11ba	11b3	# jongseong rieul  + sios    = rieul-sios	
+11af	11c0	11b4	# jongseong rieul  + thieuth = rieul-thieuth	
+11af	11c1	11b5	# jongseong rieul  + phieuph = rieul-phieuph	
+11af	11c2	11b6	# jongseong rieul  + hieuh   = rieul-hieuh	
+11b8	11ba	11b9	# jongseong pieup  + sios    = pieup-sios	
+11ba	11ba	11bb	# jongseong sios   + sios    = ssangsios	
