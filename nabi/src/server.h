@@ -106,6 +106,7 @@ struct _NabiServer {
     long                    filter_mask;
     XIMTriggerKeys          trigger_keys;
     XIMTriggerKeys          candidate_keys;
+    char**                  locales;
     GdkGC*		    gc;
 
     /* xim connect list */
@@ -190,6 +191,8 @@ void        nabi_server_remove_connect  (NabiServer *server,
                                          NabiConnect *connect);
 NabiConnect* nabi_server_get_connect_by_id(NabiServer *server,
                                            CARD16 connect_id);
+Bool        nabi_server_is_locale_supported(NabiServer *server,
+					    const char *locale);
 Bool        nabi_server_is_valid_char   (NabiServer *server, wchar_t ch);
 void        nabi_server_on_keypress     (NabiServer *server,
 					 KeySym keyval,

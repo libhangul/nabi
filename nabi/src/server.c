@@ -65,6 +65,16 @@ static XIMEncoding nabi_encodings[] = {
     NULL
 };
 
+static char *nabi_locales[] = {
+    "ko",
+    "ja_JP.UTF-8",
+    "zh_CN.UTF-8",
+    "zh_HK.UTF-8",
+    "zh_TW.UTF-8",
+    "en_US.UTF-8",
+    NULL
+};
+
 NabiServer*
 nabi_server_new(const char *name)
 {
@@ -424,6 +434,7 @@ nabi_server_init(NabiServer *server)
     if (server == NULL)
 	return;
 
+    server->locales = nabi_locales;
     server->filter_mask = KeyPressMask;
 
     nabi_server_set_trigger_keys(server,
@@ -506,6 +517,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     XIMS xims;
     XIMStyles input_styles;
     XIMEncodings encodings;
+    char *locales;
 
     if (server == NULL)
 	return 0;
@@ -524,14 +536,17 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
 		    / sizeof(XIMEncoding) - 1;
     encodings.supported_encodings = nabi_encodings;
 
+    locales = g_strjoinv(",", server->locales);
     xims = IMOpenIM(display,
 		   IMModifiers, "Xi18n",
 		   IMServerWindow, window,
 		   IMServerName, server->name,
-		   IMLocale, "ko",
+		   IMLocale, locales,
 		   IMServerTransport, "X/",
 		   IMInputStyles, &input_styles,
 		   NULL);
+    g_free(locales);
+
     if (xims == NULL) {
 	fprintf(stderr, "Nabi: Can't open Input Method Service\n");
 	exit(1);
@@ -643,6 +658,22 @@ nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
 	list = list->next;
     }
     server->n_connected--;
+}
+
+Bool
+nabi_server_is_locale_supported(NabiServer *server, const char *locale)
+{
+    int i;
+
+    if (strncmp("ko", locale, 2) == 0)
+	return True;
+
+    for (i = 0; server->locales[i] != NULL; i++) {
+	if (strcmp(server->locales[i], locale) == 0)
+	    return True;
+    }
+
+    return False;
 }
 
 Bool
