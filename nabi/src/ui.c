@@ -508,6 +508,7 @@ load_keyboard_maps(void)
 					      keyboard_map);
 	g_free(keyboard_map_filename);
     }
+    closedir(dir);
 
     nabi->keyboard_maps = g_slist_sort(nabi->keyboard_maps,
 	    			       keyboard_map_list_cmp_func);
@@ -1036,7 +1037,7 @@ get_themes_list(void)
 	gdk_pixbuf_unref(pixbuf_hangul);
 	gdk_pixbuf_unref(pixbuf_english);
     }
-
+    closedir(dir);
     return GTK_TREE_MODEL(store);
 }
 
