@@ -576,13 +576,19 @@ nabi_app_setup_server(void)
     locale = setlocale(LC_CTYPE, NULL);
     if (locale != NULL && strncmp(locale, "ko", 2) != 0) {
 	GtkWidget *message;
+	const gchar *encoding = "";
 
-	message = gtk_message_dialog_new_with_markup(NULL, GTK_DIALOG_MODAL,
+	g_get_charset(&encoding);
+	message = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL,
 					 GTK_MESSAGE_WARNING, GTK_BUTTONS_CLOSE,
 	   "<span size=\"x-large\" weight=\"bold\">"
-	   "Information from Nabi</span>\n\n"
-	   "Your locale is not for korean. Check the locale setting.\n"
-	   "Your locale: <b>%s</b>", locale);
+	   "한글 입력기 나비에서 알림</span>\n\n"
+	   "현재 로캘이 한국어가 아닙니다. "
+	   "이렇게 되어 있으면 한글 입력에 문제가 있을수 있습니다. "
+	   "설정을 확인해보십시오.\n\n"
+	   "현재 로캘 설정: <b>%s (%s)</b>", locale, encoding);
+	gtk_label_set_use_markup(GTK_LABEL(GTK_MESSAGE_DIALOG(message)->label),
+				 TRUE);
 	gtk_widget_show(message);
 	gtk_dialog_run(GTK_DIALOG(message));
 	gtk_widget_destroy(message);
