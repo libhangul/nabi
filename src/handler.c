@@ -249,19 +249,19 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 
     switch (keyval) {
     case XK_Left:
-    case XK_BackSpace:
 	nabi_candidate_prev(ic->candidate_window);
 	break;
     case XK_Right:
-    case XK_space:
 	nabi_candidate_next(ic->candidate_window);
 	break;
     case XK_Up:
     case XK_Page_Up:
+    case XK_BackSpace:
 	nabi_candidate_prev_row(ic->candidate_window);
 	break;
     case XK_Down:
     case XK_Page_Down:
+    case XK_space:
 	nabi_candidate_next_row(ic->candidate_window);
 	break;
     case XK_Escape:
