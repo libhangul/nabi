@@ -1,10 +1,14 @@
+2003-10-08  Choe Hwanjin <krisna@kldp.org>
+	* src/automata.c: charset을 체크하는 부분을 더 추가
+	  (ㅃㅞㄹㄱ의 경우 고려), 세벌식 자판에서도 charset 체크 강화
+
 2003-10-01  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: XIMPreeditPosition 모드의 경우에는 commit한후에 preedit
 	  clear 하도록 수정함(Eterm의 경우는 preedit string을 지우고 commit
 	  해도 정상적으로 입력이 되지만, gtk+1 app의 경우는 입력순서가
 	  뒤바뀌는 경우가 있어서 XIMPreeditPosition의 경우는 기존의 방식대로 
 	  처리하도록 함, 따라서 XUnmapWindow()를 사용해도 입력순서에 영향을 
-	  미치지 않음)
+	  미치지 않음 #284)
 
 2003-09-26  Choe Hwanjin <krisna@kldp.org>
 	* release 0.7
