@@ -771,6 +771,7 @@ on_menu_about(GtkWidget *widget)
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), comment, TRUE, TRUE, 5);
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 200, 120);
+    gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
