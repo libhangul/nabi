@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-08-28 16:51+0900\n"
+"POT-Creation-Date: 2004-08-28 21:36+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -156,24 +156,24 @@ msgstr "프로그램 정보(_A)..."
 msgid "_Preferences..."
 msgstr "설정(_P)..."
 
-#: src/ui.c:1303 src/ui.c:1304 src/ui.c:1336 src/ui.c:1337 src/ui.c:1542
-#: src/ui.c:1564
+#: src/ui.c:1303 src/ui.c:1305 src/ui.c:1339 src/ui.c:1341 src/ui.c:1546
+#: src/ui.c:1568
 msgid "Nabi: None"
 msgstr "나비: 중립"
 
-#: src/ui.c:1314 src/ui.c:1315
+#: src/ui.c:1315 src/ui.c:1317
 msgid "Nabi: English"
 msgstr "나비: 영어"
 
-#: src/ui.c:1325 src/ui.c:1326
+#: src/ui.c:1327 src/ui.c:1329
 msgid "Nabi: Hangul"
 msgstr "나비: 한글"
 
-#: src/ui.c:1508
+#: src/ui.c:1512
 msgid "Hangul input method: Nabi"
 msgstr "한글 입력기: 나비"
 
-#: src/ui.c:1509
+#: src/ui.c:1513
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
@@ -255,8 +255,8 @@ msgstr "나비 설정"
 
 #. icons
 #: src/preference.c:703
-msgid "Theme"
-msgstr "테마"
+msgid "Tray"
+msgstr "트레이"
 
 #. keyboard
 #: src/preference.c:708
