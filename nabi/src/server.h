@@ -75,6 +75,7 @@ struct _NabiServer {
     XIMTriggerKey*          trigger_keys;
 
     /* xim connect list */
+    int			    n_connected;
     NabiConnect*            connect_list;
 
     /* Input Context list */

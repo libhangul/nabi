@@ -42,6 +42,12 @@ on_realize(GtkWidget *widget, gpointer data)
 		      GDK_WINDOW_XWINDOW(widget->window));
 }
 
+static void
+on_destroy(GtkWidget *widget, gpointer data)
+{
+    nabi_server_stop(nabi_server);
+}
+
 static int
 nabi_x_error_handler(Display *display, XErrorEvent *error)
 {
@@ -83,6 +89,8 @@ main(int argc, char *argv[])
     widget = nabi_app_create_main_widget();
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), nabi_server);
+    g_signal_connect_after(G_OBJECT(widget), "destroy",
+	    	           G_CALLBACK(on_destroy), nabi_server);
     gtk_widget_show(widget);
 
     XSetErrorHandler(nabi_x_error_handler);
@@ -90,7 +98,6 @@ main(int argc, char *argv[])
     gtk_main();
 
     if (!nabi->status_only) {
-	nabi_server_stop(nabi_server);
 	nabi_server_destroy(nabi_server);
 	nabi_server = NULL;
     }

@@ -76,6 +76,7 @@ nabi_server_new(void)
     server->trigger_keys = NULL;
 
     /* connect list */
+    server->n_connected = 0;
     server->connect_list = NULL;
 
     /* init IC table */
@@ -289,6 +290,11 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     if (server == NULL)
 	return 0;
 
+    if (server->xims != NULL) {
+	printf("Nabi: XIM server is already running\n");
+	return 0;
+    }
+
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
     input_styles.supported_styles = nabi_input_styles;
@@ -346,8 +352,11 @@ nabi_server_stop(NabiServer *server)
     if (server == NULL)
 	return 0;
 
-    if ((iconv_t)(server->converter) != (iconv_t)(-1))
+    if ((iconv_t)(server->converter) != (iconv_t)(-1)) {
 	iconv_close(server->converter);
+	server->converter = (iconv_t)(-1);
+    }
+
     if (server->xims != NULL) {
 	IMCloseIM(server->xims);
 	server->xims = NULL;
@@ -377,6 +386,7 @@ nabi_server_add_connect(NabiServer *server, NabiConnect *connect)
     list = server->connect_list;
     connect->next = list;
     server->connect_list = connect;
+    server->n_connected++;
 }
 
 NabiConnect*
@@ -415,6 +425,7 @@ nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
 	prev = list;
 	list = list->next;
     }
+    server->n_connected--;
 }
 
 Bool
