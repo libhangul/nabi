@@ -83,6 +83,7 @@ themes/Mac/Makefile
 themes/Onion/Makefile
 themes/KingSejong/Makefile
 themes/keyboard/Makefile
+themes/MSWindows2000/Makefile
 m4/Makefile 
 po/Makefile.in 
 ])
