@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: nabi 0.10\n"
+"Project-Id-Version: nabi 0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-07-25 19:33+0900\n"
-"PO-Revision-Date: 2003-08-04 17:33+0900\n"
+"POT-Creation-Date: 2004-07-27 22:02+0900\n"
+"PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
 "MIME-Version: 1.0\n"
@@ -23,11 +23,11 @@ msgstr ""
 msgid "The orientation of the tray."
 msgstr ""
 
-#: src/fontset.c:54
+#: src/fontset.c:63
 msgid "Nabi: missing charset\n"
 msgstr ""
 
-#: src/fontset.c:55
+#: src/fontset.c:64
 #, c-format
 msgid "Nabi: font: %s\n"
 msgstr ""
@@ -41,86 +41,86 @@ msgstr ""
 msgid "Nabi: Can't read keyboard map file\n"
 msgstr ""
 
-#: src/ui.c:235
+#: src/ui.c:234
 msgid "Nabi: Can't load config file\n"
 msgstr ""
 
-#: src/ui.c:277
+#: src/ui.c:276
 msgid "Nabi: Can't write config file\n"
 msgstr ""
 
-#: src/ui.c:319
+#: src/ui.c:318
 #, c-format
 msgid "Nabi: Can't open compose table dir: %s (%s)\n"
 msgstr ""
 
-#: src/ui.c:333
+#: src/ui.c:332
 #, c-format
 msgid "Nabi: Can't load compose table: %s\n"
 msgstr ""
 
 #. we have no valid compose table
-#: src/ui.c:341
+#: src/ui.c:340
 msgid "Nabi: Can't load any compose table\n"
 msgstr ""
 
-#: src/ui.c:353
+#: src/ui.c:352
 msgid "Nabi: Can't load candidate table\n"
 msgstr ""
 
-#: src/ui.c:412
+#: src/ui.c:411
 #, c-format
 msgid "Nabi: Can't open keyboard table dir: %s\n"
 msgstr ""
 
-#: src/ui.c:426
+#: src/ui.c:425
 #, c-format
 msgid "Nabi: Can't load keyboard table: %s\n"
 msgstr ""
 
 #. we have no valid keyboard table
-#: src/ui.c:434
+#: src/ui.c:433
 msgid "Nabi: Can't load any keyboard table\n"
 msgstr ""
 
-#: src/ui.c:760
+#: src/ui.c:781
 msgid "XIM Server is not running"
 msgstr "입력기 서버가 작동하지 않습니다"
 
-#: src/ui.c:772
+#: src/ui.c:793
 msgid "Total"
 msgstr "전체"
 
-#: src/ui.c:774
+#: src/ui.c:795
 msgid "BackSpace"
 msgstr "백스페이스"
 
-#: src/ui.c:776
+#: src/ui.c:797
 msgid "Shift"
 msgstr "쉬프트"
 
-#: src/ui.c:800
+#: src/ui.c:821
 msgid "Choseong"
 msgstr "초성"
 
-#: src/ui.c:844
+#: src/ui.c:865
 msgid "Jungseong"
 msgstr "중성"
 
-#: src/ui.c:896
+#: src/ui.c:917
 msgid "Jongseong"
 msgstr "종성"
 
-#: src/ui.c:967
+#: src/ui.c:988
 msgid "About Nabi"
 msgstr "Nabi에 대해서"
 
-#: src/ui.c:979
+#: src/ui.c:1000
 #, c-format
 msgid "<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"
 msgstr "<span size=\"xx-large\" weight=\"bold\">나비 %s</span>"
 
-#: src/ui.c:987
+#: src/ui.c:1008
 msgid ""
 "<span size=\"large\">Simple Hangul XIM</span>\n"
 "2003-2004 (C) Choe Hwanjin"
@@ -128,127 +128,135 @@ msgstr ""
 "<span size=\"large\">간단한 한글 입력기</span>\n"
 "2003-2004 (C) 최환진"
 
-#: src/ui.c:995
+#: src/ui.c:1016
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM 이름</span>: "
 
-#: src/ui.c:1001
+#: src/ui.c:1022
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">로캘</span>: "
 
-#: src/ui.c:1007
+#: src/ui.c:1028
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">인코딩</span>: "
 
-#: src/ui.c:1013
+#: src/ui.c:1034
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">연결된 수</span>: "
 
-#: src/ui.c:1060 src/ui.c:1065
+#: src/ui.c:1081 src/ui.c:1086
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:1157
+#: src/ui.c:1177
 msgid "_About..."
 msgstr "프로그램 정보(_A)..."
 
-#: src/ui.c:1172
+#: src/ui.c:1192
 msgid "_Preferences..."
 msgstr "설정(_P)..."
 
-#: src/ui.c:1278 src/ui.c:1279 src/ui.c:1311 src/ui.c:1312 src/ui.c:1516
-#: src/ui.c:1539
+#: src/ui.c:1302 src/ui.c:1303 src/ui.c:1335 src/ui.c:1336 src/ui.c:1541
+#: src/ui.c:1563
 msgid "Nabi: None"
 msgstr "나비: 중립"
 
-#: src/ui.c:1289 src/ui.c:1290
+#: src/ui.c:1313 src/ui.c:1314
 msgid "Nabi: English"
 msgstr "나비: 영어"
 
-#: src/ui.c:1300 src/ui.c:1301
+#: src/ui.c:1324 src/ui.c:1325
 msgid "Nabi: Hangul"
 msgstr "나비: 한글"
 
-#: src/ui.c:1483
+#: src/ui.c:1507
 msgid "Hangul input method: Nabi"
 msgstr "한글 입력기: 나비"
 
-#: src/ui.c:1484
+#: src/ui.c:1508
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
-#: src/preference.c:243
+#: src/preference.c:245
 msgid "Tray icon size:"
 msgstr "트레이 아이콘 크기:"
 
-#: src/preference.c:256
+#: src/preference.c:253
 msgid "Tray icons:"
 msgstr "트레이 아이콘:"
 
-#: src/preference.c:390
-msgid "Hangul Keyboard:"
-msgstr "한글 자판:"
+#: src/preference.c:397
+msgid "<span weight=\"bold\">Hangul keyboard</span>"
+msgstr "<span weight=\"bold\">한글 키보드</span>"
 
-#: src/preference.c:409
+#: src/preference.c:424
 msgid "Hangul Keyboard"
 msgstr "한글 자판"
 
-#: src/preference.c:421
-msgid "Use dvorak keyboard"
-msgstr "드보락 자판 사용"
+#: src/preference.c:443
+msgid "<span weight=\"bold\">English keyboard</span>"
+msgstr "<span weight=\"bold\">영문 키보드</span>"
 
-#: src/preference.c:481
+#: src/preference.c:456
+msgid "Querty keyboard"
+msgstr "쿼티 자판"
+
+#: src/preference.c:461
+msgid "Dvorak keyboard"
+msgstr "드보락 자판"
+
+#: src/preference.c:521
 msgid "<span weight=\"bold\">Trigger keys</span>"
 msgstr "<span weight=\"bold\">한영 전환 키</span>"
 
-#: src/preference.c:493
+#: src/preference.c:533
 msgid "Hangul"
 msgstr "한/영 키"
 
-#: src/preference.c:501
+#: src/preference.c:541
 msgid "Shift-Space"
 msgstr ""
 
-#: src/preference.c:509
+#: src/preference.c:549
 msgid "Right Alt"
 msgstr "오른쪽 Alt"
 
-#: src/preference.c:525
+#: src/preference.c:565
 msgid "<span weight=\"bold\">Hanja keys</span>"
 msgstr "<span weight=\"bold\">한자 키</span>"
 
-#: src/preference.c:537
+#: src/preference.c:577
 msgid "Hanja"
 msgstr "한자 키"
 
-#: src/preference.c:545
+#: src/preference.c:585
 msgid "F9"
 msgstr ""
 
-#: src/preference.c:553
+#: src/preference.c:593
 msgid "Right Control"
 msgstr "오른쪽 Control"
 
-#: src/preference.c:589
+#: src/preference.c:629
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:601
+#: src/preference.c:641
 msgid "Theme"
 msgstr "테마"
 
 #. keyboard
-#: src/preference.c:606
+#: src/preference.c:646
 msgid "Keyboard"
 msgstr "자판"
 
 #. key
-#: src/preference.c:611
+#: src/preference.c:651
 msgid "Key"
 msgstr "키"
 
 #. advanced
-#: src/preference.c:616
+#: src/preference.c:656
 msgid "Advanced"
 msgstr "고급"
