@@ -26,6 +26,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <dirent.h>
+#include <locale.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <gtk/gtk.h>
@@ -51,6 +52,9 @@ enum {
     N_COLS
 };
 
+/* from preference.c */
+GtkWidget* preference_window_create(void);
+void preference_window_update(void);
 
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
@@ -67,6 +71,7 @@ static GdkPixbuf *english_pixbuf = NULL;
 static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
+
 
 enum {
     CONF_TYPE_BOOL,
@@ -93,11 +98,14 @@ const static struct config_item config_items[] = {
     { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
     { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
+    { "icon_size",          CONF_TYPE_INT,  OFFSET(icon_size)                },
     { "keyboard_table_name",CONF_TYPE_STR,  OFFSET(keyboard_table_name)      },
     { "keyboard_table_dir", CONF_TYPE_STR,  OFFSET(keyboard_table_dir)       },
     { "compose_table_name", CONF_TYPE_STR,  OFFSET(compose_table_name)       },
     { "compose_table_dir",  CONF_TYPE_STR,  OFFSET(compose_table_dir)        },
     { "candidate_table",    CONF_TYPE_STR,  OFFSET(candidate_table_filename) },
+    { "trigger_keys",       CONF_TYPE_INT,  OFFSET(trigger_keys)             },
+    { "candidate_keys",     CONF_TYPE_INT,  OFFSET(candidate_keys)           },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
     { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)              },
     { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)               },
@@ -212,6 +220,9 @@ load_config_file(void)
 						      "candidate",
 						      "nabi.txt",
 						      NULL);
+    nabi->trigger_keys = NABI_TRIGGER_KEY_HANGUL | NABI_TRIGGER_KEY_SHIFT_SPACE;
+    nabi->candidate_keys = NABI_CANDIDATE_KEY_HANJA | NABI_CANDIDATE_KEY_F9;
+
     nabi->output_mode = g_strdup("syllable");
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
@@ -447,6 +458,9 @@ nabi_app_new(void)
     nabi->compose_table_dir = NULL;
     nabi->candidate_table_filename = NULL;
 
+    nabi->trigger_keys = 0;
+    nabi->candidate_keys = 0;
+
     nabi->dvorak = FALSE;
     nabi->output_mode = NULL;
 
@@ -564,6 +578,8 @@ nabi_app_setup_server(void)
     load_candidate_table();
     load_colors();
     set_up_output_mode();
+    nabi_server_set_trigger_keys(nabi_server, nabi->trigger_keys);
+    nabi_server_set_candidate_keys(nabi_server, nabi->candidate_keys);
 
     if (nabi->candidate_font != NULL)
 	nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
@@ -624,9 +640,6 @@ nabi_app_free(void)
 static void
 on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 {
-    gint width, height;
-    GdkDrawable *drawable;
-
     if (nabi != NULL &&
 	nabi->main_window != NULL &&
 	GTK_WIDGET_VISIBLE(nabi->main_window)) {
@@ -717,8 +730,9 @@ on_tray_icon_button_press(GtkWidget *widget,
     switch (event->button) {
     case 1:
     case 3:
-	if (menu == NULL)
-	    menu = create_menu();
+	if (menu != NULL)
+	    gtk_widget_destroy(menu);
+	menu = create_menu();
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
 		       nabi_menu_position_func, widget,
 		       event->button, event->time);
@@ -738,21 +752,6 @@ on_tray_icon_button_press(GtkWidget *widget,
     }
 
     return FALSE;
-}
-
-static void get_server_info_string(char *buf, size_t bufsize)
-{
-    const char *encoding;
-
-    g_get_charset(&encoding);
-
-    snprintf(buf, bufsize,
-	     "<b>%s</b>: %s\n"
-	     "<b>%s</b>: %s\n"
-	     "<b>%s</b>: %d",
-	    _("XIM name"), nabi_server->name,
-	    _("Encoding"), encoding,
-	    _("Connected clients"), nabi_server->n_connected);
 }
 
 static void get_statistic_string(char *buf, size_t bufsize)
@@ -948,10 +947,12 @@ on_menu_about(GtkWidget *widget)
     GtkWidget *comment;
     GtkWidget *server_info;
     GtkWidget *image;
+    GtkWidget *label;
     GList *list;
     gchar *image_filename;
     gchar *title_str;
-    gchar server_info_str[512];
+    gchar buf[256];
+    const char *encoding = "";
     gchar stat_str[1536];
 
     if (dialog != NULL) {
@@ -975,7 +976,7 @@ on_menu_about(GtkWidget *widget)
     g_free(image_filename);
 
     title = gtk_label_new(NULL);
-    title_str = g_strdup_printf(_("<span size=\"xx-large\""
+    title_str = g_strdup_printf(_("<span size=\"xx-large\" "
 				  "weight=\"bold\">Nabi %s</span>"), VERSION);
     gtk_label_set_markup(GTK_LABEL(title), title_str);
     gtk_widget_show(title);
@@ -988,11 +989,50 @@ on_menu_about(GtkWidget *widget)
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_widget_show(comment);
 
-    get_server_info_string(server_info_str, sizeof(server_info_str));
-    server_info = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(server_info), server_info_str);
-    gtk_label_set_justify(GTK_LABEL(server_info), GTK_JUSTIFY_CENTER);
-    gtk_widget_show(server_info);
+    server_info = gtk_table_new(4, 2, TRUE);
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">XIM name</span>: "));
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 0, 1);
+
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Locale</span>: "));
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 1, 2);
+
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Encoding</span>: "));
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 2, 3);
+
+    label = gtk_label_new("");
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Connected</span>: "));
+    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 3, 4);
+
+    label = gtk_label_new(nabi_server->name);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 0, 1);
+
+    label = gtk_label_new(setlocale(LC_CTYPE, NULL));
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 1, 2);
+
+    g_get_charset(&encoding);
+    label = gtk_label_new(encoding);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 2, 3);
+
+    snprintf(buf, sizeof(buf), "%d", nabi_server->n_connected);
+    label = gtk_label_new(buf);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 3, 4);
+
+    gtk_widget_show_all(server_info);
 
     hbox = gtk_hbox_new(FALSE, 10);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
@@ -1055,7 +1095,7 @@ on_menu_about(GtkWidget *widget)
     list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
     if (list != NULL) {
 	GList *child = g_list_last(list);
-	if (child != NULL)
+	if (child != NULL && child->data != NULL)
 	    gtk_widget_grab_focus(GTK_WIDGET(child->data));
 	g_list_free(list);
     }
@@ -1067,332 +1107,26 @@ on_menu_about(GtkWidget *widget)
 }
 
 static void
-on_menu_pref(GtkWidget *widget)
-{
-    GtkWidget *message;
-    
-    message = gtk_message_dialog_new(NULL,
-			    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-			    GTK_MESSAGE_INFO,
-			    GTK_BUTTONS_OK,
-			    "Not implemented yet");
-    gtk_dialog_run(GTK_DIALOG(message));
-    gtk_widget_destroy(message);
-}
-
-static void
-load_base_icons(const gchar *theme)
-{
-    gchar *path;
-    GError *gerror = NULL;
-
-    if (theme == NULL)
-    	theme = "SimplyRed";
-
-    path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
-    none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
-    }
-
-    path = g_build_filename(NABI_THEMES_DIR, theme, "hangul.png", NULL);
-    hangul_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
-    }
-
-    path = g_build_filename(NABI_THEMES_DIR, theme, "english.png", NULL);
-    english_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
-    }
-}
-
-static void
-load_theme(const gchar *theme)
-{
-    gint width, height;
-    GdkDrawable *drawable;
-
-    load_base_icons(theme);
-
-    drawable = GTK_PLUG(tray_icon)->socket_window;
-    gdk_drawable_get_size(GDK_DRAWABLE(drawable), &width, &height);
-    create_resized_icons(MIN(width, height));
-}
-
-static void
-selection_changed_cb (GtkTreeSelection *selection, gpointer data)
-{
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-    gchar *path;
-    gchar *theme;
-    gboolean ret;
-
-    ret = gtk_tree_selection_get_selected(selection, &model, &iter);
-    if (!ret)
-	return;
-    gtk_tree_model_get(model, &iter,
-		       THEMES_LIST_PATH, &path,
-		       THEMES_LIST_NAME, &theme,
-		       -1);
-
-    load_theme(theme);
-
-    /* saving theme setting */
-    g_free(nabi->theme);
-    nabi->theme = g_strdup(theme);
-    nabi_save_config_file();
-}
-
-static GtkTreePath *
-search_theme_in_model (GtkTreeModel *model, gchar *target_theme)
-{
-    gchar *theme = "";
-    GtkTreeIter iter;
-    GtkTreePath *path;
-
-    gtk_tree_model_get_iter_first(model, &iter);
-    do {
-	gtk_tree_model_get(model, &iter,
-			   THEMES_LIST_NAME, &theme,
-			   -1);
-	if (strcmp(target_theme, theme) == 0) {
-	    path = gtk_tree_model_get_path(model, &iter);
-	    return path;
-	}
-    } while (gtk_tree_model_iter_next(model, &iter));
-
-    return NULL;
-}
-
-static GdkPixbuf *
-load_resized_icons_from_file(const gchar *filename)
-{
-    GdkPixbuf *pixbuf;
-    GdkPixbuf *pixbuf_resized;
-    gdouble factor;
-    gint orig_width, orig_height;
-    gint new_width, new_height;
-
-    pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
-    orig_width = gdk_pixbuf_get_width(pixbuf);
-    orig_height = gdk_pixbuf_get_height(pixbuf);
-
-    if (orig_width > orig_height) {
-	factor =  (double)DEFAULT_ICON_SIZE / (double)orig_width;
-	new_width = DEFAULT_ICON_SIZE;
-	new_height = (int)(orig_height * factor);
-    } else {
-	factor = (double)DEFAULT_ICON_SIZE / (double)orig_height;
-	new_width = (int)(orig_width * factor);
-	new_height = DEFAULT_ICON_SIZE;
-    }
-
-    pixbuf_resized = gdk_pixbuf_scale_simple(pixbuf,
-					     new_width, new_height,
-					     GDK_INTERP_BILINEAR);
-    g_object_unref(pixbuf);
-
-    return pixbuf_resized;
-}
-
-static GtkTreeModel *
-get_themes_list(void)
-{
-    gchar *path;
-    gchar *theme_dir;
-    gchar *file_none;
-    gchar *file_hangul;
-    gchar *file_english;
-    GdkPixbuf *pixbuf_none;
-    GdkPixbuf *pixbuf_hangul;
-    GdkPixbuf *pixbuf_english;
-    GtkListStore *store;
-    GtkTreeIter iter;
-    DIR *dir;
-    struct dirent *dent;
-
-    store = gtk_list_store_new(N_COLS,
-			       G_TYPE_STRING,
-			       GDK_TYPE_PIXBUF,
-			       GDK_TYPE_PIXBUF,
-			       GDK_TYPE_PIXBUF,
-			       G_TYPE_STRING);
-
-    path = NABI_THEMES_DIR;
-
-    dir = opendir(path);
-    if (dir == NULL)
-	    return NULL;
-
-    for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
-	if (dent->d_name[0] == '.')
-	    continue;
-
-	theme_dir = g_build_filename(path, dent->d_name, NULL);
-	file_none = g_build_filename(theme_dir, "none.png", NULL);
-	file_hangul = g_build_filename(theme_dir, "hangul.png", NULL);
-	file_english = g_build_filename(theme_dir, "english.png", NULL);
-	pixbuf_none = load_resized_icons_from_file(file_none);
-	pixbuf_hangul = load_resized_icons_from_file(file_hangul);
-	pixbuf_english = load_resized_icons_from_file(file_english);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set (store, &iter,
-			    THEMES_LIST_PATH, theme_dir,
-			    THEMES_LIST_NONE, pixbuf_none,
-			    THEMES_LIST_HANGUL, pixbuf_hangul,
-			    THEMES_LIST_ENGLISH, pixbuf_english,
-			    THEMES_LIST_NAME, dent->d_name,
-			    -1);
-	g_free(theme_dir);
-	g_free(file_none);
-	g_free(file_hangul);
-	g_free(file_english);
-	gdk_pixbuf_unref(pixbuf_none);
-	gdk_pixbuf_unref(pixbuf_hangul);
-	gdk_pixbuf_unref(pixbuf_english);
-    }
-    closedir(dir);
-    return GTK_TREE_MODEL(store);
-}
-
-static void
-on_menu_themes(GtkWidget *widget, gpointer data)
+on_menu_preference(GtkWidget *widget)
 {
     static GtkWidget *dialog = NULL;
-
-    GtkWidget *vbox;
-    GtkWidget *scrolledwindow;
-
-    GtkWidget *treeview;
-    GtkTreeModel *model;
-    GtkTreeViewColumn *column;
-    GtkCellRenderer *renderer;
-    GtkTreeSelection *selection;
-    GtkTreePath *path;
-    GtkRequisition treeview_size;
-
+    
     if (dialog != NULL) {
 	gtk_window_present(GTK_WINDOW(dialog));
 	return;
     }
 
-    dialog = gtk_dialog_new_with_buttons(_("Select theme"),
-					 NULL,
-					 GTK_DIALOG_MODAL,
-					 GTK_STOCK_CLOSE,
-					 GTK_RESPONSE_CLOSE,
-					 NULL);
-
-    vbox = GTK_DIALOG(dialog)->vbox;
-    gtk_widget_show(vbox);
-
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-				   GTK_POLICY_AUTOMATIC,
-				   GTK_POLICY_AUTOMATIC);
-    gtk_widget_show(scrolledwindow);
-    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 8);
-    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
-
-    /* loading themes list */
-    model = get_themes_list();
-    treeview = gtk_tree_view_new_with_model(model);
-    g_object_unref(G_OBJECT(model));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_widget_show(treeview);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-    /* theme icons */
-    /* state None */
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("None"));
-    renderer = gtk_cell_renderer_pixbuf_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer,
-				       "pixbuf", THEMES_LIST_NONE);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    /* state Hangul */
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Hangul"));
-    renderer = gtk_cell_renderer_pixbuf_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer,
-				       "pixbuf", THEMES_LIST_HANGUL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    /* state English */
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("English"));
-    renderer = gtk_cell_renderer_pixbuf_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer,
-				       "pixbuf", THEMES_LIST_ENGLISH);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    renderer = gtk_cell_renderer_text_new();
-    column = gtk_tree_view_column_new_with_attributes(_("Theme Name"),
-						      renderer,
-						      "text",
-						      THEMES_LIST_NAME,
-						      NULL);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    g_signal_connect(G_OBJECT(selection), "changed",
-		     G_CALLBACK(selection_changed_cb), NULL);
-
-    path = search_theme_in_model(model, nabi->theme);
-    if (path) {
-	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview),
-				  path, NULL, FALSE);
-	gtk_tree_path_free(path);
-    }
-
-    gtk_widget_size_request(treeview, &treeview_size);
-    gtk_widget_set_size_request(scrolledwindow,
-	    CLAMP(treeview_size.width + 50, 200, gdk_screen_width()), 250);
-    gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
-
+    dialog = preference_window_create();
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
-
     dialog = NULL;
 }
 
 static void
 on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
-    const gchar *table_name = (const char *)data;
-
-    nabi_server_set_keyboard_table(nabi_server, table_name);
-    g_free(nabi->keyboard_table_name);
-    nabi->keyboard_table_name = g_strdup(table_name);
-    nabi_save_config_file();
-}
-
-static void
-on_menu_dvorak(GtkWidget *widget)
-{
-    nabi->dvorak  = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
-    nabi_save_config_file();
+    nabi_app_set_keyboard((const char*)data);
+    preference_window_update();
 }
 
 static void
@@ -1433,21 +1167,14 @@ create_menu(void)
     gtk_widget_show(menu_item);
 
     /* menu preferences */
-    menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences..."));
-    /* gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); */
-    gtk_widget_show(menu_item);
-    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_pref), menu_item);
-
-    /* menu themes */
-    image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
+    image = gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
     gtk_widget_show(image);
-    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes..."));
+    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Preferences..."));
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_themes), menu_item);
+			     G_CALLBACK(on_menu_preference), menu_item);
 
     /* separator */
     menu_item = gtk_separator_menu_item_new();
@@ -1471,6 +1198,7 @@ create_menu(void)
 					       TRUE);
 	    list = list->next;
 	}
+	/* do not add dvorak option to menu
 	menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
 	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
 				       nabi->dvorak);
@@ -1478,6 +1206,7 @@ create_menu(void)
 	gtk_widget_show(menu_item);
 	g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 				 G_CALLBACK(on_menu_dvorak), menu_item);
+				 */
 
 	/* separator */
 	menu_item = gtk_separator_menu_item_new();
@@ -1502,17 +1231,6 @@ create_resized_icons(gint default_size)
     gint new_width, new_height;
     gint orig_width, orig_height;
     GdkPixbuf *pixbuf;
-
-    if (default_size < 32)
-	default_size = 24;
-    else if (default_size < 48)
-	default_size = 32;
-    else if (default_size < 64)
-	default_size = 48;
-    else if (default_size < 128)
-	default_size = 64;
-    else
-	default_size = 128;
 
     orig_width = gdk_pixbuf_get_width(none_pixbuf);
     orig_height = gdk_pixbuf_get_height(none_pixbuf);
@@ -1690,8 +1408,9 @@ on_main_window_button_pressed(GtkWidget *widget,
 	return TRUE;
 	break;
     case 3:
-	if (menu == NULL)
-	    menu = create_menu();
+	if (menu != NULL)
+	    gtk_widget_destroy(menu);
+	menu = create_menu();
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
 		       event->button, event->time);
 	return TRUE;
@@ -1699,6 +1418,46 @@ on_main_window_button_pressed(GtkWidget *widget,
 	break;
     }
     return FALSE;
+}
+
+static void
+load_base_icons(const gchar *theme)
+{
+    gchar *path;
+    GError *gerror = NULL;
+
+    if (theme == NULL)
+    	theme = "SimplyRed";
+
+    path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
+    none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
+    }
+
+    path = g_build_filename(NABI_THEMES_DIR, theme, "hangul.png", NULL);
+    hangul_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
+    }
+
+    path = g_build_filename(NABI_THEMES_DIR, theme, "english.png", NULL);
+    english_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
+    }
 }
 
 static gboolean
@@ -1787,6 +1546,70 @@ nabi_app_create_main_widget(void)
     g_idle_add(create_tray_icon, NULL);
 
     return window;
+}
+
+void
+nabi_app_set_theme(const gchar *name)
+{
+    load_base_icons(name);
+    create_resized_icons(nabi->icon_size);
+
+    g_free(nabi->theme);
+    nabi->theme = g_strdup(name);
+    nabi_save_config_file();
+}
+
+void
+nabi_app_set_icon_size(int size)
+{
+    if (size > 0 && size <=128) {
+	create_resized_icons(size);
+	nabi->icon_size = size;
+	nabi_save_config_file();
+    }
+}
+
+void
+nabi_app_set_dvorak(gboolean state)
+{
+    nabi->dvorak = state;
+    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
+    nabi_save_config_file();
+}
+
+void
+nabi_app_set_keyboard(const char *name)
+{
+    if (name != NULL) {
+	nabi_server_set_keyboard_table(nabi_server, name);
+	g_free(nabi->keyboard_table_name);
+	nabi->keyboard_table_name = g_strdup(name);
+	nabi_save_config_file();
+    }
+}
+
+void
+nabi_app_set_trigger_keys(int keys, gboolean add)
+{
+    if (add) {
+	nabi->trigger_keys |= keys;
+    } else {
+	nabi->trigger_keys &= ~keys;
+    }
+    nabi_server_set_trigger_keys(nabi_server, nabi->trigger_keys);
+    nabi_save_config_file();
+}
+
+void
+nabi_app_set_candidate_keys(int keys, gboolean add)
+{
+    if (add) {
+	nabi->candidate_keys |= keys;
+    } else {
+	nabi->candidate_keys &= ~keys;
+    }
+    nabi_server_set_candidate_keys(nabi_server, nabi->candidate_keys);
+    nabi_save_config_file();
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */

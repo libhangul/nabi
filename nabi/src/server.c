@@ -62,20 +62,6 @@ static XIMEncoding nabi_encodings[] = {
     NULL
 };
 
-static XIMTriggerKey nabi_trigger_keys[] = {
-    { XK_space,	 ShiftMask, ShiftMask },
-    { XK_Hangul, 0,	    0         },
-    { XK_Alt_R,  0,	    0         },
-    { 0,	 0,	    0         }
-};
-
-static XIMTriggerKey nabi_candidate_keys[] = {
-    { XK_Hangul_Hanja,	    0,	    0         },
-    { XK_F9,                0,	    0         },
-    { XK_Control_R,         0,	    0         },
-    { 0,	            0,	    0         }
-};
-
 NabiServer*
 nabi_server_new(const char *name)
 {
@@ -94,8 +80,10 @@ nabi_server_new(const char *name)
     server->display = NULL;
     server->window = 0;
     server->filter_mask = 0;
-    server->trigger_keys = NULL;
-    server->candidate_keys = NULL;
+    server->trigger_keys.count_keys = 0;
+    server->trigger_keys.keylist = NULL;
+    server->candidate_keys.count_keys = 0;
+    server->candidate_keys.keylist = NULL;
 
     /* connect list */
     server->n_connected = 0;
@@ -193,6 +181,8 @@ nabi_server_destroy(NabiServer *server)
     }
     g_free(server->candidate_table);
 
+    g_free(server->trigger_keys.keylist);
+    g_free(server->candidate_keys.keylist);
     g_free(server->name);
 
     g_free(server);
@@ -331,6 +321,92 @@ nabi_server_set_candidate_font(NabiServer *server, const gchar *font_name)
 }
 
 void
+nabi_server_set_trigger_keys(NabiServer *server, int keys)
+{
+    int i = 0;
+    XIMTriggerKey *keylist;
+
+    if (keys == 0)
+	return;
+
+    if (server->trigger_keys.keylist != NULL)
+	g_free(server->trigger_keys.keylist);
+
+    keylist = g_new(XIMTriggerKey, 4);
+    for (i = 0; i < 4; i++) {
+	keylist[i].keysym = 0;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+    }
+
+    i = 0;
+    if (keys & NABI_TRIGGER_KEY_HANGUL) {
+	keylist[i].keysym = XK_Hangul;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+	i++;
+    }
+    if (keys & NABI_TRIGGER_KEY_SHIFT_SPACE) {
+	keylist[i].keysym = XK_space;
+	keylist[i].modifier = ShiftMask;
+	keylist[i].modifier_mask = ShiftMask;
+	i++;
+    }
+    if (keys & NABI_TRIGGER_KEY_ALT_R) {
+	keylist[i].keysym = XK_Alt_R;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+	i++;
+    }
+
+    server->trigger_keys.keylist = keylist;
+    server->trigger_keys.count_keys = i;
+}
+
+void
+nabi_server_set_candidate_keys(NabiServer *server, int keys)
+{
+    int i = 0;
+    XIMTriggerKey *keylist;
+
+    if (keys == 0)
+	return;
+
+    if (server->candidate_keys.keylist != NULL)
+	g_free(server->candidate_keys.keylist);
+
+    keylist = g_new(XIMTriggerKey, 4);
+    for (i = 0; i < 4; i++) {
+	keylist[i].keysym = 0;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+    }
+
+    i = 0;
+    if (keys & NABI_CANDIDATE_KEY_HANJA) {
+	keylist[i].keysym = XK_Hangul_Hanja;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+	i++;
+    }
+    if (keys & NABI_CANDIDATE_KEY_F9) {
+	keylist[i].keysym = XK_F9;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+	i++;
+    }
+    if (keys & NABI_CANDIDATE_KEY_CTRL_R) {
+	keylist[i].keysym = XK_Control_R;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+	i++;
+    }
+
+    server->candidate_keys.keylist = keylist;
+    server->candidate_keys.count_keys = i;
+}
+
+void
 nabi_server_init(NabiServer *server)
 {
     const char *charset;
@@ -339,8 +415,11 @@ nabi_server_init(NabiServer *server)
 	return;
 
     server->filter_mask = KeyPressMask;
-    server->trigger_keys = nabi_trigger_keys;
-    server->candidate_keys = nabi_candidate_keys;
+
+    nabi_server_set_trigger_keys(server,
+		    NABI_TRIGGER_KEY_HANGUL | NABI_TRIGGER_KEY_SHIFT_SPACE);
+    nabi_server_set_candidate_keys(server,
+		    NABI_CANDIDATE_KEY_HANJA | NABI_CANDIDATE_KEY_F9);
 
     server->automata = nabi_automata_2;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
@@ -379,32 +458,34 @@ nabi_server_ic_table_expand(NabiServer *server)
 	server->ic_table[i] = NULL;
 }
 
-Bool
-nabi_server_is_trigger_key(NabiServer* server, KeySym key, unsigned int state)
+static Bool
+nabi_server_is_key(XIMTriggerKey *keylist, int count,
+		    KeySym key, unsigned int state)
 {
-    XIMTriggerKey *item = server->trigger_keys;
+    int i;
 
-    while (item->keysym != 0) {
-	if (key == item->keysym &&
-	    (state & item->modifier_mask) == item->modifier)
+    for (i = 0; i < count; i++) {
+	if (key == keylist[i].keysym &&
+	    (state & keylist[i].modifier_mask) == keylist[i].modifier)
 	    return True;
-	item++;
     }
     return False;
 }
 
 Bool
+nabi_server_is_trigger_key(NabiServer* server, KeySym key, unsigned int state)
+{
+    return nabi_server_is_key(server->trigger_keys.keylist,
+			      server->trigger_keys.count_keys,
+			      key, state);
+}
+
+Bool
 nabi_server_is_candidate_key(NabiServer* server, KeySym key, unsigned int state)
 {
-    XIMTriggerKey *item = server->candidate_keys;
-
-    while (item->keysym != 0) {
-	if (key == item->keysym &&
-	    (state & item->modifier_mask) == item->modifier)
-	    return True;
-	item++;
-    }
-    return False;
+    return nabi_server_is_key(server->candidate_keys.keylist,
+			      server->candidate_keys.count_keys,
+			      key, state);
 }
 
 int
@@ -413,7 +494,6 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     XIMS xims;
     XIMStyles input_styles;
     XIMEncodings encodings;
-    XIMTriggerKeys trigger_keys;
 
     XGCValues gc_values;
 
@@ -431,10 +511,6 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 		    / sizeof(XIMEncoding) - 1;
     encodings.supported_encodings = nabi_encodings;
 
-    trigger_keys.count_keys = sizeof(nabi_trigger_keys)
-		    / sizeof(XIMTriggerKey) - 1;
-    trigger_keys.keylist = server->trigger_keys;
-
     xims = IMOpenIM(display,
 		   IMModifiers, "Xi18n",
 		   IMServerWindow, window,
@@ -450,7 +526,7 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 
     if (server->dynamic_event_flow) {
 	IMSetIMValues(xims,
-		      IMOnKeysList, &trigger_keys,
+		      IMOnKeysList, &(server->trigger_keys),
 		      NULL);
     }
 
