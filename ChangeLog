@@ -1,3 +1,7 @@
+2004-08-28  Choe Hwanjin <krisna@kldp.org>
+	* ko이외에 ja_JP.UTF-8, zh_CN.UTF-8, zh_HK.UTF-8, zh_TW.UTF-8,
+	en_US.UTF-8을 지원하도록 함
+
 2004-08-01  Choe Hwanjin <krisna@kldp.org>
 	* XIMPreeditArea 지원
 

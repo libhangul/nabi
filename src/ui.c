@@ -574,7 +574,8 @@ nabi_app_setup_server(void)
 	return;
 
     locale = setlocale(LC_CTYPE, NULL);
-    if (locale != NULL && strncmp(locale, "ko", 2) != 0) {
+    if (locale == NULL ||
+	!nabi_server_is_locale_supported(nabi_server, locale)) {
 	GtkWidget *message;
 	const gchar *encoding = "";
 
@@ -583,7 +584,7 @@ nabi_app_setup_server(void)
 					 GTK_MESSAGE_WARNING, GTK_BUTTONS_CLOSE,
 	   "<span size=\"x-large\" weight=\"bold\">"
 	   "한글 입력기 나비에서 알림</span>\n\n"
-	   "현재 로캘이 한국어가 아닙니다. "
+	   "현재 로캘이 나비에서 지원하는 것이 아닙니다. "
 	   "이렇게 되어 있으면 한글 입력에 문제가 있을수 있습니다. "
 	   "설정을 확인해보십시오.\n\n"
 	   "현재 로캘 설정: <b>%s (%s)</b>", locale, encoding);
