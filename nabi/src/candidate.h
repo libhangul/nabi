@@ -47,6 +47,7 @@ void    nabi_candidate_next(NabiCandidate *candidate);
 void    nabi_candidate_prev_row(NabiCandidate *candidate);
 void    nabi_candidate_next_row(NabiCandidate *candidate);
 wchar_t nabi_candidate_get_current(NabiCandidate *candidate);
+wchar_t nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void    nabi_candidate_delete(NabiCandidate *candidate);
 
 #endif /* _NABICANDIDATE_H_ */

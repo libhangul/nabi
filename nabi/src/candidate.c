@@ -71,8 +71,10 @@ nabi_candidate_update_labels(NabiCandidate *candidate)
 	 i < candidate->n_per_window &&
 	 candidate->first + i < candidate->n;
 	 i++) {
-	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf);
-	buf[len] = '\0';
+	buf[0] = 'a' + i;
+	buf[1] = '.';
+	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf + 2);
+	buf[len + 2] = '\0';
 	gtk_label_set_text(GTK_LABEL(candidate->children[i]), buf);
     }
     for (; i < candidate->n_per_window; i++)
@@ -137,16 +139,19 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     gtk_container_add(GTK_CONTAINER(candidate->window), frame);
 
     table = gtk_table_new((n_per_window  - 1)/ n_per_row + 1, n_per_row, TRUE);
+    gtk_table_set_col_spacings(GTK_TABLE(table), 5);
     gtk_container_add(GTK_CONTAINER(frame), table);
 
     attr_list = pango_attr_list_new();
-    attr = pango_attr_scale_new(PANGO_SCALE_XX_LARGE);
+    attr = pango_attr_scale_new(PANGO_SCALE_X_LARGE);
     attr->start_index = 0;
     attr->end_index = G_MAXINT;
     pango_attr_list_insert(attr_list, attr);
     for (i = 0; i < n_per_window && candidate->first + i < candidate->n; i++) {
-	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf);
-	buf[len] = '\0';
+	buf[0] = 'a' + i;
+	buf[1] = '.';
+	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf + 2);
+	buf[len + 2] = '\0';
 	label = gtk_label_new(buf);
 	gtk_label_set_use_markup(GTK_LABEL(label), FALSE);
 	gtk_label_set_use_underline(GTK_LABEL(label), FALSE);
@@ -215,6 +220,8 @@ nabi_candidate_new(char *label_str,
 
     if (n_per_window == 0)
 	candidate->n_per_window = candidate->n;
+    else
+	candidate->n_per_row = n_per_window;
 
     nabi_candidate_create_window(candidate);
 
@@ -296,6 +303,16 @@ nabi_candidate_get_current(NabiCandidate *candidate)
 	return 0;
 
     return candidate->data[candidate->current];
+}
+
+wchar_t
+nabi_candidate_get_nth(NabiCandidate *candidate, int n)
+{
+    if (candidate == NULL)
+	return 0;
+
+    n -= 'a';
+    return candidate->data[candidate->first + n];
 }
 
 void
