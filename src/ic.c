@@ -1330,19 +1330,15 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
     if (ch != 0)
 	return nabi_ic_commit_unicode(ic, ch);
 
-    /* forward special keys */
-    if ((keyval & 0xff00) == 0xff00 ||
-        (keyval & 0xfe00) == 0xfe00 ||
-        (keyval & 0xfd00) == 0xfd00)
-	return False;
-
-    /* TODO: translate keysym to ISO10646 character */
-    if ((keyval >= 0x0020 && keyval <= 0x007e) ||
-	(keyval >= 0x00a0 && keyval <= 0x00ff))
-	return False;
-    else if ((keyval & 0xff000000) == 0x01000000)
+    /* ISO10646 charcode keyval */
+    if ((keyval & 0xff000000) == 0x01000000)
 	return nabi_ic_commit_unicode(ic, keyval & 0x00ffffff);
 
+    if ((keyval >= 0x0020 && keyval <= 0x007e) ||
+	(keyval >= 0x00a0 && keyval <= 0x00ff))
+	return nabi_ic_commit_unicode(ic, keyval);
+
+    /* Forward all other keys */
     return False;
 }
 
