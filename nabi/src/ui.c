@@ -902,7 +902,7 @@ create_main_widget(void)
     g_signal_connect(G_OBJECT(eventbox), "motion-notify-event",
 	     G_CALLBACK(on_motion_notify), NULL);
 
-    create_icons(25);
+    create_icons(24);
 
     hbox = gtk_hbox_new(TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), none_image, TRUE, TRUE, 0);
