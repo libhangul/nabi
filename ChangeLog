@@ -1,3 +1,7 @@
+2003-08-25  Choe Hwanjin <krisna@kldp.org>
+	* release 0.4
+	* src/ui.c,configure.in: 키보드 기본값을 DEFAULT_KEYBOARD로 사용
+
 2003-08-23  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnect를 추가해서
 	  connect_id 별로 한영 상태를 관리하도록 함
