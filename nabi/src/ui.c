@@ -1057,7 +1057,7 @@ on_menu_about(GtkWidget *widget)
 					 NULL);
     about_dialog = dialog;
 
-    image_filename = g_build_filename(NABI_DATA_DIR, "nabi.svg", NULL);
+    image_filename = g_build_filename(NABI_DATA_DIR, "nabi-about.png", NULL);
     image = gtk_image_new_from_file(image_filename);
     gtk_widget_show(image);
     g_free(image_filename);
@@ -1071,7 +1071,8 @@ on_menu_about(GtkWidget *widget)
 
     comment = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(comment),
-	    _("<span size=\"large\">An easy Hangul XIM</span>\n\n"
+	    _("<span size=\"large\">An easy Hangul XIM</span>\n"
+	      "version " VERSION "\n\n"
 	      "Copyright (c) 2003-2004 Choe Hwanjin"));
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_widget_show(comment);
@@ -1124,8 +1125,8 @@ on_menu_about(GtkWidget *widget)
     hbox = gtk_hbox_new(FALSE, 10);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
     gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), title, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 10);
+    //gtk_box_pack_start(GTK_BOX(hbox), title, FALSE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 0);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
 		       comment, FALSE, TRUE, 5);
