@@ -1424,6 +1424,9 @@ nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch)
     if (nabi_ic_is_destroyed(ic))
 	return;
 
+    if (ch == 0)
+	return;
+
     nabi_ic_buf_clear(ic);
     nabi_ic_preedit_update(ic);
     nabi_ic_commit_unicode(ic, ch);
