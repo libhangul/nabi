@@ -1,3 +1,6 @@
+2003-08-09  Choe Hwanjin <krisna@kldp.org>
+	* configure.in: gtk+ 2.2를 필요로 하도록 함
+
 2003-08-07  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c: vi 사용자를 위해 esc키일때 영문 상태로 자동 전환
 
