@@ -61,9 +61,11 @@ main(int argc, char *argv[])
 {
     GtkWidget *widget;
 
+#ifdef ENABLE_NLS
     bindtextdomain(PACKAGE, LOCALEDIR);
     bind_textdomain_codeset(PACKAGE, "UTF-8");
     textdomain(PACKAGE);
+#endif
 
     gtk_init(&argc, &argv);
 
@@ -92,4 +94,4 @@ main(int argc, char *argv[])
     return 0;
 }
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sts=4 sw=4 : */
