@@ -1,3 +1,7 @@
+2003-10-22  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c,src/nabi.h,src/ui.c,src/server.h,src/server.c:
+	  output_mode 옵션 추가 (syllable, jamo 가능)
+
 2003-10-20  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: gcc 3.3.2 에서 strict alias warning 안나게
 
