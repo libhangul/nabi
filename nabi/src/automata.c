@@ -432,15 +432,16 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		    goto update;
 		} else {
 		    nabi_ic_commit(ic);
-		    ic->jongseong[0] = ch;
+		    ic->jungseong[0] = ch;
 		    nabi_ic_push(ic, ch);
 		    goto insert;
 		}
 	    }
 	    if (hangul_is_jongseong(ch)) {
+		nabi_ic_commit(ic);
 		ic->jongseong[0] = ch;
 		nabi_ic_push(ic, ch);
-		goto update;
+		goto insert;
 	    }
 	} else if (ic->choseong[0]) {
 	    if (hangul_is_choseong(ch)) {
