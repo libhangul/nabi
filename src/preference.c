@@ -79,7 +79,7 @@ load_resized_icons_from_file(const gchar *filename, int size)
 static GtkTreeModel *
 get_themes_list(int size)
 {
-    gchar *path;
+    const gchar *path;
     gchar *theme_dir;
     gchar *file_none;
     gchar *file_hangul;
@@ -99,8 +99,7 @@ get_themes_list(int size)
 			       GDK_TYPE_PIXBUF,
 			       G_TYPE_STRING);
 
-    path = "/usr/local/share/nabi/themes";
-
+    path = NABI_THEMES_DIR;
     dir = opendir(path);
     if (dir == NULL)
 	    return NULL;
