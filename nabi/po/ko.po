@@ -5,9 +5,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: nabi 0.9\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-11-04 22:08+0900\n"
+"Project-Id-Version: nabi 0.10\n"
+"Report-Msgid-Bugs-To: krisna@people.kldp.org\n"
+"POT-Creation-Date: 2003-11-28 11:59+0900\n"
 "PO-Revision-Date: 2003-08-04 17:33+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -23,130 +23,158 @@ msgstr ""
 msgid "The orientation of the tray."
 msgstr ""
 
-#: src/ic.c:701
+#: src/ic.c:707
 #, c-format
 msgid "Nabi: get unknown ic attributes: %s\n"
 msgstr ""
 
-#: src/ui.c:106
+#: src/ui.c:108
 msgid "Nabi: Can't read keyboard map file\n"
 msgstr ""
 
-#: src/ui.c:188
+#: src/ui.c:190
 msgid "Nabi: Can't read compose map file\n"
 msgstr ""
 
-#: src/ui.c:408
+#: src/ui.c:410
 msgid "Nabi: Can't load config file\n"
 msgstr ""
 
-#: src/ui.c:450
+#: src/ui.c:452
 msgid "Nabi: Can't write config file\n"
 msgstr ""
 
-#: src/ui.c:496
+#: src/ui.c:498
 msgid "Nabi: Can't open keyboard map dir\n"
 msgstr ""
 
-#: src/ui.c:530
+#: src/ui.c:532
 msgid "Nabi: Can't load compose map\n"
 msgstr ""
 
-#: src/ui.c:556 src/ui.c:573
+#: src/ui.c:558 src/ui.c:575
 #, c-format
 msgid "Can't allocate color: %s\n"
 msgstr ""
 
-#: src/ui.c:558
+#: src/ui.c:560
 msgid "Use default color: #FFFFFF\n"
 msgstr ""
 
-#: src/ui.c:575
+#: src/ui.c:577
 msgid "Use default color: #000000\n"
 msgstr ""
 
-#: src/ui.c:600
+#: src/ui.c:602
 msgid "Nabi: No matching keyboard config, use default\n"
 msgstr ""
 
-#: src/ui.c:870
+#: src/ui.c:851
+msgid "XIM Server is not running"
+msgstr "입력기 서버가 작동하지 않습니다"
+
+#: src/ui.c:938
+msgid "Connected applications"
+msgstr "연결된 프로그램"
+
+#: src/ui.c:941
 msgid "Total"
 msgstr "전체"
 
-#: src/ui.c:872
+#: src/ui.c:943
 msgid "BackSpace"
 msgstr "백스페이스"
 
-#: src/ui.c:874
+#: src/ui.c:945
 msgid "Shift"
 msgstr "쉬프트"
 
-#: src/ui.c:878
+#: src/ui.c:949
 msgid "Choseong"
 msgstr "초성"
 
-#: src/ui.c:900
+#: src/ui.c:971
 msgid "Jungseong"
 msgstr "중성"
 
-#: src/ui.c:924
+#: src/ui.c:995
 msgid "Jongseong"
 msgstr "종성"
 
-#: src/ui.c:968
+#: src/ui.c:1039
 msgid "About Nabi"
 msgstr "Nabi에 대해서"
 
-#: src/ui.c:979
+#: src/ui.c:1050
 #, c-format
-msgid "<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"
-msgstr ""
+msgid "<span size=\"xx-large\"weight=\"bold\">Nabi %s</span>"
+msgstr "<span size=\"xx-large\"weight=\"bold\">나비 %s</span>"
 
-#: src/ui.c:985
+#: src/ui.c:1057
 msgid ""
 "<span size=\"large\">Simple Hangul XIM</span>\n"
-"2003 (C) Choe Hwanjin"
+"2003 (C)Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">간단한 한글 입력기</span>\n"
 "2003 (C) Choe Hwanjin"
 
-#: src/ui.c:996
+#: src/ui.c:1071
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:1267
-#, fuzzy
+#: src/ui.c:1344
 msgid "Select theme"
 msgstr "테마를 선택하시오"
 
-#: src/ui.c:1296
+#: src/ui.c:1373
 msgid "None"
 msgstr ""
 
-#: src/ui.c:1305
+#: src/ui.c:1382
 msgid "Hangul"
 msgstr ""
 
-#: src/ui.c:1314
+#: src/ui.c:1391
 msgid "English"
 msgstr ""
 
-#: src/ui.c:1322
+#: src/ui.c:1399
 msgid "Theme Name"
 msgstr "테마 이름"
 
-#: src/ui.c:1396
+#: src/ui.c:1473
 msgid "_About..."
 msgstr "프로그램 정보(_A)..."
 
-#: src/ui.c:1409
+#: src/ui.c:1486
 msgid "_Preferences..."
 msgstr "설정(_P)..."
 
-#: src/ui.c:1418
+#: src/ui.c:1495
 msgid "_Themes..."
 msgstr "테마(_T)..."
 
-#: src/ui.c:1444
+#: src/ui.c:1524
 msgid "Dvorak layout"
 msgstr "드보락 자판"
+
+#: src/ui.c:1596 src/ui.c:1597 src/ui.c:1629 src/ui.c:1630 src/ui.c:1794
+#: src/ui.c:1818
+msgid "Nabi: None"
+msgstr "나비: 중립"
+
+#: src/ui.c:1607 src/ui.c:1608
+msgid "Nabi: English"
+msgstr "나비: 영어"
+
+#: src/ui.c:1618 src/ui.c:1619
+msgid "Nabi: Hangul"
+msgstr "나비: 한글"
+
+#: src/ui.c:1762
+msgid "Hangul input method: Nabi"
+msgstr "한글 입력기: 나비"
+
+#: src/ui.c:1763
+msgid "Hangul input method: Nabi - You can input hangul using this program"
+msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
