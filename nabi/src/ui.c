@@ -597,18 +597,28 @@ void
 nabi_app_new(void)
 {
     nabi = g_malloc(sizeof(NabiApplication));
-    memset(nabi, 0, sizeof(NabiApplication));
 
+    nabi->x = 0;
+    nabi->y = 0;
     nabi->main_window = NULL;
+
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
+
     nabi->keyboard_maps = NULL;
+
     nabi->compose_map.name = NULL;
     nabi->compose_map.map = NULL;
+
     nabi->preedit_fg = NULL;
     nabi->preedit_bg = NULL;
+
     nabi->root_window = NULL;
+
+    nabi->mode_info_atom = 0;
+    nabi->mode_info_type = 0;
+    nabi->mode_info_xatom = 0;
 }
 
 void
