@@ -53,6 +53,7 @@ struct _PreeditAttributes {
     Cursor          cursor;         /* cursor */
 
     XIMPreeditState state;          /* preedit state */
+    Bool            start;          /* preedit start */
 };
 
 struct _StatusAttributes {
