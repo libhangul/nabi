@@ -1,3 +1,6 @@
+2004-08-01  Choe Hwanjin <krisna@kldp.org>
+	* XIMPreeditArea 지원
+
 2004-07-31  Choe Hwanjin <krisna@kldp.org>
 	* XIMPreeditNothing을 지원하기 위해 ic.c에서 gdk 함수를 직접 부르는
 	  방식으로 변경함
