@@ -1,3 +1,21 @@
+/* Nabi - X Input Method server for hangul
+ * Copyright (C) 2003 Choe Hwanjin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -685,17 +703,6 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
     return FALSE;
 }
 
-static GtkWidget*
-create_pref_window(void)
-{
-    GtkWidget *window;
-
-    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-
-    gtk_widget_show(window);
-    return window;
-}
-
 void
 on_menu_about(GtkWidget *widget)
 {
@@ -740,13 +747,21 @@ on_menu_about(GtkWidget *widget)
     gtk_widget_destroy(dialog);
 }
 
-void
+static void
 on_menu_pref(GtkWidget *widget)
 {
-    g_print("Pref\n");
+    GtkWidget *message;
+    
+    message = gtk_message_dialog_new(NULL,
+			    GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+			    GTK_MESSAGE_INFO,
+			    GTK_BUTTONS_OK,
+			    "Not implemented yet");
+    gtk_dialog_run(GTK_DIALOG(message));
+    gtk_widget_destroy(message);
 }
 
-void
+static void
 load_icons(const gchar *theme)
 {
     gchar buf[1024];
@@ -783,7 +798,7 @@ load_icons(const gchar *theme)
     }
 }
 
-void
+static void
 load_theme(const gchar *theme)
 {
     double factor;
@@ -1067,7 +1082,7 @@ on_menu_themes(GtkWidget *widget, gpointer data)
     dialog = NULL;
 }
 
-void
+static void
 on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
     NabiKeyboardMap *map = (NabiKeyboardMap*)data;
@@ -1077,13 +1092,13 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
     nabi->keyboard_map_filename = g_strdup(map->filename);
 }
 
-void
+static void
 on_menu_quit(GtkWidget *widget)
 {
     nabi_quit();
 }
 
-GtkWidget*
+static GtkWidget*
 create_menu(void)
 {
     GtkWidget* menu;
@@ -1112,7 +1127,7 @@ create_menu(void)
 
     /* menu preferences */
     menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences..."));
-    //gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    /* gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item); */
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 			     G_CALLBACK(on_menu_pref), menu_item);
@@ -1159,7 +1174,7 @@ create_menu(void)
     return menu;
 }
 
-void
+static void
 create_icons(gint default_size)
 {
     double factor;
