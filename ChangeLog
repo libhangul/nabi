@@ -1,3 +1,6 @@
+2003-09-26  Choe Hwanjin <krisna@kldp.org>
+	* release 0.7
+
 2003-09-18  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: XIM spec에 맞게 preedit clear 한후 commit 함
 	* src/handler.c: 한자 변환 기능을 "Hanja"키 말고 F9도 작동하게 함
