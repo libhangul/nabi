@@ -19,6 +19,15 @@
 NabiApplication* nabi;
 NabiServer* server = NULL;
 
+static void
+on_realize(GtkWidget *widget, gpointer data)
+{
+    g_print("XIM server started...\n");
+    nabi_server_start(server,
+		      GDK_DISPLAY(),
+		      GDK_WINDOW_XWINDOW(widget->window));
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -38,11 +47,9 @@ main(int argc, char *argv[])
     nabi_app_setup_server();
 
     widget = create_main_widget();
-    gtk_widget_show_all(GTK_WIDGET(widget));
-
-    nabi_server_start(server,
-		      GDK_DISPLAY(),
-		      GDK_WINDOW_XWINDOW(widget->window));
+    g_signal_connect_after(G_OBJECT(widget), "realize",
+	    	           G_CALLBACK(on_realize), server);
+    gtk_widget_show(widget);
 
     gtk_main();
 
