@@ -1,6 +1,6 @@
 AC_INIT(src/nabi.h)
 
-AM_INIT_AUTOMAKE(nabi, 0.4.99)
+AM_INIT_AUTOMAKE(nabi, 0.5)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -9,14 +9,7 @@ AC_OBJEXT
 AC_PROG_RANLIB
 AC_PROG_INSTALL
 
-dnl Checks for libraries.
-AC_PATH_PROG(PKG_CONFIG, pkg-config,
-	     AC_MSG_ERROR([nabi needs pkg-config]))
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
-		  AC_MSG_ERROR([nabi needs GTK+ 2.2.0 or higher]))
-
 dnl Checks for header files.
-AC_PATH_X
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h])
@@ -29,6 +22,15 @@ AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([gethostname memmove memset mkdir nl_langinfo setlocale strcasecmp strtol])
+
+dnl Checks for X window system
+AC_PATH_XTRA
+
+dnl Checks for GTK+ libraries.
+AC_PATH_PROG(PKG_CONFIG, pkg-config,
+	     AC_MSG_ERROR([nabi needs pkg-config]))
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
+		  AC_MSG_ERROR([nabi needs GTK+ 2.2.0 or higher]))
 
 dnl gettext stuff
 AM_GNU_GETTEXT([external])

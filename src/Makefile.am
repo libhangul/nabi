@@ -1,12 +1,14 @@
-INCLUDES = \
+
+AM_CFLAGS = -Wall
+
+bin_PROGRAMS = nabi
+nabi_CFLAGS = \
+	@X_CFLAGS@ \
 	@GTK_CFLAGS@ \
 	-DLOCALEDIR=\"${datadir}/locale\" \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
 	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
 
-AM_CFLAGS = -Wall
-
-bin_PROGRAMS = nabi
 nabi_SOURCES = \
 	nabi.h \
 	gettext.h \
@@ -23,5 +25,5 @@ nabi_SOURCES = \
 	ui.c \
 	main.c
 
-nabi_LDADD = @GTK_LIBS@ ../IMdkit/libXimd.a
+nabi_LDADD = @X_LIBS@ -lX11 @GTK_LIBS@ ../IMdkit/libXimd.a
 
