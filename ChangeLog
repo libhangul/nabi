@@ -1,3 +1,6 @@
+2003-10-10  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: qt에서 한자 변환시 안보이던 문제 해결
+
 2003-10-08  Choe Hwanjin <krisna@kldp.org>
 	* release 0.8
 
