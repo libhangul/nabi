@@ -1,6 +1,6 @@
 AC_INIT(src/nabi.h)
 
-AM_INIT_AUTOMAKE(nabi, 0.2)
+AM_INIT_AUTOMAKE(nabi, 0.3)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
