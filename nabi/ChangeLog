@@ -1,3 +1,6 @@
+2003-10-20  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: gcc 3.3.2 에서 strict alias warning 안나게
+
 2003-10-19  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: unicode 범위의 keyval은 forwarding하지 않고 바로 commit 함
 
