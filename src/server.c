@@ -124,6 +124,7 @@ nabi_server_destroy(NabiServer *_server)
 	nabi_connect_destroy(connect);
     }
 
+    /* destroy remaining input contexts */
     for (i = 0; i < _server->ic_table_size; i++) {
 	nabi_ic_real_destroy(_server->ic_table[i]);
 	_server->ic_table[i] = NULL;
