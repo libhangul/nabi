@@ -47,7 +47,7 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
     gchar buf[64];
 
     XGetErrorText (display, error->error_code, buf, 63);
-    g_print("X error: %s\n", buf);
+    fprintf(stderr, "Nabi: X error: %s\n", buf);
 
     return 0;
 }
