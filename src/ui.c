@@ -54,8 +54,12 @@ enum {
 };
 
 
+static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 
+
+static GtkWidget *main_window = NULL;
+static EggTrayIcon *tray_icon = NULL;
 
 static GdkPixbuf *none_pixbuf = NULL;
 static GdkPixbuf *hangul_pixbuf = NULL;
@@ -682,22 +686,30 @@ nabi_app_free(void)
     nabi = NULL;
 }
 
-void
-nabi_quit(void)
+static gboolean
+on_tray_icon_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-    gtk_main_quit();
+    g_object_unref(G_OBJECT(none_pixbuf));
+    none_pixbuf = NULL;
+    g_object_unref(G_OBJECT(hangul_pixbuf));
+    hangul_pixbuf = NULL;
+    g_object_unref(G_OBJECT(english_pixbuf));
+    english_pixbuf = NULL;
+
+    tray_icon = NULL;
+    g_idle_add(create_tray_icon, NULL);
+    g_print("tray icon destroyed\n");
+    return TRUE;
 }
 
 static gboolean
-on_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
+on_main_window_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-    g_object_unref(G_OBJECT(none_pixbuf));
-    g_object_unref(G_OBJECT(hangul_pixbuf));
-    g_object_unref(G_OBJECT(english_pixbuf));
-
+    if (tray_icon != NULL)
+	gtk_widget_destroy(GTK_WIDGET(tray_icon));
     remove_event_filter();
-
-    nabi_quit();
+    gtk_main_quit();
+    g_print("main window destroyed\n");
     return TRUE;
 }
 
@@ -1112,9 +1124,16 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
 }
 
 static void
+on_menu_dvorak(GtkWidget *widget)
+{
+    nabi->dvorak  = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    nabi_server_set_dvorak(server, nabi->dvorak);
+}
+
+static void
 on_menu_quit(GtkWidget *widget)
 {
-    nabi_quit();
+    gtk_widget_destroy(main_window);
 }
 
 static GtkWidget*
@@ -1184,6 +1203,13 @@ create_menu(void)
 	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
 	list = list->next;
     }
+    menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+				   nabi->dvorak);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
+			     G_CALLBACK(on_menu_dvorak), menu_item);
 
     /* separator */
     menu_item = gtk_separator_menu_item_new();
@@ -1331,29 +1357,30 @@ remove_event_filter()
 }
 
 static void
-on_realize(GtkWidget *widget, gpointer data)
+on_main_window_realize(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
     nabi_server_set_mode_info_cb(server, nabi_set_input_mode_info);
 }
 
-GtkWidget*
-create_main_widget(void)
+static gboolean
+create_tray_icon(gpointer data)
 {
-    EggTrayIcon *tray_icon;
     GtkWidget *eventbox;
     GtkWidget *hbox;
     GtkWidget *menu;
 
-    menu = create_menu();
+    if (tray_icon != NULL)
+	return FALSE;
 
     tray_icon = egg_tray_icon_new("Tray icon");
 
     eventbox = gtk_event_box_new();
     gtk_widget_show(eventbox);
     gtk_container_add(GTK_CONTAINER(tray_icon), eventbox);
+    menu = create_menu();
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
-	     G_CALLBACK(on_button_press), menu);
+		     G_CALLBACK(on_button_press), menu);
 
     create_icons(24);
 
@@ -1367,14 +1394,25 @@ create_main_widget(void)
     gtk_container_add(GTK_CONTAINER(eventbox), hbox);
     gtk_widget_show(hbox);
 
-    g_signal_connect_after(G_OBJECT(tray_icon), "realize",
-	    		   G_CALLBACK(on_realize), NULL);
-    g_signal_connect(G_OBJECT(tray_icon), "delete-event",
-		     G_CALLBACK(on_delete), NULL);
-    g_signal_connect(G_OBJECT(tray_icon), "destroy-event",
-		     G_CALLBACK(on_delete), NULL);
+    g_signal_connect(G_OBJECT(tray_icon), "destroy",
+		     G_CALLBACK(on_tray_icon_destroy), NULL);
+    gtk_widget_show(GTK_WIDGET(tray_icon));
+    return FALSE;
+}
 
-    return GTK_WIDGET(tray_icon);
+GtkWidget*
+create_main_widget(void)
+{
+    main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_resize(GTK_WINDOW(main_window), 1, 1);
+    gtk_window_set_decorated(GTK_WINDOW(main_window), FALSE);
+    g_signal_connect_after(G_OBJECT(main_window), "realize",
+	    		   G_CALLBACK(on_main_window_realize), NULL);
+    g_signal_connect(G_OBJECT(main_window), "destroy",
+		     G_CALLBACK(on_main_window_destroy), NULL);
+
+    create_tray_icon(NULL);
+    return main_window;
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */
