@@ -178,8 +178,10 @@ nabi_fontset_free_all(Display *display)
 	}
     }
 
-    g_hash_table_destroy(fontset_hash);
-    g_slist_free(fontset_list);
+    if (fontset_hash != NULL)
+	g_hash_table_destroy(fontset_hash);
+    if (fontset_list != NULL)
+	g_slist_free(fontset_list);
 }
 
 /* vim: set ts=8 sw=4 : */
