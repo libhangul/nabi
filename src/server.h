@@ -133,6 +133,8 @@ void        nabi_server_set_compose_map (NabiServer *server,
 			    		 int size);
 void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
+void        nabi_server_set_output_mode (NabiServer *server,
+					 NabiOutputMode mode);
 
 void        nabi_server_ic_table_expand (NabiServer* server);
 NabiIC*     nabi_server_get_ic          (NabiServer *server,

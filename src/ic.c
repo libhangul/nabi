@@ -1049,7 +1049,7 @@ nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
 
     buf[n] = L'\0';
     *len = n;
-    *size = hangul_wcharstr_to_utf8str(buf, utf8, sizeof(utf8));
+    *size = hangul_wcharstr_to_utf8str(buf, utf8, buflen);
 }
 
 void

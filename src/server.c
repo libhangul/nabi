@@ -186,6 +186,17 @@ nabi_server_set_dvorak(NabiServer *server, Bool flag)
 }
 
 void
+nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
+{
+    if (mode == NABI_OUTPUT_SYLLABLE)
+	server->output_mode = mode;
+    else  {
+	if (!server->check_charset)
+	    server->output_mode = mode;
+    }
+}
+
+void
 nabi_server_init(NabiServer *server)
 {
     char *codeset;
