@@ -284,82 +284,82 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 static Bool
 nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 {
-	int len;
-	char buf[64];
-	NabiIC* ic;
-	KeySym keysym;
-	XKeyEvent *kevent;
-	IMForwardEventStruct *data;
-	
-	data = (IMForwardEventStruct *)call_data;
+    int len;
+    char buf[64];
+    NabiIC* ic;
+    KeySym keysym;
+    XKeyEvent *kevent;
+    IMForwardEventStruct *data;
+    
+    data = (IMForwardEventStruct *)call_data;
 
-	if (data->event.type != KeyPress) {
-		printf("Not a key press\n");
-		return True;
-	}
-
-	kevent = (XKeyEvent*)&data->event;
-	len = XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);
-	buf[len] = '\0';
-
-	ic = nabi_server_get_ic(nabi_server, data->icid);
-	if (ic == NULL)
-		return True;
-
-	if (ic->mode == NABI_INPUT_MODE_DIRECT) {
-		/* direct mode */
-		if (ic->preedit.start)
-		    nabi_ic_preedit_done(ic);
-		if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
-			/* change input mode to compose mode */
-			nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
-			return True;
-		}
-
-		IMForwardEvent(ims, (XPointer)data);
-	} else {
-		if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
-			/* change input mode to direct mode */
-			nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
-			return True;
-		}
-
-		/* compose mode */
-		if (!ic->preedit.start)
-		    nabi_ic_preedit_start(ic);
-		if (!nabi_filter_keyevent(ic, keysym, kevent))
-			IMForwardEvent(ims, (XPointer)data);
-	}
-
+    if (data->event.type != KeyPress) {
+	fprintf(stderr, "Not a key press\n");
 	return True;
+    }
+
+    kevent = (XKeyEvent*)&data->event;
+    len = XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);
+    buf[len] = '\0';
+
+    ic = nabi_server_get_ic(nabi_server, data->icid);
+    if (ic == NULL)
+	return True;
+
+    if (ic->mode == NABI_INPUT_MODE_DIRECT) {
+	/* direct mode */
+	if (ic->preedit.start)
+	    nabi_ic_preedit_done(ic);
+	if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
+	    /* change input mode to compose mode */
+	    nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
+	    return True;
+	}
+
+	IMForwardEvent(ims, (XPointer)data);
+    } else {
+	if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
+	    /* change input mode to direct mode */
+	    nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
+	    return True;
+	}
+
+	/* compose mode */
+	if (!ic->preedit.start)
+	    nabi_ic_preedit_start(ic);
+	if (!nabi_filter_keyevent(ic, keysym, kevent))
+	    IMForwardEvent(ims, (XPointer)data);
+    }
+
+    return True;
 }
 
 static Bool
 nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
 
-	if (ic == NULL)
-		return True;
+    if (ic == NULL)
+	    return True;
 
-	if (ic->connect != NULL)
-	    nabi_ic_set_mode(ic, ic->connect->mode);
+    if (ic->connect != NULL)
+	nabi_ic_set_mode(ic, ic->connect->mode);
 
-	return True;
+    return True;
 }
 
 static Bool
 nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
 
-	if (ic == NULL)
-		return True;
+    if (ic == NULL)
+	    return True;
 
-	if (nabi_server->mode_info_cb)
-	    nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
+    if (nabi_server->mode_info_cb)
+	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
-	return True;
+    return True;
 }
 
 static Bool
