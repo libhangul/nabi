@@ -23,4 +23,13 @@ libXimd_a_SOURCES = \
 	i18nUtil.c \
 	i18nX.c
 
-EXTRA_DIST = doc
+EXTRA_DIST = \
+	doc/Xi18n_sample/Imakefile \
+	doc/Xi18n_sample/IC.c \
+	doc/Xi18n_sample/IC.h \
+	doc/Xi18n_sample/Makefile.pu \
+	doc/Xi18n_sample/README \
+	doc/Xi18n_sample/sampleIM.c \
+	doc/API.text \
+	doc/CHANGELOG \
+	doc/README
