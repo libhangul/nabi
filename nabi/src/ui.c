@@ -28,12 +28,12 @@
 #define DEFAULT_ICON_SIZE   24
 
 enum {
-	THEMES_LIST_PATH = 0,
-	THEMES_LIST_NONE,
-	THEMES_LIST_HANGUL,
-	THEMES_LIST_ENGLISH,
-	THEMES_LIST_NAME,
-	N_COLS
+    THEMES_LIST_PATH = 0,
+    THEMES_LIST_NONE,
+    THEMES_LIST_HANGUL,
+    THEMES_LIST_ENGLISH,
+    THEMES_LIST_NAME,
+    N_COLS
 };
 
 
@@ -674,6 +674,86 @@ on_menu_pref(GtkWidget *widget)
     g_print("Pref\n");
 }
 
+void
+load_icons(const gchar *theme)
+{
+    gchar buf[1024];
+    GError    *gerror = NULL;
+
+    if (theme == NULL)
+    	theme = "SimplyRed";
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/none.png", NABI_THEMES_DIR, theme);
+    none_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
+    }
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/hangul.png", NABI_THEMES_DIR, theme);
+    hangul_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
+    }
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/english.png", NABI_THEMES_DIR, theme);
+    english_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
+    }
+}
+
+void
+load_theme(const gchar *theme)
+{
+    double factor;
+    gint new_width, new_height;
+    gint orig_width, orig_height;
+    gint default_width, default_height;
+    GdkPixbuf *pixbuf;
+
+    default_width = DEFAULT_ICON_SIZE;
+    default_height = DEFAULT_ICON_SIZE;
+
+    load_icons(theme);
+
+    orig_width = gdk_pixbuf_get_width(none_pixbuf);
+    orig_height = gdk_pixbuf_get_height(none_pixbuf);
+
+    if (orig_width > orig_height) {
+	factor =  (double)default_width / (double)orig_width;
+	new_width = default_width;
+	new_height = (int)(orig_height * factor);
+    } else {
+	factor = (double)default_height / (double)orig_height;
+	new_width = (int)(orig_width * factor);
+	new_height = default_height;
+    }
+
+    pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, new_width, new_height,
+	    			     GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(none_image), pixbuf);
+    g_object_unref(G_OBJECT(pixbuf));
+
+    pixbuf = gdk_pixbuf_scale_simple(hangul_pixbuf, new_width, new_height,
+	    			     GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(hangul_image), pixbuf);
+    g_object_unref(G_OBJECT(pixbuf));
+
+    pixbuf = gdk_pixbuf_scale_simple(english_pixbuf, new_width, new_height,
+	    			     GDK_INTERP_BILINEAR);
+    gtk_image_set_from_pixbuf(GTK_IMAGE(english_image), pixbuf);
+    g_object_unref(G_OBJECT(pixbuf));
+}
+
 static void
 selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 {
@@ -682,8 +762,6 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer data)
     gchar *path;
     gchar *theme;
     gboolean ret;
-    AppletData *applet_data = (AppletData*)data;
-    GError *gerror = NULL;
 
     ret = gtk_tree_selection_get_selected(selection, &model, &iter);
     if (!ret)
@@ -693,15 +771,12 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 		       THEMES_LIST_NAME, &theme,
 		       -1);
 
-    load_theme(applet_data, path);
+    load_theme(theme);
 
     /* saving theme setting */
-    panel_applet_gconf_set_string(applet_data->applet,
-				  "theme", theme,
-				  &gerror);
-    if (gerror)
-	g_print("%s:error on saving theme setting: %s\n",
-		PACKAGE, gerror->message);
+    g_free(nabi->theme);
+    nabi->theme = g_strdup(theme);
+    save_config_file();
 }
 
 static GtkTreePath *
@@ -823,7 +898,6 @@ on_menu_themes(GtkWidget *widget, gpointer data)
 
     GtkWidget *vbox;
     GtkWidget *scrolledwindow;
-    gchar *theme;
 
     GtkWidget *treeview;
     GtkTreeModel *model;
@@ -917,6 +991,7 @@ on_menu_themes(GtkWidget *widget, gpointer data)
 	    CLAMP(treeview_size.width + 50, 200, gdk_screen_width()), 250);
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
+
     dialog = NULL;
 }
 
@@ -958,7 +1033,7 @@ create_menu(void)
 		 G_CALLBACK(on_menu_pref), menu_item);
 
     /* menu themes */
-    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes"));
+    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
@@ -973,43 +1048,6 @@ create_menu(void)
 		 G_CALLBACK(on_menu_quit), menu_item);
 
     return menu;
-}
-
-void
-load_icons(const gchar *theme)
-{
-    gchar buf[1024];
-    GError    *gerror = NULL;
-
-    if (theme == NULL)
-    	theme = "SimplyRed";
-
-    g_snprintf(buf, sizeof(buf), "%s/%s/none.png", NABI_THEMES_DIR, theme);
-    none_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
-    }
-
-    g_snprintf(buf, sizeof(buf), "%s/%s/hangul.png", NABI_THEMES_DIR, theme);
-    hangul_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
-    }
-
-    g_snprintf(buf, sizeof(buf), "%s/%s/english.png", NABI_THEMES_DIR, theme);
-    english_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
-    }
 }
 
 void

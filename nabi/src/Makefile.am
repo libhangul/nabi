@@ -3,6 +3,8 @@ INCLUDES = \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
 	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
 
+AM_CFLAGS = -Wall
+
 bin_PROGRAMS = nabi
 nabi_SOURCES = \
 	nabi.h \
