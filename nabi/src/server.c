@@ -25,6 +25,7 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <langinfo.h>
+#include <glib.h>
 
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
@@ -76,6 +77,9 @@ nabi_server_new(void)
     _server->filter_mask = 0;
     _server->trigger_keys = NULL;
 
+    /* connect list */
+    _server->connect_list = NULL;
+
     /* init IC table */
     _server->ic_table = (NabiIC**)
 	    malloc(sizeof(NabiIC) * DEFAULT_IC_TABLE_SIZE);
@@ -108,7 +112,16 @@ void
 nabi_server_destroy(NabiServer *_server)
 {
     int i;
-    
+    NabiConnect *connect;
+
+    /* destroy remaining connect */
+    while (_server->connect_list != NULL) {
+	connect = _server->connect_list;
+	_server->connect_list = _server->connect_list->next;
+	printf("remove connect id: 0x%x\n", connect->id);
+	nabi_connect_destroy(connect);
+    }
+
     for (i = 0; i < _server->ic_table_size; i++) {
 	nabi_ic_real_destroy(_server->ic_table[i]);
 	_server->ic_table[i] = NULL;
@@ -281,6 +294,56 @@ nabi_server_get_ic(NabiServer *_server, CARD16 icid)
 	return NULL;
 }
 
+void
+nabi_server_add_connect(NabiServer *_server, NabiConnect *connect)
+{
+    NabiConnect *list;
+
+    if (connect == NULL)
+	return;
+
+    list = _server->connect_list;
+    connect->next = list;
+    _server->connect_list = connect;
+}
+
+NabiConnect*
+nabi_server_get_connect_by_id(NabiServer *_server, CARD16 connect_id)
+{
+    NabiConnect *connect;
+
+    connect = _server->connect_list;
+    while (connect != NULL) {
+	if (connect->id == connect_id)
+	    return connect;
+	connect = connect->next;
+    }
+    return NULL;
+}
+
+void
+nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
+{
+    NabiConnect *prev;
+    NabiConnect *list;
+
+    if (connect == NULL)
+	return;
+
+    prev = NULL;
+    list = _server->connect_list;
+    while (list != NULL) {
+	if (list->id == connect->id) {
+	    if (prev == NULL)
+		_server->connect_list = list->next;
+	    else
+		prev->next = list->next;
+	    list->next = NULL;
+	}
+	prev = list;
+	list = list->next;
+    }
+}
 
 int verbose = 1;
 

@@ -23,11 +23,19 @@
 typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
 typedef struct _NabiIC NabiIC;
+typedef struct _NabiConnect NabiConnect;
 
 typedef enum {
     NABI_INPUT_MODE_DIRECT,
     NABI_INPUT_MODE_COMPOSE
 } NabiInputMode;
+
+struct _NabiConnect {
+    CARD16               id;
+    NabiInputMode        mode;
+    GSList              *ic_list;
+    struct _NabiConnect *next;
+};
 
 struct _PreeditAttributes {
     Window          window;         /* where to draw the preedit string */
@@ -79,6 +87,8 @@ struct _NabiIC {
     StatusAttributes    status_attr;      /* status attributes */
     PreeditAttributes   preedit;          /* preedit attributes */
 
+    NabiConnect*        connect;
+
     /* hangul data */
     NabiInputMode       mode;
     int                 index;            /* stack index */
@@ -94,7 +104,12 @@ struct _NabiIC {
     struct _NabiIC*     next;
 };
 
-void    nabi_ic_create(IMChangeICStruct *data);
+NabiConnect* nabi_connect_create(CARD16 id);
+void         nabi_connect_destroy(NabiConnect* connect);
+void         nabi_connect_add_ic(NabiConnect* connect, NabiIC *ic);
+void         nabi_connect_remove_ic(NabiConnect* connect, NabiIC *ic);
+
+NabiIC* nabi_ic_create(IMChangeICStruct *data);
 void    nabi_ic_destroy(NabiIC *ic);
 void    nabi_ic_real_destroy(NabiIC *ic);
 

@@ -47,36 +47,53 @@ debug_msg(const char *fmt, ...)
 static Bool
 nabi_handler_open(XIMS ims, IMProtocol *call_data)
 {
-	IMOpenStruct *data = (IMOpenStruct *)call_data;
-	printf("new_client lang = %s\n", data->lang.name);
-	printf("     connect_id = 0x%x\n", (int)data->connect_id);
-	return True;
+    IMOpenStruct *data = (IMOpenStruct *)call_data;
+    NabiConnect *connect;
+
+    connect = nabi_connect_create(data->connect_id);
+    nabi_server_add_connect(server, connect);
+
+    printf("new_client lang = %s\n", data->lang.name);
+    printf("     connect_id = 0x%x\n", (int)data->connect_id);
+    return True;
 }
 
 static Bool
 nabi_handler_close(XIMS ims, IMProtocol *call_data)
 {
-	IMCloseStruct *data = (IMCloseStruct *)call_data;
-     	printf("closing connect_id 0x%x\n", (int)data->connect_id);
-	return True;
+    IMCloseStruct *data = (IMCloseStruct *)call_data;
+    NabiConnect *connect;
+
+    connect = nabi_server_get_connect_by_id(server, data->connect_id);
+    nabi_server_remove_connect(server, connect);
+    nabi_connect_destroy(connect);
+
+    printf("closing connect_id 0x%x\n", (int)data->connect_id);
+
+    return True;
 }
 
 static Bool
 nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 {
-	IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-	nabi_ic_create(data);
-	return True;
+    IMChangeICStruct *data = (IMChangeICStruct *)call_data;
+    NabiIC *ic;
+
+    ic = nabi_ic_create(data);
+    nabi_connect_add_ic(ic->connect, ic);
+    return True;
 }
 
 static Bool
 nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC *ic = nabi_server_get_ic(server, call_data->changeic.icid);
+    NabiIC *ic = nabi_server_get_ic(server, call_data->changeic.icid);
 
-	if (ic != NULL)
-		nabi_ic_destroy(ic);
-	return True;
+    if (ic != NULL) {
+	nabi_connect_remove_ic(ic->connect, ic);
+	nabi_ic_destroy(ic);
+    }
+    return True;
 }
 
 static Bool
@@ -192,8 +209,8 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 	if (ic == NULL)
 		return True;
 
-	if (server->global_input_mode)
-		nabi_ic_set_mode(ic, server->input_mode);
+	if (ic->connect != NULL)
+	    nabi_ic_set_mode(ic, ic->connect->mode);
 
 	switch (ic->mode) {
 	case NABI_INPUT_MODE_DIRECT:
@@ -399,10 +416,12 @@ xim_protocol_name(int major_code)
 Bool
 nabi_handler(XIMS ims, IMProtocol *call_data)
 {
+    /*
     debug_msg("%s\t 0x%x 0x%x",
     	      xim_protocol_name(call_data->major_code),
 	      call_data->any.connect_id,
 	      call_data->changeic.icid);
+	      */
 
     switch (call_data->major_code) {
     case XIM_OPEN:

@@ -58,6 +58,9 @@ struct _NabiServer {
     long                    filter_mask;
     XIMTriggerKey*          trigger_keys;
 
+    /* xim connect list */
+    NabiConnect*            connect_list;
+
     /* Input Context list */
     NabiIC**                ic_table;
     int                     ic_table_size;
@@ -105,9 +108,18 @@ void        nabi_server_set_compose_map (NabiServer *_server,
 			    		 int size);
 void        nabi_server_set_mode_info_cb(NabiServer *_server,
 					 NabiModeInfoCallback func);
+
 void        nabi_server_ic_table_expand (NabiServer* _server);
 NabiIC*     nabi_server_get_ic          (NabiServer *_server,
                                          CARD16 icid);
 
+void        nabi_server_add_connect     (NabiServer *_server,
+	                                 NabiConnect *connect);
+void        nabi_server_remove_connect  (NabiServer *_server,
+                                         NabiConnect *connect);
+NabiConnect* nabi_server_get_connect_by_id(NabiServer *_server,
+                                           CARD16 connect_id);
+
 #endif  /* __SERVER_H_ */
+
 /* vim: set ts=8 sw=4 : */
