@@ -263,15 +263,4 @@ hangul_jamo_to_syllable(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
     return ch;
 }
 
-wchar_t
-hangul_ucs_to_ksc(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
-{
-    wchar_t ch;
-    
-    ch = hangul_jamo_to_syllable(choseong, jungseong, jongseong);
-    if (ch < 0xac00 || ch > 0xd7a3)
-	return 0x0;
-    return ucs_to_ksc5601_table[ch - 0xac00];
-}
-
 /* vim: set ts=8 sts=4 sw=4 : */

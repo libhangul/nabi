@@ -37,9 +37,6 @@ void    hangul_jongseong_dicompose(wchar_t ch, wchar_t* jong, wchar_t* cho);
 wchar_t hangul_jamo_to_syllable(wchar_t choseong,
 				wchar_t jungseong,
 				wchar_t jongseong);
-wchar_t hangul_ucs_to_ksc(wchar_t choseong,
-			  wchar_t jungseong,
-			  wchar_t jongseong);
 
 #endif /* __HANGUL_H_ */
 /* vim: set ts=8 sw=4 : */
