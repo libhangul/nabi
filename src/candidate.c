@@ -72,7 +72,7 @@ nabi_candidate_update_labels(NabiCandidate *candidate)
 	 i < candidate->n_per_window &&
 	 candidate->first + i < candidate->n;
 	 i++) {
-	len = g_snprintf(buf, sizeof(buf), "%d.", (i + 1) % 10);
+	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
 	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
 				 buf + len);
 	buf[len] = '\0';
@@ -151,7 +151,7 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     attr->end_index = G_MAXINT;
     pango_attr_list_insert(attr_list, attr);
     for (i = 0; i < n_per_window && candidate->first + i < candidate->n; i++) {
-	len = g_snprintf(buf, sizeof(buf), "%d.", (i + 1) % 10);
+	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
 	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
 				buf + len);
 	buf[len] = '\0';
