@@ -2,7 +2,6 @@ AC_INIT(src/nabi.h)
 
 AM_INIT_AUTOMAKE(nabi, 0.0.1)
 AM_CONFIG_HEADER(config.h)
-AM_MAINTAINER_MODE
 
 dnl Checks for programs
 AC_PROG_CC
@@ -23,15 +22,16 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 
 dnl gettext stuff
-ALL_LINGUAS="ko"
-AM_GNU_GETTEXT
+dnl ALL_LINGUAS="ko"
+AM_GNU_GETTEXT([external])
 
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$PACKAGE", gettext package name)
+AC_DEFINE_UNQUOTED(LOCALEDIR, "$datadir/locale", gettext locale dir)
 
 AC_OUTPUT([
 Makefile
-src/Makefile
 IMdkit/Makefile
-po/Makefile.in
-intl/Makefile
+src/Makefile
+m4/Makefile 
+po/Makefile.in 
 ])
