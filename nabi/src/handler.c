@@ -374,7 +374,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	return False;
     }
 
-    if (keyval == XK_Hangul_Hanja || keyval == XK_F9) {
+    if (nabi_server_is_candidate_key(nabi_server, keyval, kevent->state)) {
 	return nabi_ic_popup_candidate_window(ic);
     }
 
@@ -422,7 +422,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	    nabi_ic_preedit_done(ic);
 	    nabi_ic_status_done(ic);
 	}
-	if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
+	if (nabi_server_is_trigger_key(nabi_server, keysym, kevent->state)) {
 	    /* change input mode to compose mode */
 	    nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
 	    return True;
@@ -430,7 +430,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 
 	IMForwardEvent(ims, (XPointer)data);
     } else {
-	if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
+	if (nabi_server_is_trigger_key(nabi_server, keysym, kevent->state)) {
 	    /* change input mode to direct mode */
 	    nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
 	    return True;
