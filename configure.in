@@ -1,6 +1,6 @@
 AC_INIT(src/nabi.h)
 
-AM_INIT_AUTOMAKE(nabi, 0.12)
+AM_INIT_AUTOMAKE(nabi, 0.13)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -40,9 +40,12 @@ PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
 		  AC_MSG_ERROR([nabi needs GTK+ 2.2.0 or higher]))
 
 dnl gettext stuff
-AM_GNU_GETTEXT([external])
+ALL_LINGUAS="ko"
+AM_GLIB_GNU_GETTEXT
 
-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$PACKAGE", gettext package name)
+GETTEXT_PACKAGE="$PACKAGE"
+AC_SUBST(GETTEXT_PACKAGE)
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$GETTEXT_PACKAGE", gettext package name)
 
 dnl data dir
 NABI_DATA_DIR="${datadir}/$PACKAGE"
@@ -84,6 +87,5 @@ themes/Onion/Makefile
 themes/KingSejong/Makefile
 themes/keyboard/Makefile
 themes/MSWindowsXP/Makefile
-m4/Makefile 
 po/Makefile.in 
 ])
