@@ -1,0 +1,37 @@
+AC_INIT(src/nabi.h)
+
+AM_INIT_AUTOMAKE(nabi, 0.0.1)
+AM_CONFIG_HEADER(config.h)
+AM_MAINTAINER_MODE
+
+dnl Checks for programs
+AC_PROG_CC
+AC_OBJEXT
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+dnl Checks for libraries.
+AC_PATH_PROG(PKG_CONFIG, pkg-config,
+	     AC_MSG_ERROR([ximhangul needs pkg-config]))
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0,,
+		  AC_MSG_ERROR([ximhangul needs GTK+ 2.0.0 or higher]))
+
+dnl Checks for header files.
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+
+dnl Checks for library functions.
+
+dnl gettext stuff
+ALL_LINGUAS="ko"
+AM_GNU_GETTEXT
+
+AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$PACKAGE", gettext package name)
+
+AC_OUTPUT([
+Makefile
+src/Makefile
+IMdkit/Makefile
+po/Makefile.in
+intl/Makefile
+])

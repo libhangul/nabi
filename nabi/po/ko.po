@@ -1,0 +1,73 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2003-07-28 11:27+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/ic.c:435
+msgid "Nabi: missing charset\n"
+msgstr ""
+
+#: src/ic.c:436
+#, c-format
+msgid "Nabi: font: %s\n"
+msgstr ""
+
+#: src/ic.c:564
+#, c-format
+msgid "Nabi: unkown ic attributes: %s\n"
+msgstr ""
+
+#: src/ui.c:69
+msgid "Nabi: Can't read keyboard map file\n"
+msgstr ""
+
+#: src/ui.c:150
+msgid "Nabi: Can't read compose map file\n"
+msgstr ""
+
+#: src/ui.c:362
+msgid "Nabi: Can't load config file\n"
+msgstr ""
+
+#: src/ui.c:404
+msgid "Nabi: Can't write config file\n"
+msgstr ""
+
+#: src/ui.c:482 src/ui.c:499
+#, c-format
+msgid "Can't allocate color: %s\n"
+msgstr ""
+
+#: src/ui.c:484
+msgid "Use default color: #FFFFFF\n"
+msgstr ""
+
+#: src/ui.c:501
+msgid "Use default color: #000000\n"
+msgstr ""
+
+#. menu about
+#: src/ui.c:654
+msgid "_About..."
+msgstr "나비는...(_A)"
+
+#. menu preferences
+#: src/ui.c:666
+msgid "_Preferences"
+msgstr "설정사항(_P)"
+
+#. menu quit
+#: src/ui.c:673
+msgid "_Quit"
+msgstr "종료(_Q)"

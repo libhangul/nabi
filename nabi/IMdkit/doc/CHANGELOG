@@ -1,0 +1,13 @@
+By Tung-Han Hsieh, 2000/02/07
+	Fix many possible memory leaks.
+	Fix several incorrect protocols.
+	Change the Makefiles to be integrated to xcin-2.5.
+	These changes are according to ami-1.0.1.
+
+This version by Steve Underwood, 1999/05/08
+	The first stage of a clean up and bug fix for IMdkit.
+	This version removes the obsolete and buggy XIMP support.
+	It fixes a number of memory leaks in Xi18n support.
+	It has been tidied up somewhat.
+	The clean up is far from complete
+	There are still memory leaks.
