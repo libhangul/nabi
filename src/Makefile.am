@@ -8,6 +8,7 @@ nabi_SOURCES = \
 	nabi.h \
 	gettext.h \
 	ucs2ksc.h \
+	default-icons.h \
 	server.h server.c \
 	hangul.h hangul.c \
 	ic.h ic.c \
