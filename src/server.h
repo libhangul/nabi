@@ -105,6 +105,7 @@ struct _NabiServer {
     /* options */
     Bool                    dynamic_event_flow;
     Bool                    global_input_mode;
+    Bool                    show_status;
     NabiInputMode           input_mode;
     unsigned long           preedit_fg;
     unsigned long           preedit_bg;

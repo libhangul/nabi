@@ -941,6 +941,8 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     default:
 	break;
     }
+
+    nabi_ic_status_update(ic);
 }
 
 void
@@ -1298,6 +1300,9 @@ nabi_ic_commit(NabiIC *ic)
 
     hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
     compound_text = utf8_to_compound_text(utf8buf);
+
+    commit_data.major_code = XIM_COMMIT;
+    commit_data.minor_code = 0;
     commit_data.connect_id = ic->connect_id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
@@ -1326,6 +1331,9 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
 
     hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
     compound_text = utf8_to_compound_text(utf8buf);
+
+    commit_data.major_code = XIM_COMMIT;
+    commit_data.minor_code = 0;
     commit_data.connect_id = ic->connect_id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
@@ -1354,6 +1362,111 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
 
     /* Forward all other keys */
     return False;
+}
+
+void
+nabi_ic_status_start(NabiIC *ic)
+{
+    if (!nabi_server->show_status)
+	return;
+
+    if (ic->input_style & XIMStatusCallbacks) {
+	IMStatusCBStruct data;
+	char *compound_text;
+	XIMText text;
+	XIMFeedback feedback[4] = { 0, 0, 0, 0 };
+
+	compound_text = "";
+
+	data.major_code = XIM_STATUS_START;
+	data.minor_code = 0;
+	data.connect_id = ic->connect_id;
+	data.icid = ic->id;
+	data.todo.draw.data.text = &text;
+	data.todo.draw.type = XIMTextType;
+
+	text.feedback = feedback;
+	text.encoding_is_wchar = False;
+	text.string.multi_byte = compound_text;
+	text.length = strlen(compound_text);
+
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
+    }
+    g_print("Status start\n");
+}
+
+void
+nabi_ic_status_done(NabiIC *ic)
+{
+    if (!nabi_server->show_status)
+	return;
+
+    if (ic->input_style & XIMStatusCallbacks) {
+	IMStatusCBStruct data;
+	char *compound_text;
+	XIMText text;
+	XIMFeedback feedback[4] = { 0, 0, 0, 0 };
+
+	compound_text = "";
+
+	data.major_code = XIM_STATUS_DONE;
+	data.minor_code = 0;
+	data.connect_id = ic->connect_id;
+	data.icid = ic->id;
+	data.todo.draw.data.text = &text;
+	data.todo.draw.type = XIMTextType;
+
+	text.feedback = feedback;
+	text.encoding_is_wchar = False;
+	text.string.multi_byte = compound_text;
+	text.length = strlen(compound_text);
+
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
+    }
+    g_print("Status done\n");
+}
+
+void
+nabi_ic_status_update(NabiIC *ic)
+{
+    if (!nabi_server->show_status)
+	return;
+
+    if (ic->input_style & XIMStatusCallbacks) {
+	IMStatusCBStruct data;
+	char *status_str;
+	char *compound_text;
+	XIMText text;
+	XIMFeedback feedback[4] = { 0, 0, 0, 0 };
+
+	switch (ic->mode) {
+	case NABI_INPUT_MODE_DIRECT:
+	    status_str = "영어";
+	    break;
+	case NABI_INPUT_MODE_COMPOSE:
+	    status_str = "한글";
+	    break;
+	default:
+	    status_str = "";
+	    break;
+	}
+	compound_text = utf8_to_compound_text(status_str);
+
+	data.major_code = XIM_STATUS_DRAW;
+	data.minor_code = 0;
+	data.connect_id = ic->connect_id;
+	data.icid = ic->id;
+	data.todo.draw.data.text = &text;
+	data.todo.draw.type = XIMTextType;
+
+	text.feedback = feedback;
+	text.encoding_is_wchar = False;
+	text.string.multi_byte = compound_text;
+	text.length = strlen(compound_text);
+
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
+    }
+    g_print("Status draw\n");
 }
 
 static int
