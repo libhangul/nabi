@@ -245,23 +245,30 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 {
-    wchar_t ch;
+    wchar_t ch = 0;
 
     switch (keyval) {
     case XK_Left:
+    case XK_h:
 	nabi_candidate_prev(ic->candidate_window);
 	break;
     case XK_Right:
+    case XK_l:
 	nabi_candidate_next(ic->candidate_window);
 	break;
     case XK_Up:
     case XK_Page_Up:
     case XK_BackSpace:
+    case XK_k:
+    case XK_KP_Subtract:
 	nabi_candidate_prev_row(ic->candidate_window);
 	break;
     case XK_Down:
     case XK_Page_Down:
     case XK_space:
+    case XK_j:
+    case XK_KP_Add:
+    case XK_Tab:
 	nabi_candidate_next_row(ic->candidate_window);
 	break;
     case XK_Escape:
@@ -269,29 +276,77 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 	ic->candidate_window = NULL;
 	break;
     case XK_Return:
+    case XK_KP_Enter:
 	ch = nabi_candidate_get_current(ic->candidate_window);
-	nabi_ic_insert_candidate(ic, ch);
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
 	break;
-    case XK_a:
-    case XK_b:
-    case XK_c:
-    case XK_d:
-    case XK_e:
-    case XK_f:
-    case XK_g:
-    case XK_h:
-    case XK_i:
-    case XK_j:
-	ch = nabi_candidate_get_nth(ic->candidate_window, keyval);
-	nabi_ic_insert_candidate(ic, ch);
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
+    case XK_0:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 10);
+	break;
+    case XK_1:
+    case XK_2:
+    case XK_3:
+    case XK_4:
+    case XK_5:
+    case XK_6:
+    case XK_7:
+    case XK_8:
+    case XK_9:
+	ch = nabi_candidate_get_nth(ic->candidate_window, keyval - XK_1);
+	break;
+    case XK_KP_0:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 10);
+	break;
+    case XK_KP_1:
+    case XK_KP_2:
+    case XK_KP_3:
+    case XK_KP_4:
+    case XK_KP_5:
+    case XK_KP_6:
+    case XK_KP_7:
+    case XK_KP_8:
+    case XK_KP_9:
+	ch = nabi_candidate_get_nth(ic->candidate_window, keyval - XK_1);
+	break;
+    case XK_KP_End:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 0);
+	break;
+    case XK_KP_Down:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 1);
+	break;
+    case XK_KP_Next:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 2);
+	break;
+    case XK_KP_Left:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 3);
+	break;
+    case XK_KP_Begin:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 4);
+	break;
+    case XK_KP_Right:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 5);
+	break;
+    case XK_KP_Home:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 6);
+	break;
+    case XK_KP_Up:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 7);
+	break;
+    case XK_KP_Prior:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 8);
+	break;
+    case XK_KP_Insert:
+	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
 	break;
     default:
 	return True;
     }
+
+    if (ch != 0) {
+	nabi_ic_insert_candidate(ic, ch);
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
+    }
+
     return True;
 }
 

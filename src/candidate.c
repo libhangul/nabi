@@ -70,10 +70,10 @@ nabi_candidate_update_labels(NabiCandidate *candidate)
 	 i < candidate->n_per_window &&
 	 candidate->first + i < candidate->n;
 	 i++) {
-	buf[0] = 'a' + i;
-	buf[1] = '.';
-	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf + 2);
-	buf[len + 2] = '\0';
+	len = g_snprintf(buf, sizeof(buf), "%d.", (i + 1) % 10);
+	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
+				 buf + len);
+	buf[len] = '\0';
 	gtk_label_set_text(GTK_LABEL(candidate->children[i]), buf);
     }
     for (; i < candidate->n_per_window; i++)
@@ -149,10 +149,10 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     attr->end_index = G_MAXINT;
     pango_attr_list_insert(attr_list, attr);
     for (i = 0; i < n_per_window && candidate->first + i < candidate->n; i++) {
-	buf[0] = 'a' + i;
-	buf[1] = '.';
-	len = g_unichar_to_utf8(candidate->data[candidate->first + i], buf + 2);
-	buf[len + 2] = '\0';
+	len = g_snprintf(buf, sizeof(buf), "%d.", (i + 1) % 10);
+	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
+				buf + len);
+	buf[len] = '\0';
 	label = gtk_label_new(buf);
 	gtk_label_set_use_markup(GTK_LABEL(label), FALSE);
 	gtk_label_set_use_underline(GTK_LABEL(label), FALSE);
@@ -312,7 +312,9 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
     if (candidate == NULL)
 	return 0;
 
-    n -= 'a';
+    if (n < 0 && n >= candidate->n)
+	return 0;
+
     return candidate->data[candidate->first + n];
 }
 
