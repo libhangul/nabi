@@ -809,7 +809,7 @@ static void get_statistic_string(char *buf, size_t bufsize)
                  "\341\204\206: %-3d "
                  "\341\204\207: %-3d "
                  "\341\204\210: %-3d "
-                 "\341\204\211: %-3d "
+                 "\341\204\211: %-3d\n"
                  "\341\204\212: %-3d "
                  "\341\204\213: %-3d "
                  "\341\204\214: %-3d "
@@ -818,7 +818,7 @@ static void get_statistic_string(char *buf, size_t bufsize)
                  "\341\204\217: %-3d "
                  "\341\204\220: %-3d "
                  "\341\204\221: %-3d "
-                 "\341\204\222: %-3d ",
+                 "\341\204\222: %-3d",
 		 _("Choseong"),                     
                  nabi_server->statistics.jamo[0x00],
                  nabi_server->statistics.jamo[0x01],
@@ -851,7 +851,7 @@ static void get_statistic_string(char *buf, size_t bufsize)
 		 "\341\205\247: %-3d "
 		 "\341\205\250: %-3d "
 		 "\341\205\251: %-3d "
-		 "\341\205\252: %-3d "
+		 "\341\205\252: %-3d\n"
 		 "\341\205\253: %-3d "
 		 "\341\205\254: %-3d "
 		 "\341\205\255: %-3d "
@@ -862,7 +862,7 @@ static void get_statistic_string(char *buf, size_t bufsize)
 		 "\341\205\262: %-3d "
 		 "\341\205\263: %-3d "
 		 "\341\205\264: %-3d "
-		 "\341\205\265: %-3d ",
+		 "\341\205\265: %-3d",
 		 _("Jungseong"),                    
                  nabi_server->statistics.jamo[0x61],
                  nabi_server->statistics.jamo[0x62],
@@ -897,7 +897,7 @@ static void get_statistic_string(char *buf, size_t bufsize)
                  "\341\206\256: %-3d "
                  "\341\206\257: %-3d "
                  "\341\206\260: %-3d "
-                 "\341\206\261: %-3d "
+                 "\341\206\261: %-3d\n"
                  "\341\206\262: %-3d "
                  "\341\206\263: %-3d "
                  "\341\206\264: %-3d "
@@ -907,14 +907,14 @@ static void get_statistic_string(char *buf, size_t bufsize)
                  "\341\206\270: %-3d "
                  "\341\206\271: %-3d "
                  "\341\206\272: %-3d "
-                 "\341\206\273: %-3d "
+                 "\341\206\273: %-3d\n"
                  "\341\206\274: %-3d "
                  "\341\206\275: %-3d "
                  "\341\206\276: %-3d "
                  "\341\206\277: %-3d "
                  "\341\207\200: %-3d "
                  "\341\207\201: %-3d "
-                 "\341\207\202: %-3d ",
+                 "\341\207\202: %-3d",
 		 _("Jongseong"),
 		 nabi_server->statistics.jamo[0xa8],
 		 nabi_server->statistics.jamo[0xa9],
@@ -950,12 +950,34 @@ static void get_statistic_string(char *buf, size_t bufsize)
 }
 
 static void
-on_about_statistics_clicked(GtkWidget *widget, GtkWidget *frame)
+on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
 {
-    if (GTK_WIDGET_VISIBLE(frame))
-	gtk_widget_hide(frame);
-    else
-	gtk_widget_show(frame);
+    gchar stat_str[1536];
+    GtkWidget *hbox;
+    GtkWidget *stat_label = NULL;
+    GtkWidget *dialog = NULL;
+
+    dialog = gtk_dialog_new_with_buttons(_("Nabi keypress statistics"),
+	    				 NULL,
+					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					 GTK_STOCK_CLOSE,
+					 GTK_RESPONSE_CLOSE,
+					 NULL);
+    gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
+    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(parent));
+
+    hbox = gtk_hbox_new(FALSE, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 0);
+
+    get_statistic_string(stat_str, sizeof(stat_str));
+    stat_label = gtk_label_new(stat_str);
+    gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
+    gtk_box_pack_start(GTK_BOX(hbox), stat_label, TRUE, TRUE, 6);
+
+    gtk_widget_show_all(dialog);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 }
 
 static void
@@ -975,13 +997,8 @@ on_menu_about(GtkWidget *widget)
     gchar *title_str;
     gchar buf[256];
     const char *encoding = "";
-    gchar stat_str[1536];
 
     if (dialog != NULL) {
-	if (!nabi->status_only && GTK_IS_LABEL(stat_label)) {
-	    get_statistic_string(stat_str, sizeof(stat_str));
-	    gtk_label_set_text(GTK_LABEL(stat_label), stat_str);
-	}
 	gtk_window_present(GTK_WINDOW(dialog));
 	return;
     }
@@ -1071,8 +1088,6 @@ on_menu_about(GtkWidget *widget)
     if (!nabi->status_only) {
 	GtkWidget *hbox;
 	GtkWidget *button;
-	GtkWidget *frame;
-	GtkWidget *scrolled;
 
 	hbox = gtk_hbox_new(TRUE, 10);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
@@ -1084,29 +1099,8 @@ on_menu_about(GtkWidget *widget)
 	gtk_widget_show(button);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 5);
 
-	frame = gtk_frame_new (_("Keypress Statistics"));
-	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
-	gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
-
-	scrolled = gtk_scrolled_window_new(NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(scrolled),
-				        GTK_POLICY_AUTOMATIC,
-				        GTK_POLICY_AUTOMATIC);
-	gtk_container_add(GTK_CONTAINER(frame), scrolled);
-	gtk_widget_show(scrolled);
-
-	get_statistic_string(stat_str, sizeof(stat_str));
-	stat_label = gtk_label_new(stat_str);
-	gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
-	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled),
-					      stat_label);
-	gtk_widget_show(stat_label);
-
 	g_signal_connect(G_OBJECT(button), "clicked",
-			 G_CALLBACK(on_about_statistics_clicked), frame);
-
-	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
-			   frame, TRUE, TRUE, 5);
+			 G_CALLBACK(on_about_statistics_clicked), dialog);
     }
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
