@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-08-04 17:57+0900\n"
+"POT-Creation-Date: 2003-08-05 14:32+0900\n"
 "PO-Revision-Date: 2003-08-04 17:33+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -78,34 +78,51 @@ msgstr ""
 msgid "Nabi: No matching keyboard config, use default\n"
 msgstr ""
 
-#: src/ui.c:949
-msgid ": Select Theme"
-msgstr ": 테마를 선택하십시오"
+#: src/ui.c:698
+msgid "About Nabi"
+msgstr "Nabi에 대해서"
 
-#: src/ui.c:978
+#: src/ui.c:710
+msgid "<span size=\"xx-large\" weight=\"bold\">Nabi</span>"
+msgstr ""
+
+#: src/ui.c:714
+msgid ""
+"<span size=\"large\">Simple Hangul XIM</span>\n"
+"2003 (C) Choe Hwanjin"
+msgstr ""
+"<span size=\"large\">간단한 한글 입력기</span>\n"
+"2003 (C) Choe Hwanjin"
+
+#: src/ui.c:984
+#, fuzzy
+msgid "Select theme"
+msgstr "테마를 선택하시오"
+
+#: src/ui.c:1013
 msgid "None"
 msgstr ""
 
-#: src/ui.c:987
+#: src/ui.c:1022
 msgid "Hangul"
 msgstr ""
 
-#: src/ui.c:996
+#: src/ui.c:1031
 msgid "English"
 msgstr ""
 
-#: src/ui.c:1004
+#: src/ui.c:1039
 msgid "Theme Name"
 msgstr "테마 이름"
 
-#: src/ui.c:1062
+#: src/ui.c:1099
 msgid "_About..."
 msgstr "프로그램 정보(_A)..."
 
-#: src/ui.c:1074
+#: src/ui.c:1111
 msgid "_Preferences..."
 msgstr "설정(_P)..."
 
-#: src/ui.c:1081
+#: src/ui.c:1118
 msgid "_Themes..."
 msgstr "테마(_T)..."
