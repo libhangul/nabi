@@ -1460,7 +1460,7 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
 {
     const wchar_t *p;
     gint x, y, n;
-    GtkWidget *window, *table, *button, *label, *parent;
+    GtkWidget *window, *table, *button, *label;
     PangoFontDescription *desc = NULL;
     PangoAttrList *attrs = NULL;
     PangoAttribute *attr = NULL;
