@@ -1,3 +1,6 @@
+2004-08-18  Choe Hwanjin <krisna@kldp.org>
+	* hanja-to-c.py 스크립트 추가
+
 2004-05-26  Chloe Lewis <ai@kldp.org>
 	* hanja-sanity.pl: 기본 동작으로 두음법칙을 고려하여 출력하고,
 	옵션으로 -v 를 사용하면 모든 잘못되었음직한 항목을 보이도록 수정
