@@ -382,7 +382,7 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 
     /* number and puctuation */
     nabi_ic_commit(ic);
-    return nabi_ic_commit_keyval(ic, keyval);
+    return nabi_ic_commit_keyval(ic, ch, keyval);
 
 insert:
     nabi_ic_preedit_insert(ic);
@@ -657,7 +657,7 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 
     /* number and puctuation */
     nabi_ic_commit(ic);
-    return nabi_ic_commit_keyval(ic, keyval);
+    return nabi_ic_commit_keyval(ic, ch, keyval);
 
 insert:
     nabi_ic_preedit_insert(ic);
