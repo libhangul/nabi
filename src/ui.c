@@ -634,10 +634,6 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 				&nabi->x, &nabi->y);
 	gtk_widget_hide(GTK_WIDGET(nabi->main_window));
     }
-
-    drawable = GTK_PLUG(widget)->socket_window;
-    gdk_drawable_get_size(GDK_DRAWABLE(drawable), &width, &height);
-    create_resized_icons(MIN(width, height));
 }
 
 static void

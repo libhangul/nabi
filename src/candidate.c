@@ -22,6 +22,7 @@
 
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
+#include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
 #include "server.h"
@@ -77,6 +78,138 @@ nabi_candidate_on_expose(GtkWidget *widget,
     gdk_draw_rectangle(widget->window, style->black_gc,
 		       FALSE,
 		       0, 0, alloc.width - 1, alloc.height - 1);
+}
+
+static gboolean
+nabi_candidate_on_key_press(GtkWidget *widget,
+			    GdkEventKey *event,
+			    NabiCandidate *candidate)
+{
+    wchar_t ch = 0;
+
+    if (candidate == NULL)
+	return FALSE;
+
+    switch (event->keyval) {
+    case GDK_Up:
+    case GDK_k:
+	nabi_candidate_prev(candidate);
+	break;
+    case GDK_Down:
+    case GDK_j:
+	nabi_candidate_next(candidate);
+	break;
+    case GDK_Left:
+    case GDK_h:
+    case GDK_Page_Up:
+    case GDK_BackSpace:
+    case GDK_KP_Subtract:
+	nabi_candidate_prev_page(candidate);
+	break;
+    case GDK_Right:
+    case GDK_l:
+    case GDK_space:
+    case GDK_Page_Down:
+    case GDK_KP_Add:
+    case GDK_Tab:
+	nabi_candidate_next_page(candidate);
+	break;
+    case GDK_Escape:
+	nabi_candidate_delete(candidate);
+	candidate = NULL;
+	break;
+    case GDK_Return:
+    case GDK_KP_Enter:
+	ch = nabi_candidate_get_current(candidate);
+	break;
+    case GDK_0:
+	ch = nabi_candidate_get_nth(candidate, 9);
+	break;
+    case GDK_1:
+    case GDK_2:
+    case GDK_3:
+    case GDK_4:
+    case GDK_5:
+    case GDK_6:
+    case GDK_7:
+    case GDK_8:
+    case GDK_9:
+	ch = nabi_candidate_get_nth(candidate, event->keyval - GDK_1);
+	break;
+    case GDK_KP_0:
+	ch = nabi_candidate_get_nth(candidate, 9);
+	break;
+    case GDK_KP_1:
+    case GDK_KP_2:
+    case GDK_KP_3:
+    case GDK_KP_4:
+    case GDK_KP_5:
+    case GDK_KP_6:
+    case GDK_KP_7:
+    case GDK_KP_8:
+    case GDK_KP_9:
+	ch = nabi_candidate_get_nth(candidate, event->keyval - GDK_KP_1);
+	break;
+    case GDK_KP_End:
+	ch = nabi_candidate_get_nth(candidate, 0);
+	break;
+    case GDK_KP_Down:
+	ch = nabi_candidate_get_nth(candidate, 1);
+	break;
+    case GDK_KP_Next:
+	ch = nabi_candidate_get_nth(candidate, 2);
+	break;
+    case GDK_KP_Left:
+	ch = nabi_candidate_get_nth(candidate, 3);
+	break;
+    case GDK_KP_Begin:
+	ch = nabi_candidate_get_nth(candidate, 4);
+	break;
+    case GDK_KP_Right:
+	ch = nabi_candidate_get_nth(candidate, 5);
+	break;
+    case GDK_KP_Home:
+	ch = nabi_candidate_get_nth(candidate, 6);
+	break;
+    case GDK_KP_Up:
+	ch = nabi_candidate_get_nth(candidate, 7);
+	break;
+    case GDK_KP_Prior:
+	ch = nabi_candidate_get_nth(candidate, 8);
+	break;
+    case GDK_KP_Insert:
+	ch = nabi_candidate_get_nth(candidate, 9);
+	break;
+    default:
+	return FALSE;
+    }
+
+    if (ch != 0) {
+	if (candidate->commit != NULL)
+	    candidate->commit(candidate, candidate->commit_data);
+    }
+    return TRUE;
+}
+
+static gboolean
+nabi_candidate_on_scroll(GtkWidget *widget,
+			 GdkEventScroll *event,
+			 NabiCandidate *candidate)
+{
+    if (candidate == NULL)
+	return FALSE;
+
+    switch (event->direction) {
+    case GDK_SCROLL_UP:
+	nabi_candidate_prev_page(candidate);
+	break;
+    case GDK_SCROLL_DOWN:
+	nabi_candidate_next_page(candidate);
+	break;
+    default:
+	return FALSE;
+    }
+    return TRUE;
 }
 
 static void
@@ -215,6 +348,10 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     g_signal_connect(G_OBJECT(treeview), "cursor-changed",
 		     G_CALLBACK(nabi_candidate_on_cursor_changed), candidate);
 
+    g_signal_connect(G_OBJECT(candidate->window), "key-press-event",
+		     G_CALLBACK(nabi_candidate_on_key_press), candidate);
+    g_signal_connect(G_OBJECT(candidate->window), "scroll-event",
+		     G_CALLBACK(nabi_candidate_on_scroll), candidate);
     g_signal_connect_after(G_OBJECT(candidate->window), "expose-event",
                            G_CALLBACK(nabi_candidate_on_expose), candidate);
     g_signal_connect_swapped(G_OBJECT(candidate->window), "realize",
@@ -222,6 +359,7 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 			     candidate);
 
     gtk_widget_show_all(candidate->window);
+    gtk_grab_add(candidate->window);
 }
 
 NabiCandidate*
@@ -360,6 +498,7 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
     if (n < 0 && n >= candidate->n)
 	return 0;
 
+    candidate->current = candidate->first + n;
     return candidate->data[candidate->first + n]->ch;
 }
 
@@ -369,6 +508,7 @@ nabi_candidate_delete(NabiCandidate *candidate)
     if (candidate == NULL)
 	return;
 
+    gtk_grab_remove(candidate->window);
     gtk_widget_destroy(candidate->window);
     g_free(candidate->label);
     g_free(candidate->data);
