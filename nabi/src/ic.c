@@ -326,6 +326,8 @@ nabi_ic_real_destroy(NabiIC *ic)
     if (ic == NULL)
 	return;
 
+    nabi_ic_preedit_done(ic);
+
     nabi_free(ic->resource_name);
     nabi_free(ic->resource_class);
     nabi_free(ic->preedit.base_font);
@@ -365,11 +367,13 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 
     /* if preedit window is out of focus window 
      * we force to put it in focus window (preedit.area) */
-    if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width) {
-	ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
-	XMoveWindow(nabi_server->display, ic->preedit.window,
-		    ic->preedit.spot.x, 
-		    ic->preedit.spot.y - ic->preedit.ascent);
+    if (ic->preedit.area.width != 0) {
+	if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width) {
+	    ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
+	    XMoveWindow(nabi_server->display, ic->preedit.window,
+			ic->preedit.spot.x, 
+			ic->preedit.spot.y - ic->preedit.ascent);
+	}
     }
     Xutf8DrawImageString(nabi_server->display,
 		         ic->preedit.window,
@@ -586,13 +590,15 @@ nabi_ic_set_spot(NabiIC *ic, XPoint *point)
     if (point == NULL)
 	return;
 
-    ic->preedit.spot.x = point->x + 1; 
+    ic->preedit.spot.x = point->x; 
     ic->preedit.spot.y = point->y; 
 
     /* if preedit window is out of focus window 
      * we force it in focus window (preedit.area) */
-    if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width)
-	ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
+    if (ic->preedit.area.width != 0) {
+	if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width)
+	    ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
+    }
 
     nabi_ic_preedit_configure(ic);
 
