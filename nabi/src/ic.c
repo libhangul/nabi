@@ -172,6 +172,8 @@ nabi_ic_init_values(NabiIC *ic)
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
 
+    ic->hanja_dialog = NULL;
+
     nabi_ic_buf_clear(ic);
 }
 
@@ -305,6 +307,11 @@ nabi_ic_destroy(NabiIC *ic)
     ic->status_attr.line_space = 0;
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
+
+    if (ic->hanja_dialog != NULL) {
+	gtk_widget_destroy(GTK_WIDGET(ic->hanja_dialog));
+	ic->hanja_dialog == NULL;
+    }
 
     /* clear hangul buffer */
     ic->mode = NABI_INPUT_MODE_DIRECT;
@@ -1312,7 +1319,7 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
 	int index = get_index_of_hanjatable(ch);
 	if (index >= 0) {
 	    const wchar_t *ptr = hanjatable[index] + 1;
-	    create_hanja_window(ic, ptr);
+	    ic->hanja_dialog = create_hanja_window(ic, ptr);
 	    return True;
 	}
     }
@@ -1322,7 +1329,9 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
 void
 nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch)
 {
-    //TODO: check whether ch is valid char on the current locale or not
+    if (nabi_ic_is_destroyed(ic))
+	return;
+
     nabi_ic_buf_clear(ic);
     nabi_ic_preedit_clear(ic);
     nabi_ic_push(ic, ch);
