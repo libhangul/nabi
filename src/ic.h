@@ -71,6 +71,7 @@ struct _PreeditAttributes {
 
     XIMPreeditState state;          /* preedit state */
     Bool            start;          /* preedit start */
+    int		    prev_length;    /* previous preedit string length */
 };
 
 struct _StatusAttributes {
@@ -128,7 +129,7 @@ void    nabi_ic_real_destroy(NabiIC *ic);
 void    nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data);
 void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 
-void    nabi_ic_reset(NabiIC *ic);
+void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
 
 #define nabi_ic_is_empty(ic)        ((ic)->choseong[0]  == 0 &&     \
                                      (ic)->jungseong[0] == 0 &&     \

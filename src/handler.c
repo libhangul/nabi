@@ -482,12 +482,13 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 {
+    IMResetICStruct *data = (IMResetICStruct*)call_data;
     NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->resetic.icid);
 
     if (ic == NULL)
 	    return True;
 
-    nabi_ic_reset(ic);
+    nabi_ic_reset(ic, data);
     return True;
 }
 

@@ -150,6 +150,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->preedit.line_space = 0;
     ic->preedit.state = XIMPreeditEnable;
     ic->preedit.start = False;
+    ic->preedit.prev_length = 0;
 
     /* status attributes */
     ic->status_attr.area.x = 0;
@@ -850,11 +851,41 @@ nabi_ic_buf_clear (NabiIC *ic)
     ic->jongseong[3] = 0;
 }
 
-void
-nabi_ic_reset(NabiIC *ic)
+static char *utf8_to_compound_text(char *utf8)
 {
-    if (!nabi_ic_is_empty(ic))
-	nabi_ic_commit(ic);
+    char *list[2];
+    XTextProperty tp;
+    int ret;
+
+    list[0] = utf8;
+    list[1] = 0;
+    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
+				      XCompoundTextStyle,
+				      &tp);
+    if (ret > 0)
+	fprintf(stdout, "Nabi: conversion failure: %d\n", ret);
+    return tp.value;
+}
+
+void
+nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
+{
+    int len, size;
+    char buf[48];
+    char *compound_text;
+
+    if (nabi_ic_is_empty(ic)) {
+	nabi_ic_preedit_clear(ic);
+	data->commit_string = NULL;
+	data->length = 0;
+	return;
+    }
+
+    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
+    compound_text = utf8_to_compound_text(buf);
+    data->commit_string = compound_text;
+    data->length = strlen(compound_text);
+    nabi_ic_buf_clear(ic);
 }
 
 void
@@ -1070,21 +1101,16 @@ void
 nabi_ic_preedit_insert(NabiIC *ic)
 {
     int len, size;
-    char *list[2];
     char buf[48] = { 0, };
+    char *compound_text;
     IMPreeditCBStruct data;
     XIMText text;
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
-    XTextProperty tp;
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	list[0] = buf;
-	list[1] = 0;
-	Xutf8TextListToTextProperty(nabi_server->display, list, 1,
-				    XCompoundTextStyle,
-				    &tp);
+	compound_text = utf8_to_compound_text(buf);
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
@@ -1097,27 +1123,27 @@ nabi_ic_preedit_insert(NabiIC *ic)
 
 	text.feedback = feedback;
 	text.encoding_is_wchar = False;
-	text.string.multi_byte = tp.value;
-	text.length = strlen(tp.value);
+	text.string.multi_byte = compound_text;
+	text.length = strlen(compound_text);
 
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
-	XFree(tp.value);
+	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
 	nabi_ic_preedit_show(ic);
     }
+    ic->preedit.prev_length = len;
 }
 
 void
 nabi_ic_preedit_update(NabiIC *ic)
 {
-    int len, size, ret;
-    char *list[2] = { 0, };
+    int len, size;
     char buf[48] = { 0, };
+    char *compound_text;
     IMPreeditCBStruct data;
     XIMText text;
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
-    XTextProperty tp;
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
@@ -1127,35 +1153,28 @@ nabi_ic_preedit_update(NabiIC *ic)
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	list[0] = buf;
-	list[1] = 0;
-	ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
-					  XCompoundTextStyle,
-					  &tp);
+	compound_text = utf8_to_compound_text(buf);
+
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
 	data.connect_id = ic->connect_id;
 	data.icid = ic->id;
 	data.todo.draw.caret = len;
 	data.todo.draw.chg_first = 0;
-	data.todo.draw.chg_length = len;
+	data.todo.draw.chg_length = ic->preedit.prev_length;
 	data.todo.draw.text = &text;
 
 	text.feedback = feedback;
 	text.encoding_is_wchar = False;
-	if (ret) { /* conversion failure */
-	    text.string.multi_byte = "?";
-	    text.length = 1;
-	} else {
-	    text.string.multi_byte = tp.value;
-	    text.length = strlen(tp.value);
-	}
+	text.string.multi_byte = compound_text;
+	text.length = strlen(compound_text);
 
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
-	XFree(tp.value);
+	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
     }
+    ic->preedit.prev_length = len;
 }
 
 void
@@ -1172,7 +1191,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	data.icid = ic->id;
 	data.todo.draw.caret = 0;
 	data.todo.draw.chg_first = 0;
-	data.todo.draw.chg_length = 1;
+	data.todo.draw.chg_length = ic->preedit.prev_length;
 	data.todo.draw.text = &text;
 
 	text.feedback = feedback;
@@ -1195,17 +1214,17 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	 */
 	XUnmapWindow(nabi_server->display, ic->preedit.window);
     }
+    ic->preedit.prev_length = 0;
 }
 
 Bool
 nabi_ic_commit(NabiIC *ic)
 {
-    int i, n, ret;
-    XTextProperty tp;
+    int i, n;
     IMCommitStruct commit_data;
     wchar_t buf[16];
-    char *list[2];
     char utf8buf[48];
+    char *compound_text;
  
     buf[0] = L'\0';
 
@@ -1281,21 +1300,14 @@ nabi_ic_commit(NabiIC *ic)
 	nabi_ic_preedit_clear(ic);
 
     hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
-    list[0] = utf8buf;
-    list[1] = 0;
-    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
-				      XCompoundTextStyle,
-				      &tp);
+    compound_text = utf8_to_compound_text(utf8buf);
     commit_data.connect_id = ic->connect_id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
-    if (ret) /* conversion failure */
-	commit_data.commit_string = "?";
-    else
-	commit_data.commit_string = tp.value;
+    commit_data.commit_string = compound_text;
 
     IMCommitString(nabi_server->xims, (XPointer)&commit_data);
-    XFree(tp.value);
+    XFree(compound_text);
 
     /* we delete preedit string here when PreeditPosition */
     if (ic->input_style & XIMPreeditPosition)
@@ -1307,32 +1319,23 @@ nabi_ic_commit(NabiIC *ic)
 Bool
 nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
 {
-    int ret;
-    XTextProperty tp;
     IMCommitStruct commit_data;
     wchar_t buf[16];
-    char *list[2];
     char utf8buf[48];
+    char *compound_text;
  
     buf[0] = ch;
     buf[1] = L'\0';
 
     hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
-    list[0] = utf8buf;
-    list[1] = 0;
-    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
-				      XCompoundTextStyle,
-				      &tp);
+    compound_text = utf8_to_compound_text(utf8buf);
     commit_data.connect_id = ic->connect_id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
-    if (ret) /* conversion failure */
-	commit_data.commit_string = "?";
-    else
-	commit_data.commit_string = tp.value;
+    commit_data.commit_string = compound_text;
 
     IMCommitString(nabi_server->xims, (XPointer)&commit_data);
-    XFree(tp.value);
+    XFree(compound_text);
 
     return True;
 }
