@@ -47,7 +47,7 @@ struct _NabiConnect {
 };
 
 struct _PreeditAttributes {
-    Window          window;         /* where to draw the preedit string */
+    GdkWindow*      window;         /* where to draw the preedit string */
     int             width;          /* preedit area width */
     int             height;         /* preedit area height */
     XPoint          spot;           /* window position */
@@ -56,7 +56,7 @@ struct _PreeditAttributes {
     XRectangle      area_needed;    /* area needed */
 
     Colormap        cmap;           /* colormap */
-    GC              gc;             /* gc */
+    GdkGC*          gc;             /* gc */
     unsigned long   foreground;     /* foreground */
     unsigned long   background;     /* background */
 

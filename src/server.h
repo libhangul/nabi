@@ -26,6 +26,7 @@
 #include <X11/Xlib.h>
 #include <wchar.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
@@ -99,12 +100,13 @@ struct _NabiServer {
     /* XIMS */
     char*		    name;
     XIMS                    xims;
+    GtkWidget*              widget;
     Display*                display;
     Window                  window;
     long                    filter_mask;
     XIMTriggerKeys          trigger_keys;
     XIMTriggerKeys          candidate_keys;
-    GC			    gc;
+    GdkGC*		    gc;
 
     /* xim connect list */
     int			    n_connected;
@@ -137,8 +139,8 @@ struct _NabiServer {
     Bool                    global_input_mode;
     Bool                    show_status;
     NabiInputMode           input_mode;
-    unsigned long           preedit_fg;
-    unsigned long           preedit_bg;
+    GdkColor                preedit_fg;
+    GdkColor                preedit_bg;
     gchar*		    candidate_font;
 
     /* mode information */
@@ -154,8 +156,7 @@ NabiServer* nabi_server_new		(const char *name);
 void        nabi_server_destroy         (NabiServer* server);
 void        nabi_server_init            (NabiServer* server);
 int         nabi_server_start           (NabiServer* server,
-                                         Display*    display,
-                                         Window      window);
+					 GtkWidget*  widget);
 int         nabi_server_stop            (NabiServer *server);
 
 Bool        nabi_server_is_trigger_key  (NabiServer*  server,

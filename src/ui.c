@@ -366,28 +366,28 @@ load_colors(void)
     gdk_color_parse(nabi->preedit_fg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
-	nabi_server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color;
     else {
 	color.pixel = 1;
 	color.red = 0xffff;
 	color.green = 0xffff;
 	color.blue = 0xffff;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
-	nabi_server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color;
     }
 
     /* preedit background */
     gdk_color_parse(nabi->preedit_bg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
-	nabi_server->preedit_bg = color.pixel;
+	nabi_server->preedit_bg = color;
     else {
 	color.pixel = 0;
 	color.red = 0;
 	color.green = 0;
 	color.blue = 0;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
-	nabi_server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color;
     }
 }
 

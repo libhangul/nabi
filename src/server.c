@@ -29,6 +29,8 @@
 #include <X11/keysym.h>
 #include <langinfo.h>
 #include <glib.h>
+#include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 
 #include "gettext.h"
 #include "server.h"
@@ -53,6 +55,7 @@ static XIMStyle nabi_input_styles[] = {
     XIMPreeditCallbacks | XIMStatusCallbacks,
     XIMPreeditCallbacks | XIMStatusNothing,
     XIMPreeditPosition  | XIMStatusNothing,
+    XIMPreeditArea      | XIMStatusNothing,
     XIMPreeditNothing   | XIMStatusNothing,
     0
 };
@@ -77,6 +80,7 @@ nabi_server_new(const char *name)
 	server->name = strdup(name);
 
     server->xims = 0;
+    server->widget = NULL;
     server->display = NULL;
     server->window = 0;
     server->filter_mask = 0;
@@ -115,8 +119,14 @@ nabi_server_new(const char *name)
 
     /* options */
     server->show_status = False;
-    server->preedit_fg = 1;
-    server->preedit_bg = 0;
+    server->preedit_fg.pixel = 0;
+    server->preedit_fg.red = 0xffff;
+    server->preedit_fg.green = 0;
+    server->preedit_fg.blue = 0;
+    server->preedit_bg.pixel = 0;
+    server->preedit_bg.red = 0;
+    server->preedit_bg.green = 0;
+    server->preedit_bg.blue = 0;
     server->candidate_font = NULL;
 
     /* mode info */
@@ -137,6 +147,9 @@ nabi_server_destroy(NabiServer *server)
 
     if (server == NULL)
 	return;
+
+    if (server->gc != NULL)
+	g_object_unref(G_OBJECT(server->gc));
 
     /* destroy remaining connect */
     while (server->connect_list != NULL) {
@@ -486,19 +499,22 @@ nabi_server_is_candidate_key(NabiServer* server, KeySym key, unsigned int state)
 }
 
 int
-nabi_server_start(NabiServer *server, Display *display, Window window)
+nabi_server_start(NabiServer *server, GtkWidget *widget)
 {
+    Display *display;
+    Window window;
     XIMS xims;
     XIMStyles input_styles;
     XIMEncodings encodings;
-
-    XGCValues gc_values;
 
     if (server == NULL)
 	return 0;
 
     if (server->xims != NULL)
 	return 0;
+
+    display = GDK_WINDOW_XDISPLAY(widget->window);
+    window = GDK_WINDOW_XWINDOW(widget->window);
 
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
@@ -533,15 +549,14 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 		  IMFilterEventMask, nabi_filter_mask,
 		  NULL);
 
-    gc_values.foreground = server->preedit_fg;
-    gc_values.background = server->preedit_bg;
-    server->gc = XCreateGC(display, window,
-			   GCForeground | GCBackground,
-			   &gc_values);
-
     server->xims = xims;
+    server->widget = widget;
     server->display = display;
     server->window = window;
+
+    server->gc = gdk_gc_new(widget->window);
+    gdk_gc_set_foreground(server->gc, &(server->preedit_fg));
+    gdk_gc_set_background(server->gc, &(server->preedit_bg));
 
     fprintf(stderr, "Nabi: xim server started\n");
 

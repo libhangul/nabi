@@ -26,6 +26,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkx.h>
 #include <glib.h>
 
 #include "gettext.h"
@@ -121,7 +122,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->mode = NABI_INPUT_MODE_DIRECT;
 
     /* preedit attr */
-    ic->preedit.window = 0;
+    ic->preedit.window = NULL;
     ic->preedit.width = 1;	/* minimum window size is 1 x 1 */
     ic->preedit.height = 1;	/* minimum window size is 1 x 1 */
     ic->preedit.area.x = 0;
@@ -135,9 +136,9 @@ nabi_ic_init_values(NabiIC *ic)
     ic->preedit.spot.x = 0;
     ic->preedit.spot.y = 0;
     ic->preedit.cmap = 0;
-    ic->preedit.gc = 0;
-    ic->preedit.foreground = nabi_server->preedit_fg;
-    ic->preedit.background = nabi_server->preedit_bg;
+    ic->preedit.gc = NULL;
+    ic->preedit.foreground = nabi_server->preedit_fg.pixel;
+    ic->preedit.background = nabi_server->preedit_bg.pixel;
     ic->preedit.bg_pixmap = 0;
     ic->preedit.cursor = 0;
     ic->preedit.base_font = NULL;
@@ -273,9 +274,9 @@ nabi_ic_destroy(NabiIC *ic)
     ic->preedit.start = False;
 
     /* destroy preedit window */
-    if (ic->preedit.window != 0) {
-	XDestroyWindow(nabi_server->display, ic->preedit.window);
-	ic->preedit.window = 0;
+    if (ic->preedit.window != NULL) {
+	gdk_window_destroy(ic->preedit.window);
+	ic->preedit.window = NULL;
     }
 
     /* destroy fontset data */
@@ -331,16 +332,42 @@ nabi_ic_real_destroy(NabiIC *ic)
     nabi_free(ic->preedit.base_font);
     nabi_free(ic->status_attr.base_font);
 
-    if (ic->preedit.window != 0)
-	XDestroyWindow(nabi_server->display, ic->preedit.window);
+    if (ic->preedit.window != NULL)
+	gdk_window_destroy(ic->preedit.window);
 
     if (ic->preedit.font_set)
 	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 
-    if (ic->preedit.gc)
-	XFreeGC(nabi_server->display, ic->preedit.gc);
+    if (ic->preedit.gc != NULL)
+	g_object_unref(G_OBJECT(ic->preedit.gc));
 
     nabi_free(ic);
+}
+
+static void
+nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *str, int size)
+{
+    GdkGC *gc;
+    PangoLayout *layout;
+    int width = 12, height = 12;
+
+    if (ic->preedit.window == NULL)
+	return;
+
+    if (ic->preedit.gc == NULL)
+	gc = nabi_server->gc;
+    else
+	gc = ic->preedit.gc;
+
+    layout = gtk_widget_create_pango_layout(nabi_server->widget, str);
+    pango_layout_get_pixel_size(layout, &width, &height);
+    gdk_window_resize(ic->preedit.window, width + 3, height + 3);
+    gdk_window_clear(ic->preedit.window);
+    gdk_draw_rectangle(ic->preedit.window, gc, FALSE,
+		       0, 0, width + 2, height + 2);
+    gdk_draw_layout(ic->preedit.window, gc, 2, 2, layout);
+    g_object_unref(G_OBJECT(layout));
+    printf("draw preedit\n");
 }
 
 static void
@@ -353,17 +380,17 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 	return;
     if (ic->preedit.font_set == 0)
 	return;
-    if (ic->preedit.gc != 0)
-	gc = ic->preedit.gc;
+    if (ic->preedit.gc != NULL)
+	gc = gdk_x11_gc_get_xgc(ic->preedit.gc);
     else 
-	gc = nabi_server->gc;
+	gc = gdk_x11_gc_get_xgc(nabi_server->gc);
 
     width = Xutf8TextEscapement(ic->preedit.font_set, str, size);
     if (ic->preedit.width != width) {
 	ic->preedit.width = width;
 	ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
-	XResizeWindow(nabi_server->display, ic->preedit.window,
-		      ic->preedit.width, ic->preedit.height);
+	gdk_window_resize(ic->preedit.window,
+		          ic->preedit.width, ic->preedit.height);
     }
 
     /* if preedit window is out of focus window 
@@ -371,13 +398,13 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
     if (ic->preedit.area.width != 0) {
 	if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width) {
 	    ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
-	    XMoveWindow(nabi_server->display, ic->preedit.window,
-			ic->preedit.spot.x, 
-			ic->preedit.spot.y - ic->preedit.ascent);
+	    gdk_window_move(ic->preedit.window,
+			    ic->preedit.spot.x, 
+			    ic->preedit.spot.y - ic->preedit.ascent);
 	}
     }
     Xutf8DrawImageString(nabi_server->display,
-		         ic->preedit.window,
+		         GDK_WINDOW_XWINDOW(ic->preedit.window),
 		         ic->preedit.font_set,
 		         gc,
 		         0,
@@ -395,43 +422,47 @@ nabi_ic_preedit_draw(NabiIC *ic)
 	return;
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-    nabi_ic_preedit_draw_string(ic, buf, size);
+    if (ic->input_style & XIMPreeditPosition) {
+	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+    }
 }
 
 /* map preedit window */
 static void
 nabi_ic_preedit_show(NabiIC *ic)
 {
-    if (ic->preedit.window == 0)
+    if (ic->preedit.window == NULL)
 	return;
 
     /* draw preedit only when ic have any hangul data */
     if (!nabi_ic_is_empty(ic))
-	XMapWindow(nabi_server->display, ic->preedit.window);
+	gdk_window_show(ic->preedit.window);
 }
 
 /* unmap preedit window */
 static void
 nabi_ic_preedit_hide(NabiIC *ic)
 {
-    if (ic->preedit.window == 0)
+    if (ic->preedit.window == NULL)
 	return;
 
-    XUnmapWindow(nabi_server->display, ic->preedit.window);
+    gdk_window_hide(ic->preedit.window);
 }
 
 /* move and resize preedit window */
 static void
 nabi_ic_preedit_configure(NabiIC *ic)
 {
-    if (ic->preedit.window == 0)
+    if (ic->preedit.window == NULL)
 	return;
 
-    XMoveResizeWindow(nabi_server->display, ic->preedit.window,
-		      ic->preedit.spot.x + 1, 
-		      ic->preedit.spot.y - ic->preedit.ascent, 
-		      ic->preedit.width,
-		      ic->preedit.height);
+    gdk_window_move_resize(ic->preedit.window,
+			   ic->preedit.spot.x + 1, 
+			   ic->preedit.spot.y - ic->preedit.ascent, 
+			   ic->preedit.width,
+			   ic->preedit.height);
 }
 
 static GdkFilterReturn
@@ -443,17 +474,17 @@ gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
     if (ic == NULL)
 	return GDK_FILTER_REMOVE;
 
-    if (ic->preedit.window == 0)
+    if (ic->preedit.window == NULL)
 	return GDK_FILTER_REMOVE;
 
-    if (event->xany.window != ic->preedit.window)
+    if (event->xany.window != GDK_WINDOW_XWINDOW(ic->preedit.window))
 	return GDK_FILTER_CONTINUE;
 
     switch (event->type) {
     case DestroyNotify:
 	if (!nabi_ic_is_destroyed(ic)) {
 	    /* preedit window is destroyed, so we set it 0 */
-	    ic->preedit.window = 0;
+	    ic->preedit.window = NULL;
 	    //nabi_ic_destroy(ic);
 	}
 	return GDK_FILTER_REMOVE;
@@ -473,45 +504,41 @@ gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 static void
 nabi_ic_preedit_window_new(NabiIC *ic)
 {
-    Window parent;
-    int cmask = 0;
-    XSetWindowAttributes attributes;
-    GdkWindow *gdk_window;
+    GdkWindow *parent = NULL;
+    GdkWindowAttr attr;
+    gint mask;
 
     if (ic->focus_window != 0)
-	parent = ic->focus_window;
+	parent = gdk_window_foreign_new(ic->focus_window);
     else if (ic->client_window != 0)
-	parent = ic->client_window;
+	parent = gdk_window_foreign_new(ic->client_window);
     else
 	return;
 
-    ic->preedit.window = XCreateSimpleWindow(nabi_server->display,
-					     parent,
-					     ic->preedit.spot.x,
-					     ic->preedit.spot.y
-					      - ic->preedit.ascent,
-					     ic->preedit.width,
-					     ic->preedit.height,
-					     0,
-					     nabi_server->preedit_fg,
-					     nabi_server->preedit_bg);
-
+    attr.wclass = GDK_INPUT_OUTPUT;
+    attr.event_mask = GDK_EXPOSURE_MASK | GDK_STRUCTURE_MASK;
+    attr.window_type = GDK_WINDOW_TEMP;
+    attr.x = ic->preedit.spot.x;
+    attr.y = ic->preedit.spot.y - ic->preedit.ascent;
+    attr.width = ic->preedit.width;
+    attr.height = ic->preedit.height;
     /* set override-redirect to true
      * we should set this to show preedit window on qt apps */
-    cmask = CWOverrideRedirect;
-    attributes.override_redirect = True;
-    XChangeWindowAttributes(nabi_server->display, ic->preedit.window,
-			    cmask, &attributes);
+    attr.override_redirect = TRUE;
+    mask = GDK_WA_X | GDK_WA_Y | GDK_WA_NOREDIR;
 
-    XSelectInput(nabi_server->display, ic->preedit.window,
-		 ExposureMask | StructureNotifyMask);
+    ic->preedit.window = gdk_window_new(parent, &attr, mask);
+    gdk_window_set_background(ic->preedit.window, &(nabi_server->preedit_bg));
+
+    if (ic->preedit.gc != NULL) {
+	ic->preedit.gc = gdk_gc_new(ic->preedit.window);
+	gdk_gc_set_foreground(ic->preedit.gc, &(nabi_server->preedit_fg));
+	gdk_gc_set_background(ic->preedit.gc, &(nabi_server->preedit_bg));
+    }
 
     /* install our preedit window event filter */
-    gdk_window = gdk_window_foreign_new(ic->preedit.window);
-    if (gdk_window != NULL) {
-	gdk_window_add_filter(gdk_window, gdk_event_filter, (gpointer)ic);
-	g_object_unref(gdk_window);
-    }
+    gdk_window_add_filter(ic->preedit.window, gdk_event_filter, (gpointer)ic);
+    g_object_unref(G_OBJECT(parent));
 }
 
 static void
@@ -519,49 +546,45 @@ nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
 {
     ic->focus_window = focus_window;
 
-    if (!(ic->input_style & XIMPreeditPosition))
-	return;
-
-    /* For Preedit Position aka Over the Spot */
-    if (ic->preedit.window == 0)
-	nabi_ic_preedit_window_new(ic);
+    if (ic->input_style & XIMPreeditPosition) {
+	if (ic->preedit.window == NULL)
+	    nabi_ic_preedit_window_new(ic);
+    } if (ic->input_style & XIMPreeditNothing) {
+	if (ic->preedit.window == NULL)
+	    nabi_ic_preedit_window_new(ic);
+    }
 }
 
 static void
 nabi_ic_set_preedit_foreground(NabiIC *ic, unsigned long foreground)
 {
-    foreground = nabi_server->preedit_fg;
     ic->preedit.foreground = foreground;
 
     if (ic->focus_window == 0)
 	return;
 
-    if (ic->preedit.gc) {
-	XSetForeground(nabi_server->display, ic->preedit.gc, foreground);
+    if (ic->preedit.gc != NULL) {
+	gdk_gc_set_foreground(ic->preedit.gc, &(nabi_server->preedit_fg));
     } else {
-	XGCValues values;
-	values.foreground = foreground;
-	ic->preedit.gc = XCreateGC(nabi_server->display, nabi_server->window,
-		       GCForeground, &values);
+	ic->preedit.gc = gdk_gc_new(nabi_server->widget->window);
+	gdk_gc_set_foreground(ic->preedit.gc, &(nabi_server->preedit_fg));
     }
 }
 
 static void
 nabi_ic_set_preedit_background(NabiIC *ic, unsigned long background)
 {
-    background = nabi_server->preedit_bg;
+    GdkColor color = { background, 0, 0, 0 };
     ic->preedit.background = background;
 
     if (ic->focus_window == 0)
 	return;
 
-    if (ic->preedit.gc) {
-	XSetBackground(nabi_server->display, ic->preedit.gc, background);
+    if (ic->preedit.gc != NULL) {
+	gdk_gc_set_background(ic->preedit.gc, &color);
     } else {
-	XGCValues values;
-	values.background = background;
-	ic->preedit.gc = XCreateGC(nabi_server->display, nabi_server->window,
-		       GCBackground, &values);
+	ic->preedit.gc = gdk_gc_new(nabi_server->widget->window);
+	gdk_gc_set_background(ic->preedit.gc, &color);
     }
 }
 
@@ -631,10 +654,13 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
     for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
 	if (streql(XNInputStyle, ic_attr->name)) {
 	    ic->input_style = *(INT32*)ic_attr->value;
+	    printf("input style: %x\n", ic->input_style);
 	} else if (streql(XNClientWindow, ic_attr->name)) {
 	    ic->client_window = *(Window*)ic_attr->value;
+	    printf("client window: %x\n", *(Window*)ic_attr->value);
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
 	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
+	    printf("focus window: %x\n", *(Window*)ic_attr->value);
 	} else {
 	    fprintf(stderr, "Nabi: set unknown ic attribute: %s\n",
 		    ic_attr->name);
@@ -974,7 +1000,10 @@ nabi_ic_preedit_start(NabiIC *ic)
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
-	if (ic->preedit.window == 0)
+	if (ic->preedit.window == NULL)
+	    nabi_ic_preedit_window_new(ic);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	if (ic->preedit.window == NULL)
 	    nabi_ic_preedit_window_new(ic);
     }
     ic->preedit.start = True;
@@ -1146,8 +1175,12 @@ nabi_ic_preedit_insert(NabiIC *ic)
 	XFree(compound_text);
 	g_free(text.feedback);
     } else if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_draw_string(ic, buf, size);
 	nabi_ic_preedit_show(ic);
+	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	nabi_ic_preedit_show(ic);
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	printf("preedit insert \n");
     }
     ic->preedit.prev_length = len;
 }
@@ -1190,6 +1223,9 @@ nabi_ic_preedit_update(NabiIC *ic)
 	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	printf("preedit update \n");
     }
     ic->preedit.prev_length = len;
 }
@@ -1218,7 +1254,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
     } else if (ic->input_style & XIMPreeditPosition) {
-	if (ic->preedit.window == 0)
+	if (ic->preedit.window == NULL)
 	    return;
 
 	/* we resize the preedit window instead of unmap
@@ -1229,7 +1265,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	XResizeWindow(nabi_server->display, ic->preedit.window,
 		      ic->preedit.width, ic->preedit.height);
 	 */
-	XUnmapWindow(nabi_server->display, ic->preedit.window);
+	gdk_window_hide(ic->preedit.window);
     }
     ic->preedit.prev_length = 0;
 }
