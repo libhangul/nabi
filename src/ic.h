@@ -146,7 +146,7 @@ void    nabi_ic_preedit_update(NabiIC *ic);
 void    nabi_ic_preedit_clear(NabiIC *ic);
 
 Bool    nabi_ic_commit(NabiIC *ic);
-Bool    nabi_ic_commit_keyval(NabiIC *ic, KeySym keyval);
+Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 
 Bool    nabi_ic_popup_hanja_window(NabiIC *ic);
 void    nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch);

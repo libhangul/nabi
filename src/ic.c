@@ -1324,28 +1324,26 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
 }
 
 Bool
-nabi_ic_commit_keyval(NabiIC *ic, KeySym keyval)
+nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
 {
-    wchar_t ch = 0;
+    /* need for sebeol symbol */
+    if (ch != 0)
+	return nabi_ic_commit_unicode(ic, ch);
 
     /* forward special keys */
     if ((keyval & 0xff00) == 0xff00 ||
         (keyval & 0xfe00) == 0xfe00 ||
-        (keyval & 0xfd00) == 0xfd00) {
+        (keyval & 0xfd00) == 0xfd00)
 	return False;
-    }
 
     /* TODO: translate keysym to ISO10646 character */
     if ((keyval >= 0x0020 && keyval <= 0x007e) ||
 	(keyval >= 0x00a0 && keyval <= 0x00ff))
-	ch = keyval;
-    else if ((keyval & 0xff000000) == 0x01000000)
-	ch = keyval & 0x00ffffff;
-
-    if (ch != 0)
-	return nabi_ic_commit_unicode(ic, ch);
-    else
 	return False;
+    else if ((keyval & 0xff000000) == 0x01000000)
+	return nabi_ic_commit_unicode(ic, keyval & 0x00ffffff);
+
+    return False;
 }
 
 static int
