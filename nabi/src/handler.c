@@ -266,6 +266,13 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	return nabi_ic_popup_hanja_window(ic);
     }
 
+    /* forward special keys */
+    if (keyval != XK_BackSpace && 
+	((keyval & 0xff00) == 0xff00 ||
+         (keyval & 0xfe00) == 0xfe00 ||
+         (keyval & 0xfd00) == 0xfd00))
+	return False;
+
     /* forward key event and commit current string if any state is on */
     if (kevent->state & 
 	(ControlMask |		/* Ctl */
@@ -274,7 +281,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	 Mod4Mask |		/* Windows */
 	 Mod5Mask)) {
 	if (!nabi_ic_is_empty(ic))
-		nabi_ic_commit(ic);
+	    nabi_ic_commit(ic);
 	return False;
     }
 
