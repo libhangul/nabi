@@ -498,8 +498,8 @@ candidate_item_compare(gconstpointer a, gconstpointer b)
 	    - ((NabiCandidateItem*)((GList*)b)->data)->ch;
 }
 
-static gchar*
-skip_space(gchar* p)
+static guchar*
+skip_space(guchar* p)
 {
     while (g_ascii_isspace(*p))
 	p++;
@@ -531,6 +531,7 @@ nabi_server_load_candidate_table(NabiServer *server,
 	 p != NULL;
 	 p = fgets(buf, sizeof(buf), file)) {
 
+	buf[sizeof(buf) - 1] = '\0';
 	p = skip_space(p);
 
 	/* skip comments */
@@ -552,9 +553,9 @@ nabi_server_load_candidate_table(NabiServer *server,
 	    }
 	} else {
 	    ch = g_utf8_get_char(p);
-	    p = strchr(p, '=') + 1;
+	    p = strchr(p, '=');
 	    if (p != NULL) {
-		p = g_strchomp(p);
+		p = g_strchomp(p + 1);
 		item = nabi_candidate_item_new(ch, p);
 		items = g_list_prepend(items, (gpointer)item);
 	    }
