@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#
+# $Author$
+# $date$
+# $id$
 
 import sys, string
 
