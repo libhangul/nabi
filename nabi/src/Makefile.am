@@ -14,7 +14,7 @@ nabi_SOURCES = \
 	nabi.h \
 	gettext.h \
 	default-icons.h \
-	hanjatable.h \
+	hanjatable.h symboltable.h \
 	keyboard.h \
 	server.h server.c \
 	hangul.h hangul.c \
