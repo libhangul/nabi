@@ -363,11 +363,8 @@ nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *str, int size)
     pango_layout_get_pixel_size(layout, &width, &height);
     gdk_window_resize(ic->preedit.window, width + 3, height + 3);
     gdk_window_clear(ic->preedit.window);
-    gdk_draw_rectangle(ic->preedit.window, gc, FALSE,
-		       0, 0, width + 2, height + 2);
     gdk_draw_layout(ic->preedit.window, gc, 2, 2, layout);
     g_object_unref(G_OBJECT(layout));
-    printf("draw preedit\n");
 }
 
 static void
@@ -424,6 +421,8 @@ nabi_ic_preedit_draw(NabiIC *ic)
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
     if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditArea) {
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
     } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
     }
@@ -458,11 +457,25 @@ nabi_ic_preedit_configure(NabiIC *ic)
     if (ic->preedit.window == NULL)
 	return;
 
-    gdk_window_move_resize(ic->preedit.window,
-			   ic->preedit.spot.x + 1, 
-			   ic->preedit.spot.y - ic->preedit.ascent, 
-			   ic->preedit.width,
-			   ic->preedit.height);
+    if (ic->input_style & XIMPreeditPosition) {
+	gdk_window_move_resize(ic->preedit.window,
+			       ic->preedit.spot.x + 1, 
+			       ic->preedit.spot.y - ic->preedit.ascent, 
+			       ic->preedit.width,
+			       ic->preedit.height);
+    } else if (ic->input_style & XIMPreeditArea) {
+	gdk_window_move_resize(ic->preedit.window,
+			       ic->preedit.area.x + 1, 
+			       ic->preedit.area.y, 
+			       ic->preedit.width,
+			       ic->preedit.height);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	gdk_window_move_resize(ic->preedit.window,
+			       ic->preedit.spot.x + 1, 
+			       ic->preedit.spot.y - ic->preedit.ascent, 
+			       ic->preedit.width,
+			       ic->preedit.height);
+    }
 }
 
 static GdkFilterReturn
@@ -547,6 +560,9 @@ nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
     ic->focus_window = focus_window;
 
     if (ic->input_style & XIMPreeditPosition) {
+	if (ic->preedit.window == NULL)
+	    nabi_ic_preedit_window_new(ic);
+    } if (ic->input_style & XIMPreeditArea) {
 	if (ic->preedit.window == NULL)
 	    nabi_ic_preedit_window_new(ic);
     } if (ic->input_style & XIMPreeditNothing) {
@@ -638,6 +654,28 @@ nabi_ic_set_spot(NabiIC *ic, XPoint *point)
 	nabi_ic_preedit_show(ic);
 }
 
+static void
+nabi_ic_set_area(NabiIC *ic, XRectangle *rect)
+{
+    if (rect == NULL)
+	return;
+
+    ic->preedit.area.x = rect->x; 
+    ic->preedit.area.y = rect->y; 
+    ic->preedit.area.width = rect->width; 
+    ic->preedit.area.height = rect->height; 
+
+    ic->preedit.spot.x = rect->x; 
+    ic->preedit.spot.y = rect->y; 
+
+    nabi_ic_preedit_configure(ic);
+
+    if (nabi_ic_is_empty(ic))
+	nabi_ic_preedit_hide(ic);
+    else
+	nabi_ic_preedit_show(ic);
+}
+
 #define streql(x, y)	(strcmp((x), (y)) == 0)
 
 void
@@ -654,13 +692,10 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
     for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
 	if (streql(XNInputStyle, ic_attr->name)) {
 	    ic->input_style = *(INT32*)ic_attr->value;
-	    printf("input style: %x\n", ic->input_style);
 	} else if (streql(XNClientWindow, ic_attr->name)) {
 	    ic->client_window = *(Window*)ic_attr->value;
-	    printf("client window: %x\n", *(Window*)ic_attr->value);
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
 	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
-	    printf("focus window: %x\n", *(Window*)ic_attr->value);
 	} else {
 	    fprintf(stderr, "Nabi: set unknown ic attribute: %s\n",
 		    ic_attr->name);
@@ -677,7 +712,7 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    nabi_ic_set_preedit_background(ic,
 		    *(unsigned long*)preedit_attr->value);
 	} else if (streql(XNArea, preedit_attr->name)) {
-	    ic->preedit.area = *(XRectangle*)preedit_attr->value;
+	    nabi_ic_set_area(ic, (XRectangle*)preedit_attr->value);
 	} else if (streql(XNLineSpace, preedit_attr->name)) {
 	    ic->preedit.line_space = *(CARD32*)preedit_attr->value;
 	} else if (streql(XNPreeditState, preedit_attr->name)) {
@@ -749,42 +784,32 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
     
     for (i = 0; i < data->preedit_attr_num; i++, preedit_attr++) {
 	if (streql(XNArea, preedit_attr->name)) {
-	    preedit_attr->value 
-		= (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)preedit_attr->value 
-		= ic->preedit.area;
+	    preedit_attr->value = (void *)malloc(sizeof(XRectangle));
+	    *(XRectangle*)preedit_attr->value = ic->preedit.area;
 	    preedit_attr->value_length = sizeof(XRectangle);
 	} else if (streql(XNAreaNeeded, preedit_attr->name)) {
-	    preedit_attr->value
-		= (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)preedit_attr->value
-		= ic->preedit.area_needed;
+	    preedit_attr->value = (void *)malloc(sizeof(XRectangle));
+	    *(XRectangle*)preedit_attr->value = ic->preedit.area_needed;
 	    preedit_attr->value_length = sizeof(XRectangle);
 	} else if (streql(XNSpotLocation, preedit_attr->name)) {
 	    preedit_attr->value = (void *)malloc(sizeof(XPoint));
-	    *(XPoint*)preedit_attr->value 
-		= ic->preedit.spot;
+	    *(XPoint*)preedit_attr->value = ic->preedit.spot;
 	    preedit_attr->value_length = sizeof(XPoint);
 	} else if (streql(XNForeground, preedit_attr->name)) {
 	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value
-		= ic->preedit.foreground;
+	    *(long*)preedit_attr->value = ic->preedit.foreground;
 	    preedit_attr->value_length = sizeof(long);
 	} else if (streql(XNBackground, preedit_attr->name)) {
 	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value
-		= ic->preedit.background;
+	    *(long*)preedit_attr->value = ic->preedit.background;
 	    preedit_attr->value_length = sizeof(long);
 	} else if (streql(XNLineSpace, preedit_attr->name)) {
 	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value
-		= ic->preedit.line_space;
+	    *(long*)preedit_attr->value = ic->preedit.line_space;
 	    preedit_attr->value_length = sizeof(long);
 	} else if (streql(XNPreeditState, preedit_attr->name)) {
-	    preedit_attr->value = 
-		(void *)malloc(sizeof(XIMPreeditState));
-	    *(XIMPreeditState*)preedit_attr->value
-		= ic->preedit.state;
+	    preedit_attr->value = (void *)malloc(sizeof(XIMPreeditState));
+	    *(XIMPreeditState*)preedit_attr->value = ic->preedit.state;
 	    preedit_attr->value_length = sizeof(XIMPreeditState);
 	} else if (streql(XNFontSet, preedit_attr->name)) {
 	    CARD16 base_len = (CARD16)strlen(ic->preedit.base_font);
@@ -810,8 +835,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    status_attr->value_length = sizeof(XRectangle);
 	} else if (streql(XNAreaNeeded, status_attr->name)) {
 	    status_attr->value = (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)status_attr->value
-		= ic->status_attr.area_needed;
+	    *(XRectangle*)status_attr->value = ic->status_attr.area_needed;
 	    status_attr->value_length = sizeof(XRectangle);
 	} else if (streql(XNForeground, status_attr->name)) {
 	    status_attr->value = (void *)malloc(sizeof(long));
@@ -1002,6 +1026,9 @@ nabi_ic_preedit_start(NabiIC *ic)
     } else if (ic->input_style & XIMPreeditPosition) {
 	if (ic->preedit.window == NULL)
 	    nabi_ic_preedit_window_new(ic);
+    } else if (ic->input_style & XIMPreeditArea) {
+	if (ic->preedit.window == NULL)
+	    nabi_ic_preedit_window_new(ic);
     } else if (ic->input_style & XIMPreeditNothing) {
 	if (ic->preedit.window == NULL)
 	    nabi_ic_preedit_window_new(ic);
@@ -1025,6 +1052,10 @@ nabi_ic_preedit_done(NabiIC *ic)
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
+	nabi_ic_preedit_hide(ic);
+    } else if (ic->input_style & XIMPreeditArea) {
+	nabi_ic_preedit_hide(ic);
+    } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_hide(ic);
     }
 
@@ -1177,10 +1208,12 @@ nabi_ic_preedit_insert(NabiIC *ic)
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_show(ic);
 	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditArea) {
+	nabi_ic_preedit_show(ic);
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
     } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_show(ic);
 	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
-	printf("preedit insert \n");
     }
     ic->preedit.prev_length = len;
 }
@@ -1223,9 +1256,10 @@ nabi_ic_preedit_update(NabiIC *ic)
 	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
+    } else if (ic->input_style & XIMPreeditArea) {
+	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
     } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
-	printf("preedit update \n");
     }
     ic->preedit.prev_length = len;
 }
@@ -1266,6 +1300,12 @@ nabi_ic_preedit_clear(NabiIC *ic)
 		      ic->preedit.width, ic->preedit.height);
 	 */
 	gdk_window_hide(ic->preedit.window);
+    } else if (ic->input_style & XIMPreeditArea) {
+	if (ic->preedit.window != NULL)
+	    gdk_window_hide(ic->preedit.window);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	if (ic->preedit.window != NULL)
+	    gdk_window_hide(ic->preedit.window);
     }
     ic->preedit.prev_length = 0;
 }
