@@ -91,28 +91,34 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 {
-//	g_print("IC ID: %d\n", ic->id);
-//	g_print("KEY:   0x%x\n", keyval);
-//	g_print("STATE: 0x%x\n", kevent->state);
+//    g_print("IC ID: %d\n", ic->id);
+//    g_print("KEY:   0x%x\n", keyval);
+//    g_print("STATE: 0x%x\n", kevent->state);
 
-	/* if shift is pressed, we dont commit current string 
-	 * and silently ignore it */
-	if (keyval == XK_Shift_L || keyval == XK_Shift_R)
-		return True;
+    /* if shift is pressed, we dont commit current string 
+     * and silently ignore it */
+    if (keyval == XK_Shift_L || keyval == XK_Shift_R)
+	return True;
 
-	/* forward key event and commit current string if any state is on */
-	if (kevent->state & 
-	    (ControlMask |	/* Ctl */
-	     Mod1Mask |		/* Alt */
-	     Mod3Mask |
-	     Mod4Mask |		/* Windows */
-	     Mod5Mask)) {
-		if (!nabi_ic_is_empty(ic))
-			nabi_ic_commit(ic);
-		return False;
-	}
+    /* for vi user: on Esc we change state to direct mode */
+    if (keyval == XK_Escape) {
+	nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
+	return False;
+    }
 
-	return server->automata(ic, keyval, kevent->state);
+    /* forward key event and commit current string if any state is on */
+    if (kevent->state & 
+	(ControlMask |	/* Ctl */
+	 Mod1Mask |		/* Alt */
+	 Mod3Mask |
+	 Mod4Mask |		/* Windows */
+	 Mod5Mask)) {
+	if (!nabi_ic_is_empty(ic))
+		nabi_ic_commit(ic);
+	return False;
+    }
+
+    return server->automata(ic, keyval, kevent->state);
 }
 
 static Bool
