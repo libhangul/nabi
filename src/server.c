@@ -189,7 +189,8 @@ nabi_server_is_trigger(NabiServer* _server, KeySym key, unsigned int state)
     XIMTriggerKey *item = _server->trigger_keys;
 
     while (item->keysym != 0) {
-	if (key == item->keysym && state == item->modifier)
+	if (key == item->keysym &&
+	    (state & item->modifier_mask) == item->modifier)
 	    return True;
 	item++;
     }
