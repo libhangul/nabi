@@ -638,7 +638,6 @@ keyboard_map_item_free(gpointer data, gpointer user_data)
 
     g_free(keyboard_map->filename);
     g_free(keyboard_map->name);
-    g_free(keyboard_map->map);
 }
 
 void
