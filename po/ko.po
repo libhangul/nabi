@@ -1,73 +1,107 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
+# Copyright (C) YEAR Choe Hwanjin
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2003-07-28 11:27+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: nabi 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2003-08-04 17:33+0900\n"
+"PO-Revision-Date: 2003-08-04 17:33+0900\n"
+"Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
+"Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=EUC-KR\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/ic.c:435
-msgid "Nabi: missing charset\n"
+#: src/eggtrayicon.c:118
+msgid "Orientation"
+msgstr ""
+
+#: src/eggtrayicon.c:119
+msgid "The orientation of the tray."
 msgstr ""
 
 #: src/ic.c:436
+msgid "Nabi: missing charset\n"
+msgstr ""
+
+#: src/ic.c:437
 #, c-format
 msgid "Nabi: font: %s\n"
 msgstr ""
 
-#: src/ic.c:564
+#: src/ic.c:558
 #, c-format
 msgid "Nabi: unkown ic attributes: %s\n"
 msgstr ""
 
-#: src/ui.c:69
+#: src/ui.c:87
 msgid "Nabi: Can't read keyboard map file\n"
 msgstr ""
 
-#: src/ui.c:150
+#: src/ui.c:170
 msgid "Nabi: Can't read compose map file\n"
 msgstr ""
 
-#: src/ui.c:362
+#: src/ui.c:387
 msgid "Nabi: Can't load config file\n"
 msgstr ""
 
-#: src/ui.c:404
+#: src/ui.c:429
 msgid "Nabi: Can't write config file\n"
 msgstr ""
 
-#: src/ui.c:482 src/ui.c:499
+#: src/ui.c:475
+msgid "Nabi: Can't open keyboard map dir\n"
+msgstr ""
+
+#: src/ui.c:508
+msgid "Nabi: Can't load compose map\n"
+msgstr ""
+
+#: src/ui.c:534 src/ui.c:551
 #, c-format
 msgid "Can't allocate color: %s\n"
 msgstr ""
 
-#: src/ui.c:484
+#: src/ui.c:536
 msgid "Use default color: #FFFFFF\n"
 msgstr ""
 
-#: src/ui.c:501
+#: src/ui.c:553
 msgid "Use default color: #000000\n"
 msgstr ""
 
-#. menu about
-#: src/ui.c:654
+#: src/ui.c:575
+msgid "Nabi: No matching keyboard config, use default\n"
+msgstr ""
+
+#: src/ui.c:949
+msgid ": Select Theme"
+msgstr ": Å×¸¶¸¦ ¼±ÅÃÇÏ½Ê½Ã¿À"
+
+#: src/ui.c:978
+msgid "None"
+msgstr ""
+
+#: src/ui.c:987
+msgid "Hangul"
+msgstr ""
+
+#: src/ui.c:996
+msgid "English"
+msgstr ""
+
+#: src/ui.c:1004
+msgid "Theme Name"
+msgstr "Å×¸¶ ÀÌ¸§"
+
+#: src/ui.c:1062
 msgid "_About..."
-msgstr "ë‚˜ë¹„ëŠ”...(_A)"
+msgstr "ÇÁ·Î±×·¥ Á¤º¸(_A)..."
 
-#. menu preferences
-#: src/ui.c:666
-msgid "_Preferences"
-msgstr "ì„¤ì •ì‚¬í•­(_P)"
-
-#. menu quit
-#: src/ui.c:673
-msgid "_Quit"
-msgstr "ì¢…ë£Œ(_Q)"
+#: src/ui.c:1082
+msgid "_Themes..."
+msgstr "Å×¸¶(_T)..."
