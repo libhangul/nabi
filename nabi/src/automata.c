@@ -34,7 +34,7 @@
 #include "server.h"
 
 
-wchar_t
+static wchar_t
 hangul_compose(wchar_t first, wchar_t last)
 {
     int min, max, mid;
@@ -168,7 +168,7 @@ hangul_dvorak_to_qwerty (KeySym key)
     return table[key - XK_exclam];
 }
 
-wchar_t
+static wchar_t
 nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
     if (nabi_server->keyboard_map == NULL)
@@ -197,6 +197,16 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	return keyval;
 }
 
+static Bool
+check_charset(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
+{
+    wchar_t ch;
+    
+    ch = hangul_jamo_to_syllable(choseong, jungseong, jongseong);
+    if (ch < 0xac00 || ch > 0xd7a3)
+	return 0x0;
+    return nabi_server_is_valid_char(nabi_server, ch);
+}
 
 Bool
 nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
@@ -212,9 +222,9 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    jong_ch = hangul_choseong_to_jongseong(ch);
 	    comp_ch = hangul_compose(ic->jongseong[0], jong_ch);
 	    if (hangul_is_jongseong(comp_ch)) {
-		/* check for ksc */
-		if (nabi_server->check_ksc &&
-		    hangul_ucs_to_ksc(ic->choseong[0],
+		/* check charset */
+		if (nabi_server->check_charset &&
+		    check_charset(ic->choseong[0],
 			      ic->jungseong[0],
 			      comp_ch) == 0) {
 		    nabi_ic_commit(ic);
@@ -265,8 +275,8 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 		jong_ch = hangul_choseong_to_jongseong(ch);
 		if (hangul_is_jongseong(jong_ch)) {
 		    /* check for ksc */
-		    if (nabi_server->check_ksc &&
-			hangul_ucs_to_ksc(ic->choseong[0],
+		    if (nabi_server->check_charset &&
+			check_charset(ic->choseong[0],
 				  ic->jungseong[0],
 				  jong_ch) == 0) {
 			nabi_ic_commit(ic);
@@ -380,7 +390,7 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 
     ch = nabi_keyboard_mapping(keyval, state);
 
-    if (nabi_server->check_ksc) {
+    if (nabi_server->check_charset) {
 	if (ic->jongseong[0]) {
 	    if (hangul_is_choseong(ch)) {
 		nabi_ic_commit(ic);
@@ -612,4 +622,4 @@ update:
     return True;
 }
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sw=4 sts=4 : */
