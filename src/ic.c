@@ -1105,7 +1105,7 @@ nabi_ic_preedit_insert(NabiIC *ic)
     char *compound_text;
     IMPreeditCBStruct data;
     XIMText text;
-    XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
+    XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
@@ -1143,7 +1143,7 @@ nabi_ic_preedit_update(NabiIC *ic)
     char *compound_text;
     IMPreeditCBStruct data;
     XIMText text;
-    XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
+    XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
@@ -1182,7 +1182,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 {
     if (ic->input_style & XIMPreeditCallbacks) {
 	XIMText text;
-	XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
+	XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 	IMPreeditCBStruct data;
 
 	data.major_code = XIM_PREEDIT_DRAW;
