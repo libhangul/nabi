@@ -1,6 +1,8 @@
 2003-09-08  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c,src/ic.c,src/ic.h,src/nabi.h,src/hanjatable.h,src/handler.c:
 	  한자 입력 기능 추가
+	* src/handler.c: preedit start/done을 제때에 맞게 호출하도록 수정
+	  mozilla에서 한글 상태에서 창을 닫으면 죽던 문제 해결(#248)
 
 2003-09-07  Choe Hwanjin <krisna@kldp.org>
 	* release 0.5
