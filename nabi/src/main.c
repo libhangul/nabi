@@ -27,10 +27,6 @@
 #include <gtk/gtk.h>
 
 #include "gettext.h"
-#include "session.h"
-#include "../IMdkit/IMdkit.h"
-#include "../IMdkit/Xi18n.h"
-#include "ic.h"
 #include "server.h"
 #include "nabi.h"
 
@@ -43,11 +39,10 @@ on_realize(GtkWidget *widget, gpointer data)
     nabi_server_start(server,
 		      GDK_WINDOW_XDISPLAY(widget->window),
 		      GDK_WINDOW_XWINDOW(widget->window));
-    g_print("XIM server started...\n");
 }
 
 static int
-my_error_handler(Display *display, XErrorEvent *error)
+nabi_x_error_handler(Display *display, XErrorEvent *error)
 {
     gchar buf[64];
 
@@ -74,8 +69,6 @@ main(int argc, char *argv[])
     nabi_app_new();
     nabi_app_init();
 
-    session_open();
-
     server = nabi_server_new();
     nabi_server_init(server);
 
@@ -87,18 +80,14 @@ main(int argc, char *argv[])
     gtk_widget_realize(widget);
     gtk_widget_hide(widget);
 
-    XSetErrorHandler(my_error_handler);
+    XSetErrorHandler(nabi_x_error_handler);
 
     gtk_main();
 
     nabi_server_stop(server);
-    g_print("XIM server terminated\n");
     nabi_server_destroy(server);
 
-    session_close();
-
     nabi_app_free();
-
 
     return 0;
 }
