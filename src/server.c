@@ -25,9 +25,10 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <locale.h>
+#include <time.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
-#include <locale.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -710,6 +711,8 @@ nabi_server_on_keypress(NabiServer *server,
 
     if (keyval == XK_BackSpace)
 	server->statistics.backspace++;
+    else if (keyval == XK_space)
+	server->statistics.space++;
     else if (ch >= 0x1100 && ch <= 0x11FF) {
 	int index = (unsigned int)ch & 0xff;
 	if (index >= 0 && index <= 255)
@@ -1063,16 +1066,175 @@ nabi_server_load_candidate_table(NabiServer *server,
     return TRUE;
 }
 
-int verbose = 1;
-
 void
-DebugLog(int deflevel, int inplevel, char *fmt, ...)
+nabi_server_write_log(NabiServer *server)
 {
-    va_list arg;
-    
-    va_start(arg, fmt);
-    vprintf(fmt, arg);
-    va_end(arg);
-}
+    const gchar *homedir;
+    gchar *filename;
+    time_t current_time;
+    struct tm current_tm;
+    char date[256] = { '\0', };
+    FILE *file;
 
-/* vim: set ts=8 sw=4 : */
+    homedir = g_get_home_dir();
+    filename = g_build_filename(homedir, ".nabi", "nabi.log", NULL);
+    
+    file = fopen(filename, "a");
+    if (file != NULL) {
+	current_time = time(NULL);
+	localtime_r(&current_time, &current_tm);
+	strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", &current_tm);
+
+	fprintf(file, "%s\n", date);
+	fprintf(file, "total: %d\n", server->statistics.total);
+	fprintf(file, "space: %d\n", server->statistics.space);
+	fprintf(file, "backspace: %d\n", server->statistics.backspace);
+	fprintf(file, "keyboard: %s\n", server->keyboard_table->name);
+
+	fprintf(file, "cho:  "
+		      "\341\204\200: %-3d "
+		      "\341\204\201: %-3d "
+		      "\341\204\202: %-3d "
+		      "\341\204\203: %-3d "
+		      "\341\204\204: %-3d "
+		      "\341\204\205: %-3d "
+		      "\341\204\206: %-3d "
+		      "\341\204\207: %-3d "
+		      "\341\204\210: %-3d "
+		      "\341\204\211: %-3d "
+		      "\341\204\212: %-3d "
+		      "\341\204\213: %-3d "
+		      "\341\204\214: %-3d "
+		      "\341\204\215: %-3d "
+		      "\341\204\216: %-3d "
+		      "\341\204\217: %-3d "
+		      "\341\204\220: %-3d "
+		      "\341\204\221: %-3d "
+		      "\341\204\222: %-3d\n",
+		      nabi_server->statistics.jamo[0x00],
+		      nabi_server->statistics.jamo[0x01],
+		      nabi_server->statistics.jamo[0x02],
+		      nabi_server->statistics.jamo[0x03],
+		      nabi_server->statistics.jamo[0x04],
+		      nabi_server->statistics.jamo[0x05],
+		      nabi_server->statistics.jamo[0x06],
+		      nabi_server->statistics.jamo[0x07],
+		      nabi_server->statistics.jamo[0x08],
+		      nabi_server->statistics.jamo[0x09],
+		      nabi_server->statistics.jamo[0x0a],
+		      nabi_server->statistics.jamo[0x0b],
+		      nabi_server->statistics.jamo[0x0c],
+		      nabi_server->statistics.jamo[0x0d],
+		      nabi_server->statistics.jamo[0x0e],
+		      nabi_server->statistics.jamo[0x0f],
+		      nabi_server->statistics.jamo[0x10],
+		      nabi_server->statistics.jamo[0x11],
+		      nabi_server->statistics.jamo[0x12]);
+
+	fprintf(file, "jung: "
+		      "\341\205\241: %-3d "
+		      "\341\205\242: %-3d "
+		      "\341\205\243: %-3d "
+		      "\341\205\244: %-3d "
+		      "\341\205\245: %-3d "
+		      "\341\205\246: %-3d "
+		      "\341\205\247: %-3d "
+		      "\341\205\250: %-3d "
+		      "\341\205\251: %-3d "
+		      "\341\205\252: %-3d "
+		      "\341\205\253: %-3d "
+		      "\341\205\254: %-3d "
+		      "\341\205\255: %-3d "
+		      "\341\205\256: %-3d "
+		      "\341\205\257: %-3d "
+		      "\341\205\260: %-3d "
+		      "\341\205\261: %-3d "
+		      "\341\205\262: %-3d "
+		      "\341\205\263: %-3d "
+		      "\341\205\264: %-3d "
+		      "\341\205\265: %-3d\n",
+		      nabi_server->statistics.jamo[0x61],
+		      nabi_server->statistics.jamo[0x62],
+		      nabi_server->statistics.jamo[0x63],
+		      nabi_server->statistics.jamo[0x64],
+		      nabi_server->statistics.jamo[0x65],
+		      nabi_server->statistics.jamo[0x66],
+		      nabi_server->statistics.jamo[0x67],
+		      nabi_server->statistics.jamo[0x68],
+		      nabi_server->statistics.jamo[0x69],
+		      nabi_server->statistics.jamo[0x6a],
+		      nabi_server->statistics.jamo[0x6b],
+		      nabi_server->statistics.jamo[0x6c],
+		      nabi_server->statistics.jamo[0x6d],
+		      nabi_server->statistics.jamo[0x6e],
+		      nabi_server->statistics.jamo[0x6f],
+		      nabi_server->statistics.jamo[0x70],
+		      nabi_server->statistics.jamo[0x71],
+		      nabi_server->statistics.jamo[0x72],
+		      nabi_server->statistics.jamo[0x73],
+		      nabi_server->statistics.jamo[0x74],
+		      nabi_server->statistics.jamo[0x75]);
+
+	fprintf(file, "jong: "
+		      "\341\206\250: %-3d "
+		      "\341\206\251: %-3d "
+		      "\341\206\252: %-3d "
+		      "\341\206\253: %-3d "
+		      "\341\206\254: %-3d "
+		      "\341\206\255: %-3d "
+		      "\341\206\256: %-3d "
+		      "\341\206\257: %-3d "
+		      "\341\206\260: %-3d "
+		      "\341\206\261: %-3d "
+		      "\341\206\262: %-3d "
+		      "\341\206\263: %-3d "
+		      "\341\206\264: %-3d "
+		      "\341\206\265: %-3d "
+		      "\341\206\266: %-3d "
+		      "\341\206\267: %-3d "
+		      "\341\206\270: %-3d "
+		      "\341\206\271: %-3d "
+		      "\341\206\272: %-3d "
+		      "\341\206\273: %-3d "
+		      "\341\206\274: %-3d "
+		      "\341\206\275: %-3d "
+		      "\341\206\276: %-3d "
+		      "\341\206\277: %-3d "
+		      "\341\207\200: %-3d "
+		      "\341\207\201: %-3d "
+		      "\341\207\202: %-3d\n",
+		      nabi_server->statistics.jamo[0xa8],
+		      nabi_server->statistics.jamo[0xa9],
+		      nabi_server->statistics.jamo[0xaa],
+		      nabi_server->statistics.jamo[0xab],
+		      nabi_server->statistics.jamo[0xac],
+		      nabi_server->statistics.jamo[0xad],
+		      nabi_server->statistics.jamo[0xae],
+		      nabi_server->statistics.jamo[0xaf],
+		      nabi_server->statistics.jamo[0xb0],
+		      nabi_server->statistics.jamo[0xb1],
+		      nabi_server->statistics.jamo[0xb2],
+		      nabi_server->statistics.jamo[0xb3],
+		      nabi_server->statistics.jamo[0xb4],
+		      nabi_server->statistics.jamo[0xb5],
+		      nabi_server->statistics.jamo[0xb6],
+		      nabi_server->statistics.jamo[0xb7],
+		      nabi_server->statistics.jamo[0xb8],
+		      nabi_server->statistics.jamo[0xb9],
+		      nabi_server->statistics.jamo[0xba],
+		      nabi_server->statistics.jamo[0xbb],
+		      nabi_server->statistics.jamo[0xbc],
+		      nabi_server->statistics.jamo[0xbd],
+		      nabi_server->statistics.jamo[0xbe],
+		      nabi_server->statistics.jamo[0xbf],
+		      nabi_server->statistics.jamo[0xc0],
+		      nabi_server->statistics.jamo[0xc1],
+		      nabi_server->statistics.jamo[0xc2]);
+
+	fprintf(file, "\n");
+
+	fclose(file);
+    }
+
+    g_free(filename);
+}

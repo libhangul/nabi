@@ -93,6 +93,7 @@ typedef void (*NabiModeInfoCallback)(int);
 
 struct NabiStatistics {
     int total;
+    int space;
     int backspace;
     int shift;
     int jamo[256];
@@ -201,6 +202,7 @@ void        nabi_server_on_keypress     (NabiServer *server,
 					 KeySym keyval,
 					 unsigned int state,
 					 wchar_t ch);
+void        nabi_server_write_log(NabiServer *server);
 
 Bool	    nabi_server_load_keyboard_table(NabiServer *server,
 					    const char *filename);
