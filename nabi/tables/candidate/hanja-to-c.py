@@ -46,10 +46,10 @@ categories = table.keys()
 categories.sort()
 for category in categories:
 	print 'static const CandidateItem item_%04x[] = {' % ord(category.decode('utf-8'))
-	print '    { 0x%04x, \"\" }, /* %s */' % (ord(category.decode('utf-8')), category)
+	print '    { 0x%04x, \"%s\" },' % (ord(category.decode('utf-8')), category)
 	keys = table[category]['keylist']
 	for key in keys:
-		print '    { 0x%04x, \"%s\" }, /* %s */' % (ord(key.decode('utf-8')), table[category][key], key)
+		print '    { 0x%04x, /*%s*/ \"%s\" },' % (ord(key.decode('utf-8')), key, table[category][key])
 		continue
 	print '    { 0x0, \"\" }'
 	print '};'
