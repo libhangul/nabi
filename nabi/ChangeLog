@@ -1,3 +1,6 @@
+2003-12-18  Choe Hwanjin <krisna@kldp.org>
+	* release 0.12
+
 2003-12-16  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: PreeditCallback 방식의 preedit style을 Underline에서 
 	  Reverse로 바꿈
