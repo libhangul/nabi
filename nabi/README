@@ -1,0 +1,11 @@
+imhangul_status_applet 은 GNOME 패널의 애플릿으로만 동작하기 때문에 
+그 외의 환경에서 사용하기 어려운 점이 있습니다. 
+
+하지만 nabi는 system tray에 들어가는 프로그램이기 때문에 KDE에서도 별 무리 
+없이 사용하실수 있을겁니다.
+
+XIM 기능도 있기 때문에 XIM으로 사용하고 싶다면
+
+export XMODIFIERS="@im=nabi"
+
+하시면 됩니다.
