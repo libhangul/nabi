@@ -1323,6 +1323,31 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     return True;
 }
 
+Bool
+nabi_ic_commit_keyval(NabiIC *ic, KeySym keyval)
+{
+    wchar_t ch = 0;
+
+    /* forward special keys */
+    if ((keyval & 0xff00) == 0xff00 ||
+        (keyval & 0xfe00) == 0xfe00 ||
+        (keyval & 0xfd00) == 0xfd00) {
+	return False;
+    }
+
+    /* TODO: translate keysym to ISO10646 character */
+    if ((keyval >= 0x0020 && keyval <= 0x007e) ||
+	(keyval >= 0x00a0 && keyval <= 0x00ff))
+	ch = keyval;
+    else if ((keyval & 0xff000000) == 0x01000000)
+	ch = keyval & 0x00ffffff;
+
+    if (ch != 0)
+	return nabi_ic_commit_unicode(ic, ch);
+    else
+	return False;
+}
+
 static int
 get_index_of_hanjatable (wchar_t ch)
 {
