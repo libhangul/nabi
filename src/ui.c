@@ -1098,6 +1098,7 @@ on_menu_about(GtkWidget *widget)
 
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
+    dialog = NULL;
 }
 
 static void
