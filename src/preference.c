@@ -477,6 +477,60 @@ create_keyboard_page(void)
 }
 
 static void
+on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
+{
+    gint result;
+    GtkWidget *dialog;
+
+    dialog = gtk_font_selection_dialog_new(_("Select candidate font"));
+    gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dialog),
+					    nabi->candidate_font);
+    gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dialog),
+					       "訓民正音 훈민정음");
+    gtk_widget_show_all(dialog);
+    gtk_widget_hide(GTK_FONT_SELECTION_DIALOG(dialog)->apply_button);
+
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if (result == GTK_RESPONSE_OK) {
+	char *font = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dialog));
+	nabi_app_set_candidate_font(font);
+	gtk_button_set_label(GTK_BUTTON(button), font);
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static GtkWidget*
+create_candidate_page(void)
+{
+    GtkWidget *page;
+    GtkWidget *vbox1;
+    GtkWidget *hbox;
+    GtkWidget *label;
+    GtkWidget *button;
+
+    page = gtk_vbox_new(FALSE, 12);
+    gtk_container_set_border_width(GTK_CONTAINER(page), 12);
+
+    /* options for candidate */
+    vbox1 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+
+    label = gtk_label_new(_("Font:"));
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    button = gtk_button_new_with_label(nabi->candidate_font);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 12);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
+
+    return page;
+}
+
+static void
 on_trigger_key_button_changed(GtkToggleButton *button, gpointer data)
 {
     gboolean state;
@@ -653,6 +707,11 @@ preference_window_create(void)
     /* keyboard */
     label = gtk_label_new(_("Keyboard"));
     child = create_keyboard_page();
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+
+    /* candidate */
+    label = gtk_label_new(_("Candidate"));
+    child = create_candidate_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
     /* key */
