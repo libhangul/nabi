@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 #
-# $Author$
-# $Date$
-# $Id$
 
 import sys, string
 
