@@ -222,7 +222,7 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    jong_ch = hangul_choseong_to_jongseong(ch);
 	    comp_ch = hangul_compose(ic->jongseong[0], jong_ch);
 	    if (hangul_is_jongseong(comp_ch)) {
-		/* check charset */
+		/* check charset for current locale */
 		if (nabi_server->check_charset &&
 		    check_charset(ic->choseong[0],
 			      ic->jungseong[0],
@@ -274,7 +274,7 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (ic->choseong[0]) {
 		jong_ch = hangul_choseong_to_jongseong(ch);
 		if (hangul_is_jongseong(jong_ch)) {
-		    /* check for ksc */
+		    /* check charset for current locale */
 		    if (nabi_server->check_charset &&
 			check_charset(ic->choseong[0],
 				  ic->jungseong[0],
@@ -301,6 +301,16 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	if (hangul_is_jungseong(ch)) {
 	    comp_ch = hangul_compose(ic->jungseong[0], ch);
 	    if (hangul_is_jungseong(comp_ch)) {
+		/* check charset for current locale */
+		if (nabi_server->check_charset &&
+		    check_charset(ic->choseong[0],
+				  comp_ch,
+				  ic->jongseong[0]) == 0) {
+		    nabi_ic_commit(ic);
+		    ic->jungseong[0] = ch;
+		    nabi_ic_push(ic, ch);
+		    goto insert;
+		}
 		ic->jungseong[0] = comp_ch;
 		nabi_ic_push(ic, comp_ch);
 	    } else {
@@ -407,6 +417,16 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (hangul_is_jongseong(ch)) {
 		comp_ch = hangul_compose(ic->jongseong[0], ch);
 		if (hangul_is_jongseong(comp_ch)) {
+		    /* check charset for current locale */
+		    if (nabi_server->check_charset &&
+			check_charset(ic->choseong[0],
+				      ic->jungseong[0],
+				      comp_ch) == 0) {
+			nabi_ic_commit(ic);
+			ic->jongseong[0] = ch;
+			nabi_ic_push(ic, ch);
+			goto insert;
+		    }
 		    ic->jongseong[0] = comp_ch;
 		    nabi_ic_push(ic, comp_ch);
 		    goto update;
@@ -421,6 +441,16 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (hangul_is_jungseong(ch)) {
 		comp_ch = hangul_compose(ic->jungseong[0], ch);
 		if (hangul_is_jungseong(comp_ch)) {
+		    /* check charset for current locale */
+		    if (nabi_server->check_charset &&
+			check_charset(ic->choseong[0],
+				      comp_ch,
+				      ic->jongseong[0]) == 0) {
+			nabi_ic_commit(ic);
+			ic->jungseong[0] = ch;
+			nabi_ic_push(ic, ch);
+			goto insert;
+		    }
 		    ic->jungseong[0] = comp_ch;
 		    nabi_ic_push(ic, comp_ch);
 		    goto update;
@@ -439,6 +469,16 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		    goto insert;
 		}
 		if (hangul_is_jongseong(ch)) {
+		    /* check charset for current locale */
+		    if (nabi_server->check_charset &&
+			check_charset(ic->choseong[0],
+				      ic->jungseong[0],
+				      ch) == 0) {
+			nabi_ic_commit(ic);
+			ic->jongseong[0] = ch;
+			nabi_ic_push(ic, ch);
+			goto insert;
+		    }
 		    ic->jongseong[0] = ch;
 		    nabi_ic_push(ic, ch);
 		    goto update;
