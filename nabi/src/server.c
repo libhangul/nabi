@@ -266,6 +266,10 @@ nabi_server_init(NabiServer *server)
     /* check korean locale encoding */
     server->check_charset = !g_get_charset(&charset);
     if (server->check_charset) {
+	if (strncmp(charset, "ko", 2) != 0) {
+	    fprintf(stderr,
+		    "Nabi: Warning: Current charset is %s\n", charset);
+	}
 	server->converter = g_iconv_open(charset, "UTF-8");
 	if ((GIConv)server->converter == (GIConv)(-1)) {
 	    server->check_charset = False;
