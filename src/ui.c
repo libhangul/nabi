@@ -72,7 +72,7 @@ guint32 string_to_hex(char* p)
     return ret;
 }
 
-NabiKeyboardMap *
+static NabiKeyboardMap *
 load_keyboard_map_from_file(const char *filename)
 {
     int i;
@@ -147,7 +147,7 @@ compose_item_compare(gconstpointer a, gconstpointer b)
     return ((NabiComposeItem*)a)->key - ((NabiComposeItem*)b)->key;
 }
 
-gboolean
+static gboolean
 load_compose_map_from_file(char *filename, NabiComposeMap *compose_map)
 {
     int i;
@@ -276,7 +276,7 @@ const static struct config_item config_items[] = {
     { NULL,                 0,             0                             }
 };
 
-void
+static void
 set_value_bool(guint offset, gchar* value)
 {
     gboolean *member = BOOL_BY_OFFSET(offset);
@@ -288,7 +288,7 @@ set_value_bool(guint offset, gchar* value)
     }
 }
 
-void
+static void
 set_value_int(guint offset, gchar* value)
 {
     int *member = INT_BY_OFFSET(offset);
@@ -296,7 +296,7 @@ set_value_int(guint offset, gchar* value)
     *member = strtol(value, NULL, 10);
 }
 
-void
+static void
 set_value_str(guint offset, gchar* value)
 {
     char **member = CHAR_BY_OFFSET(offset);
@@ -305,7 +305,7 @@ set_value_str(guint offset, gchar* value)
     *member = g_strdup(value);
 }
 
-void
+static void
 write_value_bool(FILE* file, gchar* key, guint offset)
 {
     gboolean *member = BOOL_BY_OFFSET(offset);
@@ -316,7 +316,7 @@ write_value_bool(FILE* file, gchar* key, guint offset)
 	fprintf(file, "%s=%s\n", key, "false");
 }
 
-void
+static void
 write_value_int(FILE* file, gchar* key, guint offset)
 {
     int *member = INT_BY_OFFSET(offset);
@@ -324,7 +324,7 @@ write_value_int(FILE* file, gchar* key, guint offset)
     fprintf(file, "%s=%d\n", key, *member);
 }
 
-void
+static void
 write_value_str(FILE* file, gchar* key, guint offset)
 {
     char **member = CHAR_BY_OFFSET(offset);
@@ -332,7 +332,7 @@ write_value_str(FILE* file, gchar* key, guint offset)
     fprintf(file, "%s=%s\n", key, *member);
 }
 
-void
+static void
 load_config_item(gchar* key, gchar* value)
 {
     gint i;
@@ -356,7 +356,7 @@ load_config_item(gchar* key, gchar* value)
     }
 }
 
-void
+static void
 load_config_file(void)
 {
     gchar *line, *saved_position;
@@ -401,7 +401,7 @@ load_config_file(void)
     g_free(config_filename);
 }
 
-void
+static void
 save_config_file(void)
 {
     gint i;
@@ -454,12 +454,12 @@ save_config_file(void)
     g_free(config_filename);
 }
 
-gint keyboard_map_list_cmp_func(gconstpointer a, gconstpointer b)
+static gint keyboard_map_list_cmp_func(gconstpointer a, gconstpointer b)
 {
     return strcmp(((NabiKeyboardMap*)a)->name, ((NabiKeyboardMap*)b)->name);
 }
 
-void
+static void
 load_keyboard_maps(void)
 {
     gchar *path;
@@ -493,7 +493,7 @@ load_keyboard_maps(void)
     g_free(path);
 }
 
-void
+static void
 load_compose_map(void)
 {
     gboolean ret;
@@ -510,7 +510,7 @@ load_compose_map(void)
     }
 }
 
-void
+static void
 load_colors(void)
 {
     gboolean ret;
@@ -554,7 +554,7 @@ load_colors(void)
     }
 }
 
-void
+static void
 set_up_keyboard(void)
 {
     if (nabi->keyboard_map_filename != NULL) {
@@ -613,7 +613,7 @@ nabi_app_setup_server(void)
     load_colors();
 }
 
-void
+static void
 keyboard_map_item_free(gpointer data, gpointer user_data)
 {
     NabiKeyboardMap *keyboard_map = (NabiKeyboardMap*)data;
@@ -653,7 +653,7 @@ nabi_quit(void)
     gtk_main_quit();
 }
 
-gboolean
+static gboolean
 on_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
     g_object_unref(G_OBJECT(none_pixbuf));
@@ -666,7 +666,7 @@ on_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
     return TRUE;
 }
 
-gboolean
+static gboolean
 on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
     if (event->type != GDK_BUTTON_PRESS)
@@ -685,7 +685,7 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
     return FALSE;
 }
 
-GtkWidget*
+static GtkWidget*
 create_pref_window(void)
 {
     GtkWidget *window;
@@ -699,7 +699,45 @@ create_pref_window(void)
 void
 on_menu_about(GtkWidget *widget)
 {
-    g_print("About\n");
+    GtkWidget *hbox;
+    GtkWidget *title;
+    GtkWidget *comment;
+    GtkWidget *image;
+    gchar *image_filename;
+    GtkWidget *dialog;
+
+    dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
+	    				 NULL,
+					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+					 GTK_STOCK_OK,
+					 GTK_RESPONSE_ACCEPT,
+					 NULL);
+    image_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
+    image = gtk_image_new_from_file(image_filename);
+    g_free(image_filename);
+
+    title = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(title),
+	    _("<span size=\"xx-large\" weight=\"bold\">Nabi</span>"));
+
+    comment = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(comment),
+	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003 (C) Choe Hwanjin"));
+    gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_RIGHT);
+
+    hbox = gtk_hbox_new(FALSE, 10);
+    gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
+    gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), title, FALSE, TRUE, 0);
+    gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 10);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), comment, TRUE, TRUE, 5);
+
+    gtk_window_set_default_size(GTK_WINDOW(dialog), 200, 120);
+    gtk_widget_show_all(dialog);
+
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 }
 
 void
@@ -1074,7 +1112,7 @@ create_menu(void)
 
     /* menu preferences */
     menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences..."));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    //gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 			     G_CALLBACK(on_menu_pref), menu_item);
@@ -1084,7 +1122,7 @@ create_menu(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-		 G_CALLBACK(on_menu_themes), menu_item);
+			     G_CALLBACK(on_menu_themes), menu_item);
 
     /* separator */
     menu_item = gtk_separator_menu_item_new();
@@ -1112,7 +1150,7 @@ create_menu(void)
     gtk_widget_show(menu_item);
 
     /* menu quit */
-    menu_item = gtk_image_menu_item_new_from_stock("gtk-quit", accel_group);
+    menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
