@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-12-02 23:12+0900\n"
+"POT-Creation-Date: 2004-12-04 20:37+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -127,71 +127,69 @@ msgstr "종성"
 msgid "Nabi keypress statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:1052
+#: src/ui.c:1051
 msgid "About Nabi"
 msgstr "Nabi에 대해서"
 
-#: src/ui.c:1066
+#: src/ui.c:1069
 #, c-format
-msgid "<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"
-msgstr "<span size=\"xx-large\" weight=\"bold\">나비 %s</span>"
-
-#: src/ui.c:1074
 msgid ""
-"<span size=\"large\">An easy Hangul XIM</span>\n"
+"<span size=\"large\">An Easy Hangul XIM</span>\n"
+"version %s\n"
 "\n"
 "Copyright (c) 2003-2004 Choe Hwanjin"
 msgstr ""
-"<span size=\"large\">간단한 한글 입력기</span>\n"
+"<span size=\"large\">쉬운 한글 입력기</span>\n"
+"버젼 %s\n"
 "\n"
 "Copyright © 2003-2004 최환진"
 
-#: src/ui.c:1082
+#: src/ui.c:1080
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM 이름</span>: "
 
-#: src/ui.c:1088
+#: src/ui.c:1086
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">로캘</span>: "
 
-#: src/ui.c:1094
+#: src/ui.c:1092
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">인코딩</span>: "
 
-#: src/ui.c:1100
+#: src/ui.c:1098
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">연결된 수</span>: "
 
-#: src/ui.c:1145
+#: src/ui.c:1132
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:1217
+#: src/ui.c:1204
 msgid "_About..."
 msgstr "프로그램 정보(_A)..."
 
-#: src/ui.c:1232
+#: src/ui.c:1219
 msgid "_Preferences..."
 msgstr "설정(_P)..."
 
-#: src/ui.c:1344 src/ui.c:1346 src/ui.c:1380 src/ui.c:1382 src/ui.c:1590
-#: src/ui.c:1612
+#: src/ui.c:1331 src/ui.c:1333 src/ui.c:1367 src/ui.c:1369 src/ui.c:1577
+#: src/ui.c:1599
 msgid "Nabi: None"
 msgstr "나비: 중립"
 
-#: src/ui.c:1356 src/ui.c:1358
+#: src/ui.c:1343 src/ui.c:1345
 msgid "Nabi: English"
 msgstr "나비: 영어"
 
-#: src/ui.c:1368 src/ui.c:1370
+#: src/ui.c:1355 src/ui.c:1357
 msgid "Nabi: Hangul"
 msgstr "나비: 한글"
 
-#: src/ui.c:1553
+#: src/ui.c:1540
 msgid "Hangul input method: Nabi"
 msgstr "한글 입력기: 나비"
 
-#: src/ui.c:1554
+#: src/ui.c:1541
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
