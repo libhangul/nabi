@@ -22,16 +22,22 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 dnl Checks for library functions.
 
 dnl gettext stuff
-dnl ALL_LINGUAS="ko"
 AM_GNU_GETTEXT([external])
 
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$PACKAGE", gettext package name)
 AC_DEFINE_UNQUOTED(LOCALEDIR, "$datadir/locale", gettext locale dir)
 
+dnl data dir
+NABI_DATA_DIR="${datadir}/$PACKAGE"
+NABI_THEMES_DIR="${NABI_DATA_DIR}/themes"
+AC_SUBST(NABI_DATA_DIR)
+AC_SUBST(NABI_THEMES_DIR)
+
 AC_OUTPUT([
 Makefile
 IMdkit/Makefile
 src/Makefile
+themes/Makefile
 m4/Makefile 
 po/Makefile.in 
 ])

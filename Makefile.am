@@ -1,4 +1,4 @@
-SUBDIRS = m4 IMdkit src po
+SUBDIRS = m4 IMdkit src po themes
 
 ACLOCAL_AMFLAGS = -I m4
 
