@@ -11,6 +11,7 @@ nabi_SOURCES = \
 	gettext.h \
 	ucs2ksc.h \
 	default-icons.h \
+	keyboard.h \
 	server.h server.c \
 	hangul.h hangul.c \
 	ic.h ic.c \

@@ -42,7 +42,7 @@ struct _NabiServer {
     NabiIC*                 ic_freed;
 
     /* hangul automata */
-    wchar_t*                keyboard_map;
+    const wchar_t*          keyboard_map;
     NabiComposeItem**       compose_map;
     int                     compose_map_size;
     Bool                    (*automata)(NabiIC*,
@@ -74,11 +74,12 @@ int         nabi_server_start           (NabiServer* _server,
 Bool        nabi_server_is_trigger      (NabiServer*  _server,
                                          KeySym       key,
                                          unsigned int state);
-void        nabi_server_set_keyboard_map(NabiServer *_server,
-					 wchar_t *keyboard_map,
-					 NabiKeyboardType type)
-void        nabi_server_set_automata    (NabiServer *_server,
-                                         NabiKeyboardType type);
+void        nabi_server_set_keyboard    (NabiServer *_server,
+					 const wchar_t *keyboard_map,
+					 NabiKeyboardType type);
+void        nabi_server_set_compose_map (NabiServer *_server,
+			    		 NabiComposeItem **compose_map,
+			    		 int size);
 void        nabi_server_set_mode_info_cb(NabiServer *_server,
 					 NabiModeInfoCallback func);
 void        nabi_server_ic_table_expand (NabiServer* _server);
