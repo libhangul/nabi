@@ -134,7 +134,7 @@ void        nabi_server_remove_connect  (NabiServer *_server,
                                          NabiConnect *connect);
 NabiConnect* nabi_server_get_connect_by_id(NabiServer *_server,
                                            CARD16 connect_id);
-Bool        nabi_server_check_valid     (NabiServer *_server, wchar_t ch);
+Bool        nabi_server_is_valid_char   (NabiServer *_server, wchar_t ch);
 
 #endif  /* __SERVER_H_ */
 

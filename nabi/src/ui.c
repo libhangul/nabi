@@ -1474,10 +1474,11 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     y = 0;
     p = ch;
     while (*p != 0) {
-	if (!nabi_server_check_valid(server, *p)) {
+	if (!nabi_server_is_valid_char(server, *p)) {
 	    p++;
 	    continue;
 	}
+	
 	n = g_unichar_to_utf8 ((gunichar)*p, buf);
 	buf[n] = 0;
 
@@ -1501,7 +1502,7 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
 			(GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
 			0, 0);
 	g_signal_connect (G_OBJECT(button), "clicked",
-		          G_CALLBACK (on_hanja_button_clicked), ic);
+			  G_CALLBACK (on_hanja_button_clicked), ic);
 
 	x++;
 	if (x > 9) {
@@ -1517,6 +1518,11 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     g_signal_connect (G_OBJECT(window), "destroy",
 		      G_CALLBACK (on_hanja_window_destroy), NULL);
 
+    if (x == 0 && y == 0) {
+	gtk_widget_destroy(window);
+	hanja_window = NULL;
+	return NULL;
+    }
     gtk_grab_add (window);
     gtk_widget_show_all (window);
 
