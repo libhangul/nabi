@@ -43,6 +43,8 @@ on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
     GString *str;
     GtkWidget *label;
 
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(widget),
+				      GTK_RESPONSE_OK, TRUE);
     label = g_object_get_data(G_OBJECT(widget), "key-text-label");
 
     str = g_string_new("");
@@ -65,13 +67,30 @@ on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
     str = g_string_append(str, keys);
     gtk_label_set_text(GTK_LABEL(label), str->str);
 
+    gtk_window_present(GTK_WINDOW(widget));
+
     return TRUE;
 }
 
-static void
-on_focus(GtkWidget *widget, gpointer data)
+static gboolean
+on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
+{
+    int width = 0, height = 0;
+
+    gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
+    if (event->x < 0 || event->y < 0 ||
+	event->x > width || event->y > height) {
+	gtk_dialog_response(GTK_DIALOG(widget), GTK_RESPONSE_CANCEL);
+	return TRUE;
+    }
+    return FALSE;
+}
+
+static gboolean
+on_focus(GtkWidget *widget, GdkEventFocus *event, gpointer data)
 {
     key_capture_dialog_grab(widget);
+    return TRUE;
 }
 
 static void
@@ -136,11 +155,16 @@ key_capture_dialog_new(const gchar *title,
     gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
     gtk_box_pack_start (GTK_BOX (GTK_DIALOG(dialog)->vbox), hbox, FALSE, FALSE, 0);
 
+    gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
+				      GTK_RESPONSE_OK, FALSE);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
     gtk_widget_show_all (hbox);
 
     g_signal_connect(G_OBJECT(dialog), "key-press-event",
 		     G_CALLBACK(on_key_press), dialog);
-    g_signal_connect(G_OBJECT(dialog), "focus",
+    g_signal_connect(G_OBJECT(dialog), "button-press-event",
+		     G_CALLBACK(on_button_press), dialog);
+    g_signal_connect(G_OBJECT(dialog), "focus-in-event",
 		     G_CALLBACK(on_focus), NULL);
     g_signal_connect(G_OBJECT(dialog), "close",
 		     G_CALLBACK(on_close), NULL);
