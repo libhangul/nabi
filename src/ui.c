@@ -291,6 +291,7 @@ const static struct config_item config_items[] = {
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                 },
     { "keyboard_map",       CONF_TYPE_STR,  OFFSET(keyboard_map_filename) },
     { "compose_map",        CONF_TYPE_STR,  OFFSET(compose_map_filename)  },
+    { "candidate_table",    CONF_TYPE_STR,  OFFSET(candidate_table_filename) },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                },
     { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)           },
     { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)            },
@@ -398,6 +399,10 @@ load_config_file(void)
 						 "compose",
 						 "default",
 						 NULL);
+    nabi->candidate_table_filename = g_build_filename(NABI_DATA_DIR,
+						      "candidate",
+						      "nabi.txt",
+						      NULL);
     nabi->output_mode = g_strdup("syllable");
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
@@ -535,6 +540,17 @@ load_compose_map(void)
 }
 
 static void
+load_candidate_table(void)
+{
+    Bool ret;
+    ret = nabi_server_load_candidate_table(nabi_server,
+					   nabi->candidate_table_filename);
+    if (!ret) {
+	fprintf(stderr, _("Nabi: Can't candidate table\n"));
+    }
+}
+
+static void
 load_colors(void)
 {
     gboolean ret;
@@ -610,6 +626,7 @@ nabi_app_new(void)
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
+    nabi->candidate_table_filename = NULL;
     nabi->hanja_font = NULL;
 
     nabi->keyboard_maps = NULL;
@@ -712,6 +729,7 @@ nabi_app_setup_server(void)
 
     set_up_keyboard();
     load_compose_map();
+    load_candidate_table();
     load_colors();
     set_up_output_mode();
 }
@@ -797,7 +815,6 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
     drawable = GTK_PLUG(widget)->socket_window;
     gdk_drawable_get_size(GDK_DRAWABLE(drawable), &width, &height);
     create_resized_icons(MIN(width, height));
-    g_print("Embeded: %dx%d\n", width, height);
 }
 
 static void

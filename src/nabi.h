@@ -47,6 +47,7 @@ struct _NabiApplication {
     gchar*          theme;
     gchar*          keyboard_map_filename;
     gchar*          compose_map_filename;
+    gchar*	    candidate_table_filename;
     gchar*          hanja_font;
 
     GSList 	    *keyboard_maps;

@@ -73,7 +73,7 @@ nabi_candidate_update_labels(NabiCandidate *candidate)
 	 candidate->first + i < candidate->n;
 	 i++) {
 	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
-	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
+	len += g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
 				 buf + len);
 	buf[len] = '\0';
 	gtk_label_set_text(GTK_LABEL(candidate->children[i]), buf);
@@ -152,7 +152,7 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     pango_attr_list_insert(attr_list, attr);
     for (i = 0; i < n_per_window && candidate->first + i < candidate->n; i++) {
 	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
-	len += g_unichar_to_utf8(candidate->data[candidate->first + i],
+	len += g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
 				buf + len);
 	buf[len] = '\0';
 	label = gtk_label_new(buf);
@@ -185,13 +185,13 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
 NabiCandidate*
 nabi_candidate_new(char *label_str,
-	      int n_per_window,
-	      const unsigned short int *data,
-	      Window parent)
+		   int n_per_window,
+		   const NabiCandidateItem **data,
+		   Window parent)
 {
     int i, k, n;
     NabiCandidate *candidate;
-    unsigned short int *table;
+    const NabiCandidateItem **table;
 
     candidate = (NabiCandidate*)g_malloc(sizeof(NabiCandidate));
     candidate->first = 0;
@@ -204,12 +204,12 @@ nabi_candidate_new(char *label_str,
     candidate->label = g_strdup(label_str);
 
     for (n = 0; data[n] != 0; n++)
-	;
+	continue;
 
-    table = g_malloc(sizeof(unsigned short int) * n);
+    table = g_malloc(sizeof(NabiCandidateItem*) * n);
     for (i = 0, k = 0; i < n; i++) {
 	if (nabi_server->check_charset) {
-	    if (nabi_server_is_valid_char(nabi_server, data[i])) {
+	    if (nabi_server_is_valid_char(nabi_server, data[i]->ch)) {
 		table[k] = data[i];
 		k++;
 	    }
@@ -305,7 +305,7 @@ nabi_candidate_get_current(NabiCandidate *candidate)
     if (candidate == NULL)
 	return 0;
 
-    return candidate->data[candidate->current];
+    return candidate->data[candidate->current]->ch;
 }
 
 unsigned short int
@@ -317,7 +317,7 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
     if (n < 0 && n >= candidate->n)
 	return 0;
 
-    return candidate->data[candidate->first + n];
+    return candidate->data[candidate->first + n]->ch;
 }
 
 void
@@ -331,4 +331,24 @@ nabi_candidate_delete(NabiCandidate *candidate)
     g_free(candidate->label);
     g_free(candidate->data);
     g_free(candidate);
+}
+
+NabiCandidateItem*
+nabi_candidate_item_new(unsigned short int ch, const gchar *comment)
+{
+    NabiCandidateItem *item;
+
+    item = g_new(NabiCandidateItem, 1);
+    item->ch = ch;
+    item->comment = g_strdup(comment);
+    return item;
+}
+
+void
+nabi_candidate_item_delete(NabiCandidateItem *item)
+{
+    if (item) {
+	g_free(item->comment);
+	g_free(item);
+    }
 }

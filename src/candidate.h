@@ -22,12 +22,20 @@
 #include <X11/Xlib.h>
 #include <gtk/gtk.h>
 
+typedef struct _NabiCandidate     NabiCandidate;
+typedef struct _NabiCandidateItem NabiCandidateItem;
+
+struct _NabiCandidateItem {
+    unsigned short int ch;
+    gchar *comment;
+};
+
 struct _NabiCandidate {
     GtkWidget *window;
     Window parent;
     gchar *label;
     GtkWidget **children;
-    unsigned short int *data;
+    const NabiCandidateItem **data;
     int first;
     int n_per_window;
     int n_per_row;
@@ -35,11 +43,9 @@ struct _NabiCandidate {
     int current;
 };
 
-typedef struct _NabiCandidate NabiCandidate;
-
 NabiCandidate*     nabi_candidate_new(char *label_str,
 		   	              int n_per_window,
-			              const unsigned short int *data,
+			              const NabiCandidateItem **data,
 			              Window parent);
 void               nabi_candidate_prev(NabiCandidate *candidate);
 void               nabi_candidate_next(NabiCandidate *candidate);
@@ -48,5 +54,9 @@ void               nabi_candidate_next_row(NabiCandidate *candidate);
 unsigned short int nabi_candidate_get_current(NabiCandidate *candidate);
 unsigned short int nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void               nabi_candidate_delete(NabiCandidate *candidate);
+
+NabiCandidateItem* nabi_candidate_item_new(unsigned short int ch,
+					   const gchar *comment);
+void               nabi_candidate_item_delete(NabiCandidateItem *item);
 
 #endif /* _NABICANDIDATE_H_ */

@@ -1,3 +1,9 @@
+2004-01-09  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c src/candidate.h src/ic.c src/nabi.h src/server.c
+          src/server.h src/ui.c tables/Makefile.am tables/candidate/nabi.txt:
+	  기존에 사용하던 static array를 버리고 외부의 파일로 저장된 candidate
+	  table을 사용하는 기능을 구현
+
 2003-12-29  Choe Hwanjin <krisna@kldp.org>
 	* IMdkit/i18nIc.c,IMdkit/i18nPtHdr.c: 메모리 leak 문제 몇가지 해결
 
