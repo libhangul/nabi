@@ -24,8 +24,6 @@
 
 #include "hangul.h"
 
-#include "ucs2ksc.h"
-
 #define HCF 0x115f	/* hangul choseong filler */
 #define HJF 0x1160	/* hangul jungseong filler */
 

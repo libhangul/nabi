@@ -13,8 +13,8 @@ nabi_CFLAGS = \
 nabi_SOURCES = \
 	nabi.h \
 	gettext.h \
-	ucs2ksc.h \
 	default-icons.h \
+	hanjatable.h \
 	keyboard.h \
 	server.h server.c \
 	hangul.h hangul.c \
