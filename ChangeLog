@@ -1,3 +1,6 @@
+2003-10-14  Choe Hwanjin <krisna@kldp.org>
+	* release 0.9
+
 2003-10-13  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c,src/hangul.c,src/hangul.h,src/server.c:
 	  XwcXXX 함수를 모두 Xutf8XXX 함수로 바꿈, UCS 코드를 UTF8 스트링으로
