@@ -1,3 +1,6 @@
+2004-02-10  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/Makefile.am src/Makefile.am: -Wall 컴파일 옵션 제거(#300245)
+
 2004-02-02  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: 위젯을 만들기 전에 XMODIFIERS 환경변수를 지움
 

@@ -1,14 +1,11 @@
 
-AM_CFLAGS = -Wall
-
 bin_PROGRAMS = nabi
 nabi_CFLAGS = \
 	@X_CFLAGS@ \
 	@GTK_CFLAGS@ \
 	-DLOCALEDIR=\"${datadir}/locale\" \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
-	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\" \
-	-Wall
+	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
 
 nabi_SOURCES = \
 	nabi.h \
