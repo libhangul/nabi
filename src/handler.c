@@ -32,6 +32,11 @@
 #include "ic.h"
 #include "server.h"
 
+#ifdef DEBUG
+#define dmesg debug_msg
+#else
+#define dmesg(...)  ;
+#endif
 
 static void
 debug_msg(const char *fmt, ...)
@@ -53,8 +58,7 @@ nabi_handler_open(XIMS ims, IMProtocol *call_data)
     connect = nabi_connect_create(data->connect_id);
     nabi_server_add_connect(server, connect);
 
-    printf("new_client lang = %s\n", data->lang.name);
-    printf("     connect_id = 0x%x\n", (int)data->connect_id);
+    dmesg("open connect_id = 0x%x\n", (int)data->connect_id);
     return True;
 }
 
@@ -68,8 +72,7 @@ nabi_handler_close(XIMS ims, IMProtocol *call_data)
     nabi_server_remove_connect(server, connect);
     nabi_connect_destroy(connect);
 
-    printf("closing connect_id 0x%x\n", (int)data->connect_id);
-
+    dmesg("closing connect_id 0x%x\n", (int)data->connect_id);
     return True;
 }
 
@@ -265,21 +268,16 @@ nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 {
-	IMTriggerNotifyStruct *data = (IMTriggerNotifyStruct *)call_data;
-	NabiIC* ic = nabi_server_get_ic(server, data->icid);
+    IMTriggerNotifyStruct *data = (IMTriggerNotifyStruct *)call_data;
+    NabiIC* ic = nabi_server_get_ic(server, data->icid);
 
-	if (ic == NULL)
-		return True;
-
-	if (data->flag == 0) {
-		g_print("On key\n");
-		nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
-	} else if (data->flag == 1) {
-		g_print("Off key\n");
-	} else {
-		g_print("Other key\n");
-	}
+    if (ic == NULL)
 	return True;
+
+    if (data->flag == 0)
+	nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
+
+    return True;
 }
 
 static Bool
@@ -416,12 +414,10 @@ xim_protocol_name(int major_code)
 Bool
 nabi_handler(XIMS ims, IMProtocol *call_data)
 {
-    /*
-    debug_msg("%s\t 0x%x 0x%x",
+    dmesg("%s\t 0x%x 0x%x",
     	      xim_protocol_name(call_data->major_code),
 	      call_data->any.connect_id,
 	      call_data->changeic.icid);
-	      */
 
     switch (call_data->major_code) {
     case XIM_OPEN:
