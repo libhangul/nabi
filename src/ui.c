@@ -1421,7 +1421,10 @@ create_main_widget(void)
 static void
 on_hanja_window_destroy (GtkWidget *widget, gpointer data)
 {
-    gtk_grab_remove (widget);
+    NabiIC *ic = (NabiIC*)data;
+
+    if (ic != NULL)
+	ic->hanja_dialog = NULL;
     hanja_window = NULL;
 }
 
@@ -1431,7 +1434,10 @@ on_hanja_button_clicked (GtkWidget *widget, gpointer data)
     NabiIC* ic = (NabiIC*)data;
     gchar *str = (gchar *)gtk_button_get_label(GTK_BUTTON(widget));
 
-    if (str) {
+    if (ic == NULL)
+	return;
+
+    if (str != NULL) {
 	wchar_t ch = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(widget),
 				      "hanja"));
 	nabi_ic_insert_hanja(ic, ch);
@@ -1443,7 +1449,7 @@ static gboolean
 on_hanja_window_keypress(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
     if (event->keyval == GDK_Escape) {
-	gtk_widget_destroy (hanja_window);
+	gtk_widget_destroy (widget);
 	return TRUE;
     }
     return FALSE;
@@ -1461,7 +1467,7 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     gchar buf[6];
 
     if (hanja_window != NULL)
-	return hanja_window;
+	gtk_widget_destroy(hanja_window);
 
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     hanja_window = window;
@@ -1517,14 +1523,14 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     g_signal_connect (G_OBJECT(window), "key-press-event",
 		      G_CALLBACK (on_hanja_window_keypress), NULL);
     g_signal_connect (G_OBJECT(window), "destroy",
-		      G_CALLBACK (on_hanja_window_destroy), NULL);
+		      G_CALLBACK (on_hanja_window_destroy), ic);
 
     if (x == 0 && y == 0) {
 	gtk_widget_destroy(window);
-	hanja_window = NULL;
 	return NULL;
     }
-    gtk_grab_add (window);
+
+    gtk_widget_grab_focus (window);
     gtk_widget_show_all (window);
 
     pango_font_description_free (desc);
