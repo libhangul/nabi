@@ -1229,82 +1229,11 @@ nabi_ic_preedit_clear(NabiIC *ic)
     ic->preedit.prev_length = 0;
 }
 
-Bool
-nabi_ic_commit(NabiIC *ic)
+static void
+nabi_ic_commit_utf8(NabiIC *ic, char *utf8_str)
 {
-    int i, n;
     IMCommitStruct commit_data;
-    wchar_t buf[16];
-    char utf8buf[48];
     char *compound_text;
- 
-    buf[0] = L'\0';
-
-    if (nabi_ic_is_empty(ic))
-	return False;
-
-    n = 0;
-    if (nabi_server->output_mode == NABI_OUTPUT_MANUAL) {
-	/* we use conjoining jamo, U+1100 - U+11FF */
-	if (ic->choseong[0] == 0)
-	    buf[n++] = HCF;
-	else {
-	    for (i = 0; i <= ic->lindex; i++)
-		buf[n++] = ic->choseong[i];
-	}
-	if (ic->jungseong[0] == 0)
-	    buf[n++] = HJF;
-	else {
-	    for (i = 0; i <= ic->vindex; i++)
-		buf[n++] = ic->jungseong[i];
-	}
-	if (ic->jongseong[0] != 0) {
-	    for (i = 0; i <= ic->tindex; i++)
-		buf[n++] = ic->jongseong[i];
-	}
-    } else if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
-	/* we use conjoining jamo, U+1100 - U+11FF */
-	if (ic->choseong[0] == 0)
-	    buf[n++] = HCF;
-	else
-	    buf[n++] = ic->choseong[0];
-	if (ic->jungseong[0] == 0)
-	    buf[n++] = HJF;
-	else
-	    buf[n++] = ic->jungseong[0];
-	if (ic->jongseong[0] != 0)
-	    buf[n++] = ic->jongseong[0];
-    } else {
-	/* use hangul syllables (U+AC00 - U+D7AF)
-	 * and compatibility jamo (U+3130 - U+318F) */
-	wchar_t ch;
-	ch = hangul_jamo_to_syllable(ic->choseong[0],
-			 ic->jungseong[0],
-			 ic->jongseong[0]);
-	if (ch != 0 &&
-	    nabi_server->check_charset &&
-	    !nabi_server_is_valid_char(nabi_server, ch))
-		ch = 0;
-
-	if (ch != 0)
-	    buf[n++] = ch;
-	else {
-	    if (ic->choseong[0]) {
-		ch = hangul_choseong_to_cjamo(ic->choseong[0]);
-		buf[n++] = ch;
-	    }
-	    if (ic->jungseong[0]) {
-		ch = hangul_jungseong_to_cjamo(ic->jungseong[0]);
-		buf[n++] = ch;
-	    }
-	    if (ic->jongseong[0]) {
-		ch = hangul_jongseong_to_cjamo(ic->jongseong[0]);
-		buf[n++] = ch;
-	    }
-	}
-    }
-    buf[n] = L'\0';
-    nabi_ic_buf_clear(ic);
 
     /* According to XIM Spec, We should delete preedit string here 
      * befor commiting the string. but it makes too many flickering
@@ -1316,8 +1245,7 @@ nabi_ic_commit(NabiIC *ic)
     if (!(ic->input_style & XIMPreeditPosition))
 	nabi_ic_preedit_clear(ic);
 
-    hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
-    compound_text = utf8_to_compound_text(utf8buf);
+    compound_text = utf8_to_compound_text(utf8_str);
 
     commit_data.major_code = XIM_COMMIT;
     commit_data.minor_code = 0;
@@ -1332,34 +1260,36 @@ nabi_ic_commit(NabiIC *ic)
     /* we delete preedit string here when PreeditPosition */
     if (ic->input_style & XIMPreeditPosition)
 	nabi_ic_preedit_clear(ic);
-
-    return True;
 }
 
 Bool
+nabi_ic_commit(NabiIC *ic)
+{
+    int len, size;
+    char buf[64];
+ 
+    if (nabi_ic_is_empty(ic))
+	return False;
+
+    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
+    nabi_ic_buf_clear(ic);
+
+    nabi_ic_commit_utf8(ic, buf);
+    return True;
+}
+
+static Bool
 nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
 {
-    IMCommitStruct commit_data;
-    wchar_t buf[16];
-    char utf8buf[48];
-    char *compound_text;
+    int len = 0, size = 0;
+    char buf[64];
  
-    buf[0] = ch;
-    buf[1] = L'\0';
+    size += hangul_wchar_to_utf8(ch, buf + size, sizeof(buf) - size);
+    buf[size] = '\0';
 
-    hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
-    compound_text = utf8_to_compound_text(utf8buf);
+    nabi_ic_buf_clear(ic);
 
-    commit_data.major_code = XIM_COMMIT;
-    commit_data.minor_code = 0;
-    commit_data.connect_id = ic->connect_id;
-    commit_data.icid = ic->id;
-    commit_data.flag = XimLookupChars;
-    commit_data.commit_string = compound_text;
-
-    IMCommitString(nabi_server->xims, (XPointer)&commit_data);
-    XFree(compound_text);
-
+    nabi_ic_commit_utf8(ic, buf);
     return True;
 }
 
@@ -1369,6 +1299,14 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
     /* need for sebeol symbol */
     if (ch != 0)
 	return nabi_ic_commit_unicode(ic, ch);
+
+    return False;
+#if 0
+    /* This code was for mozilla bug.
+     * Mozilla crashed when xim forward key event on hangul mode,
+     * so nabi commited the key value instead of forwaring.
+     * But now it seems that this bug is fixed, so every key event
+     * will be forwarded */
 
     /* ISO10646 charcode keyval */
     if ((keyval & 0xff000000) == 0x01000000)
@@ -1380,6 +1318,7 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
 
     /* Forward all other keys */
     return False;
+#endif
 }
 
 void
