@@ -555,9 +555,6 @@ load_colors(void)
 	color.blue = 0xffff;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
 	nabi_server->preedit_fg = color.pixel;
-	fprintf(stderr, _("Can't allocate color: %s\n"),
-		nabi->preedit_fg);
-	fprintf(stderr, _("Use default color: #FFFFFF\n"));
     }
 
     /* preedit background */
@@ -572,9 +569,6 @@ load_colors(void)
 	color.blue = 0;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
 	nabi_server->preedit_fg = color.pixel;
-	fprintf(stderr, _("Can't allocate color: %s\n"),
-		nabi->preedit_fg);
-	fprintf(stderr, _("Use default color: #000000\n"));
     }
 }
 

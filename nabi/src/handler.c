@@ -405,10 +405,8 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
     
     data = (IMForwardEventStruct *)call_data;
 
-    if (data->event.type != KeyPress) {
-	fprintf(stderr, "Not a key press\n");
+    if (data->event.type != KeyPress)
 	return True;
-    }
 
     kevent = (XKeyEvent*)&data->event;
     len = XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);

@@ -141,7 +141,6 @@ nabi_fontset_create(Display *display, const char *fontset_name)
 	return nabi_fontset;
     }
 
-    fprintf(stderr, "Nabi: Load fontset: %s\n", fontset_name);
     nabi_fontset = nabi_fontset_new(fontset_name);
 
     return nabi_fontset;
