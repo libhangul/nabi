@@ -37,7 +37,6 @@ NabiServer* nabi_server = NULL;
 static void
 on_realize(GtkWidget *widget, gpointer data)
 {
-    return;
     nabi_server_start(nabi_server,
 		      GDK_WINDOW_XDISPLAY(widget->window),
 		      GDK_WINDOW_XWINDOW(widget->window));
