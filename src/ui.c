@@ -33,8 +33,6 @@
 #include "eggtrayicon.h"
 
 #include "gettext.h"
-#include "../IMdkit/IMdkit.h"
-#include "../IMdkit/Xi18n.h"
 #include "ic.h"
 #include "server.h"
 #include "nabi.h"
@@ -67,6 +65,8 @@ static GdkPixbuf *english_pixbuf = NULL;
 static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
+
+static GtkWidget *hanja_window = NULL;
 
 static
 guint32 string_to_hex(char* p)
@@ -613,6 +613,7 @@ nabi_app_new(void)
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
     nabi->dvorak = FALSE;
+    nabi->hanja_font = NULL;
 
     nabi->keyboard_maps = NULL;
 
@@ -1415,6 +1416,109 @@ create_main_widget(void)
 
     create_tray_icon(NULL);
     return main_window;
+}
+
+static void
+on_hanja_window_destroy (GtkWidget *widget, gpointer data)
+{
+    gtk_grab_remove (widget);
+    hanja_window = NULL;
+}
+
+static void
+on_hanja_button_clicked (GtkWidget *widget, gpointer data)
+{
+    NabiIC* ic = (NabiIC*)data;
+    gchar *str = (gchar *)gtk_button_get_label(GTK_BUTTON(widget));
+
+    if (str) {
+	wchar_t ch = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(widget),
+				      "hanja"));
+	nabi_ic_commit_hanja(ic, ch);
+    }
+    gtk_widget_destroy (hanja_window);
+}
+
+static gboolean
+on_hanja_window_keypress(GtkWidget *widget, GdkEventKey *event, gpointer data)
+{
+    if (event->keyval == GDK_Escape) {
+	gtk_widget_destroy (hanja_window);
+	return TRUE;
+    }
+    return FALSE;
+}
+
+GtkWidget *
+create_hanja_window (NabiIC *ic, const wchar_t* ch)
+{
+    const wchar_t *p;
+    gint x, y, n;
+    GtkWidget *window, *table, *button, *label, *parent;
+    PangoFontDescription *desc = NULL;
+    PangoAttrList *attrs = NULL;
+    PangoAttribute *attr = NULL;
+    gchar buf[6];
+
+    if (hanja_window != NULL)
+	return hanja_window;
+
+    hanja_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    window = hanja_window;
+    table = gtk_table_new (1, 10, TRUE);
+
+    if (nabi->hanja_font)
+	desc = pango_font_description_from_string (nabi->hanja_font);
+
+    x = 0;
+    y = 0;
+    p = ch;
+    while (*p != 0) {
+	n = g_unichar_to_utf8 ((gunichar)*p, buf);
+	buf[n] = 0;
+
+	button = gtk_button_new_with_label (buf);
+	gtk_widget_set_name (button, "nabi_hanja");
+	g_object_set_data(G_OBJECT(button), "hanja", GUINT_TO_POINTER(*p));
+	label = GTK_BIN(button)->child;
+	if (desc)
+	    gtk_widget_modify_font (label, desc);
+	else {
+	    attrs = pango_attr_list_new ();
+	    attr = pango_attr_scale_new (PANGO_SCALE_XX_LARGE);
+	    attr->start_index = 0;
+	    attr->end_index = n;
+	    pango_attr_list_insert (attrs, attr);
+	    gtk_label_set_attributes (GTK_LABEL(label), attrs);
+	}
+
+	gtk_table_attach (GTK_TABLE(table), button, x, x + 1, y, y + 1,
+			(GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
+			(GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
+			0, 0);
+	g_signal_connect (G_OBJECT(button), "clicked",
+		          G_CALLBACK (on_hanja_button_clicked), ic);
+
+	x++;
+	if (x > 9) {
+	    y++;
+	    x = 0;
+	}
+	p++;
+    }
+    gtk_container_add (GTK_CONTAINER(window), table);
+
+    g_signal_connect (G_OBJECT(window), "key-press-event",
+		      G_CALLBACK (on_hanja_window_keypress), NULL);
+    g_signal_connect (G_OBJECT(window), "destroy",
+		      G_CALLBACK (on_hanja_window_destroy), NULL);
+
+    gtk_grab_add (window);
+    gtk_widget_show_all (window);
+
+    pango_font_description_free (desc);
+
+    return window;
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */

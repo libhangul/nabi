@@ -17,8 +17,8 @@
  */
 
 
-#ifndef __IC_H_
-#define __IC_H_
+#ifndef _NABIIC_H_
+#define _NABIIC_H_
 
 #include <X11/Xlib.h>
 #include <glib.h>
@@ -144,5 +144,8 @@ void    nabi_ic_preedit_clear(NabiIC *ic);
 Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch);
 
-#endif /* __IC_H_ */
-/* vim: set ts=8 sw=4 : */
+Bool    nabi_ic_popup_hanja_window(NabiIC *ic);
+void    nabi_ic_commit_hanja(NabiIC *ic, wchar_t ch);
+
+#endif /* _NABIIC_H_ */
+/* vim: set ts=8 sw=4 sts=4 : */

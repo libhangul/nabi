@@ -245,9 +245,11 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 {
-//    g_print("IC ID: %d\n", ic->id);
-//    g_print("KEY:   0x%x\n", keyval);
-//    g_print("STATE: 0x%x\n", kevent->state);
+    /*
+    g_print("IC ID: %d\n", ic->id);
+    g_print("KEY:   0x%x\n", keyval);
+    g_print("STATE: 0x%x\n", kevent->state);
+    */
 
     /* if shift is pressed, we dont commit current string 
      * and silently ignore it */
@@ -258,6 +260,10 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     if (keyval == XK_Escape) {
 	nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
 	return False;
+    }
+
+    if (keyval == XK_Hangul_Hanja) {
+	return nabi_ic_popup_hanja_window(ic);
     }
 
     /* forward key event and commit current string if any state is on */

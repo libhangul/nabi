@@ -33,6 +33,9 @@
 #include "ic.h"
 #include "server.h"
 #include "fontset.h"
+#include "nabi.h"
+
+#include "hanjatable.h"
 
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
@@ -1270,4 +1273,56 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     return True;
 }
 
-/* vim: set ts=8 sw=4 : */
+static int
+get_index_of_hanjatable (wchar_t ch)
+{
+    int first, last, mid;
+
+    /* binary search */
+    first = 0;
+    last = sizeof(hanjatable) / sizeof(hanjatable[0]) - 1;
+    while (first <= last) {
+	mid = (first + last) / 2;
+
+	if (ch == hanjatable[mid][0])
+	    return mid;
+
+	if (ch < hanjatable[mid][0])
+	    last = mid - 1;
+	else
+	    first = mid + 1;
+    }
+    return -1;
+}
+
+Bool
+nabi_ic_popup_hanja_window (NabiIC *ic)
+{
+    wchar_t ch;
+
+    if (ic->choseong[0] == 0 || ic->jungseong[0] == 0)
+	return False; 
+
+    ch = hangul_jamo_to_syllable (ic->choseong[0],
+				  ic->jungseong[0],
+				  ic->jongseong[0]);
+    if (ch) {
+	int index = get_index_of_hanjatable(ch);
+	if (index >= 0) {
+	    const wchar_t *ptr = hanjatable[index] + 1;
+	    create_hanja_window(ic, ptr);
+	    return True;
+	}
+    }
+    return False;
+}
+
+void
+nabi_ic_commit_hanja(NabiIC *ic, wchar_t ch)
+{
+    nabi_ic_buf_clear(ic);
+    nabi_ic_preedit_clear(ic);
+    nabi_ic_commit_unicode(ic, ch);
+}
+
+/* vim: set ts=8 sw=4 sts=4 : */
