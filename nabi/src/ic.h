@@ -148,6 +148,10 @@ void    nabi_ic_preedit_insert(NabiIC *ic);
 void    nabi_ic_preedit_update(NabiIC *ic);
 void    nabi_ic_preedit_clear(NabiIC *ic);
 
+void    nabi_ic_status_start(NabiIC *ic);
+void    nabi_ic_status_done(NabiIC *ic);
+void    nabi_ic_status_update(NabiIC *ic);
+
 Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 

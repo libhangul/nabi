@@ -44,6 +44,7 @@ long nabi_filter_mask = KeyPressMask;
 
 /* Supported Inputstyles */
 static XIMStyle nabi_input_styles[] = {
+    XIMPreeditCallbacks | XIMStatusCallbacks,
     XIMPreeditCallbacks | XIMStatusNothing,
     XIMPreeditPosition  | XIMStatusNothing,
     XIMPreeditNothing   | XIMStatusNothing,
@@ -58,6 +59,7 @@ static XIMEncoding nabi_encodings[] = {
 static XIMTriggerKey nabi_trigger_keys[] = {
     { XK_space,	 ShiftMask, ShiftMask },
     { XK_Hangul, 0,	    0         },
+    { XK_Alt_R,  0,	    0         },
     { 0,	 0,	    0         }
 };
 
@@ -109,6 +111,7 @@ nabi_server_new(const char *name)
     server->converter = (GIConv)(-1);
 
     /* options */
+    server->show_status = True;
     server->preedit_fg = 1;
     server->preedit_bg = 0;
     server->candidate_font = NULL;

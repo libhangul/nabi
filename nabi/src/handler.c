@@ -418,8 +418,10 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 
     if (ic->mode == NABI_INPUT_MODE_DIRECT) {
 	/* direct mode */
-	if (ic->preedit.start)
+	if (ic->preedit.start) {
 	    nabi_ic_preedit_done(ic);
+	    nabi_ic_status_done(ic);
+	}
 	if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
 	    /* change input mode to compose mode */
 	    nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
@@ -435,8 +437,10 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	}
 
 	/* compose mode */
-	if (!ic->preedit.start)
+	if (!ic->preedit.start) {
 	    nabi_ic_preedit_start(ic);
+	    nabi_ic_status_start(ic);
+	}
 	if (!nabi_filter_keyevent(ic, keysym, kevent))
 	    IMForwardEvent(ims, (XPointer)data);
     }
