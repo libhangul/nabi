@@ -54,6 +54,9 @@ enum {
 GtkWidget* preference_window_create(void);
 void preference_window_update(void);
 
+static GtkWidget *about_dialog = NULL;
+static GtkWidget *preference_dialog = NULL;
+
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 static void create_resized_icons(gint default_size);
@@ -619,6 +622,14 @@ nabi_app_setup_server(void)
 void
 nabi_app_quit(void)
 {
+    if (about_dialog != NULL) {
+	gtk_dialog_response(GTK_DIALOG(about_dialog), GTK_RESPONSE_CANCEL);
+    }
+
+    if (preference_dialog != NULL) {
+	gtk_dialog_response(GTK_DIALOG(preference_dialog), GTK_RESPONSE_CANCEL);
+    }
+
     if (nabi != NULL && nabi->main_window != NULL) {
 	gtk_window_get_position(GTK_WINDOW(nabi->main_window),
 				&nabi->x, &nabi->y);
@@ -1015,29 +1026,9 @@ on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
 }
 
 static void
-on_about_close(GtkWidget *widget, GtkWidget **dialog)
-{
-    gtk_widget_destroy(widget);
-
-    if (dialog != NULL)
-	*dialog = NULL;
-}
-
-static void
-on_about_response(GtkWidget *widget, gint arg, GtkWidget **dialog)
-{
-    gtk_widget_destroy(widget);
-
-    g_print("response\n");
-    if (dialog != NULL)
-	*dialog = NULL;
-}
-
-static void
 on_menu_about(GtkWidget *widget)
 {
-    static GtkWidget *dialog = NULL;
-
+    GtkWidget *dialog = NULL;
     GtkWidget *hbox;
     GtkWidget *title;
     GtkWidget *comment;
@@ -1050,17 +1041,18 @@ on_menu_about(GtkWidget *widget)
     gchar buf[256];
     const char *encoding = "";
 
-    if (dialog != NULL) {
-	gtk_window_present(GTK_WINDOW(dialog));
+    if (about_dialog != NULL) {
+	gtk_window_present(GTK_WINDOW(about_dialog));
 	return;
     }
 
     dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
-	    				 GTK_WINDOW(nabi->main_window),
+	    				 NULL,
 					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_STOCK_CLOSE,
 					 GTK_RESPONSE_CLOSE,
 					 NULL);
+    about_dialog = dialog;
 
     image_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
     image = gtk_image_new_from_file(image_filename);
@@ -1158,11 +1150,6 @@ on_menu_about(GtkWidget *widget)
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-    g_signal_connect(G_OBJECT(dialog), "close",
-		     G_CALLBACK(on_about_close), &dialog);
-    g_signal_connect(G_OBJECT(dialog), "response",
-		     G_CALLBACK(on_about_response), &dialog);
-
     gtk_widget_show(dialog);
 
     list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
@@ -1173,24 +1160,23 @@ on_menu_about(GtkWidget *widget)
 	g_list_free(list);
     }
 
-    /* We do not call gtk_dialog_run(GTK_DIALOG(dialog)),
-     * Because "Quit" menu make nabi not quit */
+    gtk_dialog_run(GTK_DIALOG(about_dialog));
+    gtk_widget_destroy(about_dialog);
+    about_dialog = NULL;
 }
 
 static void
 on_menu_preference(GtkWidget *widget)
 {
-    static GtkWidget *dialog = NULL;
-    
-    if (dialog != NULL) {
-	gtk_window_present(GTK_WINDOW(dialog));
+    if (preference_dialog != NULL) {
+	gtk_window_present(GTK_WINDOW(preference_dialog));
 	return;
     }
 
-    dialog = preference_window_create();
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-    dialog = NULL;
+    preference_dialog = preference_window_create();
+    gtk_dialog_run(GTK_DIALOG(preference_dialog));
+    gtk_widget_destroy(preference_dialog);
+    preference_dialog = NULL;
 }
 
 static void
