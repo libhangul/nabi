@@ -1463,8 +1463,9 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     if (hanja_window != NULL)
 	return hanja_window;
 
-    hanja_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    window = hanja_window;
+    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+    hanja_window = window;
+    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
     table = gtk_table_new (1, 10, TRUE);
 
     if (nabi->hanja_font)
