@@ -25,7 +25,6 @@ dnl gettext stuff
 AM_GNU_GETTEXT([external])
 
 AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE, "$PACKAGE", gettext package name)
-AC_DEFINE_UNQUOTED(LOCALEDIR, "$datadir/locale", gettext locale dir)
 
 dnl data dir
 NABI_DATA_DIR="${datadir}/$PACKAGE"
