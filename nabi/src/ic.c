@@ -699,17 +699,22 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
     for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
 	if (streql(XNFilterEvents, ic_attr->name)) {
 	    ic_attr->value = (void *)malloc(sizeof(CARD32));
-	    *(CARD32*)ic_attr->value
-		= KeyPressMask | KeyReleaseMask;
+	    *(CARD32*)ic_attr->value = KeyPressMask | KeyReleaseMask;
 	    ic_attr->value_length = sizeof(CARD32);
 	} else if (streql(XNInputStyle, ic_attr->name)) {
 	    ic_attr->value = (void *)malloc(sizeof(INT32));
-	    *(INT32*)ic_attr->value
-		= ic->input_style;
+	    *(INT32*)ic_attr->value = ic->input_style;
 	    ic_attr->value_length = sizeof(INT32);
 	} else if (streql(XNSeparatorofNestedList, ic_attr->name)) {
 	    /* FIXME: what do I do here? */
 	    ;
+	} else if (streql(XNPreeditState, ic_attr->name)) {
+	    /* some java applications need XNPreeditState attribute in
+	     * IC attribute instead of Preedit attributes
+	     * so we support XNPreeditState attr here */
+	    ic_attr->value = (void *)malloc(sizeof(XIMPreeditState));
+	    *(XIMPreeditState*)ic_attr->value = ic->preedit.state;
+	    ic_attr->value_length = sizeof(XIMPreeditState);
 	} else {
 	    fprintf(stderr, _("Nabi: get unknown ic attributes: %s\n"),
 		ic_attr->name);
