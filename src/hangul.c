@@ -22,10 +22,6 @@
 
 #include <wchar.h>
 
-#ifdef HAVE_STDINT_H
-#include <stdint.h>
-#endif
-
 #include "hangul.h"
 
 #include "ucs2ksc.h"
