@@ -1,3 +1,7 @@
+2004-04-19  Choe Hwanjin <krisna@kldp.org>
+	* src/server.c: charset 체크하면서 ko로 시작하지 않으면 워닝을
+	  출력하도록 함
+
 2004-03-15  Choe Hwanjin <krisna@kldp.org>
 	* release 0.13
 
