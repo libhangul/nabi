@@ -24,7 +24,6 @@
 
 #include "default-icons.h"
 
-#define KEYBOARD_MAP_SIZE   94
 #define DEFAULT_ICON_SIZE   24
 
 enum {
@@ -53,6 +52,9 @@ guint32 string_to_hex(char* p)
     guint32 ret = 0;
     guint32 remain = 0;
 
+    if (*p == 'U')
+	p++;
+
     while (*p != '\0') {
 	if (*p >= '0' && *p <= '9')
 	    remain = *p - '0';
@@ -69,30 +71,30 @@ guint32 string_to_hex(char* p)
     return ret;
 }
 
-gboolean
-load_keyboardmap_from_file(char *filename, NabiKeyboardMap *keyboardmap)
+NabiKeyboardMap *
+load_keyboardmap_from_file(char *filename)
 {
     int i;
     char *line, *p, *saved_position;
     char buf[256];
     FILE* file;
     wchar_t key, value;
-    wchar_t *map;
-
-    /* init */
-    keyboardmap->type = NABI_KEYBOARD_3SET;
-    keyboardmap->name = NULL;
-    keyboardmap->map = NULL;
+    NabiKeyboardMap *keyboardmap;
 
     file = fopen(filename, "r");
     if (file == NULL) {
 	fprintf(stderr, _("Nabi: Can't read keyboard map file\n"));
-	return FALSE;
+	return NULL;
     }
 
-    map = (wchar_t *)g_malloc(KEYBOARD_MAP_SIZE * sizeof(wchar_t));
-    for (i = 0; i < KEYBOARD_MAP_SIZE; i++) {
-	map[i] = XK_exclam + i;
+    keyboardmap = g_malloc(sizeof(NabiKeyboardMap));
+
+    /* init */
+    keyboardmap->type = NABI_KEYBOARD_3SET;
+    keyboardmap->name = NULL;
+
+    for (i = 0; i < sizeof(keyboardmap->map); i++) {
+	keyboardmap->map[i] = XK_exclam + i;
     }
 
     for (line = fgets(buf, sizeof(buf), file);
@@ -126,19 +128,17 @@ load_keyboardmap_from_file(char *filename, NabiKeyboardMap *keyboardmap)
 	    if (key < XK_exclam || key > XK_asciitilde)
 		continue;
 
-	    map[key - XK_exclam] = value;
+	    keyboardmap->map[key - XK_exclam] = value;
 	}
     }
     fclose(file);
 
     if (keyboardmap->name == NULL) {
-	free(map);
-	return FALSE;
+	g_free(keyboardmap);
+	return NULL;
     }
 
-    keyboardmap->map = map;
-
-    return TRUE;
+    return keyboardmap;
 }
 
 static gint
@@ -451,6 +451,41 @@ save_config_file(void)
     g_free(config_filename);
 }
 
+gint keyboardmap_list_cmp_func(gconstpointer a, gconstpointer b)
+{
+    return strcmp(((NabiKeyboardMap*)a)->name, ((NabiKeyboardMap*)b)->name);
+}
+
+void
+load_keyboardmaps(void)
+{
+    gchar *path;
+    gchar *keyboardmap_filename;
+    DIR *dir;
+    struct dirent *dent;
+    NabiKeyboardMap *keyboardmap;
+
+    path = g_build_filename(NABI_DATA_DIR, "keyboard", NULL);
+
+    dir = opendir(path);
+    if (dir == NULL)
+	    return NULL;
+
+    for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
+	if (dent->d_name[0] == '.')
+	    continue;
+
+	keyboardmap_filename = g_build_filename(path, dent->d_name, NULL);
+	keyboardmap = load_keyboardmap_from_file(keyboardmap_filename);
+	g_slist_prepend(nabi->keyboardmaps, keyboardmap);
+	g_free(keyboardmap_filename);
+    }
+
+    g_slist_sort(nabi->keyboardmaps, keyboardmap_list_cmp_func);
+
+    g_free(path);
+}
+
 void
 load_keyboardmap(void)
 {
@@ -531,7 +566,12 @@ nabi_app_new(void)
 {
     nabi = g_malloc(sizeof(NabiApplication));
     memset(nabi, 0, sizeof(NabiApplication));
+}
 
+void
+nabi_app_init(void)
+{
+    load_keyboardmaps();
     load_config_file();
 
     /* set atoms for hangul status */
@@ -541,14 +581,8 @@ nabi_app_new(void)
 }
 
 void
-nabi_app_init(void)
-{
-}
-
-void
 nabi_app_setup_server(void)
 {
-    load_keyboardmap();
     load_composemap();
 
     load_colors();
@@ -565,7 +599,6 @@ nabi_app_free(void)
 
     g_free(nabi->keyboardmap_filename);
     g_free(nabi->keyboardmap.name);
-    g_free(nabi->keyboardmap.map);
 
     g_free(nabi->composemap_filename);
     g_free(nabi->composemap.name);

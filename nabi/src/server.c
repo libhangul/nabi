@@ -94,6 +94,19 @@ nabi_server_destroy(NabiServer *_server)
 }
 
 void
+nabi_server_set_keyboard_map(NabiServer *_server,
+			    wchar_t *keyboard_map,
+			    NabiKeyboardType type)
+{
+    _server->keyboard_map = keyboard_map;
+
+    if (type == NABI_KEYBOARD_2SET)
+	_server->automata = nabi_automata_2;
+    else
+	_server->automata = nabi_automata_3;
+}
+
+void
 nabi_server_set_automata(NabiServer *_server, NabiKeyboardType type)
 {
     if (type == NABI_KEYBOARD_2SET)
