@@ -74,6 +74,9 @@ int         nabi_server_start           (NabiServer* _server,
 Bool        nabi_server_is_trigger      (NabiServer*  _server,
                                          KeySym       key,
                                          unsigned int state);
+void        nabi_server_set_keyboard_map(NabiServer *_server,
+					 wchar_t *keyboard_map,
+					 NabiKeyboardType type)
 void        nabi_server_set_automata    (NabiServer *_server,
                                          NabiKeyboardType type);
 void        nabi_server_set_mode_info_cb(NabiServer *_server,

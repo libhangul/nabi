@@ -5,10 +5,11 @@ typedef struct _NabiKeyboardMap NabiKeyboardMap;
 typedef struct _NabiComposeMap NabiComposeMap;
 typedef struct _NabiApplication NabiApplication;
 
+#define KEYBOARD_MAP_SIZE 94
 struct _NabiKeyboardMap {
-    gchar*                  name;
-    gint                    type;
-    wchar_t*                map;
+    gchar*           name;
+    gint             type;
+    wchar_t          map[KEYBOARD_MAP_SIZE];
 };
 
 struct _NabiComposeMap {
@@ -25,6 +26,8 @@ struct _NabiApplication {
     gchar*          theme;
     gchar*          keyboardmap_filename;
     gchar*          composemap_filename;
+
+    GSList 	    *keyboardmaps;
 
     NabiKeyboardMap keyboardmap;
     NabiComposeMap  composemap;
