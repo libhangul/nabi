@@ -173,6 +173,9 @@ nabi_server_set_compose_map(NabiServer *server,
 void
 nabi_server_set_automata(NabiServer *server, NabiKeyboardType type)
 {
+    if (server == NULL)
+	return;
+
     if (type == NABI_KEYBOARD_2SET)
 	server->automata = nabi_automata_2;
     else
@@ -182,6 +185,9 @@ nabi_server_set_automata(NabiServer *server, NabiKeyboardType type)
 void
 nabi_server_set_mode_info_cb(NabiServer *server, NabiModeInfoCallback func)
 {
+    if (server == NULL)
+	return;
+
     server->mode_info_cb = func;
 }
 
@@ -242,14 +248,17 @@ void
 nabi_server_ic_table_expand(NabiServer *server)
 {
     int i;
-    int old_size = server->ic_table_size;
+    int old_size;
 
+    if (server == NULL)
+	return;
+
+    old_size = server->ic_table_size;
     server->ic_table_size = server->ic_table_size * 2;
     server->ic_table = (NabiIC**)realloc(server->ic_table,
-			  server->ic_table_size);
+					 server->ic_table_size);
     for (i = old_size; i < server->ic_table_size; i++)
 	server->ic_table[i] = NULL;
-    printf("expand\n");
 }
 
 Bool
@@ -276,6 +285,9 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 
     XIMStyles input_styles_ret;
     XIMEncodings encodings_ret;
+
+    if (server == NULL)
+	return 0;
 
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
@@ -359,7 +371,7 @@ nabi_server_add_connect(NabiServer *server, NabiConnect *connect)
 {
     NabiConnect *list;
 
-    if (connect == NULL)
+    if (server == NULL || connect == NULL)
 	return;
 
     list = server->connect_list;
