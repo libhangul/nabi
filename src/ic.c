@@ -1167,13 +1167,13 @@ nabi_ic_preedit_clear(NabiIC *ic)
 
 	/* we resize the preedit window instead of unmap
 	 * because unmap make some delay on commit so order of 
-	 * key sequences become wrong */
-	/* this makes wrong commit order, so I commented this out 
+	 * key sequences become wrong
 	ic->preedit.width = 1;
 	ic->preedit.height = 1;
 	XResizeWindow(nabi_server->display, ic->preedit.window,
-		  ic->preedit.width, ic->preedit.height);
-		  */
+		      ic->preedit.width, ic->preedit.height);
+	 */
+	XUnmapWindow(nabi_server->display, ic->preedit.window);
     }
 }
 
@@ -1254,7 +1254,10 @@ nabi_ic_commit(NabiIC *ic)
      * so I first send commit string and then delete preedit string.
      * This makes some problem on gtk2 entry */
     /* Now, Conforming to XIM spec */
-    nabi_ic_preedit_clear(ic);
+    /* On XIMPreeditPosition mode, input sequence is wrong on gtk+ 1 app,
+     * so we commit and then clear preedit string on XIMPreeditPosition mode */
+    if (!(ic->input_style & XIMPreeditPosition))
+	nabi_ic_preedit_clear(ic);
 
     list[0] = buf;
         ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
@@ -1271,8 +1274,9 @@ nabi_ic_commit(NabiIC *ic)
     IMCommitString(nabi_server->xims, (XPointer)&commit_data);
     XFree(tp.value);
 
-    /* we delete preedit string here */
-    /* nabi_ic_preedit_clear(ic); */
+    /* we delete preedit string here when PreeditPosition */
+    if (ic->input_style & XIMPreeditPosition)
+	nabi_ic_preedit_clear(ic);
 
     return True;
 }
