@@ -157,55 +157,6 @@ search_text_in_model (GtkTreeModel *model, int column, const char *target_text)
     return NULL;
 }
 
-void
-on_icon_size_spinbutton_changed(GtkSpinButton *spinbutton,
-				GtkTreeView *treeview)
-{
-    int size;
-    gchar *dir = NULL;
-    gchar *file_none;
-    gchar *file_hangul;
-    gchar *file_english;
-    GdkPixbuf *pixbuf_none;
-    GdkPixbuf *pixbuf_hangul;
-    GdkPixbuf *pixbuf_english;
-    GtkTreeIter iter;
-    GtkTreeModel *model;
-
-    g_return_if_fail(spinbutton != NULL);
-    g_return_if_fail(treeview != NULL);
-
-    size = gtk_spin_button_get_value_as_int(spinbutton);
-    model = gtk_tree_view_get_model(treeview);
-    gtk_tree_model_get_iter_first(model, &iter);
-    do {
-	gtk_tree_model_get(model, &iter,
-			   THEMES_LIST_PATH, &dir,
-			   -1);
-	if (dir != NULL) {
-	    file_none = g_build_filename(dir, "none.png", NULL);
-	    file_hangul = g_build_filename(dir, "hangul.png", NULL);
-	    file_english = g_build_filename(dir, "english.png", NULL);
-	    pixbuf_none = load_resized_icons_from_file(file_none, size);
-	    pixbuf_hangul = load_resized_icons_from_file(file_hangul, size);
-	    pixbuf_english = load_resized_icons_from_file(file_english, size);
-	    gtk_list_store_set (GTK_LIST_STORE(model), &iter,
-				THEMES_LIST_NONE, pixbuf_none,
-				THEMES_LIST_HANGUL, pixbuf_hangul,
-				THEMES_LIST_ENGLISH, pixbuf_english,
-				-1);
-	    g_free(file_none);
-	    g_free(file_hangul);
-	    g_free(file_english);
-	    gdk_pixbuf_unref(pixbuf_none);
-	    gdk_pixbuf_unref(pixbuf_hangul);
-	    gdk_pixbuf_unref(pixbuf_english);
-	}
-    } while (gtk_tree_model_iter_next(model, &iter));
-    gtk_tree_view_columns_autosize(GTK_TREE_VIEW(treeview));
-
-    nabi_app_set_icon_size(size);
-}
 static void
 on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
 {
@@ -224,7 +175,6 @@ create_theme_page(void)
 {
     GtkWidget *page;
     GtkWidget *label;
-    GtkWidget *spinbutton;
     GtkWidget *hbox;
     GtkWidget *scrolledwindow;
 
@@ -237,17 +187,6 @@ create_theme_page(void)
 
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
-
-    hbox = gtk_hbox_new(FALSE, 12);
-    gtk_box_pack_start(GTK_BOX(page), hbox, FALSE, TRUE, 0);
-
-    label = gtk_label_new(_("Tray icon size:"));
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    spinbutton = gtk_spin_button_new_with_range(5.0, 128.0, 1.0);
-    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(spinbutton), 0);
-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), nabi->icon_size);
-    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, TRUE, TRUE, 0);
 
     label = gtk_label_new(_("Tray icons:"));
     gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
@@ -318,9 +257,6 @@ create_theme_page(void)
 				    path, NULL, TRUE, 0.5, 0.0);
 	gtk_tree_path_free(path);
     }
-
-    g_signal_connect(G_OBJECT(spinbutton), "value-changed",
-		     G_CALLBACK(on_icon_size_spinbutton_changed), treeview);
 
     return page;
 }

@@ -72,7 +72,6 @@ void nabi_app_setup_server(void);
 void nabi_app_quit(void);
 void nabi_app_free(void);
 void nabi_save_config_file(void);
-void nabi_app_set_icon_size(int size);
 void nabi_app_set_theme(const char *name);
 void nabi_app_set_dvorak(gboolean state);
 void nabi_app_set_keyboard(const char *name);

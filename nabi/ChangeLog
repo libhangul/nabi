@@ -1,3 +1,7 @@
+2004-11-09  Choe Hwanjin <krisna@kldp.org>
+	* tray의 크기에 맞춰 size-allocate 시그널에서 자동으로 크기를 수정함
+	* 아이콘 크기 설정 옵션을 없앰
+
 2004-11-03  Choe Hwanjin <krisna@kldp.org>
 	* 키 입력 통계를 다른 창으로 띄움
 	* 하드코딩된 locale 스트링을 제거
