@@ -1,7 +1,7 @@
 SUBDIRS = \
 	SimplyRed \
 	MSWindows \
-	MSWindows2000 \
+	MSWindowsXP \
 	Mac \
 	Onion \
 	keyboard \
