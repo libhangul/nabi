@@ -62,7 +62,6 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
 int
 main(int argc, char *argv[])
 {
-    char *session_id;
     GtkWidget *widget;
 
 #ifdef ENABLE_NLS
