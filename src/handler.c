@@ -416,6 +416,11 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
     if (nabi_server->mode_info_cb != NULL)
 	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
+    if (ic->candidate_window) {
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
+    }
+
     return True;
 }
 
