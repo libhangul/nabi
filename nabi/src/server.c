@@ -147,6 +147,9 @@ nabi_server_set_keyboard(NabiServer *server,
 			 const wchar_t *keyboard_map,
 			 NabiKeyboardType type)
 {
+    if (server == NULL)
+	return;
+
     server->keyboard_map = keyboard_map;
 
     if (type == NABI_KEYBOARD_2SET)
@@ -160,6 +163,9 @@ nabi_server_set_compose_map(NabiServer *server,
 			    NabiComposeItem **compose_map,
 			    int size)
 {
+    if (server == NULL)
+	return;
+
     server->compose_map = compose_map;
     server->compose_map_size = size;
 }
@@ -182,12 +188,18 @@ nabi_server_set_mode_info_cb(NabiServer *server, NabiModeInfoCallback func)
 void
 nabi_server_set_dvorak(NabiServer *server, Bool flag)
 {
+    if (server == NULL)
+	return;
+
     server->dvorak = flag;
 }
 
 void
 nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
 {
+    if (server == NULL)
+	return;
+
     if (mode == NABI_OUTPUT_SYLLABLE)
 	server->output_mode = mode;
     else  {
@@ -200,6 +212,9 @@ void
 nabi_server_init(NabiServer *server)
 {
     char *codeset;
+
+    if (server == NULL)
+	return;
 
     server->filter_mask = KeyPressMask;
     server->trigger_keys = nabi_trigger_keys;
