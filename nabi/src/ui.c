@@ -1609,6 +1609,7 @@ create_tray_icon(gpointer data)
     GtkWidget *eventbox;
     GtkWidget *hbox;
     GtkWidget *menu;
+    GtkTooltips *tooltips;
 
     if (tray_icon != NULL)
 	return FALSE;
@@ -1621,6 +1622,12 @@ create_tray_icon(gpointer data)
     menu = create_menu();
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
 		     G_CALLBACK(on_button_press), menu);
+
+    tooltips = gtk_tooltips_new();
+    gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), eventbox,
+			 _("Hangul input method: Nabi"),
+			 _("Hangul input method: Nabi"
+			   " - You can input hangul using this program"));
 
     create_icons(24);
 
