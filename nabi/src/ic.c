@@ -488,9 +488,7 @@ nabi_ic_set_preedit_background(NabiIC *ic, unsigned long background)
 static void
 nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 {
-    XFontStruct **font_structs;
-    char **font_names;
-    int i, n_fonts;
+    NabiFontSet *fontset;
 
     if (ic->preedit.base_font != NULL &&
 	strcmp(ic->preedit.base_font, font_name) == 0)
@@ -502,22 +500,13 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
     if (ic->preedit.font_set)
 	nabi_fontset_free(server->display, ic->preedit.font_set);
 
-    ic->preedit.font_set = nabi_fontset_create(server->display, font_name);
-    if (ic->preedit.font_set == 0)
+    fontset = nabi_fontset_create(server->display, font_name);
+    if (fontset == NULL)
 	return;
 
-    /* now we set the preedit window properties from the font metric */
-    n_fonts = XFontsOfFontSet(ic->preedit.font_set,
-			      &font_structs,
-			      &font_names);
-    /* find width, height */
-    for (i = 0; i < n_fonts; i++) {
-	if (ic->preedit.ascent < font_structs[i]->ascent)
-	    ic->preedit.ascent = font_structs[i]->ascent;
-	if (ic->preedit.descent < font_structs[i]->descent)
-	    ic->preedit.descent = font_structs[i]->descent;
-    }
-
+    ic->preedit.font_set = fontset->xfontset;
+    ic->preedit.ascent = fontset->ascent;
+    ic->preedit.descent = fontset->descent;
     ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
     ic->preedit.width = 1;
 }

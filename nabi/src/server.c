@@ -30,6 +30,7 @@
 #include "../IMdkit/Xi18n.h"
 #include "ic.h"
 #include "server.h"
+#include "fontset.h"
 
 #define DEFAULT_IC_TABLE_SIZE	1024
 
@@ -112,6 +113,9 @@ nabi_server_destroy(NabiServer *_server)
 	nabi_ic_real_destroy(_server->ic_table[i]);
 	_server->ic_table[i] = NULL;
     }
+
+    /* free remaining fontsets */
+    nabi_fontset_free_all(_server->display);
 }
 
 void
