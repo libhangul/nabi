@@ -1,5 +1,6 @@
 2003-12-14  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
+	* icon들 업데이트 (김석진님에게 감사드립니다)
 
 2003-12-09  Choe Hwanjin  <krisna@people.kldp.org>
 	* configure.in,
