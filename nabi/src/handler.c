@@ -280,7 +280,7 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 	ch = nabi_candidate_get_current(ic->candidate_window);
 	break;
     case XK_0:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 10);
+	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
 	break;
     case XK_1:
     case XK_2:
@@ -294,7 +294,7 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 	ch = nabi_candidate_get_nth(ic->candidate_window, keyval - XK_1);
 	break;
     case XK_KP_0:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 10);
+	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
 	break;
     case XK_KP_1:
     case XK_KP_2:
