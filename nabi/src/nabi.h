@@ -48,7 +48,6 @@ struct _NabiApplication {
     gchar*          keyboard_map_filename;
     gchar*          compose_map_filename;
     gchar*	    candidate_table_filename;
-    gchar*          hanja_font;
 
     GSList 	    *keyboard_maps;
 
@@ -57,6 +56,9 @@ struct _NabiApplication {
     /* xim server option */
     gboolean        dvorak;
     gchar           *output_mode;
+
+    /* candidate options */
+    gchar*	    candidate_font;
 
     /* preedit attribute */
     gchar           *preedit_fg;
