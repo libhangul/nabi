@@ -1,3 +1,12 @@
+2004-06-05  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h src/server/c src/ui.c src/nabi.h src/automata.h
+	src/keyboard tables/compose/default configure.in: 키보드 테이블과
+	컴포우즈 테이블을 위한 함수 nabi_server_load_keyboard_table(),
+	nabi_server_load_compose_table()을 구현함. 더이상 ui.c에서 키보드와
+	컴포우즈 테이블을 관리하지 않음. keyboard_map, compose_map에서
+	keyboard_table, compose_table로 이름을 바꿈. compose table 포맷을
+	변경
+
 2004-04-23  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c src/ic.c src/ic.h src/server.c src/server.h:
 	  status window 콜백 함수를 구현함

@@ -1,6 +1,5 @@
 # test compose map file for Nabi
-Name: default
-
+[default]
 1100	1100	1101	# choseong  kiyeok + kiyeok  = ssangkiyeok	
 1103	1103	1104	# choseong  tikeut + tikeut  = ssangtikeut	
 1107	1107	1108	# choseong  pieup  + pieup   = ssangpieup 	

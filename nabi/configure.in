@@ -58,19 +58,19 @@ dnl default keyboard
 AC_ARG_WITH(default-keyboard, [  --with-default-keyboard=2/39/3f   default hangul keyboard])
 case "$with_default_keyboard" in
     2)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "2qwerty",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "두벌식",
 			   [Define default hangul keyboard])
 	;;
     39)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "39qwerty",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "세벌식 390",
 			   [Define default hangul keyboard])
 	;;
     3f)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "3fqwerty",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "세벌식 최종",
 			   [Define default hangul keyboard])
 	;;
     *)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "2qwerty",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "두벌식",
 			   [Define default hangul keyboard])
 	;;
 esac

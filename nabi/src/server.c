@@ -22,14 +22,20 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <langinfo.h>
 #include <glib.h>
 
+#include "gettext.h"
 #include "server.h"
 #include "fontset.h"
 #include "hangul.h"
+
+#include "keyboard.h"
 
 #define DEFAULT_IC_TABLE_SIZE	1024
 
@@ -103,10 +109,11 @@ nabi_server_new(const char *name)
 	server->ic_table[i] = NULL;
     server->ic_freed = NULL;
 
-
     /* hangul data */
-    server->keyboard_map = NULL;
-    server->compose_map = NULL;
+    server->keyboard_tables = NULL;
+    server->keyboard_table = NULL;
+    server->compose_tables = NULL;
+    server->compose_table = NULL;
     server->automata = NULL;
 
     server->dynamic_event_flow = True;
@@ -137,6 +144,7 @@ void
 nabi_server_destroy(NabiServer *server)
 {
     int i, j;
+    GList *list;
     NabiConnect *connect;
 
     if (server == NULL)
@@ -159,6 +167,23 @@ nabi_server_destroy(NabiServer *server)
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
 
+    /* delete keyboard table */
+    for (list = server->keyboard_tables; list != NULL; list = list->next) {
+	g_free(list->data);
+	list->data = NULL;
+    }
+    g_list_free(server->keyboard_tables);
+
+    /* delete compose table */
+    for (list = server->compose_tables; list != NULL; list = list->next) {
+	NabiComposeTable *table = (NabiComposeTable *)list->data;
+	g_free(table->name);
+	g_free(table->items);
+	g_free(table);
+	list->data = NULL;
+    }
+    g_list_free(server->compose_tables);
+
     /* delete candidate table */
     for (i = 0; i < server->candidate_table_size; i++) {
 	for (j = 0;  server->candidate_table[i][j] != NULL; j++) {
@@ -170,35 +195,83 @@ nabi_server_destroy(NabiServer *server)
 
     g_free(server->name);
 
-    free(server);
+    g_free(server);
 }
 
 void
-nabi_server_set_keyboard(NabiServer *server,
-			 const wchar_t *keyboard_map,
-			 NabiKeyboardType type)
+nabi_server_set_keyboard_table(NabiServer *server,
+			       const char *name)
 {
+    GList *list;
+    NabiKeyboardTable *default_table;
+
     if (server == NULL)
 	return;
 
-    server->keyboard_map = keyboard_map;
+    if (server->keyboard_tables == NULL)
+	default_table = &nabi_keyboard_table_internal;
+    else
+	default_table = server->keyboard_tables->data;
 
-    if (type == NABI_KEYBOARD_2SET)
+    if (name == NULL) {
+	server->keyboard_table = default_table;
+	if (default_table->type == NABI_KEYBOARD_2SET)
+	    server->automata = nabi_automata_2;
+	else
+	    server->automata = nabi_automata_3;
+	return;
+    }
+
+    for (list = server->keyboard_tables; list != NULL; list = list->next) {
+	NabiKeyboardTable *table = (NabiKeyboardTable*)list->data;
+	if (strcmp(table->name, name) == 0) {
+	    server->keyboard_table = table;
+	    if (table->type == NABI_KEYBOARD_2SET)
+		server->automata = nabi_automata_2;
+	    else
+		server->automata = nabi_automata_3;
+	    return;
+	}
+    }
+
+    fprintf(stderr, "Nabi: Cant find keyboard table: %s\n", name);
+    server->keyboard_table = default_table;
+    if (default_table->type == NABI_KEYBOARD_2SET)
 	server->automata = nabi_automata_2;
     else
 	server->automata = nabi_automata_3;
 }
 
 void
-nabi_server_set_compose_map(NabiServer *server,
-			    NabiComposeItem **compose_map,
-			    int size)
+nabi_server_set_compose_table(NabiServer *server,
+			      const char *name)
 {
+    GList *list;
+    NabiComposeTable *default_table;
+
     if (server == NULL)
 	return;
 
-    server->compose_map = compose_map;
-    server->compose_map_size = size;
+    if (server->compose_tables == NULL)
+	default_table = &nabi_compose_table_internal;
+    else
+	default_table = server->compose_tables->data;
+
+    if (name == NULL) {
+	server->compose_table = default_table;
+	return;
+    }
+
+    for (list = server->compose_tables; list != NULL; list = list->next) {
+	NabiComposeTable *table = (NabiComposeTable*)list->data;
+	if (strcmp(table->name, name) == 0) {
+	    server->compose_table = table;
+	    return;
+	}
+    }
+
+    fprintf(stderr, "Nabi: Cant find compose table: %s\n", name);
+    server->compose_table = default_table;
 }
 
 void
@@ -531,6 +604,31 @@ nabi_server_on_keypress(NabiServer *server,
 	server->statistics.shift++;
 }
 
+static
+guint32 string_to_hex(char* p)
+{
+    guint32 ret = 0;
+    guint32 remain = 0;
+
+    if (*p == 'U')
+	p++;
+
+    while (*p != '\0') {
+	if (*p >= '0' && *p <= '9')
+	    remain = *p - '0';
+	else if (*p >= 'a' && *p <= 'f')
+	    remain = *p - 'a' + 10;
+	else if (*p >= 'A' && *p <= 'F')
+	    remain = *p - 'A' + 10;
+	else
+	    return 0;
+
+	ret = ret * 16 + remain;
+	p++;
+    }
+    return ret;
+}
+
 static gint
 candidate_item_compare(gconstpointer a, gconstpointer b)
 {
@@ -544,6 +642,196 @@ skip_space(guchar* p)
     while (g_ascii_isspace(*p))
 	p++;
     return p;
+}
+
+static gint
+compose_item_compare(gconstpointer a, gconstpointer b)
+{
+    return ((NabiComposeItem*)a)->key - ((NabiComposeItem*)b)->key;
+}
+
+static NabiComposeTable *
+create_compose_table_from_list(const char *name, GSList *list)
+{
+    int i;
+    NabiComposeTable *table = NULL;
+
+    table = g_new(NabiComposeTable, 1);
+    table->name = g_strdup(name);
+    table->items = NULL;
+    table->size = 0;
+
+    /* sort compose map */
+    list = g_slist_reverse(list);
+    list = g_slist_sort(list, compose_item_compare);
+
+    /* move data to map */
+    table->size = g_slist_length(list);
+    table->items = g_new(NabiComposeItem, table->size);
+    for (i = 0; i < table->size; i++, list = list->next) {
+	table->items[i] = *((NabiComposeItem*)list->data);
+	g_free(list->data);
+    }
+    return table;
+}
+
+Bool 
+nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
+{
+    int i;
+    char *line, *p, *saved_position;
+    char buf[256];
+    FILE* file;
+    wchar_t key, value;
+    NabiKeyboardTable *table;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+	fprintf(stderr, _("Nabi: Can't read keyboard map file\n"));
+	return False;
+    }
+
+    table = g_new(NabiKeyboardTable, 1);
+
+    /* init */
+    table->type = NABI_KEYBOARD_3SET;
+    table->filename = g_strdup(filename);
+    table->name = NULL;
+
+    for (i = 0; i < sizeof(table->table) / sizeof(table->table[0]); i++)
+	table->table[i] = 0;
+
+    for (line = fgets(buf, sizeof(buf), file);
+	 line != NULL;
+	 line = fgets(buf, sizeof(buf), file)) {
+	p = strtok_r(line, " \t\n", &saved_position);
+	/* comment */
+	if (p == NULL || p[0] == '#')
+	    continue;
+
+	if (strcmp(p, "Name:") == 0) {
+	    p = strtok_r(NULL, "\n", &saved_position);
+	    if (p == NULL)
+		continue;
+	    table->name = g_strdup(p);
+	    continue;
+	} else if (strcmp(p, "Type2") == 0) {
+	    table->type = NABI_KEYBOARD_2SET;
+	} else {
+	    key = string_to_hex(p);
+	    if (key == 0)
+		continue;
+
+	    p = strtok_r(NULL, " \t", &saved_position);
+	    if (p == NULL)
+		continue;
+	    value = string_to_hex(p);
+	    if (value == 0)
+		continue;
+
+	    if (key < XK_exclam || key > XK_asciitilde)
+		continue;
+
+	    table->table[key - XK_exclam] = value;
+	}
+    }
+    fclose(file);
+
+    if (table->name == NULL)
+	table->name = g_path_get_basename(table->filename);
+
+    server->keyboard_tables = g_list_append(server->keyboard_tables,
+					    table);
+    return True;
+}
+
+Bool
+nabi_server_load_compose_table(NabiServer *server, const char *filename)
+{
+    char *line, *p, *saved_position, *name = NULL;
+    char buf[256];
+    FILE* file;
+    guint32 key1, key2;
+    wchar_t value;
+    NabiComposeTable *table = NULL;
+    NabiComposeItem *citem = NULL;
+    GSList *list = NULL;
+    Bool ret = False;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+	fprintf(stderr, "Nabi: Can't open file: %s (%s)\n",
+		filename, strerror(errno));
+	return ret;
+    }
+
+    for (line = fgets(buf, sizeof(buf), file);
+	 line != NULL;
+	 line = fgets(buf, sizeof(buf), file)) {
+	p = strtok_r(line, " \t\n", &saved_position);
+	/* comment */
+	if (p == NULL || p[0] == '#')
+	    continue;
+
+	if (p[0] == '[') {
+	    char *end = strchr(p, ']');
+	    if (end == NULL)
+		continue;
+
+	    if (name != NULL && list != NULL) {
+		/* append new compose table */
+		table = create_compose_table_from_list(name, list);
+		server->compose_tables = g_list_append(server->compose_tables,
+						       table);
+		g_free(name);
+		name = NULL;
+		g_slist_free(list);
+		list = NULL;
+		ret = True;
+	    }
+	    *end = '\0';
+	    name = g_strdup(p + 1);
+	    continue;
+	} else {
+	    key1 = string_to_hex(p);
+	    if (key1 == 0)
+		continue;
+
+	    p = strtok_r(NULL, " \t", &saved_position);
+	    if (p == NULL)
+		continue;
+	    key2 = string_to_hex(p);
+	    if (key2 == 0)
+		continue;
+
+	    p = strtok_r(NULL, " \t", &saved_position);
+	    if (p == NULL)
+		continue;
+	    value = string_to_hex(p);
+	    if (value == 0)
+		continue;
+
+	    citem = g_new(NabiComposeItem, 1);
+	    citem->key = key1 << 16 | key2;
+	    citem->code = value;
+
+	    list = g_slist_prepend(list, citem);
+	}
+    }
+    fclose(file);
+
+    if (name != NULL && list != NULL) {
+	table = create_compose_table_from_list(name, list);
+	server->compose_tables = g_list_append(server->compose_tables,
+					       table);
+	g_free(name);
+	name = NULL;
+	g_slist_free(list);
+	list = NULL;
+	ret = True;
+    }
+
+    return ret;
 }
 
 Bool
