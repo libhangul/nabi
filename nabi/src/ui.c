@@ -1071,7 +1071,7 @@ create_menu(void)
     gtk_widget_show(menu_item);
 
     /* menu preferences */
-    menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences"));
+    menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences..."));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
