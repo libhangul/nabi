@@ -1,6 +1,7 @@
 2003-08-27  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,server.c,automata.c: dvorak 자판 지원
 	* src/server.h,server.c,nabi.h,ui.c: dvorak 설정 지원
+	* src/ui.c: 메뉴 아이콘 추가
 
 2003-08-25  Choe Hwanjin <krisna@kldp.org>
 	* release 0.4
