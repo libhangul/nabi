@@ -928,6 +928,14 @@ on_tray_icon_button_press(GtkWidget *widget,
 
     switch (event->button) {
     case 1:
+    case 3:
+	if (menu == NULL)
+	    menu = create_menu();
+	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
+		       nabi_menu_position_func, widget,
+		       event->button, event->time);
+	return TRUE;
+    case 2:
 	if (GTK_WIDGET_VISIBLE(nabi->main_window)) {
 	    gtk_window_get_position(GTK_WINDOW(nabi->main_window),
 			    &nabi->x, &nabi->y);
@@ -936,13 +944,6 @@ on_tray_icon_button_press(GtkWidget *widget,
 	    gtk_window_move(GTK_WINDOW(nabi->main_window), nabi->x, nabi->y);
 	    gtk_widget_show(GTK_WIDGET(nabi->main_window));
 	}
-	return TRUE;
-    case 3:
-	if (menu == NULL)
-	    menu = create_menu();
-	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
-		       nabi_menu_position_func, widget,
-		       event->button, event->time);
 	return TRUE;
     default:
 	break;
