@@ -37,7 +37,14 @@ AC_OUTPUT([
 Makefile
 IMdkit/Makefile
 src/Makefile
+tables/Makefile
 themes/Makefile
+themes/SimplyRed/Makefile
+themes/MSWindows/Makefile
+themes/Mac/Makefile
+themes/Onion/Makefile
+themes/KingSejong/Makefile
+themes/keyboard/Makefile
 m4/Makefile 
 po/Makefile.in 
 ])
