@@ -1,3 +1,6 @@
+2003-08-07  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c: vi 사용자를 위해 esc키일때 영문 상태로 자동 전환
+
 2003-08-06  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c: CapsLock, NumLock 처리 못하는 버그 수정
 	* src/ui.c: NabiKeyboardMap.map을 free 하는 버그 수정
