@@ -1588,10 +1588,10 @@ create_resized_icons(gint default_size)
     gint orig_width, orig_height;
     GdkPixbuf *pixbuf;
 
-    if (default_size < 36)
+    if (default_size < 32)
 	default_size = 24;
     else if (default_size < 48)
-	default_size = 36;
+	default_size = 32;
     else if (default_size < 64)
 	default_size = 48;
     else if (default_size < 128)
