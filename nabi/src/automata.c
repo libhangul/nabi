@@ -62,11 +62,120 @@ hangul_compose(wchar_t first, wchar_t last)
     return 0;
 }
 
+static KeySym
+hangul_dvorak_to_qwerty (KeySym key)
+{
+    /* maybe safe if we use switch statement */
+    static KeySym table[] = {
+	XK_exclam,		/* XK_exclam        */
+	XK_Q,			/* XK_quotedbl      */
+	XK_numbersign,		/* XK_numbersign    */
+	XK_dollar,		/* XK_dollar        */
+	XK_percent,		/* XK_percent       */
+	XK_ampersand,		/* XK_ampersand     */
+	XK_q,			/* XK_apostrophe    */
+	XK_parenleft,		/* XK_parenleft     */
+	XK_parenright,		/* XK_parenright    */
+	XK_asterisk,		/* XK_asterisk      */
+	XK_braceright,		/* XK_plus          */
+	XK_w,			/* XK_comma         */
+	XK_apostrophe,		/* XK_minus         */
+	XK_e,			/* XK_period        */
+	XK_bracketleft,		/* XK_slash         */
+	XK_0,			/* XK_0             */
+	XK_1,			/* XK_1             */
+	XK_2,			/* XK_2             */
+	XK_3,			/* XK_3             */
+	XK_4,			/* XK_4             */
+	XK_5,			/* XK_5             */
+	XK_6,			/* XK_6             */
+	XK_7,			/* XK_7             */
+	XK_8,			/* XK_8             */
+	XK_9,			/* XK_9             */
+	XK_Z,			/* XK_colon         */
+	XK_z,			/* XK_semicolon     */
+	XK_W,			/* XK_less          */
+	XK_bracketright,	/* XK_qual          */
+	XK_E,			/* XK_greater       */
+	XK_braceleft,		/* XK_question      */
+	XK_at,			/* XK_at            */
+	XK_A,			/* XK_A             */
+	XK_N,			/* XK_B             */
+	XK_I,			/* XK_C             */
+	XK_H,			/* XK_D             */
+	XK_D,			/* XK_E             */
+	XK_Y,			/* XK_F             */
+	XK_U,			/* XK_G             */
+	XK_J,			/* XK_H             */
+	XK_G,			/* XK_I             */
+	XK_C,			/* XK_J             */
+	XK_V,			/* XK_K             */
+	XK_P,			/* XK_L             */
+	XK_M,			/* XK_M             */
+	XK_L,			/* XK_N             */
+	XK_S,			/* XK_O             */
+	XK_R,			/* XK_P             */
+	XK_X,			/* XK_Q             */
+	XK_O,			/* XK_R             */
+	XK_colon,		/* XK_S             */
+	XK_K,			/* XK_T             */
+	XK_F,			/* XK_U             */
+	XK_greater,		/* XK_V             */
+	XK_less,		/* XK_W             */
+	XK_B,			/* XK_X             */
+	XK_T,			/* XK_Y             */
+	XK_question,		/* XK_Z             */
+	XK_minus,		/* XK_bracketleft   */
+	XK_backslash,		/* XK_backslash     */
+	XK_equal,		/* XK_bracketright  */
+	XK_asciicircum,		/* XK_asciicircum   */
+	XK_quotedbl,		/* XK_underscore    */
+	XK_grave,		/* XK_grave         */
+	XK_a,			/* XK_a             */
+	XK_n,			/* XK_b             */
+	XK_i,			/* XK_c             */
+	XK_h,			/* XK_d             */
+	XK_d,			/* XK_e             */
+	XK_y,			/* XK_f             */
+	XK_u,			/* XK_g             */
+	XK_j,			/* XK_h             */
+	XK_g,			/* XK_i             */
+	XK_c,			/* XK_j             */
+	XK_v,			/* XK_k             */
+	XK_p,			/* XK_l             */
+	XK_m,			/* XK_m             */
+	XK_l,			/* XK_n             */
+	XK_s,			/* XK_o             */
+	XK_r,			/* XK_p             */
+	XK_x,			/* XK_q             */
+	XK_o,			/* XK_r             */
+	XK_semicolon,		/* XK_s             */
+	XK_k,			/* XK_t             */
+	XK_f,			/* XK_u             */
+	XK_period,		/* XK_v             */
+	XK_comma,		/* XK_w             */
+	XK_b,			/* XK_x             */
+	XK_t,			/* XK_y             */
+	XK_slash,		/* XK_z             */
+	XK_underscore,		/* XK_braceleft     */
+	XK_bar,			/* XK_bar           */
+	XK_plus,		/* XK_braceright    */
+	XK_asciitilde,		/* XK_asciitilde    */
+    };
+
+    if (key < XK_exclam || key > XK_asciitilde)
+	return key;
+    return table[key - XK_exclam];
+}
+
 wchar_t
 nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
     if (server->keyboard_map == NULL)
-	return 0;
+	return keyval;
+
+    if (server->dvorak)
+	keyval = hangul_dvorak_to_qwerty(keyval);
 
     /* hangul jamo keysym */
     if (keyval >= 0x01001100 && keyval <= 0x010011ff)
@@ -85,7 +194,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	}
 	return server->keyboard_map[keyval - XK_exclam];
     } else
-	return 0;
+	return keyval;
 }
 
 

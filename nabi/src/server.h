@@ -74,6 +74,7 @@ struct _NabiServer {
                                         KeySym,
                                         unsigned int state);
     Bool                    check_ksc;
+    Bool                    dvorak;
     NabiOutputMode          output_mode;
 
     /* options */
