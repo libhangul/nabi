@@ -1,27 +1,341 @@
-BODY {
-	margin-top: 0px;
-	margin-right: 0px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	font-family: Verdana, Tahoma, Lucida, Arial, Helvetica, sans-serif;
-	font-size: 10pt;
-	background-color: #e8d57e;
+/* Default style sheet for nabi.kldp.org x-- be careful if you edit it. */
+/* $Id$ */
+
+body {
+  background: white;
+  color: black;
+  font-family: arial,helvetica,sans-serif;
+  margin: 0px;
+  padding: 0px;
 }
-.headline {
-	padding: 3px;
-	margin-top: 0px;
-	margin-left: 0px;
-	margin-bottom: 0px;
-	background-color: #f0e68c;
-	font-size: 16pt;
-	font-family: Verdana, Tahoma, Lucida, Arial, Helvetica, sans-serif;
+
+a {
+  background: transparent;
+  color: #17457c;
+  text-decoration: none;
+  font-weight: bold;
 }
-.menu {
-	width: 99%;
-	padding: 3px;
-	margin: 0px;
-	text-align: right;
-	color: #d2691e;
+
+a:hover {
+  background: transparent;
+  color: #991e1e;
+  text-decoration: underline;
+  font-weight: bold;
 }
-a { text-decoration:none; color: #d2691e; }
-a:hover { text-decoration: underline; }
+
+img {
+  border: none;
+}
+
+img.icon {
+  float: left;
+  margin: 5px;
+}
+
+img.map {
+  margin: 0px;
+  padding: 0px;
+}
+
+/* Main header. */
+h1 {
+  background: #f5f5f5;
+  color: black;
+  border-style: solid;
+  border-color: #d0d0d0;
+  border-width: 1px;
+  padding: 5px;
+  margin-bottom: 30px;
+  font-weight: bold;
+  font-size: 110%;
+  text-align: center;
+  clear: left;
+}
+
+/* Subtitle header. */
+h2 {
+  font-weight: bold;
+  clear: both;
+  font-size: 110%;
+}
+
+/* Another subtitle using another font-size then the subtitle. */
+h3 {
+  font-weight: bold;
+  clear: both;
+  font-size: 100%;
+}
+
+div.book-of-wilber { 
+  font-size: large;
+  background: #CC9966 url(../images/wilberbook.jpg);
+  font-family:  postantiqua, "zapf chancery", "urw chancery l", fantasy;
+  border: medium groove;
+  padding: 1em;
+}
+
+div.news {
+    clear: both;
+}
+
+p {
+  margin: 1.33em 0px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+p.news {
+  margin: 0.75em 0px;
+  text-align: left;
+}
+
+div.news img {
+    float: left;
+    padding: 0em 1em 0em 0em;
+}
+
+p.images img {
+  border: none;
+}
+
+p.images {
+  text-align: center;
+}
+
+/* Imageslices: work-around to keep the renderer from reserving 
+space for the descenders of images by making the images blocks 
+instead of inline elements. See 
+http://devedge.netscape.com/viewsource/2002/img-table/ for a 
+description of the problem. Other than that, 'imageslices' should 
+act like 'images'. */
+
+p.imageslices img {
+  display: block;
+  margin: 0px;
+  padding: 0px;
+  border: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+p.images, p.imageslices {
+  text-align: center;
+}
+
+p.navindex {
+  text-align: center;
+  font-size: 80%;
+}
+
+span.newstitle {
+  float: left;
+}
+
+span.newsdate {
+  float: right;
+}
+
+span.filter {
+  font-weight: bold;
+}
+
+span.path {
+  font-weight: bold;
+}
+
+span.different {
+  font-weight: bold;
+  background-color:   transparent;
+  color:              blue;
+}
+
+li {
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+.list li {
+  padding-bottom: 1.2em;
+}
+
+.list p {
+  margin: 0 0 0 0;
+}
+
+pre.code {
+  color: black;
+  background: #f5f5f5;
+  border: solid 2px black;
+  font-family: monospace;
+  white-space: pre;
+  margin: 1.33em 0px;
+  margin-left: 40px;
+  margin-right: 40px;
+  padding: 1.33em;
+}
+
+pre.debug {
+  color: black;
+  background: #ddddff;
+  border: solid 2px black;
+  font-family: monospace;
+  white-space: pre;
+  margin: 1.33em 0px;
+  margin-left: 40px;
+  margin-right: 40px;
+  padding: 1.33em;
+}
+
+
+pre.text {
+  color: black;
+  background: #ddddff;
+  font-family: monospace;
+  white-space: pre;
+  margin: 1.33em 0px;
+  margin-left: 40px;
+  margin-right: 40px;
+  padding: 1.33em;
+}
+
+pre.wiki {
+  padding-left:6px;
+  padding-top:6px; 
+  font-family:Lucida TypeWriter,monotype,lucida,fixed;font-size:14px;
+  background-color:#000000;
+  color:#FFD700; /* gold */
+}
+
+em.caution {
+  color: #981e49;
+  font-weight: bold;
+}
+
+em.warn {
+  color: #d5a82f;
+  font-weight: bold;
+}
+
+em.hellbrokeloose {
+  color: #c74646;
+  font-weight: bold;
+}
+
+.help, acronym {
+  border-bottom: 1px dashed #9999cc;
+  cursor: help;
+}
+
+kbd {
+  font-weight: bold;
+}
+
+td.map {
+  margin: 0px;
+  padding: 0px;
+}
+
+form {
+  margin: 1.33em 0px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+/* Changes here should only be done if you know exactly what you are doing.
+ * Changes done here will change the appearence of the whole site and should
+ * be left up to the designer of the site to change. Contact the designer for
+ * more information about the values below. */
+
+#menu {
+  background: #f5f5f5;
+  color: black;
+  border-style: solid;
+  border-color: #d0d0d0;
+  border-width: 0px 1px 0px 0px;
+  padding: 10px;
+  font-weight: bold;
+  vertical-align: top;
+  white-space: nowrap;
+  top: 100px;
+  left: 0px;
+  height: 100%;
+}
+
+#menu a {
+  display: block;
+}
+
+#menu a.sub {
+  display: block;
+  padding-left: 10px;
+  font-size: 90%;
+}
+
+#menu span {
+  display: none;
+}
+
+#menu p {
+  display: none;
+}
+
+#menubutton {
+  background-color: transparent;
+  padding: 0;
+  position: absolute;
+  top: 100px;
+  left: 0px;
+  cursor: w-resize;
+}
+
+#main {
+  padding: 10px;
+  vertical-align: top;
+}
+
+#titlebar {
+  background-image: url("../images/barbg.png");
+  background-repeat: repeat-x;
+  height: 100px;
+}
+
+#linkbar, #navbar {
+  clear: both;
+  background: #f5f5f5;
+  color: black;
+  border: solid #d0d0d0;
+  border-width: 1px 0px 1px 0px;
+  padding: 5px 5px 5px 5px;
+  font-weight: bold;
+  text-align: center;
+}
+
+#footerleft {
+  float: left;
+  padding: 20px;
+}
+
+#footerright {
+  float: right;
+  padding: 20px;
+}
+
+#titlebarleft {
+  float: left;
+}
+
+#titlebarright {
+  float: right;
+}
+
+@media print {
+#titlebar, #navbar, #linkbar, #menu {
+  display: none
+}
+
+#main {
+  margin-left: 0px;
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
