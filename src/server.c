@@ -100,7 +100,7 @@ nabi_server_new(void)
 
     /* hangul converter */
     server->check_charset = False;
-    server->converter = (iconv_t)(-1);
+    server->converter = (GIConv)(-1);
 
     /* options */
     server->preedit_fg = 1;
@@ -218,7 +218,7 @@ nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
 void
 nabi_server_init(NabiServer *server)
 {
-    char *codeset;
+    const char *charset;
 
     if (server == NULL)
 	return;
@@ -230,17 +230,15 @@ nabi_server_init(NabiServer *server)
     server->output_mode = NABI_OUTPUT_SYLLABLE;
 
     /* check korean locale encoding */
-    server->check_charset = True;
-    codeset=nl_langinfo(CODESET);
-    if (strcasecmp(codeset,"UTF-8") == 0)
-	server->check_charset = False;
-    else if (strcasecmp(codeset,"UTF8") == 0)
-	server->check_charset = False;
-
-    server->converter = iconv_open(codeset, "UTF-8");
-    if ((iconv_t)server->converter == (iconv_t)(-1)) {
-	server->check_charset = False;
-	fprintf(stderr, "Nabi: iconv error, we does not check charset\n");
+    server->check_charset = !g_get_charset(&charset);
+    if (server->check_charset) {
+	server->converter = g_iconv_open(charset, "UTF-8");
+	if ((GIConv)server->converter == (GIConv)(-1)) {
+	    server->check_charset = False;
+	    fprintf(stderr,
+		    "Nabi: g_iconv_open error: %s\n"
+		    "We does not check charset\n", charset);
+	}
     }
 }
 
@@ -359,9 +357,9 @@ nabi_server_stop(NabiServer *server)
     if (server == NULL)
 	return 0;
 
-    if ((iconv_t)(server->converter) != (iconv_t)(-1)) {
-	iconv_close(server->converter);
-	server->converter = (iconv_t)(-1);
+    if ((GIConv)(server->converter) != (GIConv)(-1)) {
+	g_iconv_close(server->converter);
+	server->converter = (GIConv)(-1);
     }
 
     if (server->xims != NULL) {
@@ -439,13 +437,14 @@ Bool
 nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
 {
     int n;
-    char utf8[16];
-    char buf[16];
-    size_t ret, inbytesleft, outbytesleft;
-    char *inbuf;
-    char *outbuf;
+    gchar utf8[16];
+    gchar buf[16];
+    size_t ret;
+    gsize inbytesleft, outbytesleft;
+    gchar *inbuf;
+    gchar *outbuf;
 
-    if ((iconv_t)server->converter == (iconv_t)(-1))
+    if ((GIConv)server->converter == (GIConv)(-1))
 	return True;
 
     n = hangul_wchar_to_utf8(ch, utf8, sizeof(utf8));
@@ -455,9 +454,9 @@ nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
     outbuf = buf;
     inbytesleft = n;
     outbytesleft = sizeof(buf);
-    ret = iconv(server->converter,
-	    	&inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    if ((iconv_t)ret == (iconv_t)(-1))
+    ret = g_iconv(server->converter,
+	    	  &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    if ((GIConv)ret == (GIConv)(-1))
 	return False;
     return True;
 }

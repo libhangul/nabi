@@ -1,3 +1,6 @@
+2003-12-14  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
+
 2003-12-09  Choe Hwanjin  <krisna@people.kldp.org>
 	* configure.in,
 	  themes/MSWindows2000/Makefile.am,
