@@ -1,124 +1,127 @@
+2003-10-30  Choe Hwanjin <krisna@kldp.org>
+	* í…ìŠ¤íŠ¸ íŒŒì¼ë“¤ì˜ ì¸ì½”ë”©ì„ UTF-8ë¡œ ë³€í™˜
+
 2003-10-22  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c,src/nabi.h,src/ui.c,src/server.h,src/server.c:
-	  output_mode ¿É¼Ç Ãß°¡ (syllable, jamo °¡´É)
+	  output_mode ì˜µì…˜ ì¶”ê°€ (syllable, jamo ê°€ëŠ¥)
 
 2003-10-20  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c: gcc 3.3.2 ¿¡¼­ strict alias warning ¾È³ª°Ô
+	* src/ui.c: gcc 3.3.2 ì—ì„œ strict alias warning ì•ˆë‚˜ê²Œ
 
 2003-10-19  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: unicode ¹üÀ§ÀÇ keyvalÀº forwardingÇÏÁö ¾Ê°í ¹Ù·Î commit ÇÔ
+	* src/ic.c: unicode ë²”ìœ„ì˜ keyvalì€ forwardingí•˜ì§€ ì•Šê³  ë°”ë¡œ commit í•¨
 
 2003-10-15  Choe Hwanjin <krisna@kldp.org>
-	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: ÇÑ±ÛÀÚ¸ğ ÀÌ¿ÜÀÇ
-	  ±ÛÀÚ¸¦ Ã³¸®ÇÏ´Â ·çÆ¾À» °³¼±
+	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: í•œê¸€ìëª¨ ì´ì™¸ì˜
+	  ê¸€ìë¥¼ ì²˜ë¦¬í•˜ëŠ” ë£¨í‹´ì„ ê°œì„ 
 
 2003-10-14  Choe Hwanjin <krisna@kldp.org>
 	* release 0.9
 
 2003-10-13  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c,src/hangul.c,src/hangul.h,src/server.c:
-	  XwcXXX ÇÔ¼ö¸¦ ¸ğµÎ Xutf8XXX ÇÔ¼ö·Î ¹Ù²Ş, UCS ÄÚµå¸¦ UTF8 ½ºÆ®¸µÀ¸·Î
-	  ¸¸µå´Â ÀÚÃ¼ ·çÆ¾ Ãß°¡, charset Ã¼Å©¿¡¼­µµ WCHAR_T ´ë½Å UTF-8
-	  »ç¿ë (BSD Áö¿øÀ» À§ÇØ)
-	  BSD ¼­¹ö »ç¿ëÀ» Áö¿øÇØÁÖ½Å Perky(http://openlook.org/)´Ô²²
-	  °¨»çµå¸³´Ï´Ù.
+	  XwcXXX í•¨ìˆ˜ë¥¼ ëª¨ë‘ Xutf8XXX í•¨ìˆ˜ë¡œ ë°”ê¿ˆ, UCS ì½”ë“œë¥¼ UTF8 ìŠ¤íŠ¸ë§ìœ¼ë¡œ
+	  ë§Œë“œëŠ” ìì²´ ë£¨í‹´ ì¶”ê°€, charset ì²´í¬ì—ì„œë„ WCHAR_T ëŒ€ì‹  UTF-8
+	  ì‚¬ìš© (BSD ì§€ì›ì„ ìœ„í•´)
+	  BSD ì„œë²„ ì‚¬ìš©ì„ ì§€ì›í•´ì£¼ì‹  Perky(http://openlook.org/)ë‹˜ê»˜
+	  ê°ì‚¬ë“œë¦½ë‹ˆë‹¤.
 
 2003-10-10  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: qt¿¡¼­ ÇÑÀÚ º¯È¯½Ã ¾Èº¸ÀÌ´ø ¹®Á¦ ÇØ°á
+	* src/ic.c: qtì—ì„œ í•œì ë³€í™˜ì‹œ ì•ˆë³´ì´ë˜ ë¬¸ì œ í•´ê²°
 
 2003-10-08  Choe Hwanjin <krisna@kldp.org>
 	* release 0.8
 
 2003-10-08  Choe Hwanjin <krisna@kldp.org>
-	* src/automata.c: charsetÀ» Ã¼Å©ÇÏ´Â ºÎºĞÀ» ´õ Ãß°¡
-	  (¤³¤Î¤©¤¡ÀÇ °æ¿ì °í·Á), ¼¼¹ú½Ä ÀÚÆÇ¿¡¼­µµ charset Ã¼Å© °­È­
-	* src/automata.c, src/server.h, src/server.c, src/ui.c: °¢ Å°º°·Î ´­¸°
-	  È½¼ö¸¦ ÀúÀåÇØµÎ´Â ±â´ÉÀ» Ãß°¡ÇÔ(about Ã¢¿¡¼­ º¼¼ö ÀÖÀ½)
+	* src/automata.c: charsetì„ ì²´í¬í•˜ëŠ” ë¶€ë¶„ì„ ë” ì¶”ê°€
+	  (ã…ƒã…ã„¹ã„±ì˜ ê²½ìš° ê³ ë ¤), ì„¸ë²Œì‹ ìíŒì—ì„œë„ charset ì²´í¬ ê°•í™”
+	* src/automata.c, src/server.h, src/server.c, src/ui.c: ê° í‚¤ë³„ë¡œ ëˆŒë¦°
+	  íšŸìˆ˜ë¥¼ ì €ì¥í•´ë‘ëŠ” ê¸°ëŠ¥ì„ ì¶”ê°€í•¨(about ì°½ì—ì„œ ë³¼ìˆ˜ ìˆìŒ)
 
 2003-10-01  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: XIMPreeditPosition ¸ğµåÀÇ °æ¿ì¿¡´Â commitÇÑÈÄ¿¡ preedit
-	  clear ÇÏµµ·Ï ¼öÁ¤ÇÔ(EtermÀÇ °æ¿ì´Â preedit stringÀ» Áö¿ì°í commit
-	  ÇØµµ Á¤»óÀûÀ¸·Î ÀÔ·ÂÀÌ µÇÁö¸¸, gtk+1 appÀÇ °æ¿ì´Â ÀÔ·Â¼ø¼­°¡
-	  µÚ¹Ù²î´Â °æ¿ì°¡ ÀÖ¾î¼­ XIMPreeditPositionÀÇ °æ¿ì´Â ±âÁ¸ÀÇ ¹æ½Ä´ë·Î 
-	  Ã³¸®ÇÏµµ·Ï ÇÔ, µû¶ó¼­ XUnmapWindow()¸¦ »ç¿ëÇØµµ ÀÔ·Â¼ø¼­¿¡ ¿µÇâÀ» 
-	  ¹ÌÄ¡Áö ¾ÊÀ½ #284)
+	* src/ic.c: XIMPreeditPosition ëª¨ë“œì˜ ê²½ìš°ì—ëŠ” commití•œí›„ì— preedit
+	  clear í•˜ë„ë¡ ìˆ˜ì •í•¨(Etermì˜ ê²½ìš°ëŠ” preedit stringì„ ì§€ìš°ê³  commit
+	  í•´ë„ ì •ìƒì ìœ¼ë¡œ ì…ë ¥ì´ ë˜ì§€ë§Œ, gtk+1 appì˜ ê²½ìš°ëŠ” ì…ë ¥ìˆœì„œê°€
+	  ë’¤ë°”ë€ŒëŠ” ê²½ìš°ê°€ ìˆì–´ì„œ XIMPreeditPositionì˜ ê²½ìš°ëŠ” ê¸°ì¡´ì˜ ë°©ì‹ëŒ€ë¡œ 
+	  ì²˜ë¦¬í•˜ë„ë¡ í•¨, ë”°ë¼ì„œ XUnmapWindow()ë¥¼ ì‚¬ìš©í•´ë„ ì…ë ¥ìˆœì„œì— ì˜í–¥ì„ 
+	  ë¯¸ì¹˜ì§€ ì•ŠìŒ #284)
 
 2003-09-26  Choe Hwanjin <krisna@kldp.org>
 	* release 0.7
 
 2003-09-18  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: XIM spec¿¡ ¸Â°Ô preedit clear ÇÑÈÄ commit ÇÔ
-	* src/handler.c: ÇÑÀÚ º¯È¯ ±â´ÉÀ» "Hanja"Å° ¸»°í F9µµ ÀÛµ¿ÇÏ°Ô ÇÔ
+	* src/ic.c: XIM specì— ë§ê²Œ preedit clear í•œí›„ commit í•¨
+	* src/handler.c: í•œì ë³€í™˜ ê¸°ëŠ¥ì„ "Hanja"í‚¤ ë§ê³  F9ë„ ì‘ë™í•˜ê²Œ í•¨
 
 2003-09-17  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: set default icon
 
 2003-09-16  Choe Hwanjin <krisna@kldp.org>
 	* release 0.6
-	* src/session.c,src/main.c,src/ui.c: session Á¾·á½Ã °°ÀÌ Á¾·á
+	* src/session.c,src/main.c,src/ui.c: session ì¢…ë£Œì‹œ ê°™ì´ ì¢…ë£Œ
 
 2003-09-14  Choe Hwanjin <krisna@kldp.org>
-	* src/session.h,src/session.c: session °ü·Ã ÄÚµå Ãß°¡
+	* src/session.h,src/session.c: session ê´€ë ¨ ì½”ë“œ ì¶”ê°€
 
 2003-09-10  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: Æ¯¼öÅ°µéÀ» Æ÷¿öµù ÇÔ
-	* src/automata.c: ¼¼¹ú½Ä ¿ÀÅä¸¶Å¸ÀÇ Àß¸øµÈ °÷ ¼öÁ¤
+	* src/handler.c: íŠ¹ìˆ˜í‚¤ë“¤ì„ í¬ì›Œë”© í•¨
+	* src/automata.c: ì„¸ë²Œì‹ ì˜¤í† ë§ˆíƒ€ì˜ ì˜ëª»ëœ ê³³ ìˆ˜ì •
 
 2003-09-09  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,src/server.c,src/ui.c: iconv¸¦ ÀÌ¿ëÇÑ charset Ã¼Å©·çÆ¾ 
-	  Ãß°¡
-	* src/hangul.h,src/hangul.c: hangul_ucs_to_ksc ÇÔ¼ö¸¦ Á¦°Å
+	* src/server.h,src/server.c,src/ui.c: iconvë¥¼ ì´ìš©í•œ charset ì²´í¬ë£¨í‹´ 
+	  ì¶”ê°€
+	* src/hangul.h,src/hangul.c: hangul_ucs_to_ksc í•¨ìˆ˜ë¥¼ ì œê±°
 
 2003-09-08  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c,src/ic.c,src/ic.h,src/nabi.h,src/hanjatable.h,src/handler.c:
-	  ÇÑÀÚ ÀÔ·Â ±â´É Ãß°¡
-	* src/handler.c: preedit start/doneÀ» Á¦¶§¿¡ ¸Â°Ô È£ÃâÇÏµµ·Ï ¼öÁ¤
-	  mozilla¿¡¼­ ÇÑ±Û »óÅÂ¿¡¼­ Ã¢À» ´İÀ¸¸é Á×´ø ¹®Á¦ ÇØ°á(#248)
+	  í•œì ì…ë ¥ ê¸°ëŠ¥ ì¶”ê°€
+	* src/handler.c: preedit start/doneì„ ì œë•Œì— ë§ê²Œ í˜¸ì¶œí•˜ë„ë¡ ìˆ˜ì •
+	  mozillaì—ì„œ í•œê¸€ ìƒíƒœì—ì„œ ì°½ì„ ë‹«ìœ¼ë©´ ì£½ë˜ ë¬¸ì œ í•´ê²°(#248)
 
 2003-09-07  Choe Hwanjin <krisna@kldp.org>
 	* release 0.5
 
 2003-08-31  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c,main.c: system tray°¡ ´İÇôµµ ÇÁ·Î±×·¥À» Á¾·áÇÏÁö ¾ÊÀ½
-	* src/ui.c: dvorak ÀÚÆÇÀ» À§ÇÑ ¼³Á¤À» ¸Ş´º¿¡ Ãß°¡
+	* src/ui.c,main.c: system trayê°€ ë‹«í˜€ë„ í”„ë¡œê·¸ë¨ì„ ì¢…ë£Œí•˜ì§€ ì•ŠìŒ
+	* src/ui.c: dvorak ìíŒì„ ìœ„í•œ ì„¤ì •ì„ ë©”ë‰´ì— ì¶”ê°€
 
 2003-08-29  Choe Hwanjin <krisna@kldp.org>
-	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc Å×ÀÌºíÀ» wchar_t¿¡¼­ uint16_t
-	  ÇüÀ¸·Î ¹Ù²ã¼­ Å©±â¸¦ ÁÙÀÓ
+	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc í…Œì´ë¸”ì„ wchar_tì—ì„œ uint16_t
+	  í˜•ìœ¼ë¡œ ë°”ê¿”ì„œ í¬ê¸°ë¥¼ ì¤„ì„
 
 2003-08-27  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,server.c,automata.c: dvorak ÀÚÆÇ Áö¿ø
-	* src/server.h,server.c,nabi.h,ui.c: dvorak ¼³Á¤ Áö¿ø
-	* src/ui.c: ¸Ş´º ¾ÆÀÌÄÜ Ãß°¡
+	* src/server.h,server.c,automata.c: dvorak ìíŒ ì§€ì›
+	* src/server.h,server.c,nabi.h,ui.c: dvorak ì„¤ì • ì§€ì›
+	* src/ui.c: ë©”ë‰´ ì•„ì´ì½˜ ì¶”ê°€
 
 2003-08-25  Choe Hwanjin <krisna@kldp.org>
 	* release 0.4
-	* src/ui.c,configure.in: Å°º¸µå ±âº»°ªÀ» DEFAULT_KEYBOARD·Î »ç¿ë
+	* src/ui.c,configure.in: í‚¤ë³´ë“œ ê¸°ë³¸ê°’ì„ DEFAULT_KEYBOARDë¡œ ì‚¬ìš©
 
 2003-08-23  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnect¸¦ Ãß°¡ÇØ¼­
-	  connect_id º°·Î ÇÑ¿µ »óÅÂ¸¦ °ü¸®ÇÏµµ·Ï ÇÔ
+	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnectë¥¼ ì¶”ê°€í•´ì„œ
+	  connect_id ë³„ë¡œ í•œì˜ ìƒíƒœë¥¼ ê´€ë¦¬í•˜ë„ë¡ í•¨
 
 2003-08-21  Choe Hwanjin <krisna@kldp.org>
-	* src/main.c,server.h,server.c: nabi_server_stop ÇÔ¼ö Ãß°¡
-	* src/fontset.h,fontset.c: fontset °ü·Ã ·çÆ¾ Ãß°¡
-	* src/ic.c: nabi_fontset °ü·Ã ÇÔ¼ö »ç¿ëÇÏµµ·Ï ¼öÁ¤
+	* src/main.c,server.h,server.c: nabi_server_stop í•¨ìˆ˜ ì¶”ê°€
+	* src/fontset.h,fontset.c: fontset ê´€ë ¨ ë£¨í‹´ ì¶”ê°€
+	* src/ic.c: nabi_fontset ê´€ë ¨ í•¨ìˆ˜ ì‚¬ìš©í•˜ë„ë¡ ìˆ˜ì •
 
 2003-08-11  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.h,ic.c: preedit start ÇÃ·¡±× Ãß°¡, preedit_startµÈ °æ¿ì¸¸
-	  preedit_done ¸Ş¼¼Áö¸¦ º¸³¿(mozilla flash player¿Í °ü·ÃµÈ ¹®Á¦Á¡)
-	* src/ui.c: about Ã¢¿¡¼­ ¹öÁ¯ ³Ñ¹ö º¼ ¼ö ÀÖ°Ô
+	* src/ic.h,ic.c: preedit start í”Œë˜ê·¸ ì¶”ê°€, preedit_startëœ ê²½ìš°ë§Œ
+	  preedit_done ë©”ì„¸ì§€ë¥¼ ë³´ëƒ„(mozilla flash playerì™€ ê´€ë ¨ëœ ë¬¸ì œì )
+	* src/ui.c: about ì°½ì—ì„œ ë²„ì ¼ ë„˜ë²„ ë³¼ ìˆ˜ ìˆê²Œ
 
 2003-08-09  Choe Hwanjin <krisna@kldp.org>
-	* configure.in: gtk+ 2.2¸¦ ÇÊ¿ä·Î ÇÏµµ·Ï ÇÔ
+	* configure.in: gtk+ 2.2ë¥¼ í•„ìš”ë¡œ í•˜ë„ë¡ í•¨
 
 2003-08-07  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: vi »ç¿ëÀÚ¸¦ À§ÇØ escÅ°ÀÏ¶§ ¿µ¹® »óÅÂ·Î ÀÚµ¿ ÀüÈ¯
+	* src/handler.c: vi ì‚¬ìš©ìë¥¼ ìœ„í•´ escí‚¤ì¼ë•Œ ì˜ë¬¸ ìƒíƒœë¡œ ìë™ ì „í™˜
 
 2003-08-06  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: CapsLock, NumLock Ã³¸® ¸øÇÏ´Â ¹ö±× ¼öÁ¤
-	* src/ui.c: NabiKeyboardMap.mapÀ» free ÇÏ´Â ¹ö±× ¼öÁ¤
-	* IMdkit/IMConn.c: malloc.h ´ë½Å stdlib.h ¸¦ include
+	* src/handler.c: CapsLock, NumLock ì²˜ë¦¬ ëª»í•˜ëŠ” ë²„ê·¸ ìˆ˜ì •
+	* src/ui.c: NabiKeyboardMap.mapì„ free í•˜ëŠ” ë²„ê·¸ ìˆ˜ì •
+	* IMdkit/IMConn.c: malloc.h ëŒ€ì‹  stdlib.h ë¥¼ include
 
 2003-08-05  Choe Hwanjin <krisna@kldp.org>
 	* Release
