@@ -1,3 +1,9 @@
+2005-01-08  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ic.c: reset할때 preedit window 숨김
+	  gtk1 text widget에서 preedit string이 안나오던 문제 수정(over the
+	  spot(PreeditPostion) 방식에서 foreground, background값을 client가
+	  보내주는 값대신 nabi의 설정값을 따름)
+
 2004-12-05  Choe Hwanjin <krisna@kldp.org>
 	* release 0.15
 

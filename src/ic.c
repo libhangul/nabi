@@ -62,7 +62,7 @@ nabi_connect_create(CARD16 id)
 {
     NabiConnect* connect;
 
-    connect = nabi_malloc(sizeof(NabiConnect));
+    connect = g_new(NabiConnect, 1);
     connect->id = id;
     connect->mode = NABI_INPUT_MODE_DIRECT;
     connect->ic_list = NULL;
@@ -87,7 +87,7 @@ nabi_connect_destroy(NabiConnect* connect)
     }
 
     g_slist_free(connect->ic_list);
-    nabi_free(connect);
+    g_free(connect);
 }
 
 void
@@ -192,7 +192,7 @@ nabi_ic_create(IMChangeICStruct *data)
 	if (id >= nabi_server->ic_table_size)
 	    nabi_server_ic_table_expand(nabi_server);
 
-	ic = (NabiIC*)nabi_malloc(sizeof(NabiIC));
+	ic = g_new(NabiIC, 1);
 	ic->id = id;
 	nabi_server->ic_table[id] = ic;
     } else {
@@ -341,7 +341,7 @@ nabi_ic_real_destroy(NabiIC *ic)
     if (ic->preedit.gc != NULL)
 	g_object_unref(G_OBJECT(ic->preedit.gc));
 
-    nabi_free(ic);
+    g_free(ic);
 }
 
 static void
@@ -373,10 +373,12 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
     GC gc;
     int width;
 
-    if (ic->preedit.window == 0)
+    if (ic->preedit.window == NULL)
 	return;
+
     if (ic->preedit.font_set == 0)
 	return;
+
     if (ic->preedit.gc != NULL)
 	gc = gdk_x11_gc_get_xgc(ic->preedit.gc);
     else 
@@ -558,17 +560,6 @@ static void
 nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
 {
     ic->focus_window = focus_window;
-
-    if (ic->input_style & XIMPreeditPosition) {
-	if (ic->preedit.window == NULL)
-	    nabi_ic_preedit_window_new(ic);
-    } if (ic->input_style & XIMPreeditArea) {
-	if (ic->preedit.window == NULL)
-	    nabi_ic_preedit_window_new(ic);
-    } if (ic->input_style & XIMPreeditNothing) {
-	if (ic->preedit.window == NULL)
-	    nabi_ic_preedit_window_new(ic);
-    }
 }
 
 static void
@@ -576,7 +567,7 @@ nabi_ic_set_preedit_foreground(NabiIC *ic, unsigned long foreground)
 {
     ic->preedit.foreground = foreground;
 
-    if (ic->focus_window == 0)
+    if (ic->client_window == 0)
 	return;
 
     if (ic->preedit.gc != NULL) {
@@ -590,17 +581,16 @@ nabi_ic_set_preedit_foreground(NabiIC *ic, unsigned long foreground)
 static void
 nabi_ic_set_preedit_background(NabiIC *ic, unsigned long background)
 {
-    GdkColor color = { background, 0, 0, 0 };
     ic->preedit.background = background;
 
-    if (ic->focus_window == 0)
+    if (ic->client_window == 0)
 	return;
 
     if (ic->preedit.gc != NULL) {
-	gdk_gc_set_background(ic->preedit.gc, &color);
+	gdk_gc_set_background(ic->preedit.gc, &(nabi_server->preedit_bg));
     } else {
 	ic->preedit.gc = gdk_gc_new(nabi_server->widget->window);
-	gdk_gc_set_background(ic->preedit.gc, &color);
+	gdk_gc_set_background(ic->preedit.gc, &(nabi_server->preedit_bg));
     }
 }
 
@@ -648,6 +638,7 @@ nabi_ic_set_spot(NabiIC *ic, XPoint *point)
 
     nabi_ic_preedit_configure(ic);
 
+    return;
     if (nabi_ic_is_empty(ic))
 	nabi_ic_preedit_hide(ic);
     else
@@ -927,14 +918,21 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
 	nabi_ic_preedit_clear(ic);
 	data->commit_string = NULL;
 	data->length = 0;
-	return;
+    } else {
+	nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
+	compound_text = utf8_to_compound_text(buf);
+	data->commit_string = compound_text;
+	data->length = strlen(compound_text);
+	nabi_ic_buf_clear(ic);
     }
 
-    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-    compound_text = utf8_to_compound_text(buf);
-    data->commit_string = compound_text;
-    data->length = strlen(compound_text);
-    nabi_ic_buf_clear(ic);
+    if (ic->input_style & XIMPreeditPosition) {
+	nabi_ic_preedit_hide(ic);
+    } else if (ic->input_style & XIMPreeditArea) {
+	nabi_ic_preedit_hide(ic);
+    } else if (ic->input_style & XIMPreeditNothing) {
+	nabi_ic_preedit_hide(ic);
+    }
 }
 
 void
@@ -1257,6 +1255,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
+	nabi_ic_preedit_show(ic);
 	nabi_ic_preedit_draw_string(ic, buf, size);
     } else if (ic->input_style & XIMPreeditArea) {
 	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
@@ -1290,24 +1289,11 @@ nabi_ic_preedit_clear(NabiIC *ic)
 
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
     } else if (ic->input_style & XIMPreeditPosition) {
-	if (ic->preedit.window == NULL)
-	    return;
-
-	/* we resize the preedit window instead of unmap
-	 * because unmap make some delay on commit so order of 
-	 * key sequences become wrong
-	ic->preedit.width = 1;
-	ic->preedit.height = 1;
-	XResizeWindow(nabi_server->display, ic->preedit.window,
-		      ic->preedit.width, ic->preedit.height);
-	 */
-	gdk_window_hide(ic->preedit.window);
+	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditArea) {
-	if (ic->preedit.window != NULL)
-	    gdk_window_hide(ic->preedit.window);
+	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditNothing) {
-	if (ic->preedit.window != NULL)
-	    gdk_window_hide(ic->preedit.window);
+	nabi_ic_preedit_hide(ic);
     }
     ic->preedit.prev_length = 0;
 }
@@ -1325,7 +1311,7 @@ nabi_ic_commit_utf8(NabiIC *ic, char *utf8_str)
     /* Now, Conforming to XIM spec */
     /* On XIMPreeditPosition mode, input sequence is wrong on gtk+ 1 app,
      * so we commit and then clear preedit string on XIMPreeditPosition mode */
-    if (!(ic->input_style & XIMPreeditPosition))
+    if (ic->input_style & XIMPreeditCallbacks)
 	nabi_ic_preedit_clear(ic);
 
     compound_text = utf8_to_compound_text(utf8_str);
@@ -1341,7 +1327,7 @@ nabi_ic_commit_utf8(NabiIC *ic, char *utf8_str)
     XFree(compound_text);
 
     /* we delete preedit string here when PreeditPosition */
-    if (ic->input_style & XIMPreeditPosition)
+    if (!(ic->input_style & XIMPreeditCallbacks))
 	nabi_ic_preedit_clear(ic);
 }
 
