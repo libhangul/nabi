@@ -269,10 +269,7 @@ nabi_server_init(NabiServer *server)
     /* check korean locale encoding */
     server->check_charset = !g_get_charset(&charset);
     if (server->check_charset) {
-	if (strncmp(charset, "ko", 2) != 0) {
-	    fprintf(stderr,
-		    "Nabi: Warning: Current charset is %s\n", charset);
-	}
+	fprintf(stderr, "Nabi: Using charset: %s\n", charset);
 	server->converter = g_iconv_open(charset, "UTF-8");
 	if ((GIConv)server->converter == (GIConv)(-1)) {
 	    server->check_charset = False;
@@ -322,9 +319,6 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     XIMEncodings encodings;
     XIMTriggerKeys trigger_keys;
 
-    XIMStyles input_styles_ret;
-    XIMEncodings encodings_ret;
-
     XGCValues gc_values;
 
     if (server == NULL)
@@ -368,11 +362,6 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 		  IMEncodingList, &encodings,
 		  IMProtocolHandler, nabi_handler,
 		  IMFilterEventMask, nabi_filter_mask,
-		  NULL);
-
-    IMGetIMValues(xims,
-		  IMInputStyles, &input_styles_ret,
-		  IMEncodingList, &encodings_ret,
 		  NULL);
 
     gc_values.foreground = server->preedit_fg;
