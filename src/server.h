@@ -168,8 +168,9 @@ Bool        nabi_server_is_trigger_key  (NabiServer*  server,
 Bool        nabi_server_is_candidate_key(NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
-void        nabi_server_set_trigger_keys(NabiServer *server, int keys);
-void        nabi_server_set_candidate_keys(NabiServer *server, int keys);
+void        nabi_server_set_trigger_keys(NabiServer *server,
+					 char **keys);
+void        nabi_server_set_candidate_keys(NabiServer *server, char **keys);
 void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
 void        nabi_server_set_keyboard_table(NabiServer *server,

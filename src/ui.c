@@ -101,8 +101,8 @@ const static struct config_item config_items[] = {
     { "compose_table_name", CONF_TYPE_STR,  OFFSET(compose_table_name)       },
     { "compose_table_dir",  CONF_TYPE_STR,  OFFSET(compose_table_dir)        },
     { "candidate_table",    CONF_TYPE_STR,  OFFSET(candidate_table_filename) },
-    { "trigger_keys",       CONF_TYPE_INT,  OFFSET(trigger_keys)             },
-    { "candidate_keys",     CONF_TYPE_INT,  OFFSET(candidate_keys)           },
+    { "triggerkeys",        CONF_TYPE_STR,  OFFSET(trigger_keys)             },
+    { "candidatekeys",      CONF_TYPE_STR,  OFFSET(candidate_keys)           },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
     { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)              },
     { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)               },
@@ -137,7 +137,10 @@ set_value_str(guint offset, gchar* value)
     char **member = CHAR_BY_OFFSET(offset);
 
     g_free(*member);
-    *member = g_strdup(value);
+    if (value == NULL)
+	*member = g_strdup("");
+    else
+	*member = g_strdup(value);
 }
 
 static void
@@ -177,10 +180,12 @@ load_config_item(gchar* key, gchar* value)
 	if (strcmp(key, config_items[i].key) == 0) {
 	    switch (config_items[i].type) {
 	    case CONF_TYPE_BOOL:
-		set_value_bool(config_items[i].offset, value);
+		if (value != NULL)
+		    set_value_bool(config_items[i].offset, value);
 		break;
 	    case CONF_TYPE_INT:
-		set_value_int(config_items[i].offset, value);
+		if (value != NULL)
+		    set_value_int(config_items[i].offset, value);
 		break;
 	    case CONF_TYPE_STR:
 		set_value_str(config_items[i].offset, value);
@@ -218,9 +223,10 @@ load_config_file(void)
 						      "candidate",
 						      "nabi.txt",
 						      NULL);
-    nabi->trigger_keys = NABI_TRIGGER_KEY_HANGUL | NABI_TRIGGER_KEY_SHIFT_SPACE;
-    nabi->candidate_keys = NABI_CANDIDATE_KEY_HANJA | NABI_CANDIDATE_KEY_F9;
+    nabi->trigger_keys = g_strdup("Hangul,Shift+space");
+    nabi->candidate_keys = g_strdup("Hangul_Hanja,F9");
 
+    nabi->candidate_font = g_strdup("Sans 14");
     nabi->output_mode = g_strdup("syllable");
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
@@ -239,7 +245,7 @@ load_config_file(void)
 	 line = fgets(buf, sizeof(buf), file)) {
 	key = strtok_r(line, " =\t\n", &saved_position);
 	value = strtok_r(NULL, "\r\n", &saved_position);
-	if (key == NULL || value == NULL)
+	if (key == NULL)
 	    continue;
 	load_config_item(key, value);
     }
@@ -456,8 +462,8 @@ nabi_app_new(void)
     nabi->compose_table_dir = NULL;
     nabi->candidate_table_filename = NULL;
 
-    nabi->trigger_keys = 0;
-    nabi->candidate_keys = 0;
+    nabi->trigger_keys = NULL;
+    nabi->candidate_keys = NULL;
 
     nabi->dvorak = FALSE;
     nabi->output_mode = NULL;
@@ -569,6 +575,8 @@ void
 nabi_app_setup_server(void)
 {
     const char *locale;
+    char **keys;
+
     if (nabi->status_only)
 	return;
 
@@ -599,11 +607,13 @@ nabi_app_setup_server(void)
     set_up_keyboard();
     load_colors();
     set_up_output_mode();
-    nabi_server_set_trigger_keys(nabi_server, nabi->trigger_keys);
-    nabi_server_set_candidate_keys(nabi_server, nabi->candidate_keys);
-
-    if (nabi->candidate_font != NULL)
-	nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
+    keys = g_strsplit(nabi->trigger_keys, ",", 0);
+    nabi_server_set_trigger_keys(nabi_server, keys);
+    g_strfreev(keys);
+    keys = g_strsplit(nabi->candidate_keys, ",", 0);
+    nabi_server_set_candidate_keys(nabi_server, keys);
+    g_strfreev(keys);
+    nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
 }
 
 void
@@ -790,7 +800,7 @@ on_tray_icon_size_allocate (GtkWidget *widget,
 	size = allocation->width;
 
     /* We set minimum icon size */
-    if (size <= 16) {
+    if (size <= 18) {
 	size = 16;
     } else if (size <= 24) {
 	size = 24;
@@ -1648,26 +1658,20 @@ nabi_app_set_candidate_font(const char *font)
 }
 
 void
-nabi_app_set_trigger_keys(int keys, gboolean add)
+nabi_app_set_trigger_keys(char **keys)
 {
-    if (add) {
-	nabi->trigger_keys |= keys;
-    } else {
-	nabi->trigger_keys &= ~keys;
-    }
-    nabi_server_set_trigger_keys(nabi_server, nabi->trigger_keys);
+    g_free(nabi->trigger_keys);
+    nabi->trigger_keys = g_strjoinv(",", keys);
+    nabi_server_set_trigger_keys(nabi_server, keys);
     nabi_save_config_file();
 }
 
 void
-nabi_app_set_candidate_keys(int keys, gboolean add)
+nabi_app_set_candidate_keys(char **keys)
 {
-    if (add) {
-	nabi->candidate_keys |= keys;
-    } else {
-	nabi->candidate_keys &= ~keys;
-    }
-    nabi_server_set_candidate_keys(nabi_server, nabi->candidate_keys);
+    g_free(nabi->candidate_keys);
+    nabi->candidate_keys = g_strjoinv(",", keys);
+    nabi_server_set_candidate_keys(nabi_server, keys);
     nabi_save_config_file();
 }
 

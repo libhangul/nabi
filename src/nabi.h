@@ -43,8 +43,8 @@ struct _NabiApplication {
     gchar*          compose_table_dir;
     gchar*	    candidate_table_filename;
 
-    int             trigger_keys;
-    int             candidate_keys;
+    gchar*          trigger_keys;
+    gchar*          candidate_keys;
 
     /* xim server option */
     gboolean        dvorak;
@@ -76,8 +76,8 @@ void nabi_app_set_theme(const char *name);
 void nabi_app_set_dvorak(gboolean state);
 void nabi_app_set_keyboard(const char *name);
 void nabi_app_set_candidate_font(const char *font);
-void nabi_app_set_trigger_keys(int keys, gboolean add);
-void nabi_app_set_candidate_keys(int keys, gboolean add);
+void nabi_app_set_trigger_keys(char **keys);
+void nabi_app_set_candidate_keys(char **keys);
 
 GtkWidget* nabi_app_create_main_widget(void);
 
