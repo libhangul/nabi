@@ -16,7 +16,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
-#include <stddef.h>
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#include <wchar.h>
+
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
 
 #include "hangul.h"
 
@@ -270,4 +278,4 @@ hangul_ucs_to_ksc(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
     return ucs_to_ksc5601_table[ch - 0xac00];
 }
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sts=4 sw=4 : */
