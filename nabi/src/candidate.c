@@ -51,6 +51,8 @@ nabi_candidate_on_expose(GtkWidget *widget,
 			   alloc.x, alloc.y,
 			   alloc.width, alloc.height);
 	pango_layout_get_pixel_size(GTK_LABEL(child)->layout, &width, &height);
+	if (alloc.width > width)
+	    alloc.x += (alloc.width - width) / 2;
 	if (alloc.height > height)
 	    alloc.y += (alloc.height - height) / 2;
 	gdk_draw_layout(widget->window, style->text_gc[GTK_STATE_SELECTED],
