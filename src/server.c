@@ -260,6 +260,14 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
     return 0;
 }
 
+int
+nabi_server_stop(NabiServer *_server)
+{
+    IMCloseIM(_server->xims);
+
+    return 0;
+}
+
 NabiIC*
 nabi_server_get_ic(NabiServer *_server, CARD16 icid)
 {

@@ -92,6 +92,7 @@ void        nabi_server_init            (NabiServer* _server);
 int         nabi_server_start           (NabiServer* _server,
                                          Display*    display,
                                          Window      window);
+int         nabi_server_stop            (NabiServer *_server);
 
 Bool        nabi_server_is_trigger      (NabiServer*  _server,
                                          KeySym       key,
