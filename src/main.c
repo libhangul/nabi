@@ -22,10 +22,10 @@ NabiServer* server = NULL;
 static void
 on_realize(GtkWidget *widget, gpointer data)
 {
-    g_print("XIM server started...\n");
     nabi_server_start(server,
-		      GDK_DISPLAY(),
+		      GDK_WINDOW_XDISPLAY(widget->window),
 		      GDK_WINDOW_XWINDOW(widget->window));
+    g_print("XIM server started...\n");
 }
 
 int
