@@ -112,7 +112,7 @@ struct _NabiIC {
     wchar_t             jongseong[4];
 
     /* hanja or symbol select window */
-    NabiCandidate*	candidate_window;
+    NabiCandidate*	candidate;
 
     struct _NabiIC*     next;
 };

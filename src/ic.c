@@ -169,7 +169,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
 
-    ic->candidate_window = NULL;
+    ic->candidate = NULL;
 
     nabi_ic_buf_clear(ic);
 }
@@ -308,9 +308,9 @@ nabi_ic_destroy(NabiIC *ic)
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
 
-    if (ic->candidate_window != NULL) {
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
+    if (ic->candidate != NULL) {
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
     }
 
     /* clear hangul buffer */
@@ -1380,6 +1380,22 @@ get_index_of_candidate_table (unsigned short int key,
     return -1;
 }
 
+static void
+nabi_ic_candidate_commit_cb(NabiCandidate *candidate, gpointer data)
+{
+    wchar_t ch = 0;
+    NabiIC *ic;
+
+    if (candidate == NULL || data == NULL)
+	return;
+
+    ic = (NabiIC*)data;
+    ch = nabi_candidate_get_current(candidate);
+    nabi_ic_insert_candidate(ic, ch);
+    nabi_candidate_delete(candidate);
+    ic->candidate = NULL;
+}
+
 Bool
 nabi_ic_popup_candidate_window (NabiIC *ic)
 {
@@ -1392,8 +1408,8 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     else if (ic->client_window != 0)
 	parent = ic->client_window;
 
-    if (ic->candidate_window != NULL)
-	nabi_candidate_delete(ic->candidate_window);
+    if (ic->candidate != NULL)
+	nabi_candidate_delete(ic->candidate);
 
     if ((ic->choseong[0] != 0 &&
 	 ic->jungseong[0] == 0 &&
@@ -1414,7 +1430,8 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	if (index >= 0) {
 	    ptr = (const NabiCandidateItem **)
 		    nabi_server->candidate_table[index] + 1;
-	    ic->candidate_window = nabi_candidate_new(NULL, 10, ptr, parent);
+	    ic->candidate = nabi_candidate_new(NULL, 10, ptr, parent,
+				    &nabi_ic_candidate_commit_cb, ic);
 	    return True;
 	}
     }

@@ -243,48 +243,44 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
+nabi_filter_candidate(NabiIC* ic, KeySym keyval)
 {
     wchar_t ch = 0;
 
     switch (keyval) {
-    case XK_Left:
-    case XK_h:
-	nabi_candidate_prev(ic->candidate_window);
-	break;
-    case XK_Right:
-    case XK_l:
-	nabi_candidate_next(ic->candidate_window);
-	break;
     case XK_Up:
     case XK_k:
-	nabi_candidate_prev_row(ic->candidate_window);
-	break;
-    case XK_Page_Up:
-    case XK_BackSpace:
-    case XK_KP_Subtract:
-	nabi_candidate_prev_page(ic->candidate_window);
+	nabi_candidate_prev(ic->candidate);
 	break;
     case XK_Down:
     case XK_j:
-	nabi_candidate_next_row(ic->candidate_window);
+	nabi_candidate_next(ic->candidate);
 	break;
+    case XK_Left:
+    case XK_h:
+    case XK_Page_Up:
+    case XK_BackSpace:
+    case XK_KP_Subtract:
+	nabi_candidate_prev_page(ic->candidate);
+	break;
+    case XK_Right:
+    case XK_l:
     case XK_space:
     case XK_Page_Down:
     case XK_KP_Add:
     case XK_Tab:
-	nabi_candidate_next_page(ic->candidate_window);
+	nabi_candidate_next_page(ic->candidate);
 	break;
     case XK_Escape:
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
 	break;
     case XK_Return:
     case XK_KP_Enter:
-	ch = nabi_candidate_get_current(ic->candidate_window);
+	ch = nabi_candidate_get_current(ic->candidate);
 	break;
     case XK_0:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
+	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     case XK_1:
     case XK_2:
@@ -295,10 +291,10 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
     case XK_7:
     case XK_8:
     case XK_9:
-	ch = nabi_candidate_get_nth(ic->candidate_window, keyval - XK_1);
+	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
 	break;
     case XK_KP_0:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
+	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     case XK_KP_1:
     case XK_KP_2:
@@ -309,37 +305,37 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
     case XK_KP_7:
     case XK_KP_8:
     case XK_KP_9:
-	ch = nabi_candidate_get_nth(ic->candidate_window, keyval - XK_1);
+	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
 	break;
     case XK_KP_End:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 0);
+	ch = nabi_candidate_get_nth(ic->candidate, 0);
 	break;
     case XK_KP_Down:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 1);
+	ch = nabi_candidate_get_nth(ic->candidate, 1);
 	break;
     case XK_KP_Next:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 2);
+	ch = nabi_candidate_get_nth(ic->candidate, 2);
 	break;
     case XK_KP_Left:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 3);
+	ch = nabi_candidate_get_nth(ic->candidate, 3);
 	break;
     case XK_KP_Begin:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 4);
+	ch = nabi_candidate_get_nth(ic->candidate, 4);
 	break;
     case XK_KP_Right:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 5);
+	ch = nabi_candidate_get_nth(ic->candidate, 5);
 	break;
     case XK_KP_Home:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 6);
+	ch = nabi_candidate_get_nth(ic->candidate, 6);
 	break;
     case XK_KP_Up:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 7);
+	ch = nabi_candidate_get_nth(ic->candidate, 7);
 	break;
     case XK_KP_Prior:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 8);
+	ch = nabi_candidate_get_nth(ic->candidate, 8);
 	break;
     case XK_KP_Insert:
-	ch = nabi_candidate_get_nth(ic->candidate_window, 9);
+	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     default:
 	return True;
@@ -347,8 +343,8 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 
     if (ch != 0) {
 	nabi_ic_insert_candidate(ic, ch);
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
     }
 
     return True;
@@ -363,8 +359,8 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     g_print("KEY:   0x%x\n", keyval);
     g_print("STATE: 0x%x\n", kevent->state);
     */
-    if (ic->candidate_window) {
-	return nabi_filter_candidate_window(ic, keyval);
+    if (ic->candidate) {
+	return nabi_filter_candidate(ic, keyval);
     }
 
     /* if shift is pressed, we dont commit current string 
@@ -473,9 +469,9 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
     if (nabi_server->mode_info_cb != NULL)
 	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
-    if (ic->candidate_window) {
-	nabi_candidate_delete(ic->candidate_window);
-	ic->candidate_window = NULL;
+    if (ic->candidate) {
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
     }
 
     return True;
