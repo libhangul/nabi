@@ -86,7 +86,7 @@ struct _NabiServer {
     NabiOutputMode          output_mode;
 
     /* hangul converter */
-    Bool                    check_ksc;
+    Bool                    check_charset;
     iconv_t                 converter;
 
     /* options */

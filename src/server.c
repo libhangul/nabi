@@ -97,7 +97,7 @@ nabi_server_new(void)
     server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* hangul converter */
-    server->check_ksc = False;
+    server->check_charset = False;
     server->converter = (iconv_t)(-1);
 
     /* options */
@@ -190,15 +190,15 @@ nabi_server_init(NabiServer *server)
 //  server->output_mode = NABI_OUTPUT_JAMO;
 
     /* check korean locale encoding */
-    server->check_ksc = True;
+    server->check_charset = True;
     codeset=nl_langinfo(CODESET);
     if (strcasecmp(codeset,"UTF-8") == 0)
-	server->check_ksc = False;
+	server->check_charset = False;
     else if (strcasecmp(codeset,"UTF8") == 0)
-	server->check_ksc = False;
+	server->check_charset = False;
     server->converter = iconv_open(codeset, "WCHAR_T");
     if ((iconv_t)server->converter == (iconv_t)(-1)) {
-	server->check_ksc = False;
+	server->check_charset = False;
 	fprintf(stderr, "Nabi: iconv error, we does not check charset\n");
     }
 }
