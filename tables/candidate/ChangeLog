@@ -1,3 +1,6 @@
+2004-05-21  Chloe Lewis <ai@kldp.org>
+	* nabi-hanja.txt: Unihan-4.0.1.txt 로 이전
+
 2004-05-16  Choe Hwanjin <krisna@kldp.org>
 	* nabi-symbol.txt, nabi.txt: http://micsland.com/phps/key.php 여기에
 	있는 표대로 심벌 문자 배치를 변경
