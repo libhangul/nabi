@@ -387,7 +387,7 @@ load_config_file(void)
     nabi->theme = g_strdup("SimplyRed");
     nabi->keyboard_map_filename = g_build_filename(NABI_DATA_DIR,
 						   "keyboard",
-						   "2qwerty",
+						   DEFAULT_KEYBOARD,
 						   NULL);
     nabi->compose_map_filename = g_build_filename(NABI_DATA_DIR,
 						 "compose",
