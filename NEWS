@@ -1,4 +1,48 @@
-Nabi 0.8 
- * Over the spot ����
- * EUC-KR charset�� ���� ��Ȯ�� ����
- * About menu���� Ű �Է¿� ���� ������ ���� ����
+나비 0.10
+ * 한자 입력 창 개선
+ * 심벌 문자 입력 기능
+
+나비 0.9
+ * NetBSD, FreeBSD의 EUC-KR locale에서 한글 정상 입력
+ * Qt에서 한자 입력시 안보이던 문제 수정
+
+나비 0.8 
+ * Over the spot 개선
+ * EUC-KR charset을 좀더 정확히 구분
+ * About menu에서 키 입력에 대한 간단한 정보 제공
+
+나비 0.7
+ * QT-3.1.2, 3.2.1 에서 한글 입력 됩니다. 대신 모질라에서 한글 입력할때
+   깜빡임이 좀 많아집니다.
+ * F9 키도 한자 입력에 사용할 수 있습니다. 
+
+나비 0.6
+ * 세벌식 입력 버그 수정
+ * 한자 입력 기능 지원
+ * 세션 관리자 지원
+
+나비 0.5
+ * 드보락 자판 지원
+ * system tray가 죽어도 종료하지 않음 
+
+나비 0.4
+ * 폰트셋 로딩 속도가 빨라짐
+ * 각 프로세스 별로 한영 상태를 따로 저장
+ * configure 할때에 기본 자판 설정이 가능해짐
+
+나비 0.3
+ * Mozill3 flash player 에서 가끔 죽던 문제 해결
+
+나비 0.2
+ - 종료시에 메모리 오류 수정
+ - NumLock이 켜졌을때 제대로 작동하지 않던 문제점 수정
+ - vi 사용자들을 위해서 Esc 키를 누른 경우 자동으로 영문 상태로 변환함
+
+나비 0.1
+ imhangul_status_applet을 대신할수 있는 프로그램입니다.
+
+ GNOME panel의 Notification Area(System Tray)에 들어가는 프로그램으로 아마도
+ KDE에서도 도킹이 가능할겁니다.
+ gtk의 input module인 imhangul의 상태 정보를 보여줄수 있으며 
+ XMODIFIER="@im=nabi" 라고 설정하면 한글 입력기로도 사용할수 있습니다.
+
