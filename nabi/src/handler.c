@@ -102,8 +102,11 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 
 	/* forward key event and commit current string if any state is on */
 	if (kevent->state & 
-	    (LockMask | ControlMask |
-	     Mod1Mask | Mod2Mask | Mod3Mask | Mod4Mask | Mod5Mask)) {
+	    (ControlMask |	/* Ctl */
+	     Mod1Mask |		/* Alt */
+	     Mod3Mask |
+	     Mod4Mask |		/* Windows */
+	     Mod5Mask)) {
 		if (!nabi_ic_is_empty(ic))
 			nabi_ic_commit(ic);
 		return False;
