@@ -1,6 +1,4 @@
-SUBDIRS = m4 IMdkit src tables themes po
-
-ACLOCAL_AMFLAGS = -I m4
+SUBDIRS = IMdkit src tables themes po
 
 nabilogodir = @NABI_DATA_DIR@
 nabilogo_DATA = nabi.png
