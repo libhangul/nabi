@@ -20,7 +20,6 @@
 #include <config.h>
 #endif
 
-#include <wchar.h>
 #include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
@@ -183,12 +182,12 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 NabiCandidate*
 nabi_candidate_new(char *label_str,
 	      int n_per_window,
-	      const wchar_t *data,
+	      const unsigned short int *data,
 	      Window parent)
 {
     int i, k, n;
     NabiCandidate *candidate;
-    wchar_t *table;
+    unsigned short int *table;
 
     candidate = (NabiCandidate*)g_malloc(sizeof(NabiCandidate));
     candidate->first = 0;
@@ -203,7 +202,7 @@ nabi_candidate_new(char *label_str,
     for (n = 0; data[n] != 0; n++)
 	;
 
-    table = g_malloc(sizeof(wchar_t) * n);
+    table = g_malloc(sizeof(unsigned short int) * n);
     for (i = 0, k = 0; i < n; i++) {
 	if (nabi_server->check_charset) {
 	    if (nabi_server_is_valid_char(nabi_server, data[i])) {
@@ -296,7 +295,7 @@ nabi_candidate_next_row(NabiCandidate *candidate)
     gtk_widget_queue_draw(candidate->window);
 }
 
-wchar_t
+unsigned short int
 nabi_candidate_get_current(NabiCandidate *candidate)
 {
     if (candidate == NULL)
@@ -305,7 +304,7 @@ nabi_candidate_get_current(NabiCandidate *candidate)
     return candidate->data[candidate->current];
 }
 
-wchar_t
+unsigned short int
 nabi_candidate_get_nth(NabiCandidate *candidate, int n)
 {
     if (candidate == NULL)
