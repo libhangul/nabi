@@ -59,6 +59,12 @@ enum {
 
 typedef void (*NabiModeInfoCallback)(int);
 
+struct NabiStatistics {
+    int backspace;
+    int shift;
+    int jamo[256];
+};
+
 struct _NabiServer {
     /* XIMS */
     XIMS                    xims;
@@ -97,45 +103,51 @@ struct _NabiServer {
     unsigned long           preedit_bg;
 
     /* mode information */
-    NabiModeInfoCallback     mode_info_cb;
+    NabiModeInfoCallback    mode_info_cb;
+
+    /* statistics */
+    struct NabiStatistics   statistics;
 };
 
 extern NabiServer* nabi_server;
 
 NabiServer* nabi_server_new(void);
-void        nabi_server_destroy         (NabiServer* _server);
-void        nabi_server_init            (NabiServer* _server);
-int         nabi_server_start           (NabiServer* _server,
+void        nabi_server_destroy         (NabiServer* server);
+void        nabi_server_init            (NabiServer* server);
+int         nabi_server_start           (NabiServer* server,
                                          Display*    display,
                                          Window      window);
-int         nabi_server_stop            (NabiServer *_server);
+int         nabi_server_stop            (NabiServer *server);
 
-Bool        nabi_server_is_trigger      (NabiServer*  _server,
+Bool        nabi_server_is_trigger      (NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
-void        nabi_server_set_dvorak      (NabiServer *_server,
+void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
-void        nabi_server_set_keyboard    (NabiServer *_server,
+void        nabi_server_set_keyboard    (NabiServer *server,
 					 const wchar_t *keyboard_map,
 					 NabiKeyboardType type);
-void        nabi_server_set_compose_map (NabiServer *_server,
+void        nabi_server_set_compose_map (NabiServer *server,
 			    		 NabiComposeItem **compose_map,
 			    		 int size);
-void        nabi_server_set_mode_info_cb(NabiServer *_server,
+void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
 
-void        nabi_server_ic_table_expand (NabiServer* _server);
-NabiIC*     nabi_server_get_ic          (NabiServer *_server,
+void        nabi_server_ic_table_expand (NabiServer* server);
+NabiIC*     nabi_server_get_ic          (NabiServer *server,
                                          CARD16 icid);
 
-void        nabi_server_add_connect     (NabiServer *_server,
+void        nabi_server_add_connect     (NabiServer *server,
 	                                 NabiConnect *connect);
-void        nabi_server_remove_connect  (NabiServer *_server,
+void        nabi_server_remove_connect  (NabiServer *server,
                                          NabiConnect *connect);
-NabiConnect* nabi_server_get_connect_by_id(NabiServer *_server,
+NabiConnect* nabi_server_get_connect_by_id(NabiServer *server,
                                            CARD16 connect_id);
-Bool        nabi_server_is_valid_char   (NabiServer *_server, wchar_t ch);
+Bool        nabi_server_is_valid_char   (NabiServer *server, wchar_t ch);
+void        nabi_server_on_keypress     (NabiServer *server,
+					 wchar_t ch,
+					 unsigned int state);
 
 #endif  /* __SERVER_H_ */
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sw=4 sts=4 : */

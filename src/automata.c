@@ -171,6 +171,8 @@ hangul_dvorak_to_qwerty (KeySym key)
 static wchar_t
 nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
+    wchar_t ch;
+
     if (nabi_server->keyboard_map == NULL)
 	return keyval;
 
@@ -179,9 +181,8 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 
     /* hangul jamo keysym */
     if (keyval >= 0x01001100 && keyval <= 0x010011ff)
-	return keyval & 0x0000ffff;
-
-    if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
+	ch = keyval & 0x0000ffff;
+    else if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	/* treat capslock, as capslock is not on */
 	if (state & LockMask) {
 	    if (state & ShiftMask) {
@@ -192,9 +193,12 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 		    keyval += (XK_a - XK_A);
 	    }
 	}
-	return nabi_server->keyboard_map[keyval - XK_exclam];
+	ch = nabi_server->keyboard_map[keyval - XK_exclam];
     } else
-	return keyval;
+	ch = keyval;
+
+    nabi_server_on_keypress(nabi_server, ch, state);
+    return ch;
 }
 
 static Bool

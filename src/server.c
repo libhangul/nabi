@@ -107,6 +107,9 @@ nabi_server_new(void)
     /* mode info */
     server->mode_info_cb = NULL;
 
+    /* statistics */
+    memset(&(server->statistics), 0, sizeof(server->statistics));
+
     return server;
 }
 
@@ -393,6 +396,20 @@ nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
     if ((iconv_t)ret == (iconv_t)(-1))
 	return False;
     return True;
+}
+
+void
+nabi_server_on_keypress(NabiServer *server, wchar_t ch, unsigned int state)
+{
+    if (ch == XK_BackSpace)
+	server->statistics.backspace++;
+    else {
+	int index = (unsigned int)ch & 0xff;
+	if (index >= 0 && index <= 255)
+	    server->statistics.jamo[index]++;
+    }
+    if (state & ShiftMask)
+	server->statistics.shift++;
 }
 
 int verbose = 1;
