@@ -208,7 +208,7 @@ check_charset(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
     
     ch = hangul_jamo_to_syllable(choseong, jungseong, jongseong);
     if (ch < 0xac00 || ch > 0xd7a3)
-	return 0x0;
+	return False;
     return nabi_server_is_valid_char(nabi_server, ch);
 }
 
