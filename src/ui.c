@@ -570,8 +570,24 @@ set_up_output_mode(void)
 void
 nabi_app_setup_server(void)
 {
+    const char *locale;
     if (nabi->status_only)
 	return;
+
+    locale = setlocale(LC_CTYPE, NULL);
+    if (locale != NULL && strncmp(locale, "ko", 2) != 0) {
+	GtkWidget *message;
+
+	message = gtk_message_dialog_new_with_markup(NULL, GTK_DIALOG_MODAL,
+					 GTK_MESSAGE_WARNING, GTK_BUTTONS_CLOSE,
+	   "<span size=\"x-large\" weight=\"bold\">"
+	   "Information from Nabi</span>\n\n"
+	   "Your locale is not for korean. Check the locale setting.\n"
+	   "Your locale: <b>%s</b>", locale);
+	gtk_widget_show(message);
+	gtk_dialog_run(GTK_DIALOG(message));
+	gtk_widget_destroy(message);
+    }
 
     set_up_keyboard();
     load_compose_table();
@@ -1089,7 +1105,6 @@ on_menu_about(GtkWidget *widget)
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
-    gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
     gtk_widget_show(dialog);
 
     list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
@@ -1511,11 +1526,11 @@ nabi_app_create_main_widget(void)
     GtkWidget *window;
     GtkWidget *frame;
     GtkWidget *ebox;
+    GList *list = NULL;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), _("Nabi: None"));
     gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
-    gtk_window_set_icon(GTK_WINDOW(window), default_icon);
     gtk_window_set_skip_pager_hint(GTK_WINDOW(window), TRUE);
     gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
     gtk_window_stick(GTK_WINDOW(window));
@@ -1544,6 +1559,10 @@ nabi_app_create_main_widget(void)
 	nabi->main_window = window;
 
     g_idle_add(create_tray_icon, NULL);
+
+    list = g_list_prepend(list, default_icon);
+    gtk_window_set_default_icon_list(list);
+    g_list_free(list);
 
     return window;
 }
