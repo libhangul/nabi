@@ -7,7 +7,8 @@ nabi_CFLAGS = \
 	@GTK_CFLAGS@ \
 	-DLOCALEDIR=\"${datadir}/locale\" \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
-	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
+	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\" \
+	-Wall
 
 nabi_SOURCES = \
 	nabi.h \
