@@ -1121,6 +1121,7 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
     nabi_server_set_keyboard(server, map->map, map->type);
     g_free(nabi->keyboard_map_filename);
     nabi->keyboard_map_filename = g_strdup(map->filename);
+    save_config_file();
 }
 
 static void
@@ -1128,6 +1129,7 @@ on_menu_dvorak(GtkWidget *widget)
 {
     nabi->dvorak  = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
     nabi_server_set_dvorak(server, nabi->dvorak);
+    save_config_file();
 }
 
 static void
