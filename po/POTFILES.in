@@ -1,4 +1,6 @@
+
 src/automata.c
+src/eggtrayicon.c
 src/handler.c
 src/hangul.c
 src/ic.c
