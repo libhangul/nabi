@@ -112,6 +112,8 @@ nabi_candidate_on_realize(GtkWidget *widget, NabiCandidate *candidate)
     absy += height;
     if (absy + cand_h > root_h)
 	absy = root_h - cand_h;
+    if (absx + cand_w > root_w)
+	absx = root_w - cand_w;
     gtk_window_move(GTK_WINDOW(candidate->window), absx, absy);
 }
 
