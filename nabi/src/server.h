@@ -23,6 +23,14 @@
 #include <stdint.h>
 #endif
 
+#include <X11/Xlib.h>
+#include <wchar.h>
+
+#include "../IMdkit/IMdkit.h"
+#include "../IMdkit/Xi18n.h"
+
+#include "ic.h"
+
 typedef struct _NabiComposeItem NabiComposeItem;
 typedef struct _NabiServer NabiServer;
 

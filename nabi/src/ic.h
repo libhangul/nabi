@@ -20,6 +20,12 @@
 #ifndef __IC_H_
 #define __IC_H_
 
+#include <X11/Xlib.h>
+#include <glib.h>
+
+#include "../IMdkit/IMdkit.h"
+#include "../IMdkit/Xi18n.h"
+
 typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
 typedef struct _NabiIC NabiIC;

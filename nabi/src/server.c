@@ -27,9 +27,6 @@
 #include <langinfo.h>
 #include <glib.h>
 
-#include "../IMdkit/IMdkit.h"
-#include "../IMdkit/Xi18n.h"
-#include "ic.h"
 #include "server.h"
 #include "fontset.h"
 
@@ -283,6 +280,8 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
     _server->display = display;
     _server->window = window;
 
+    fprintf(stderr, "Nabi: xim server started\n");
+
     return 0;
 }
 
@@ -290,6 +289,7 @@ int
 nabi_server_stop(NabiServer *_server)
 {
     IMCloseIM(_server->xims);
+    fprintf(stderr, "Nabi: xim server stoped\n");
 
     return 0;
 }
