@@ -994,13 +994,11 @@ on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
     GtkWidget *dialog = NULL;
 
     dialog = gtk_dialog_new_with_buttons(_("Nabi keypress statistics"),
-	    				 NULL,
+	    				 GTK_WINDOW(parent),
 					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_STOCK_CLOSE,
 					 GTK_RESPONSE_CLOSE,
 					 NULL);
-    gtk_window_set_modal(GTK_WINDOW(dialog), TRUE);
-    gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(parent));
 
     hbox = gtk_hbox_new(FALSE, 10);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
@@ -1017,10 +1015,28 @@ on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
 }
 
 static void
+on_about_close(GtkWidget *widget, GtkWidget **dialog)
+{
+    gtk_widget_destroy(widget);
+
+    if (dialog != NULL)
+	*dialog = NULL;
+}
+
+static void
+on_about_response(GtkWidget *widget, gint arg, GtkWidget **dialog)
+{
+    gtk_widget_destroy(widget);
+
+    g_print("response\n");
+    if (dialog != NULL)
+	*dialog = NULL;
+}
+
+static void
 on_menu_about(GtkWidget *widget)
 {
     static GtkWidget *dialog = NULL;
-    static GtkWidget *stat_label = NULL;
 
     GtkWidget *hbox;
     GtkWidget *title;
@@ -1040,11 +1056,12 @@ on_menu_about(GtkWidget *widget)
     }
 
     dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
-	    				 NULL,
-					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+	    				 GTK_WINDOW(nabi->main_window),
+					 GTK_DIALOG_DESTROY_WITH_PARENT,
 					 GTK_STOCK_CLOSE,
 					 GTK_RESPONSE_CLOSE,
 					 NULL);
+
     image_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
     image = gtk_image_new_from_file(image_filename);
     gtk_widget_show(image);
@@ -1059,8 +1076,8 @@ on_menu_about(GtkWidget *widget)
 
     comment = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(comment),
-	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003-2004 (C) "
-	      "Choe Hwanjin"));
+	    _("<span size=\"large\">An easy Hangul XIM</span>\n\n"
+	      "Copyright (c) 2003-2004 Choe Hwanjin"));
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_widget_show(comment);
 
@@ -1141,6 +1158,11 @@ on_menu_about(GtkWidget *widget)
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    g_signal_connect(G_OBJECT(dialog), "close",
+		     G_CALLBACK(on_about_close), &dialog);
+    g_signal_connect(G_OBJECT(dialog), "response",
+		     G_CALLBACK(on_about_response), &dialog);
+
     gtk_widget_show(dialog);
 
     list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
@@ -1151,10 +1173,8 @@ on_menu_about(GtkWidget *widget)
 	g_list_free(list);
     }
 
-    gtk_dialog_run(GTK_DIALOG(dialog));
-    gtk_widget_destroy(dialog);
-    dialog = NULL;
-    stat_label = NULL;
+    /* We do not call gtk_dialog_run(GTK_DIALOG(dialog)),
+     * Because "Quit" menu make nabi not quit */
 }
 
 static void
