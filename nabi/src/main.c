@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 
     nabi_app_setup_server();
 
-    widget = create_main_widget();
+    widget = nabi_app_create_main_widget();
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), nabi_server);
     gtk_widget_realize(widget);

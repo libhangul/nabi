@@ -68,11 +68,12 @@ extern NabiApplication* nabi;
 void nabi_app_new(void);
 void nabi_app_init(void);
 void nabi_app_setup_server(void);
+void nabi_app_quit(void);
 void nabi_app_free(void);
 void nabi_save_config_file(void);
 
-GtkWidget* create_main_widget(void);
-GtkWidget* create_hanja_window(NabiIC *ic, const wchar_t* ch);
+GtkWidget* nabi_app_create_main_widget(void);
+GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 #endif /* __NABI_H_ */
 /* vim: set ts=8 sw=4 : */

@@ -55,8 +55,6 @@ enum {
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 
-
-static GtkWidget *main_window = NULL;
 static EggTrayIcon *tray_icon = NULL;
 
 static GdkPixbuf *none_pixbuf = NULL;
@@ -660,11 +658,28 @@ keyboard_map_item_free(gpointer data, gpointer user_data)
 }
 
 void
+nabi_app_quit(void)
+{
+    if (nabi != NULL && nabi->main_window != NULL) {
+	gtk_widget_destroy(nabi->main_window);
+	nabi->main_window = NULL;
+    }
+}
+
+void
 nabi_app_free(void)
 {
     int i;
 
+    if (nabi == NULL)
+	return;
+
     nabi_save_config_file();
+
+    if (nabi->main_window != NULL) {
+	gtk_widget_destroy(nabi->main_window);
+	nabi->main_window = NULL;
+    }
 
     g_free(nabi->theme);
 
@@ -699,7 +714,7 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 
     tray_icon = NULL;
     g_idle_add(create_tray_icon, NULL);
-    g_print("tray icon destroyed\n");
+    g_print("Nabi: tray icon destroyed\n");
 }
 
 static void
@@ -709,7 +724,7 @@ on_main_window_destroyed(GtkWidget *widget, gpointer data)
 	gtk_widget_destroy(GTK_WIDGET(tray_icon));
     remove_event_filter();
     gtk_main_quit();
-    g_print("main window destroyed\n");
+    g_print("Nabi: main window destroyed\n");
 }
 
 static gboolean
@@ -1135,7 +1150,7 @@ on_menu_dvorak(GtkWidget *widget)
 static void
 on_menu_quit(GtkWidget *widget)
 {
-    gtk_widget_destroy(main_window);
+    nabi_app_quit();
 }
 
 static GtkWidget*
@@ -1359,7 +1374,7 @@ remove_event_filter()
 }
 
 static void
-on_main_window_realize(GtkWidget *widget, gpointer data)
+on_main_window_realized(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
     nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
@@ -1403,18 +1418,21 @@ create_tray_icon(gpointer data)
 }
 
 GtkWidget*
-create_main_widget(void)
+nabi_app_create_main_widget(void)
 {
-    main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_resize(GTK_WINDOW(main_window), 1, 1);
-    gtk_window_set_decorated(GTK_WINDOW(main_window), FALSE);
-    g_signal_connect_after(G_OBJECT(main_window), "realize",
-	    		   G_CALLBACK(on_main_window_realize), NULL);
-    g_signal_connect(G_OBJECT(main_window), "destroy",
+    GtkWidget *window;
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_resize(GTK_WINDOW(window), 1, 1);
+    gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
+    g_signal_connect_after(G_OBJECT(window), "realize",
+	    		   G_CALLBACK(on_main_window_realized), NULL);
+    g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(on_main_window_destroyed), NULL);
 
     create_tray_icon(NULL);
-    return main_window;
+    if (nabi != NULL)
+	nabi->main_window = window;
+    return window;
 }
 
 static void
@@ -1455,7 +1473,7 @@ on_hanja_window_keypress(GtkWidget *widget, GdkEventKey *event, gpointer data)
 }
 
 GtkWidget *
-create_hanja_window (NabiIC *ic, const wchar_t* ch)
+nabi_create_hanja_window (NabiIC *ic, const wchar_t* ch)
 {
     const wchar_t *p;
     gint x, y, n;
