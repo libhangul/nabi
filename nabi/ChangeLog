@@ -1,3 +1,7 @@
+2003-09-16  Choe Hwanjin <krisna@kldp.org>
+	* release 0.6
+	* src/session.c,src/main.c,src/ui.c: session 종료시 같이 종료
+
 2003-09-14  Choe Hwanjin <krisna@kldp.org>
 	* src/session.h,src/session.c: session 관련 코드 추가
 
