@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003 Choe Hwanjin
+ * Copyright (C) 2003,2004 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,14 +50,23 @@ nabi_fontset_new(const char *name)
                               &missing_list_count,
                               &error_message);
     if (missing_list_count > 0) {
-        int i;
-        fprintf(stderr, _("Nabi: missing charset\n"));
-        fprintf(stderr, _("Nabi: font: %s\n"), name);
-        for (i = 0; i < missing_list_count; i++) {
-            fprintf(stderr, "  %s\n", missing_list[i]);
-        }
+	gchar *name2;
         XFreeStringList(missing_list);
-        return NULL;
+	name2 = g_strconcat(name, ",*", NULL);
+	xfontset = XCreateFontSet(_display,
+				  name2,
+				  &missing_list,
+				  &missing_list_count,
+				  &error_message);
+	g_free(name2);
+	if (missing_list_count > 0) {
+	    fprintf(stderr, _("Nabi: missing charset\n"));
+	    fprintf(stderr, _("Nabi: font: %s\n"), name);
+	    for (i = 0; i < missing_list_count; i++)
+		fprintf(stderr, "  %s\n", missing_list[i]);
+	    XFreeStringList(missing_list);
+	    return NULL;
+	}
     }
 
     /* get acsent and descent */
