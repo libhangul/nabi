@@ -34,6 +34,24 @@
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
 
+static inline void *
+nabi_malloc(size_t size)
+{
+    void *ptr = malloc(size);
+    if (ptr == NULL) {
+	fprintf(stderr, "Nabi: memory allocation error\n");
+	exit(1);
+    }
+    return ptr;
+}
+
+static inline void
+nabi_free(void *ptr)
+{
+    if (ptr != NULL)
+	free(ptr);
+}
+
 static void
 nabi_ic_init_values(NabiIC *ic)
 {
@@ -113,7 +131,7 @@ nabi_ic_create(IMChangeICStruct *data)
 	if (id >= server->ic_table_size)
 	    nabi_server_ic_table_expand(server);
 
-	ic = (NabiIC*)g_malloc(sizeof(NabiIC));
+	ic = (NabiIC*)nabi_malloc(sizeof(NabiIC));
 	ic->id = id;
 	server->ic_table[id] = ic;
     } else {
@@ -159,7 +177,7 @@ nabi_ic_destroy(NabiIC *ic)
 
     ic->client_window = 0;
     ic->focus_window = 0;
-    g_free(ic->resource_name);
+    nabi_free(ic->resource_name);
     ic->resource_name = NULL;
 
     ic->preedit.area.x = 0;
@@ -183,7 +201,7 @@ nabi_ic_destroy(NabiIC *ic)
     /* destroy fontset data */
     if (ic->preedit.font_set) {
 	XFreeFontSet(server->display, ic->preedit.font_set);
-	g_free(ic->preedit.base_font);
+	nabi_free(ic->preedit.base_font);
 	ic->preedit.font_set = NULL;
 	ic->preedit.base_font = NULL;
     }
@@ -199,10 +217,10 @@ nabi_ic_real_destroy(NabiIC *ic)
     if (ic == NULL)
 	return;
 
-    g_free(ic->resource_name);
-    g_free(ic->resource_class);
-    g_free(ic->preedit.base_font);
-    g_free(ic->status_attr.base_font);
+    nabi_free(ic->resource_name);
+    nabi_free(ic->resource_class);
+    nabi_free(ic->preedit.base_font);
+    nabi_free(ic->status_attr.base_font);
 
     if (ic->preedit.window != 0)
 	XDestroyWindow(server->display, ic->preedit.window);
@@ -213,7 +231,7 @@ nabi_ic_real_destroy(NabiIC *ic)
     if (ic->preedit.gc)
 	XFreeGC(server->display, ic->preedit.gc);
 
-    g_free(ic);
+    nabi_free(ic);
 }
 
 static void
@@ -442,7 +460,7 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 	/* same font, do not create fontset */
 	return;
 
-    g_free(ic->preedit.base_font);
+    nabi_free(ic->preedit.base_font);
     ic->preedit.base_font = g_strdup(font_name);
     if (ic->preedit.font_set)
 	XFreeFontSet(server->display, ic->preedit.font_set);
