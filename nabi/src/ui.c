@@ -662,6 +662,12 @@ on_menu_pref(GtkWidget *widget)
     g_print("Pref\n");
 }
 
+static void
+on_menu_themes(GtkWidget *widget, gpointer data)
+{
+    g_print("themes\n");
+}
+
 void
 on_menu_quit(GtkWidget *widget)
 {
@@ -673,6 +679,9 @@ create_menu(void)
 {
     GtkWidget* menu;
     GtkWidget* menu_item;
+    GtkAccelGroup *accel_group;
+
+    accel_group = gtk_accel_group_new();
 
     menu = gtk_menu_new();
     gtk_widget_show(menu);
@@ -696,8 +705,16 @@ create_menu(void)
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 		 G_CALLBACK(on_menu_pref), menu_item);
 
+    /* menu themes */
+    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_widget_show(menu_item);
+    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
+		 G_CALLBACK(on_menu_themes), menu_item);
+
     /* menu quit */
-    menu_item = gtk_menu_item_new_with_mnemonic(_("_Quit"));
+    //menu_item = gtk_menu_item_new_with_mnemonic(_("_Quit"));
+    menu_item = gtk_image_menu_item_new_from_stock("gtk-quit", accel_group);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
