@@ -1,5 +1,6 @@
 2003-08-21  Choe Hwanjin <krisna@kldp.org>
 	* src/main.c,server.h,server.c: nabi_server_stop 함수 추가
+	* src/fontset.h,fontset.c: fontset 관련 루틴 추가
 
 2003-08-11  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.h,ic.c: preedit start 플래그 추가, preedit_start된 경우만
