@@ -5,4 +5,5 @@ SUBDIRS = \
 	Mac \
 	Onion \
 	keyboard \
-	KingSejong
+	KingSejong \
+	Tux
