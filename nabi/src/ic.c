@@ -430,7 +430,7 @@ nabi_ic_preedit_configure(NabiIC *ic)
 	return;
 
     XMoveResizeWindow(nabi_server->display, ic->preedit.window,
-		      ic->preedit.spot.x, 
+		      ic->preedit.spot.x + 1, 
 		      ic->preedit.spot.y - ic->preedit.ascent, 
 		      ic->preedit.width,
 		      ic->preedit.height);
