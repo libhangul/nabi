@@ -700,7 +700,7 @@ preference_window_create(void)
     gtk_container_set_border_width(GTK_CONTAINER(notebook), 6);
 
     /* icons */
-    label = gtk_label_new(_("Theme"));
+    label = gtk_label_new(_("Tray"));
     child = create_theme_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
