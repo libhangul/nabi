@@ -635,17 +635,15 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    nabi_ic_set_preedit_background(ic,
 		    *(unsigned long*)preedit_attr->value);
 	} else if (streql(XNArea, preedit_attr->name)) {
-	    ic->preedit.area
-		= *(XRectangle*)preedit_attr->value;
+	    ic->preedit.area = *(XRectangle*)preedit_attr->value;
+	} else if (streql(XNLineSpace, preedit_attr->name)) {
+	    ic->preedit.line_space = *(long*)preedit_attr->value;
 	} else if (streql(XNPreeditState, preedit_attr->name)) {
-	    ic->preedit.state
-		= *(XIMPreeditState*)preedit_attr->value;
+	    ic->preedit.state = *(XIMPreeditState*)preedit_attr->value;
 	} else if (streql(XNFontSet, preedit_attr->name)) {
-	    nabi_ic_load_preedit_fontset(ic,
-			(char*)preedit_attr->value);
+	    nabi_ic_load_preedit_fontset(ic, (char*)preedit_attr->value);
 	} else {
-	    g_print("Unknown PREEDIT_ATTR: %s\n",
-		    preedit_attr->name);
+	    g_print("Unknown PREEDIT_ATTR: %s\n", preedit_attr->name);
 	}
     }
     
@@ -676,6 +674,9 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    *(INT32*)ic_attr->value
 		= ic->input_style;
 	    ic_attr->value_length = sizeof(INT32);
+	} else if (streql(XNSeparatorofNestedList, ic_attr->name)) {
+	    /* FIXME: what do I do here? */
+	    ;
 	} else {
 	    fprintf(stderr, _("Nabi: unkown ic attributes: %s\n"),
 		ic_attr->name);
