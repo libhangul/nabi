@@ -418,12 +418,6 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		}
 	    }
 	} else if (ic->jungseong[0]) {
-	    if (hangul_is_choseong(ch)) {
-		nabi_ic_commit(ic);
-		ic->choseong[0] = ch;
-		nabi_ic_push(ic, ch);
-		goto insert;
-	    }
 	    if (hangul_is_jungseong(ch)) {
 		comp_ch = hangul_compose(ic->jungseong[0], ch);
 		if (hangul_is_jungseong(comp_ch)) {
@@ -437,11 +431,30 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		    goto insert;
 		}
 	    }
-	    if (hangul_is_jongseong(ch)) {
-		nabi_ic_commit(ic);
-		ic->jongseong[0] = ch;
-		nabi_ic_push(ic, ch);
-		goto insert;
+	    if (ic->choseong[0]) {
+		if (hangul_is_choseong(ch)) {
+		    nabi_ic_commit(ic);
+		    ic->choseong[0] = ch;
+		    nabi_ic_push(ic, ch);
+		    goto insert;
+		}
+		if (hangul_is_jongseong(ch)) {
+		    ic->jongseong[0] = ch;
+		    nabi_ic_push(ic, ch);
+		    goto update;
+		}
+	    } else {
+		if (hangul_is_choseong(ch)) {
+		    ic->choseong[0] = ch;
+		    nabi_ic_push(ic, ch);
+		    goto update;
+		}
+		if (hangul_is_jongseong(ch)) {
+		    nabi_ic_commit(ic);
+		    ic->jongseong[0] = ch;
+		    nabi_ic_push(ic, ch);
+		    goto insert;
+		}
 	    }
 	} else if (ic->choseong[0]) {
 	    if (hangul_is_choseong(ch)) {
