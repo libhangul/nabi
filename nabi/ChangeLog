@@ -1,6 +1,7 @@
 2003-12-16  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: PreeditCallback 방식의 preedit style을 Underline에서 
 	  Reverse로 바꿈
+	  트레이 아이콘이 사라지면서 죽던 문제 수정
 
 2003-12-15  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: icon의 크기를 좀더 똑똑하게 처리

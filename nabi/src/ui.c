@@ -796,11 +796,16 @@ static void
 on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
     g_object_unref(G_OBJECT(none_pixbuf));
-    none_pixbuf = NULL;
     g_object_unref(G_OBJECT(hangul_pixbuf));
-    hangul_pixbuf = NULL;
     g_object_unref(G_OBJECT(english_pixbuf));
+
+    /* clean tray icon widget static variable */
+    none_pixbuf = NULL;
+    hangul_pixbuf = NULL;
     english_pixbuf = NULL;
+    none_image = NULL;
+    hangul_image = NULL;
+    english_image = NULL;
 
     tray_icon = NULL;
     g_idle_add(create_tray_icon, NULL);
@@ -833,12 +838,12 @@ nabi_menu_position_func(GtkMenu *menu,
     GdkWindow *window;
     GdkScreen *screen;
     gint width, height, menu_width, menu_height;
-    gint xcenter, ycenter;
+    gint screen_width, screen_height;
 
     window = GDK_WINDOW(GTK_WIDGET(data)->window);
     screen = gdk_drawable_get_screen(GDK_DRAWABLE(window));
-    xcenter = gdk_screen_get_width(screen) / 2;
-    ycenter = gdk_screen_get_height(screen) / 2;
+    screen_width = gdk_screen_get_width(screen);
+    screen_height = gdk_screen_get_height(screen);
     gdk_window_get_origin(window, x, y);
     gdk_drawable_get_size(window, &width, &height);
     if (!GTK_WIDGET_REALIZED(menu))
@@ -846,17 +851,13 @@ nabi_menu_position_func(GtkMenu *menu,
     gdk_drawable_get_size(GDK_WINDOW(GTK_WIDGET(menu)->window),
 			  &menu_width, &menu_height);
 
-    if (*x + width < xcenter && *y + height < ycenter) {
+    if (*y + height < screen_height / 2)
 	*y += height;
-    } else if (*x >= xcenter && *y + height < ycenter) {
-	*x = *x - menu_width + width;
-	*y += height;
-    } else if (*x + width < xcenter && *y > ycenter) {
+    else
 	*y -= menu_height;
-    } else {
-	*x = *x - menu_width + width;
-	*y -= menu_height;
-    }
+
+    if (*x + menu_width > screen_width)
+	*x = screen_width - menu_width;
 }
 
 static gboolean
@@ -1167,14 +1168,15 @@ on_menu_pref(GtkWidget *widget)
 static void
 load_base_icons(const gchar *theme)
 {
-    gchar buf[1024];
-    GError    *gerror = NULL;
+    gchar *path;
+    GError *gerror = NULL;
 
     if (theme == NULL)
     	theme = "SimplyRed";
 
-    g_snprintf(buf, sizeof(buf), "%s/%s/none.png", NABI_THEMES_DIR, theme);
-    none_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
+    none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
     if (gerror != NULL) {
 	g_print("Error on reading image file: %s\n", gerror->message);
 	g_error_free(gerror);
@@ -1182,8 +1184,9 @@ load_base_icons(const gchar *theme)
 	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
     }
 
-    g_snprintf(buf, sizeof(buf), "%s/%s/hangul.png", NABI_THEMES_DIR, theme);
-    hangul_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    path = g_build_filename(NABI_THEMES_DIR, theme, "hangul.png", NULL);
+    hangul_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
     if (gerror != NULL) {
 	g_print("Error on reading image file: %s\n", gerror->message);
 	g_error_free(gerror);
@@ -1191,8 +1194,9 @@ load_base_icons(const gchar *theme)
 	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
     }
 
-    g_snprintf(buf, sizeof(buf), "%s/%s/english.png", NABI_THEMES_DIR, theme);
-    english_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    path = g_build_filename(NABI_THEMES_DIR, theme, "english.png", NULL);
+    english_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
+    g_free(path);
     if (gerror != NULL) {
 	g_print("Error on reading image file: %s\n", gerror->message);
 	g_error_free(gerror);
@@ -1204,8 +1208,14 @@ load_base_icons(const gchar *theme)
 static void
 load_theme(const gchar *theme)
 {
+    gint width, height;
+    GdkDrawable *drawable;
+
     load_base_icons(theme);
-    create_resized_icons(24);
+
+    drawable = GTK_PLUG(tray_icon)->socket_window;
+    gdk_drawable_get_size(GDK_DRAWABLE(drawable), &width, &height);
+    create_resized_icons(MIN(width, height));
 }
 
 static void
