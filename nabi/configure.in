@@ -19,7 +19,7 @@ dnl Checks for header files.
 AC_PATH_X
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([langinfo.h libintl.h locale.h malloc.h stddef.h stdint.h stdlib.h string.h sys/param.h])
+AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
