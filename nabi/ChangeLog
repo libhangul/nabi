@@ -1,3 +1,79 @@
+2003-11-29  Choe Hwanjin  <krisna@people.kldp.org>
+	* release 0.11
+
+	* src/ui.c: set dialog variable to NULL when about window closed
+	* src/ui.c: about window가 하나만 뜨게 함
+
+2003-11-28  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c, src/server.c, src/server.h: gc를 ic별로 관리하는 대신
+	  server에 기본 gc를 하나 만들고 그걸 사용하도록 함
+	* AUTHORS, NEWS, TODO: 문서 업데이트
+	* configure.in: prepare for version up
+	* po/ko.po: 번역 업데이트
+	* src/main.c, src/server.c, src/server.h, src/ui.c:
+	xim 서버 종료시 gtk2 application들이 죽던 문제 해결, xim서버를
+	정상적으로 종료함
+	* po/Makevars: set variable MSGID_BUGS_ADDRESS
+	* src/ui.c: update comment for parsing command line args routine
+
+2003-11-27  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c: candidate window에서 . 제거
+
+2003-11-26  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ui.c: rename function for root window event filtering
+
+2003-11-25  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/main.c, src/nabi.h, src/server.c, src/ui.c:
+	-s(--status-only) 옵션 추가(디버깅용도, 또는 상태 정보만 보여주기)
+
+2003-11-24  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/main.c: 실수로 추가한 코드 제거 (server start 루틴 작동함)
+	* src/main.c, src/ui.c: update main window
+	* src/automata.c:
+	세벌식 오토마타에서 잘못돼 있던 goto update를 goto insert로 수정,
+	OUTPUT_JAMO의 경우만 순서를 고려하지 않는 코드(모아치기)를 사용
+
+2003-11-15  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/server.c: argument check, 안전한 프로그램을 위해
+
+2003-11-13  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ui.c: add tooltips on tray icon
+
+2003-11-10  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c: candidate window의 memory leak
+
+2003-11-09  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c: PreeditPosition에서 preedit window 위치 조정 (xterm에서)
+	* src/candidate.c: 각 글자를 x 방향도 맞추도록 함
+
+2003-11-07  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c: candidate window에서 잘못된 인덱스 수정
+	* configure.in, po/ko.po: version up 0.10
+
+2003-11-05  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c, src/handler.c, src/ic.c:
+	단축키를 알파벳대신 숫자로 변경함
+
+2003-11-04  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c: on focus out event close the candidate window
+	* src/candidate.c: always show full window on screen
+	* src/ic.c, src/symboltable.h, src/candidate.c, src/candidate.h,
+	  src/hanjatable.h:
+	candidate selection window의 기본형을 wchar_t에서
+	unsigned short int로 변경
+	* src/Makefile.am: add symboltable.h to source list
+	* src/handler.c: change default keymapping on symbol selection window
+
+2003-11-03  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c, src/candidate.h, src/handler.c, src/hanjatable.h,
+	  src/ic.c, src/symboltable.h:
+	add symbol selection function
+
+2003-11-02  Choe Hwanjin  <krisna@people.kldp.org>
+	* ChangeLog, src/Makefile.am, src/candidate.c, src/candidate.h,
+	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
+	Add new candidate window routine
+
 2003-11-02  Choe Hwanjin <krisna@kldp.org>
 	* src/Makefile.am, src/candidate.c, src/candidate.h,
 	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
