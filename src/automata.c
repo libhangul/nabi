@@ -539,30 +539,6 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		goto insert;
 	    }
 	}
-
-	/* treat backspace */
-	if (keyval == XK_BackSpace) {
-	    ch = nabi_ic_pop(ic);
-	    if (ch == 0)
-		return False;
-
-	    if (hangul_is_choseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->choseong[0] = hangul_is_choseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jungseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jungseong[0] = hangul_is_jungseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jongseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jongseong[0] = hangul_is_jongseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    return False;
-	}
     } else {
 	/* choseong */
 	if (hangul_is_choseong(ch)) {
@@ -638,30 +614,30 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    nabi_ic_push(ic, ch);
 	    goto insert;
 	}
+    }
 
-	/* treat backspace */
-	if (keyval == XK_BackSpace) {
-	    ch = nabi_ic_pop(ic);
-	    if (ch == 0)
-		return False;
-
-	    if (hangul_is_choseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->choseong[0] = hangul_is_choseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jungseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jungseong[0] = hangul_is_jungseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jongseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jongseong[0] = hangul_is_jongseong(ch) ? ch : 0;
-		goto update;
-	    }
+    /* treat backspace */
+    if (keyval == XK_BackSpace) {
+	ch = nabi_ic_pop(ic);
+	if (ch == 0)
 	    return False;
+
+	if (hangul_is_choseong(ch)) {
+	    ch = nabi_ic_peek(ic);
+	    ic->choseong[0] = hangul_is_choseong(ch) ? ch : 0;
+	    goto update;
 	}
+	if (hangul_is_jungseong(ch)) {
+	    ch = nabi_ic_peek(ic);
+	    ic->jungseong[0] = hangul_is_jungseong(ch) ? ch : 0;
+	    goto update;
+	}
+	if (hangul_is_jongseong(ch)) {
+	    ch = nabi_ic_peek(ic);
+	    ic->jongseong[0] = hangul_is_jongseong(ch) ? ch : 0;
+	    goto update;
+	}
+	return False;
     }
 
     /* number and puctuation */
