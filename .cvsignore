@@ -9,5 +9,7 @@ config.status
 configure
 intl
 stamp-h
+stamp-h1
 stamp-h.in
 autom4te.cache
+nabi-*.tar.gz
