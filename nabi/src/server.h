@@ -69,6 +69,7 @@ struct NabiStatistics {
 
 struct _NabiServer {
     /* XIMS */
+    char*		    name;
     XIMS                    xims;
     Display*                display;
     Window                  window;
@@ -118,7 +119,7 @@ struct _NabiServer {
 
 extern NabiServer* nabi_server;
 
-NabiServer* nabi_server_new(void);
+NabiServer* nabi_server_new		(const char *name);
 void        nabi_server_destroy         (NabiServer* server);
 void        nabi_server_init            (NabiServer* server);
 int         nabi_server_start           (NabiServer* server,

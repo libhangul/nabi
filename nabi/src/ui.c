@@ -286,6 +286,7 @@ struct config_item {
 #define CHAR_BY_OFFSET(offset)   (gchar**)((void*)(nabi) + offset)
 
 const static struct config_item config_items[] = {
+    { "xim_name",           CONF_TYPE_STR,  OFFSET(xim_name)                 },
     { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
     { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
@@ -392,6 +393,7 @@ load_config_file(void)
     FILE *file;
 
     /* set default values */
+    nabi->xim_name = g_strdup(PACKAGE);
     nabi->theme = g_strdup("SimplyRed");
     nabi->keyboard_map_filename = g_build_filename(NABI_DATA_DIR,
 						   "keyboard",
@@ -619,6 +621,8 @@ nabi_app_new(void)
 {
     nabi = g_malloc(sizeof(NabiApplication));
 
+    nabi->xim_name = NULL;
+    nabi->optional_xim_name = NULL;
     nabi->x = 0;
     nabi->y = 0;
     nabi->main_window = NULL;
@@ -681,6 +685,19 @@ nabi_app_init(int *argc, char ***argv)
 		(*argv)[i] = NULL;
 
 		nabi->session_id = g_strdup(session_id);
+	    } else if (strcmp("--xim-name", (*argv)[i]) == 0 ||
+		       strncmp("--xim-name=", (*argv)[i], 11) == 0) {
+		gchar *xim_name = (*argv)[i] + 10;
+		if (*xim_name == '=') {
+		    xim_name++;
+		} else {
+		    (*argv)[i] = NULL;
+		    i++;
+		    xim_name = (*argv)[i];
+		}
+		(*argv)[i] = NULL;
+
+		nabi->optional_xim_name = g_strdup(xim_name);
 	    }
 	    i++;
 	}
@@ -804,6 +821,9 @@ nabi_app_free(void)
 
     g_free(nabi->preedit_fg);
     g_free(nabi->preedit_bg);
+
+    g_free(nabi->xim_name);
+    g_free(nabi->optional_xim_name);
 
     g_free(nabi);
     nabi = NULL;

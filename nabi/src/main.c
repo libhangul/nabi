@@ -80,7 +80,13 @@ main(int argc, char *argv[])
 #endif
 
     if (!nabi->status_only) {
-	nabi_server = nabi_server_new();
+	char *xim_name;
+	/* we prefer command line option as default xim name */
+	if (nabi->optional_xim_name != NULL)
+	    xim_name = nabi->optional_xim_name;
+	else
+	    xim_name = nabi->xim_name;
+	nabi_server = nabi_server_new(xim_name);
 	nabi_server_init(nabi_server);
     }
 

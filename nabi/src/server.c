@@ -62,13 +62,19 @@ static XIMTriggerKey nabi_trigger_keys[] = {
 };
 
 NabiServer*
-nabi_server_new(void)
+nabi_server_new(const char *name)
 {
     int i;
     NabiServer *server;
 
     server = (NabiServer*)malloc(sizeof(NabiServer));
+
     /* server var */
+    if (name == NULL)
+	server->name = strdup(PACKAGE);
+    else
+	server->name = strdup(name);
+
     server->xims = 0;
     server->display = NULL;
     server->window = 0;
@@ -150,6 +156,8 @@ nabi_server_destroy(NabiServer *server)
 	g_free(server->candidate_table[i]);
     }
     g_free(server->candidate_table);
+
+    g_free(server->name);
 
     free(server);
 }
@@ -333,7 +341,7 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     xims = IMOpenIM(display,
 		   IMModifiers, "Xi18n",
 		   IMServerWindow, window,
-		   IMServerName, "nabi",
+		   IMServerName, server->name,
 		   IMLocale, "ko",
 		   IMServerTransport, "X/",
 		   IMInputStyles, &input_styles,
