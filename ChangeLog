@@ -1,6 +1,11 @@
+2003-09-10  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c: 특수키들을 포워딩 함
+	* src/automata.c: 세벌식 오토마타의 잘못된 곳 수정
+
 2003-09-09  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,src/server.c,src/ui.c: iconv를 이용한 charset 체크루틴 
 	  추가
+	* src/hangul.h,src/hangul.c: hangul_ucs_to_ksc 함수를 제거
 
 2003-09-08  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c,src/ic.c,src/ic.h,src/nabi.h,src/hanjatable.h,src/handler.c:
