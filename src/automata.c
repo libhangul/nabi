@@ -268,8 +268,8 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (hangul_is_jongseong(ch)) {
 		comp_ch = hangul_compose(ic->jongseong[0], ch);
 		if (hangul_is_jongseong(comp_ch)) {
-		    ic->jongseong[0] = ch;
-		    nabi_ic_push(ic, ch);
+		    ic->jongseong[0] = comp_ch;
+		    nabi_ic_push(ic, comp_ch);
 		    goto update;
 		} else {
 		    nabi_ic_commit(ic);
@@ -288,8 +288,8 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (hangul_is_jungseong(ch)) {
 		comp_ch = hangul_compose(ic->jungseong[0], ch);
 		if (hangul_is_jungseong(comp_ch)) {
-		    ic->jungseong[0] = ch;
-		    nabi_ic_push(ic, ch);
+		    ic->jungseong[0] = comp_ch;
+		    nabi_ic_push(ic, comp_ch);
 		    goto update;
 		} else {
 		    nabi_ic_commit(ic);
@@ -307,8 +307,8 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    if (hangul_is_choseong(ch)) {
 		comp_ch = hangul_compose(ic->choseong[0], ch);
 		if (hangul_is_choseong(comp_ch)) {
-		    ic->choseong[0] = ch;
-		    nabi_ic_push(ic, ch);
+		    ic->choseong[0] = comp_ch;
+		    nabi_ic_push(ic, comp_ch);
 		    goto update;
 		} else {
 		    nabi_ic_commit(ic);
