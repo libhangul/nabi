@@ -303,7 +303,8 @@ sub mail_notification
     if ($subject ne "") {
 	print(MAIL $subject, "\n");
     }
-    print(MAIL "To: SAENARU Mailing List <$MAIL_TO>\n");
+    print(MAIL "To: $MAIL_TO\n");
+    print(MAIL "Content-Type: text/plain; charset=utf-8\n");
     print(MAIL "\n");
     print(MAIL join("\n", @text));
 
