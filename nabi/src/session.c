@@ -2,6 +2,8 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_LIBSM
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -139,4 +141,5 @@ nabi_session_close(void)
     gdk_set_sm_client_id(NULL);
 }
 
+#endif /* HAVE_LIBSM */
 /* vim: set ts=8 sw=4 sts=4 : */
