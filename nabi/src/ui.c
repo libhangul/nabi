@@ -548,7 +548,7 @@ load_candidate_table(void)
     ret = nabi_server_load_candidate_table(nabi_server,
 					   nabi->candidate_table_filename);
     if (!ret) {
-	fprintf(stderr, _("Nabi: Can't candidate table\n"));
+	fprintf(stderr, _("Nabi: Can't load candidate table\n"));
     }
 }
 
