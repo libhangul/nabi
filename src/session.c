@@ -131,6 +131,7 @@ property_free(SmProp *prop)
     g_free(prop->type);
     for (i = 0; i < prop->num_vals; i++)
 	g_free(prop->vals[i].value);
+    g_free(prop->vals);
     g_free(prop);
 }
 
