@@ -187,7 +187,7 @@ msgstr "트레이 아이콘:"
 
 #: src/preference.c:397
 msgid "<span weight=\"bold\">Hangul keyboard</span>"
-msgstr "<span weight=\"bold\">한글 키보드</span>"
+msgstr "<span weight=\"bold\">한글 자판</span>"
 
 #: src/preference.c:424
 msgid "Hangul Keyboard"
@@ -195,7 +195,7 @@ msgstr "한글 자판"
 
 #: src/preference.c:443
 msgid "<span weight=\"bold\">English keyboard</span>"
-msgstr "<span weight=\"bold\">영문 키보드</span>"
+msgstr "<span weight=\"bold\">영문 자판</span>"
 
 #: src/preference.c:456
 msgid "Querty keyboard"
