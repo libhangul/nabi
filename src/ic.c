@@ -1096,19 +1096,31 @@ nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
     *size = hangul_wcharstr_to_utf8str(buf, utf8, buflen);
 }
 
+inline XIMFeedback *
+nabi_ic_preedit_feedback_new(int len, long style)
+{
+    int i;
+    XIMFeedback *feedback = g_new(XIMFeedback, len);
+
+    for (i = 0; i < len; ++i)
+	feedback[i] = style;
+
+    return feedback;
+}
+
 void
 nabi_ic_preedit_insert(NabiIC *ic)
 {
     int len, size;
     char buf[48] = { 0, };
-    char *compound_text;
-    IMPreeditCBStruct data;
-    XIMText text;
-    XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
     if (ic->input_style & XIMPreeditCallbacks) {
+	char *compound_text;
+	IMPreeditCBStruct data;
+	XIMText text;
+
 	compound_text = utf8_to_compound_text(buf);
 
 	data.major_code = XIM_PREEDIT_DRAW;
@@ -1120,13 +1132,14 @@ nabi_ic_preedit_insert(NabiIC *ic)
 	data.todo.draw.chg_length = 0;
 	data.todo.draw.text = &text;
 
-	text.feedback = feedback;
+	text.feedback = nabi_ic_preedit_feedback_new(len, XIMReverse);
 	text.encoding_is_wchar = False;
 	text.string.multi_byte = compound_text;
 	text.length = strlen(compound_text);
 
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(compound_text);
+	g_free(text.feedback);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, size);
 	nabi_ic_preedit_show(ic);
@@ -1139,10 +1152,6 @@ nabi_ic_preedit_update(NabiIC *ic)
 {
     int len, size;
     char buf[48] = { 0, };
-    char *compound_text;
-    IMPreeditCBStruct data;
-    XIMText text;
-    XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 
     nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
@@ -1152,6 +1161,10 @@ nabi_ic_preedit_update(NabiIC *ic)
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
+	char *compound_text;
+	XIMText text;
+	IMPreeditCBStruct data;
+
 	compound_text = utf8_to_compound_text(buf);
 
 	data.major_code = XIM_PREEDIT_DRAW;
@@ -1163,7 +1176,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 	data.todo.draw.chg_length = ic->preedit.prev_length;
 	data.todo.draw.text = &text;
 
-	text.feedback = feedback;
+	text.feedback = nabi_ic_preedit_feedback_new(len, XIMReverse);
 	text.encoding_is_wchar = False;
 	text.string.multi_byte = compound_text;
 	text.length = strlen(compound_text);
@@ -1268,7 +1281,12 @@ nabi_ic_commit(NabiIC *ic)
 	ch = hangul_jamo_to_syllable(ic->choseong[0],
 			 ic->jungseong[0],
 			 ic->jongseong[0]);
-	if (ch)
+	if (ch != 0 &&
+	    nabi_server->check_charset &&
+	    !nabi_server_is_valid_char(nabi_server, ch))
+		ch = 0;
+
+	if (ch != 0)
 	    buf[n++] = ch;
 	else {
 	    if (ic->choseong[0]) {
