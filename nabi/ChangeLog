@@ -1,3 +1,6 @@
+2003-09-14  Choe Hwanjin <krisna@kldp.org>
+	* src/session.h,src/session.c: session 관련 코드 추가
+
 2003-09-10  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c: 특수키들을 포워딩 함
 	* src/automata.c: 세벌식 오토마타의 잘못된 곳 수정

@@ -423,8 +423,8 @@ load_config_file(void)
     g_free(config_filename);
 }
 
-static void
-save_config_file(void)
+void
+nabi_save_config_file(void)
 {
     gint i;
     const gchar* homedir;
@@ -664,7 +664,7 @@ nabi_app_free(void)
 {
     int i;
 
-    save_config_file();
+    nabi_save_config_file();
 
     g_free(nabi->theme);
 
@@ -893,7 +893,7 @@ selection_changed_cb (GtkTreeSelection *selection, gpointer data)
     /* saving theme setting */
     g_free(nabi->theme);
     nabi->theme = g_strdup(theme);
-    save_config_file();
+    nabi_save_config_file();
 }
 
 static GtkTreePath *
@@ -1120,7 +1120,7 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
     nabi_server_set_keyboard(nabi_server, map->map, map->type);
     g_free(nabi->keyboard_map_filename);
     nabi->keyboard_map_filename = g_strdup(map->filename);
-    save_config_file();
+    nabi_save_config_file();
 }
 
 static void
@@ -1128,7 +1128,7 @@ on_menu_dvorak(GtkWidget *widget)
 {
     nabi->dvorak  = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
     nabi_server_set_dvorak(nabi_server, nabi->dvorak);
-    save_config_file();
+    nabi_save_config_file();
 }
 
 static void

@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,7 +10,9 @@
 
 #include <gtk/gtk.h>
 
+#include "server.h"
 #include "session.h"
+#include "nabi.h"
 
 static SmcConn session_connection;
 
@@ -54,6 +60,7 @@ save_yourself_proc(SmcConn smc_conn, SmPointer client_data, int save_type,
 		   Bool shutdown, int interact_style, Bool fast)
 {
     g_print("SM: SaveYourselfProc\n");
+    nabi_save_config_file();
     SmcSaveYourselfDone(smc_conn, True);
 }
 
@@ -61,7 +68,9 @@ static void
 die_proc(SmcConn smc_conn, SmPointer client_data)
 {
     g_print("SM: DieProc\n");
-    session_close();
+    nabi_save_config_file();
+    nabi_session_close();
+
 }
 
 static void
@@ -78,7 +87,7 @@ shutdown_cancelled_proc(SmcConn smc_conn, SmPointer client_data)
 }
 
 void
-session_open(void)
+nabi_session_open(void)
 {
     char buf[256];
     SmcCallbacks callbacks;
@@ -119,8 +128,11 @@ session_open(void)
 }
 
 void
-session_close(void)
+nabi_session_close(void)
 {
+    if (session_connection == NULL)
+	return;
+
     SmcCloseConnection(session_connection, 0, NULL);
     gdk_set_sm_client_id(NULL);
 }

@@ -21,11 +21,12 @@ nabi_SOURCES = \
 	ic.h ic.c \
 	fontset.h fontset.c \
 	eggtrayicon.h eggtrayicon.c \
+	session.h session.c \
 	handler.c \
 	automata.c \
 	ui.c \
 	main.c
 
-nabi_LDFLAGS = @X_LIBS@ -lX11 @GTK_LIBS@ 
+nabi_LDFLAGS = @X_LIBS@ @X_PRE_LIBS@ -lX11 @GTK_LIBS@ 
 nabi_LDADD = ../IMdkit/libXimd.a
 

@@ -25,6 +25,10 @@ AC_CHECK_FUNCS([gethostname memmove memset mkdir nl_langinfo setlocale strcasecm
 
 dnl Checks for X window system
 AC_PATH_XTRA
+case $X_PRE_LIBS in
+*"-lSM"*)
+    AC_DEFINE_UNQUOTED(HAVE_LIBSM, 1, Define to 1 if you have the libSM library.)
+esac
 
 dnl Checks for GTK+ libraries.
 AC_PATH_PROG(PKG_CONFIG, pkg-config,
