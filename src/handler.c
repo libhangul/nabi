@@ -32,7 +32,6 @@
 #include "ic.h"
 #include "server.h"
 
-/*
 #ifdef DEBUG
 #define dmesg debug_msg
 
@@ -169,7 +168,6 @@ debug_msg(const char *fmt, ...)
 #else
 #define dmesg(...)  ;
 #endif
-*/
 
 static Bool
 nabi_handler_open(XIMS ims, IMProtocol *call_data)
