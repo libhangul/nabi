@@ -1,3 +1,6 @@
+2004-03-15  Choe Hwanjin <krisna@kldp.org>
+	* release 0.13
+
 2004-03-07  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: about 창 모양 개선
 	* po/ko.po: 번역 업데이트
