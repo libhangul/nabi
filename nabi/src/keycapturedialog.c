@@ -22,6 +22,8 @@
 
 #include "keycapturedialog.h"
 
+static char key_label_text[256] = { '\0', };
+
 static void
 key_capture_dialog_grab(GtkWidget *dialog)
 {
@@ -42,6 +44,7 @@ on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
     gchar *keys;
     GString *str;
     GtkWidget *label;
+    gchar markup_str[256];
 
     gtk_dialog_set_response_sensitive(GTK_DIALOG(widget),
 				      GTK_RESPONSE_OK, TRUE);
@@ -65,7 +68,11 @@ on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
     if (keys == NULL)
 	keys = "";
     str = g_string_append(str, keys);
-    gtk_label_set_text(GTK_LABEL(label), str->str);
+    g_strlcpy(key_label_text, str->str, sizeof(key_label_text));
+
+    g_snprintf(markup_str, sizeof(markup_str),
+	       "<span size=\"large\" weight=\"bold\">%s</span>", str->str);
+    gtk_label_set_markup(GTK_LABEL(label), markup_str);
 
     gtk_window_present(GTK_WINDOW(widget));
 
@@ -111,6 +118,7 @@ key_capture_dialog_new(const gchar *title,
     GtkWidget *key_label;
     GtkWidget *hbox;
     GtkWidget *vbox;
+    gchar markup_str[256];
 
     dialog = gtk_dialog_new_with_buttons(title,
 			    parent,
@@ -141,9 +149,15 @@ key_capture_dialog_new(const gchar *title,
 	g_free(msg);
     }
 
-    key_label = gtk_label_new(key_text);
+    key_label = gtk_label_new("");
     gtk_label_set_line_wrap (GTK_LABEL(key_label), FALSE);
-    gtk_box_pack_start(GTK_BOX(vbox), key_label, FALSE, FALSE, 0);
+    gtk_label_set_use_markup(GTK_LABEL(key_label), TRUE);
+    g_snprintf(markup_str, sizeof(markup_str),
+	       "<span size=\"large\" weight=\"bold\">%s</span>", key_text);
+    g_strlcpy(key_label_text, key_text, sizeof(key_label_text));
+    gtk_label_set_markup(GTK_LABEL(key_label), markup_str);
+    gtk_widget_show(key_label);
+    //gtk_box_pack_start(GTK_BOX(vbox), key_label, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(dialog), "key-text-label", key_label);
 
     image = gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO,
@@ -151,9 +165,10 @@ key_capture_dialog_new(const gchar *title,
     gtk_misc_set_alignment (GTK_MISC(image), 0.5, 0.0);
 
     hbox = gtk_hbox_new (FALSE, 6);
-    gtk_box_pack_start (GTK_BOX (hbox), image, FALSE, FALSE, 0);
-    gtk_box_pack_start (GTK_BOX (hbox), vbox, TRUE, TRUE, 0);
-    gtk_box_pack_start (GTK_BOX (GTK_DIALOG(dialog)->vbox), hbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), key_label, FALSE, FALSE, 0);
 
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dialog),
 				      GTK_RESPONSE_OK, FALSE);
@@ -175,8 +190,5 @@ key_capture_dialog_new(const gchar *title,
 G_CONST_RETURN gchar *
 key_capture_dialog_get_key_text(GtkWidget *dialog)
 {
-    gpointer *label;
-
-    label = g_object_get_data(G_OBJECT(dialog), "key-text-label");
-    return gtk_label_get_text(GTK_LABEL(label));
+    return key_label_text;
 }
