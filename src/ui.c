@@ -96,7 +96,6 @@ const static struct config_item config_items[] = {
     { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
     { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
-    { "icon_size",          CONF_TYPE_INT,  OFFSET(icon_size)                },
     { "keyboard_table_name",CONF_TYPE_STR,  OFFSET(keyboard_table_name)      },
     { "keyboard_table_dir", CONF_TYPE_STR,  OFFSET(keyboard_table_dir)       },
     { "compose_table_name", CONF_TYPE_STR,  OFFSET(compose_table_name)       },
@@ -776,6 +775,33 @@ on_tray_icon_button_press(GtkWidget *widget,
     return FALSE;
 }
 
+static void
+on_tray_icon_size_allocate (GtkWidget *widget,
+			    GtkAllocation *allocation,
+			    gpointer data)
+{
+    GtkOrientation orientation;
+    int size;
+
+    orientation = egg_tray_icon_get_orientation (tray_icon);
+    if (orientation == GTK_ORIENTATION_HORIZONTAL)
+	size = allocation->height;
+    else
+	size = allocation->width;
+
+    /* We set minimum icon size */
+    if (size <= 16) {
+	size = 16;
+    } else if (size <= 24) {
+	size = 24;
+    }
+
+    if (size != nabi->icon_size) {
+	nabi->icon_size = size;
+	create_resized_icons (size);
+    }
+}
+
 static void get_statistic_string(char *buf, size_t bufsize)
 {
     if (nabi_server == NULL) {
@@ -1242,6 +1268,7 @@ create_menu(void)
 static void
 create_resized_icons(gint default_size)
 {
+    GtkOrientation orientation;
     double factor;
     gint new_width, new_height;
     gint orig_width, orig_height;
@@ -1251,7 +1278,8 @@ create_resized_icons(gint default_size)
     orig_width = gdk_pixbuf_get_width(none_pixbuf);
     orig_height = gdk_pixbuf_get_height(none_pixbuf);
 
-    if (orig_width > orig_height) {
+    orientation = egg_tray_icon_get_orientation (tray_icon);
+    if (orientation == GTK_ORIENTATION_VERTICAL) {
 	factor =  (double)default_size / (double)orig_width;
 	new_width = default_size;
 	new_height = (int)(orig_height * factor);
@@ -1520,6 +1548,9 @@ create_tray_icon(gpointer data)
     gtk_container_add(GTK_CONTAINER(eventbox), hbox);
     gtk_widget_show(hbox);
 
+    g_signal_connect(G_OBJECT(tray_icon), "size-allocate",
+		     G_CALLBACK(on_tray_icon_size_allocate), NULL);
+
     g_signal_connect(G_OBJECT(tray_icon), "embedded",
 		     G_CALLBACK(on_tray_icon_embedded), NULL);
     g_signal_connect(G_OBJECT(tray_icon), "destroy",
@@ -1584,16 +1615,6 @@ nabi_app_set_theme(const gchar *name)
     g_free(nabi->theme);
     nabi->theme = g_strdup(name);
     nabi_save_config_file();
-}
-
-void
-nabi_app_set_icon_size(int size)
-{
-    if (size > 0 && size <=128) {
-	create_resized_icons(size);
-	nabi->icon_size = size;
-	nabi_save_config_file();
-    }
 }
 
 void
