@@ -973,7 +973,7 @@ on_menu_about(GtkWidget *widget)
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), comment, TRUE, TRUE, 5);
 
-    frame = gtk_frame_new (_("Statistics"));
+    frame = gtk_frame_new (_("Keypress Statistics"));
     stat_str = get_statistic_string();
     stat_label = gtk_label_new(stat_str);
     gtk_misc_set_padding (GTK_MISC(stat_label), 5, 5);
