@@ -305,7 +305,7 @@ nabi_filter_candidate(NabiIC* ic, KeySym keyval)
     case XK_KP_7:
     case XK_KP_8:
     case XK_KP_9:
-	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
+	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_KP_1);
 	break;
     case XK_KP_End:
 	ch = nabi_candidate_get_nth(ic->candidate, 0);
@@ -338,7 +338,7 @@ nabi_filter_candidate(NabiIC* ic, KeySym keyval)
 	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     default:
-	return True;
+	return False;
     }
 
     if (ch != 0) {
