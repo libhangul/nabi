@@ -951,6 +951,21 @@ on_tray_icon_button_press(GtkWidget *widget,
     return FALSE;
 }
 
+static void get_server_info_string(char *buf, size_t bufsize)
+{
+    const char *encoding;
+
+    g_get_charset(&encoding);
+
+    snprintf(buf, bufsize,
+	     "<b>%s</b>: %s\n"
+	     "<b>%s</b>: %s\n"
+	     "<b>%s</b>: %d",
+	    _("XIM name"), nabi_server->name,
+	    _("Encoding"), encoding,
+	    _("Connected clients"), nabi_server->n_connected);
+}
+
 static void get_statistic_string(char *buf, size_t bufsize)
 {
     if (nabi_server == NULL) {
@@ -962,15 +977,10 @@ static void get_statistic_string(char *buf, size_t bufsize)
 	char jongseong[256];
 
 	snprintf(general, sizeof(general), 
-		 "%s: %d\n"
-		 "\n"
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "\n",
-		 _("Connected applications"),
-		 nabi_server->n_connected,
-	     
 		 _("Total"),
 		 nabi_server->statistics.total,
 		 _("BackSpace"),
@@ -1130,6 +1140,15 @@ static void get_statistic_string(char *buf, size_t bufsize)
 }
 
 static void
+on_about_statistics_clicked(GtkWidget *widget, GtkWidget *frame)
+{
+    if (GTK_WIDGET_VISIBLE(frame))
+	gtk_widget_hide(frame);
+    else
+	gtk_widget_show(frame);
+}
+
+static void
 on_menu_about(GtkWidget *widget)
 {
     static GtkWidget *dialog = NULL;
@@ -1138,9 +1157,13 @@ on_menu_about(GtkWidget *widget)
     GtkWidget *hbox;
     GtkWidget *title;
     GtkWidget *comment;
+    GtkWidget *server_info;
     GtkWidget *image;
+    GtkWidget *eventbox;
+    GList *list;
     gchar *image_filename;
     gchar *title_str;
+    gchar server_info_str[512];
     gchar stat_str[1536];
 
     if (dialog != NULL) {
@@ -1155,24 +1178,33 @@ on_menu_about(GtkWidget *widget)
     dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
 	    				 NULL,
 					 GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
-					 GTK_STOCK_OK,
-					 GTK_RESPONSE_ACCEPT,
+					 GTK_STOCK_CLOSE,
+					 GTK_RESPONSE_CLOSE,
 					 NULL);
     image_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
     image = gtk_image_new_from_file(image_filename);
+    gtk_widget_show(image);
     g_free(image_filename);
 
     title = gtk_label_new(NULL);
     title_str = g_strdup_printf(_("<span size=\"xx-large\""
 				  "weight=\"bold\">Nabi %s</span>"), VERSION);
     gtk_label_set_markup(GTK_LABEL(title), title_str);
+    gtk_widget_show(title);
     g_free(title_str);
 
     comment = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(comment),
-	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003 (C)"
+	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003-2004 (C) "
 	      "Choe Hwanjin"));
-    gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_RIGHT);
+    gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
+    gtk_widget_show(comment);
+
+    get_server_info_string(server_info_str, sizeof(server_info_str));
+    server_info = gtk_label_new(NULL);
+    gtk_label_set_markup(GTK_LABEL(server_info), server_info_str);
+    gtk_label_set_justify(GTK_LABEL(server_info), GTK_JUSTIFY_CENTER);
+    gtk_widget_show(server_info);
 
     hbox = gtk_hbox_new(FALSE, 10);
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
@@ -1182,10 +1214,25 @@ on_menu_about(GtkWidget *widget)
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
 		       comment, FALSE, TRUE, 5);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
+		       server_info, FALSE, TRUE, 5);
+    gtk_widget_show(hbox);
 
     if (!nabi->status_only) {
+	GtkWidget *hbox;
+	GtkWidget *button;
 	GtkWidget *frame;
 	GtkWidget *scrolled;
+
+	hbox = gtk_hbox_new(TRUE, 10);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
+			   hbox, FALSE, TRUE, 0);
+	gtk_widget_show(hbox);
+
+	button = gtk_button_new_with_label(_("Keypress Statistics"));
+	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+	gtk_widget_show(button);
+	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 5);
 
 	frame = gtk_frame_new (_("Keypress Statistics"));
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
@@ -1196,21 +1243,34 @@ on_menu_about(GtkWidget *widget)
 				        GTK_POLICY_AUTOMATIC,
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(frame), scrolled);
+	gtk_widget_show(scrolled);
 
 	get_statistic_string(stat_str, sizeof(stat_str));
 	stat_label = gtk_label_new(stat_str);
 	gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
 	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled),
 					      stat_label);
+	gtk_widget_show(stat_label);
+
+	g_signal_connect(G_OBJECT(button), "clicked",
+			 G_CALLBACK(on_about_statistics_clicked), frame);
 
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
 			   frame, TRUE, TRUE, 5);
     }
 
-    gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 400);
+    gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
-    gtk_widget_show_all(dialog);
+    gtk_widget_show(dialog);
+
+    list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
+    if (list != NULL) {
+	GList *child = g_list_last(list);
+	if (child != NULL)
+	    gtk_widget_grab_focus(GTK_WIDGET(child->data));
+	g_list_free(list);
+    }
 
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);

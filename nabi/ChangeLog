@@ -1,3 +1,7 @@
+2004-03-07  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: about 창 모양 개선
+	* po/ko.po: 번역 업데이트
+
 2004-03-05  Choe Hwanjin <krisna@kldp.org>
 	* src/nabi.h src/main.c src/server.h src/server.c src/ui.c:
 	xim_name이라는 컨피그 옵션과 --xim-name 이라는 커맨드 라인 옵션을
