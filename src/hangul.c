@@ -261,4 +261,58 @@ hangul_jamo_to_syllable(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
     return ch;
 }
 
+/* from glib 2.0 gutf8.c:g_unichar_to_utf8() */
+int
+hangul_wchar_to_utf8 (wchar_t c, char *outbuf)
+{
+    unsigned int len = 0;
+    int first;
+    int i;
+
+    if (c < 0x80) {
+	first = 0;
+	len = 1;
+    } else if (c < 0x800) {
+	first = 0xc0;
+	len = 2;
+    } else if (c < 0x10000) {
+	first = 0xe0;
+	len = 3;
+    } else if (c < 0x200000) {
+	first = 0xf0;
+	len = 4;
+    } else if (c < 0x4000000) {
+	first = 0xf8;
+	len = 5;
+    } else {
+	first = 0xfc;
+	len = 6;
+    }
+
+    if (outbuf) {
+	for (i = len - 1; i > 0; --i) {
+	    outbuf[i] = (c & 0x3f) | 0x80;
+	    c >>= 6;
+	}
+	outbuf[0] = c | first;
+    }
+
+    return len;
+}
+
+int
+hangul_wcharstr_to_utf8str(wchar_t *wstr, char *buf)
+{
+    int n = 0;
+
+    while (*wstr != 0) {
+	n += hangul_wchar_to_utf8(*wstr, buf);
+	buf += n;
+	wstr++;
+    }
+
+    *buf = '\0';
+    return n;
+}
+
 /* vim: set ts=8 sts=4 sw=4 : */

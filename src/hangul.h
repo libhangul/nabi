@@ -38,5 +38,7 @@ wchar_t hangul_jamo_to_syllable(wchar_t choseong,
 				wchar_t jungseong,
 				wchar_t jongseong);
 
+int hangul_wchar_to_utf8(wchar_t c, char *outbuf);
+int hangul_wcharstr_to_utf8str(wchar_t *wstr, char *buf);
 #endif /* __HANGUL_H_ */
 /* vim: set ts=8 sw=4 : */
