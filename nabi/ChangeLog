@@ -1,3 +1,6 @@
+2004-12-02  Choe Hwanjin <krisna@kldp.org>
+	* 자판에서 자모 빈도를 $HOME/.nabi/nabi.log에 기록함
+
 2004-11-26  Choe Hwanjin <krisna@kldp.org>
 	* 설정창에서 한글/한자로 메뉴를 나눔
 

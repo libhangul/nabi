@@ -837,9 +837,12 @@ static void get_statistic_string(char *buf, size_t bufsize)
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "%s: %3d\n"
+		 "%s: %3d\n"
 		 "\n",
 		 _("Total"),
 		 nabi_server->statistics.total,
+		 _("Space"),
+		 nabi_server->statistics.space,
 		 _("BackSpace"),
 		 nabi_server->statistics.backspace,
 		 _("Shift"),

@@ -102,6 +102,7 @@ main(int argc, char *argv[])
     gtk_main();
 
     if (!nabi->status_only) {
+	nabi_server_write_log(nabi_server);
 	nabi_server_destroy(nabi_server);
 	nabi_server = NULL;
     }
