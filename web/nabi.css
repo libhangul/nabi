@@ -66,6 +66,19 @@ h3 {
   font-size: 100%;
 }
 
+h4 {
+  font-weight: bold;
+  font-colort: #cc9966;
+  clear: both;
+  font-size: 110%;
+}
+h5 {
+  font-weight: bold;
+  text-align: right;
+  clear: both;
+  font-size: 100%;
+}
+
 div.book-of-wilber { 
   font-size: large;
   background: #CC9966 url(../images/wilberbook.jpg);
