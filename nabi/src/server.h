@@ -101,6 +101,8 @@ int         nabi_server_stop            (NabiServer *_server);
 Bool        nabi_server_is_trigger      (NabiServer*  _server,
                                          KeySym       key,
                                          unsigned int state);
+void        nabi_server_set_dvorak      (NabiServer *_server,
+                                         Bool flag);
 void        nabi_server_set_keyboard    (NabiServer *_server,
 					 const wchar_t *keyboard_map,
 					 NabiKeyboardType type);

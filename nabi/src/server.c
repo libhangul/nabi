@@ -171,6 +171,12 @@ nabi_server_set_mode_info_cb(NabiServer *_server, NabiModeInfoCallback func)
 }
 
 void
+nabi_server_set_dvorak(NabiServer *_server, Bool flag)
+{
+    _server->dvorak = flag;
+}
+
+void
 nabi_server_init(NabiServer *_server)
 {
     char *codeset;
