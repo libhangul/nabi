@@ -1,6 +1,10 @@
+2003-12-16  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: PreeditCallback 방식의 preedit style을 Underline에서 
+	  Reverse로 바꿈
+
 2003-12-15  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: icon의 크기를 좀더 똑똑하게 처리
-	* src/ui.c: 메뉴의 위치를 마우스가 아닌 아이콘 위치 기준으로 설정
+	  메뉴의 위치를 마우스가 아닌 아이콘 위치 기준으로 설정
 
 2003-12-14  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
