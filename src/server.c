@@ -413,7 +413,7 @@ nabi_server_on_keypress(NabiServer *server, wchar_t ch, unsigned int state)
 
     if (ch == XK_BackSpace)
 	server->statistics.backspace++;
-    else {
+    else if (ch >= 0x1100 && ch <= 0x11FF) {
 	int index = (unsigned int)ch & 0xff;
 	if (index >= 0 && index <= 255)
 	    server->statistics.jamo[index]++;
