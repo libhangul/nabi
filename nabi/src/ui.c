@@ -1063,20 +1063,19 @@ create_menu(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-		 G_CALLBACK(on_menu_about), menu_item);
+			     G_CALLBACK(on_menu_about), menu_item);
 
     /* separator */
     menu_item = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
 
-    /* menu preferences 
+    /* menu preferences */
     menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-		 G_CALLBACK(on_menu_pref), menu_item);
-		 */
+			     G_CALLBACK(on_menu_pref), menu_item);
 
     /* menu themes */
     menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes..."));
