@@ -1022,9 +1022,12 @@ static gchar *get_statistic_string(void)
 			   nabi_server->statistics.jamo[0xc2]);
 }
 
-void
+static void
 on_menu_about(GtkWidget *widget)
 {
+    static GtkWidget *dialog = NULL;
+    static GtkWidget *stat_label = NULL;
+
     GtkWidget *hbox;
     GtkWidget *title;
     GtkWidget *comment;
@@ -1032,9 +1035,17 @@ on_menu_about(GtkWidget *widget)
     gchar *image_filename;
     gchar *title_str;
     GtkWidget *frame;
-    GtkWidget *stat_label;
     gchar *stat_str;
-    GtkWidget *dialog;
+
+    if (dialog != NULL) {
+	if (!nabi->status_only) {
+	    stat_str = get_statistic_string();
+	    gtk_label_set_text(GTK_LABEL(stat_label), stat_str);
+	    g_free(stat_str);
+	}
+	gtk_window_present(GTK_WINDOW(dialog));
+	return;
+    }
 
     dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
 	    				 NULL,
