@@ -654,6 +654,11 @@ nabi_app_init(int *argc, char ***argv)
 {
     gchar *icon_filename;
 
+    /* set XMODIFIERS env var to NULL before creating any widget
+     * If this is not set, xim server will try to connect herself.
+     * So It would blocked */
+    putenv("XMODIFIERS=");
+
     /* process command line options */
     if (argc != NULL && argv != NULL) {
 	int i, j, k;
@@ -1194,6 +1199,7 @@ on_menu_about(GtkWidget *widget)
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
     dialog = NULL;
+    textbuffer = NULL;
 }
 
 static void

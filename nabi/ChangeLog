@@ -1,3 +1,6 @@
+2004-02-02  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: 위젯을 만들기 전에 XMODIFIERS 환경변수를 지움
+
 2004-01-29  Choe Hwanjin <krisna@kldp.org>
 	* src/candidate.c src/nabi.h src/server.c src/server.h src/ui.c:
 	  설정값 candidate_font 추가, candidate 글자에 사용할 폰트 지정
