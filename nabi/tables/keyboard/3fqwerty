@@ -1,0 +1,96 @@
+Name: 세벌식 최종
+
+U0021	U11A9	# GDK_exclam:		jongseong ssangkiyeok		
+U0022	U00B7	# GDK_quotedbl:	        middle dot 			
+U0023	U11BD	# GDK_numbersign:	jognseong cieuc 		
+U0024	U11B5	# GDK_dollar:		jongseong rieul-phieuph		
+U0025	U11B4	# GDK_percent:		jongseong rieul-thieuth		
+U0026	U201C	# GDK_ampersand:	left double quotation mark 	
+U0027	U1110	# GDK_apostrophe:	choseong  thieuth		
+U0028	U0027	# GDK_parenleft:	apostrophe			
+U0029	U007E	# GDK_parenright:	Tilde				
+U002A	U201D	# GDK_asterisk:	        right double quotation mark	
+U002B	U002B	# GDK_plus:		plus sign			
+U002C	U002C	# GDK_comma:		comma				
+U002D	U0029	# GDK_minus:		right parenthesis		
+U002E	U002E	# GDK_period:		period				
+U002F	U1169	# GDK_slash:		jungseong o			
+U0030	U110F	# GDK_0:		choseong  khieukh		
+U0031	U11C2	# GDK_1:		jongseong hieuh			
+U0032	U11BB	# GDK_2:		jongseong ssangsios		
+U0033	U11B8	# GDK_3:		jongseong pieup			
+U0034	U116D	# GDK_4:		jungseong yo			
+U0035	U1172	# GDK_5:		jungseong yu			
+U0036	U1163	# GDK_6:		jungseong ya			
+U0037	U1168	# GDK_7:		jungseong ye			
+U0038	U1174	# GDK_8:		jungseong yi			
+U0039	U116E	# GDK_9:		jungseong u			
+U003A	U0034	# GDK_colon:		4				
+U003B	U1107	# GDK_semicolon:	choseong  pieup			
+U003C	U002C	# GDK_less:		comma				
+U003D	U003E	# GDK_equal:		greater-than sign		
+U003E	U002E	# GDK_greater:		period				
+U003F	U0021	# GDK_question:	        exclamation mark 		
+U0040	U11B0	# GDK_at:		jongseong rieul-kiyeok		
+U0041	U11AE	# GDK_A:		jongseong tikeut		
+U0042	U003F	# GDK_B:		question mark			
+U0043	U11BF	# GDK_C:		jongseong khieukh		
+U0044	U11B2	# GDK_D:		jongseong rieul-pieup		
+U0045	U11AC	# GDK_E:		jongseong nieun-cieuc		
+U0046	U11B1	# GDK_F:		jongseong rieul-mieum		
+U0047	U1164	# GDK_G:		jungseong yae			
+U0048	U0030	# GDK_H:		0				
+U0049	U0037	# GDK_I:		7				
+U004A	U0031	# GDK_J:		1				
+U004B	U0032	# GDK_K:		2				
+U004C	U0033	# GDK_L:		3				
+U004D	U0022	# GDK_M:		double quotation mark		
+U004E	U002D	# GDK_N:		minus sign			
+U004F	U0038	# GDK_O:		8				
+U0050	U0039	# GDK_P:		9				
+U0051	U11C1	# GDK_Q:		jongseong phieuph		
+U0052	U11B6	# GDK_R:		jongseong rieul-hieuh		
+U0053	U11AD	# GDK_S:		jongseong nieun-hieuh		
+U0054	U11B3	# GDK_T:		jongseong rieul-sios		
+U0055	U0036	# GDK_U:		6				
+U0056	U11AA	# GDK_V:		jongseong kiyeok-sios		
+U0057	U11C0	# GDK_W:		jongseong thikeuth		
+U0058	U11B9	# GDK_X:		jongseong pieup-sios		
+U0059	U0035	# GDK_Y:		5				
+U005A	U11BE	# GDK_Z:		jongseong chieuch		
+U005B	U0028	# GDK_bracketleft:	left parenthesis		
+U005C	U003A	# GDK_backslash:	colon				
+U005D	U003C	# GDK_bracketright:	less-than sign			
+U005E	U003D	# GDK_asciicircum:	equals sign			
+U005F	U003B	# GDK_underscore:	semicolon			
+U0060	U002A	# GDK_quoteleft:	asterisk			
+U0061	U11BC	# GDK_a:		jongseong ieung			
+U0062	U116E	# GDK_b:		jungseong u			
+U0063	U1166	# GDK_c:		jungseong e			
+U0064	U1175	# GDK_d:		jungseong i			
+U0065	U1167	# GDK_e:		jungseong yeo			
+U0066	U1161	# GDK_f:		jungseong a			
+U0067	U1173	# GDK_g:		jungseong eu			
+U0068	U1102	# GDK_h:		choseong  nieun			
+U0069	U1106	# GDK_i:		choseong  mieum			
+U006A	U110B	# GDK_j:		choseong  ieung			
+U006B	U1100	# GDK_k:		choseong  kiyeok		
+U006C	U110C	# GDK_l:		choseong  cieuc			
+U006D	U1112	# GDK_m:		choseong  hieuh			
+U006E	U1109	# GDK_n:		choseong  sios			
+U006F	U110E	# GDK_o:		choseong  chieuch		
+U0070	U1111	# GDK_p:		choseong  phieuph		
+U0071	U11BA	# GDK_q:		jongseong sios			
+U0072	U1162	# GDK_r:		jungseong ae			
+U0073	U11AB	# GDK_s:		jongseong nieun			
+U0074	U1165	# GDK_t:		jungseong eo			
+U0075	U1103	# GDK_u:		choseong  tikeut		
+U0076	U1169	# GDK_v:		jungseong o			
+U0077	U11AF	# GDK_w:		jongseong rieul			
+U0078	U11A8	# GDK_x:		jongseong kiyeok		
+U0079	U1105	# GDK_y:		choseong  rieul			
+U007A	U11B7	# GDK_z:		jongseong mieum			
+U007B	U0025	# GDK_braceleft:	percent sign			
+U007C	U005C	# GDK_bar:		backslash			
+U007D	U002F	# GDK_braceright:	slash				
+U007E	U203B	# GDK_asciitilde:	reference mark			
