@@ -89,6 +89,7 @@ main(int argc, char *argv[])
 
     nabi_server_stop(nabi_server);
     nabi_server_destroy(nabi_server);
+    nabi_server = NULL;
     
     nabi_session_close();
 
