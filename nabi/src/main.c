@@ -27,6 +27,7 @@
 #include <gtk/gtk.h>
 
 #include "gettext.h"
+#include "session.h"
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 #include "ic.h"
@@ -67,10 +68,13 @@ main(int argc, char *argv[])
     textdomain(PACKAGE);
 #endif
 
+
     gtk_init(&argc, &argv);
 
     nabi_app_new();
     nabi_app_init();
+
+    session_open();
 
     server = nabi_server_new();
     nabi_server_init(server);
@@ -91,7 +95,10 @@ main(int argc, char *argv[])
     g_print("XIM server terminated\n");
     nabi_server_destroy(server);
 
+    session_close();
+
     nabi_app_free();
+
 
     return 0;
 }
