@@ -41,8 +41,6 @@
 
 #include "default-icons.h"
 
-#define DEFAULT_ICON_SIZE   24
-
 enum {
     THEMES_LIST_PATH = 0,
     THEMES_LIST_NONE,
@@ -208,6 +206,7 @@ load_config_file(void)
     /* set default values */
     nabi->xim_name = g_strdup(PACKAGE);
     nabi->theme = g_strdup("SimplyRed");
+    nabi->icon_size = 24;
     nabi->keyboard_table_name = g_strdup(DEFAULT_KEYBOARD);
     nabi->keyboard_table_dir = g_build_filename(NABI_DATA_DIR,
 						"keyboard",
@@ -1246,6 +1245,7 @@ create_resized_icons(gint default_size)
     gint new_width, new_height;
     gint orig_width, orig_height;
     GdkPixbuf *pixbuf;
+    GdkInterpType scale_method = GDK_INTERP_NEAREST;
 
     orig_width = gdk_pixbuf_get_width(none_pixbuf);
     orig_height = gdk_pixbuf_get_height(none_pixbuf);
@@ -1260,8 +1260,11 @@ create_resized_icons(gint default_size)
 	new_height = default_size;
     }
 
+    if (factor < 1)
+	scale_method = GDK_INTERP_BILINEAR;
+
     pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
+	    			     scale_method);
     if (none_image == NULL)
 	none_image = gtk_image_new_from_pixbuf(pixbuf);
     else
@@ -1269,7 +1272,7 @@ create_resized_icons(gint default_size)
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(hangul_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
+	    			     scale_method);
     if (hangul_image == NULL)
 	hangul_image = gtk_image_new_from_pixbuf(pixbuf);
     else
@@ -1277,7 +1280,7 @@ create_resized_icons(gint default_size)
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(english_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
+	    			     scale_method);
     if (english_image == NULL)
 	english_image = gtk_image_new_from_pixbuf(pixbuf);
     else
@@ -1500,7 +1503,7 @@ create_tray_icon(gpointer data)
 			   " - You can input hangul using this program"));
 
     load_base_icons(nabi->theme);
-    create_resized_icons(24);
+    create_resized_icons(nabi->icon_size);
 
     hbox = gtk_hbox_new(TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), none_image, TRUE, TRUE, 0);
