@@ -240,9 +240,6 @@ nabi_server_set_keyboard_table(NabiServer *server,
 		server->automata = nabi_automata_2;
 	    else
 		server->automata = nabi_automata_3;
-	    /* set compose table */
-	    if (table->compose != NULL)
-		nabi_server_set_compose_table(server, table->compose);
 	    return;
 	}
     }
@@ -825,7 +822,8 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
     table->type = NABI_KEYBOARD_3SET;
     table->filename = g_strdup(filename);
     table->name = NULL;
-    table->compose = NULL;
+    table->output_mode = -1;
+    table->compose_table = NULL;
 
     for (i = 0; i < sizeof(table->table) / sizeof(table->table[0]); i++)
 	table->table[i] = 0;
@@ -844,10 +842,31 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
 		continue;
 	    table->name = g_strdup(p);
 	} else if (strcmp(p, "Compose:") == 0) {
-	    p = strtok_r(NULL, "\n", &saved_position);
+	    GList *list;
+	    p = strtok_r(NULL, " \n", &saved_position);
 	    if (p == NULL)
 		continue;
-	    table->compose = g_strdup(p);
+
+	    for (list = server->compose_tables;
+		 list != NULL;
+		 list = g_list_next(list)) {
+		NabiComposeTable *compose_table = (NabiComposeTable*)list->data;
+		if (strcmp(compose_table->name, p) == 0) {
+		    table->compose_table = compose_table;
+		    break;
+		}
+	    }
+	} else if (strcmp(p, "Output:") == 0) {
+	    p = strtok_r(NULL, " \n", &saved_position);
+	    if (p == NULL)
+		continue;
+	    if (strcmp(p, "jamo") == 0) {
+		table->output_mode = NABI_OUTPUT_JAMO;
+	    } else if (strcmp(p, "syllable") == 0) {
+		table->output_mode = NABI_OUTPUT_SYLLABLE;
+	    } else if (strcmp(p, "manual") == 0) {
+		table->output_mode = NABI_OUTPUT_MANUAL;
+	    }
 	} else if (strcmp(p, "Type2") == 0) {
 	    table->type = NABI_KEYBOARD_2SET;
 	} else {
@@ -872,9 +891,6 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
 
     if (table->name == NULL)
 	table->name = g_path_get_basename(table->filename);
-
-    if (table->compose == NULL)
-	table->compose = g_strdup("default");
 
     server->keyboard_tables = g_list_append(server->keyboard_tables,
 					    table);

@@ -1075,11 +1075,16 @@ nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
 			   int *len, int *size)
 {
     int i, n;
+    int output_mode = nabi_server->output_mode;
     wchar_t ch;
     wchar_t buf[16];
-    
+
+    if (nabi_server->keyboard_table->output_mode >= 0) {
+	output_mode = nabi_server->keyboard_table->output_mode;
+    }
+
     n = 0;
-    if (nabi_server->output_mode == NABI_OUTPUT_MANUAL) {
+    if (output_mode == NABI_OUTPUT_MANUAL) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
@@ -1097,7 +1102,7 @@ nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
 	    for (i = 0; i <= ic->tindex; i++)
 		buf[n++] = ic->jongseong[i];
 	}
-    } else if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
+    } else if (output_mode == NABI_OUTPUT_JAMO) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
