@@ -166,8 +166,6 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 
     XIMStyles input_styles_ret;
     XIMEncodings encodings_ret;
-    XIMTriggerKeys trigger_keys_ret;
-    XColor exact_color, close_color;
 
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
