@@ -93,9 +93,12 @@ nabi_server_new(void)
 
     _server->dynamic_event_flow = True;
     _server->global_input_mode = True;
-    _server->check_ksc = False;
     _server->dvorak = False;
     _server->input_mode = NABI_INPUT_MODE_DIRECT;
+
+    /* hangul converter */
+    _server->check_ksc = False;
+    _server->converter = (iconv_t)(-1);
 
     /* options */
     _server->preedit_fg = 1;
@@ -193,6 +196,7 @@ nabi_server_init(NabiServer *_server)
 	_server->check_ksc = True;
     else if (strcasecmp(codeset,"EUCKR") == 0)
 	_server->check_ksc = True;
+    _server->converter = iconv_open(codeset, "WCHAR_T");
 }
 
 void
@@ -288,6 +292,7 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 int
 nabi_server_stop(NabiServer *_server)
 {
+    iconv_close(_server->converter);
     IMCloseIM(_server->xims);
     fprintf(stderr, "Nabi: xim server stoped\n");
 
@@ -352,6 +357,24 @@ nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
 	prev = list;
 	list = list->next;
     }
+}
+
+Bool
+nabi_server_check_valid(NabiServer *_server, wchar_t ch)
+{
+    char buf[16];
+    size_t len, inbytesleft, outbytesleft;
+    char *inbuf, *outbuf;
+
+    inbuf = (char *)&ch;
+    outbuf = buf;
+    inbytesleft = sizeof(ch);
+    len = iconv(_server->converter,
+	    	&inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    printf("Nabi: len: %d\n", len);
+    if (len < 0)
+	return False;
+    return True;
 }
 
 int verbose = 1;

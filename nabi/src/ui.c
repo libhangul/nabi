@@ -1474,6 +1474,10 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     y = 0;
     p = ch;
     while (*p != 0) {
+	if (!nabi_server_check_valid(server, *p)) {
+	    p++;
+	    continue;
+	}
 	n = g_unichar_to_utf8 ((gunichar)*p, buf);
 	buf[n] = 0;
 
