@@ -381,6 +381,13 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	return False;
     }
 
+    /* number and puctuation */
+    if (ch > 0) {
+	nabi_ic_commit(ic);
+	nabi_ic_commit_unicode(ic, ch);
+	return True;
+    }
+
     /* Unknown key so we just commit current string */
     if (!nabi_ic_is_empty(ic))
 	nabi_ic_commit(ic);
