@@ -46,6 +46,7 @@ struct _NabiApplication {
     gchar*          keyboard_map_filename;
     gchar*          compose_map_filename;
     gboolean        dvorak;
+    gchar*          hanja_font;
 
     GSList 	    *keyboard_maps;
 
@@ -70,6 +71,7 @@ void nabi_app_setup_server(void);
 void nabi_app_free(void);
 
 GtkWidget* create_main_widget(void);
+GtkWidget* create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 #endif /* __NABI_H_ */
 /* vim: set ts=8 sw=4 : */
