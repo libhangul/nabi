@@ -49,6 +49,7 @@ load_resized_icons_from_file(const gchar *filename, int size)
     gdouble factor;
     gint orig_width, orig_height;
     gint new_width, new_height;
+    GdkInterpType scale_method = GDK_INTERP_NEAREST;
 
     pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
     orig_width = gdk_pixbuf_get_width(pixbuf);
@@ -64,9 +65,12 @@ load_resized_icons_from_file(const gchar *filename, int size)
 	new_height = size;
     }
 
+    if (factor < 1)
+	scale_method = GDK_INTERP_BILINEAR;
+
     pixbuf_resized = gdk_pixbuf_scale_simple(pixbuf,
 					     new_width, new_height,
-					     GDK_INTERP_BILINEAR);
+					     scale_method);
     g_object_unref(pixbuf);
 
     return pixbuf_resized;
@@ -155,10 +159,10 @@ search_text_in_model (GtkTreeModel *model, int column, const char *target_text)
 }
 
 void
-on_icon_size_combobox_changed(GtkComboBox *combobox, gpointer data)
+on_icon_size_spinbutton_changed(GtkSpinButton *spinbutton,
+				GtkTreeView *treeview)
 {
-    int index;
-    int size = 24;
+    int size;
     gchar *dir = NULL;
     gchar *file_none;
     gchar *file_hangul;
@@ -169,29 +173,11 @@ on_icon_size_combobox_changed(GtkComboBox *combobox, gpointer data)
     GtkTreeIter iter;
     GtkTreeModel *model;
 
-    index = gtk_combo_box_get_active(combobox);
-    switch (index) {
-    case 0:
-	size = 16;
-	break;
-    case 1:
-	size = 24;
-	break;
-    case 2:
-	size = 32;
-	break;
-    case 3:
-	size = 48;
-	break;
-    case 4:
-	size = 64;
-	break;
-    case 5:
-	size = 128;
-	break;
-    }
+    g_return_if_fail(spinbutton != NULL);
+    g_return_if_fail(treeview != NULL);
 
-    model = GTK_TREE_MODEL(data);
+    size = gtk_spin_button_get_value_as_int(spinbutton);
+    model = gtk_tree_view_get_model(treeview);
     gtk_tree_model_get_iter_first(model, &iter);
     do {
 	gtk_tree_model_get(model, &iter,
@@ -217,10 +203,10 @@ on_icon_size_combobox_changed(GtkComboBox *combobox, gpointer data)
 	    gdk_pixbuf_unref(pixbuf_english);
 	}
     } while (gtk_tree_model_iter_next(model, &iter));
+    gtk_tree_view_columns_autosize(GTK_TREE_VIEW(treeview));
 
     nabi_app_set_icon_size(size);
 }
-
 static void
 on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
 {
@@ -240,6 +226,7 @@ create_theme_page(void)
     GtkWidget *page;
     GtkWidget *label;
     GtkWidget *combobox;
+    GtkWidget *spinbutton;
     GtkWidget *hbox;
     GtkWidget *scrolledwindow;
 
@@ -259,15 +246,10 @@ create_theme_page(void)
     label = gtk_label_new(_("Tray icon size:"));
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
-    combobox = gtk_combo_box_new_text();
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "16");
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "24");
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "32");
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "48");
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "64");
-    gtk_combo_box_append_text(GTK_COMBO_BOX(combobox), "128");
-    gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 1);
-    gtk_box_pack_start(GTK_BOX(hbox), combobox, TRUE, TRUE, 0);
+    spinbutton = gtk_spin_button_new_with_range(5.0, 128.0, 1.0);
+    gtk_spin_button_set_digits(GTK_SPIN_BUTTON(spinbutton), 0);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON(spinbutton), nabi->icon_size);
+    gtk_box_pack_start(GTK_BOX(hbox), spinbutton, TRUE, TRUE, 0);
 
     label = gtk_label_new(_("Tray icons:"));
     gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
@@ -283,7 +265,7 @@ create_theme_page(void)
     gtk_box_pack_start(GTK_BOX(page), scrolledwindow, TRUE, TRUE, 0);
 
     /* loading themes list */
-    model = get_themes_list(24);
+    model = get_themes_list(nabi->icon_size);
     treeview = gtk_tree_view_new_with_model(model);
     g_object_unref(G_OBJECT(model));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
@@ -339,8 +321,8 @@ create_theme_page(void)
 	gtk_tree_path_free(path);
     }
 
-    g_signal_connect(G_OBJECT(combobox), "changed",
-		     G_CALLBACK(on_icon_size_combobox_changed), model);
+    g_signal_connect(G_OBJECT(spinbutton), "value-changed",
+		     G_CALLBACK(on_icon_size_spinbutton_changed), treeview);
 
     return page;
 }
