@@ -1553,6 +1553,51 @@ void StrConvReplyMessageProc (XIMS ims,
                               IMProtocol *call_data,
                               unsigned char *p)
 {
+    Xi18n i18n_core = ims->protocol;
+    FrameMgr fm;
+    extern XimFrameRec str_conversion_reply_fr[];
+    IMStrConvCBStruct *strconv_CB =
+	(IMStrConvCBStruct *) &call_data->strconv_callback;
+    XIMStringConversionText *text =
+	(XIMStringConversionText *) &strconv_CB->strconv;
+    CARD16 connect_id = call_data->any.connect_id;
+    CARD16 input_method_ID;
+    int i;
+
+    /* Implementation is not completed yet */
+    return;
+
+    fm = FrameMgrInit (str_conversion_reply_fr,
+                       (char *) p,
+                       _Xi18nNeedSwap (i18n_core, connect_id));
+    /* get data */
+    FrameMgrGetToken (fm, input_method_ID);
+    FrameMgrGetToken (fm, strconv_CB->icid);
+
+    FrameMgrGetToken (fm, text->length);
+    /* TODO: treat padding */
+    if (text->length > 0) {
+	int length_in_byte;
+	char *str;
+	XIMStringConversionFeedback feedback;
+	
+	length_in_byte = sizeof(wchar_t) * (text->length);
+	FrameMgrSetSize (fm, length_in_byte);
+	FrameMgrGetToken (fm, str);
+	text->string.mbs = (char *)malloc(length_in_byte);
+	memcpy(text->string.mbs, str, length_in_byte);
+	for (i = 0; i < text->length; i++) {
+	    FrameMgrGetToken (fm, feedback);
+	    text->feedback[i] = feedback;
+	}
+    }
+
+    FrameMgrFree (fm);
+
+    if (i18n_core->address.improto) {
+        if (!(i18n_core->address.improto(ims, call_data)))
+            return;
+    }
     return;
 }
 
