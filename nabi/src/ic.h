@@ -27,6 +27,8 @@
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 
+#include "candidate.h"
+
 typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
 typedef struct _NabiIC NabiIC;
@@ -108,8 +110,8 @@ struct _NabiIC {
     wchar_t             jungseong[4];
     wchar_t             jongseong[4];
 
-    /* hanja data */
-    GtkWidget*		hanja_dialog;
+    /* hanja or symbol select window */
+    NabiCandidate*	candidate_window;
 
     struct _NabiIC*     next;
 };
@@ -148,8 +150,8 @@ void    nabi_ic_preedit_clear(NabiIC *ic);
 Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 
-Bool    nabi_ic_popup_hanja_window(NabiIC *ic);
-void    nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch);
+Bool    nabi_ic_popup_candidate_window(NabiIC *ic);
+void    nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch);
 
 #endif /* _NABIIC_H_ */
 /* vim: set ts=8 sw=4 sts=4 : */

@@ -66,8 +66,6 @@ static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
 
-static GtkWidget *hanja_window = NULL;
-
 static
 guint32 string_to_hex(char* p)
 {
@@ -1658,127 +1656,6 @@ nabi_app_create_main_widget(void)
     create_tray_icon(NULL);
     if (nabi != NULL)
 	nabi->main_window = window;
-    return window;
-}
-
-static void
-on_hanja_window_destroy (GtkWidget *widget, gpointer data)
-{
-    NabiIC *ic = (NabiIC*)data;
-
-    if (ic != NULL)
-	ic->hanja_dialog = NULL;
-    hanja_window = NULL;
-}
-
-static void
-on_hanja_button_clicked (GtkWidget *widget, gpointer data)
-{
-    NabiIC* ic = (NabiIC*)data;
-    gchar *str = (gchar *)gtk_button_get_label(GTK_BUTTON(widget));
-
-    if (ic == NULL)
-	return;
-
-    if (str != NULL) {
-	wchar_t ch = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(widget),
-				      "hanja"));
-	nabi_ic_insert_hanja(ic, ch);
-    }
-    gtk_widget_destroy (hanja_window);
-}
-
-static gboolean
-on_hanja_window_keypress(GtkWidget *widget, GdkEventKey *event, gpointer data)
-{
-    if (event->keyval == GDK_Escape) {
-	gtk_widget_destroy (widget);
-	return TRUE;
-    }
-    return FALSE;
-}
-
-GtkWidget *
-nabi_create_hanja_window (NabiIC *ic, const wchar_t* ch)
-{
-    const wchar_t *p;
-    gint x, y, n;
-    GtkWidget *window, *table, *button, *label;
-    PangoFontDescription *desc = NULL;
-    PangoAttrList *attrs = NULL;
-    PangoAttribute *attr = NULL;
-    gchar buf[6];
-
-    if (hanja_window != NULL)
-	gtk_widget_destroy(hanja_window);
-
-    window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-    hanja_window = window;
-    gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
-    gtk_window_set_icon(GTK_WINDOW(window), default_icon);
-    table = gtk_table_new (1, 10, TRUE);
-
-    if (nabi->hanja_font)
-	desc = pango_font_description_from_string (nabi->hanja_font);
-
-    x = 0;
-    y = 0;
-    p = ch;
-    while (*p != 0) {
-	if (!nabi_server_is_valid_char(nabi_server, *p)) {
-	    p++;
-	    continue;
-	}
-	
-	n = g_unichar_to_utf8 ((gunichar)*p, buf);
-	buf[n] = 0;
-
-	button = gtk_button_new_with_label (buf);
-	gtk_widget_set_name (button, "nabi_hanja");
-	g_object_set_data(G_OBJECT(button), "hanja", GUINT_TO_POINTER(*p));
-	label = GTK_BIN(button)->child;
-	if (desc)
-	    gtk_widget_modify_font (label, desc);
-	else {
-	    attrs = pango_attr_list_new ();
-	    attr = pango_attr_scale_new (PANGO_SCALE_XX_LARGE);
-	    attr->start_index = 0;
-	    attr->end_index = n;
-	    pango_attr_list_insert (attrs, attr);
-	    gtk_label_set_attributes (GTK_LABEL(label), attrs);
-	}
-
-	gtk_table_attach (GTK_TABLE(table), button, x, x + 1, y, y + 1,
-			(GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
-			(GtkAttachOptions) (GTK_EXPAND | GTK_SHRINK | GTK_FILL),
-			0, 0);
-	g_signal_connect (G_OBJECT(button), "clicked",
-			  G_CALLBACK (on_hanja_button_clicked), ic);
-
-	x++;
-	if (x > 9) {
-	    y++;
-	    x = 0;
-	}
-	p++;
-    }
-    gtk_container_add (GTK_CONTAINER(window), table);
-
-    g_signal_connect (G_OBJECT(window), "key-press-event",
-		      G_CALLBACK (on_hanja_window_keypress), NULL);
-    g_signal_connect (G_OBJECT(window), "destroy",
-		      G_CALLBACK (on_hanja_window_destroy), ic);
-
-    if (x == 0 && y == 0) {
-	gtk_widget_destroy(window);
-	return NULL;
-    }
-
-    gtk_widget_grab_focus (window);
-    gtk_widget_show_all (window);
-
-    pango_font_description_free (desc);
-
     return window;
 }
 
