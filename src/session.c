@@ -70,11 +70,7 @@ static void
 die_proc(SmcConn smc_conn, SmPointer client_data)
 {
     g_print("SM: DieProc\n");
-    nabi_save_config_file();
-    nabi_server_stop(nabi_server);
-    nabi_server_destroy(nabi_server);
-    nabi_server = NULL;
-    nabi_session_close();
+    nabi_app_quit();
 }
 
 static void

@@ -37,7 +37,7 @@
 #include "hanjatable.h"
 
 /* from ui.c */
-GtkWidget* create_hanja_window(NabiIC *ic, const wchar_t* ch);
+GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
@@ -1319,7 +1319,7 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
 	int index = get_index_of_hanjatable(ch);
 	if (index >= 0) {
 	    const wchar_t *ptr = hanjatable[index] + 1;
-	    ic->hanja_dialog = create_hanja_window(ic, ptr);
+	    ic->hanja_dialog = nabi_create_hanja_window(ic, ptr);
 	    return True;
 	}
     }
