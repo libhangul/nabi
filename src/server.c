@@ -190,13 +190,17 @@ nabi_server_init(NabiServer *_server)
 //  _server->output_mode = NABI_OUTPUT_JAMO;
 
     /* check korean locale encoding */
-    _server->check_ksc = False;
+    _server->check_ksc = True;
     codeset=nl_langinfo(CODESET);
-    if (strcasecmp(codeset,"EUC-KR") == 0)
-	_server->check_ksc = True;
-    else if (strcasecmp(codeset,"EUCKR") == 0)
-	_server->check_ksc = True;
+    if (strcasecmp(codeset,"UTF-8") == 0)
+	_server->check_ksc = False;
+    else if (strcasecmp(codeset,"UTF8") == 0)
+	_server->check_ksc = False;
     _server->converter = iconv_open(codeset, "WCHAR_T");
+    if ((iconv_t)_server->converter == (iconv_t)(-1)) {
+	_server->check_ksc = False;
+	fprintf(stderr, "Nabi: iconv error, we does not check charset\n");
+    }
 }
 
 void
@@ -360,19 +364,22 @@ nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
 }
 
 Bool
-nabi_server_check_valid(NabiServer *_server, wchar_t ch)
+nabi_server_is_valid_char(NabiServer *_server, wchar_t ch)
 {
     char buf[16];
-    size_t len, inbytesleft, outbytesleft;
+    size_t ret, inbytesleft, outbytesleft;
     char *inbuf, *outbuf;
+
+    if ((iconv_t)_server->converter == (iconv_t)(-1))
+	return True;
 
     inbuf = (char *)&ch;
     outbuf = buf;
     inbytesleft = sizeof(ch);
-    len = iconv(_server->converter,
+    outbytesleft = sizeof(buf);
+    ret = iconv(_server->converter,
 	    	&inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    printf("Nabi: len: %d\n", len);
-    if (len < 0)
+    if ((iconv_t)ret == (iconv_t)(-1))
 	return False;
     return True;
 }
