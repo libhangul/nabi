@@ -493,6 +493,7 @@ int _Xi18nStringConversionCallback (XIMS ims, IMProtocol *call_data)
     FrameMgrPutToken (fm, strconv->position);
     FrameMgrPutToken (fm, strconv->direction);
     FrameMgrPutToken (fm, strconv->operation);
+    FrameMgrPutToken (fm, strconv->factor);
 #if 0
     FrameMgrPutToken (fm, strconv->text->string);
 #endif
