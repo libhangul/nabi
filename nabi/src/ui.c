@@ -116,9 +116,8 @@ load_keyboard_map_from_file(const char *filename)
     keyboard_map->filename = g_strdup(filename);
     keyboard_map->name = NULL;
 
-    for (i = 0; i < sizeof(keyboard_map->map) / sizeof(keyboard_map->map[0]); i++) {
-	keyboard_map->map[i] = XK_exclam + i;
-    }
+    for (i = 0; i < sizeof(keyboard_map->map) / sizeof(keyboard_map->map[0]); i++)
+	keyboard_map->map[i] = 0;
 
     for (line = fgets(buf, sizeof(buf), file);
 	 line != NULL;
