@@ -118,7 +118,7 @@ nabi_server_new(void)
 void
 nabi_server_destroy(NabiServer *server)
 {
-    int i;
+    int i, j;
     NabiConnect *connect;
 
     if (server == NULL)
@@ -140,6 +140,16 @@ nabi_server_destroy(NabiServer *server)
 
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
+
+    /* delete candidate table */
+    for (i = 0; i < server->candidate_table_size; i++) {
+	for (j = 0;  server->candidate_table[i][j] != NULL; j++) {
+	    nabi_candidate_item_delete(server->candidate_table[i][j]);
+	}
+	g_free(server->candidate_table[i]);
+    }
+    g_free(server->candidate_table);
+
     free(server);
 }
 
@@ -228,6 +238,9 @@ nabi_server_init(NabiServer *server)
 
     server->automata = nabi_automata_2;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
+
+    server->candidate_table_size = 0;
+    server->candidate_table = NULL;
 
     /* check korean locale encoding */
     server->check_charset = !g_get_charset(&charset);
@@ -476,6 +489,107 @@ nabi_server_on_keypress(NabiServer *server,
     }
     if (state & ShiftMask)
 	server->statistics.shift++;
+}
+
+static gint
+candidate_item_compare(gconstpointer a, gconstpointer b)
+{
+    return ((NabiCandidateItem*)((GList*)a)->data)->ch
+	    - ((NabiCandidateItem*)((GList*)b)->data)->ch;
+}
+
+static gchar*
+skip_space(gchar* p)
+{
+    while (g_ascii_isspace(*p))
+	p++;
+    return p;
+}
+
+Bool
+nabi_server_load_candidate_table(NabiServer *server,
+				 const char *filename)
+{
+    FILE *file;
+    gint n, i, j;
+    unsigned char *p;
+    unsigned char buf[256];
+    gunichar ch;
+    gunichar key;
+    NabiCandidateItem *item;
+    GList *table = NULL;
+    GList *items = NULL;
+    GList *pitem = NULL;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+	fprintf(stderr, "Nabi: Failed to open candidate file: %s\n", filename);
+	return False;
+    }
+
+    for (p = fgets(buf, sizeof(buf), file);
+	 p != NULL;
+	 p = fgets(buf, sizeof(buf), file)) {
+
+	p = skip_space(p);
+
+	/* skip comments */
+	if (*p == '\0' || *p == ';' || *p == '#')
+	    continue;
+
+	if (*p == '[') {
+	    p++;
+	    if (items != NULL) {
+		items = g_list_reverse(items);
+		table = g_list_prepend(table, (gpointer)items);
+	    }
+	    key = g_utf8_get_char_validated(p, sizeof(buf));
+	    if ((gunichar)key != (gunichar)-2 &&
+		(gunichar)key != (gunichar)-1) {
+		item = nabi_candidate_item_new(key, NULL);
+		items = NULL;
+		items = g_list_prepend(items, item);
+	    }
+	} else {
+	    ch = g_utf8_get_char(p);
+	    p = strchr(p, '=') + 1;
+	    if (p != NULL) {
+		p = g_strchomp(p);
+		item = nabi_candidate_item_new(ch, p);
+		items = g_list_prepend(items, (gpointer)item);
+	    }
+	}
+    }
+    if (items != NULL) {
+	items = g_list_reverse(items);
+	table = g_list_prepend(table, (gpointer)items);
+	items = NULL;
+    }
+
+    fclose(file);
+
+    table = g_list_reverse(table);
+    table = g_list_sort(table, candidate_item_compare);
+
+    server->candidate_table_size = g_list_length(table);
+    server->candidate_table = g_new(NabiCandidateItem**,
+				    server->candidate_table_size);
+    items = table;
+    for (i = 0; i < server->candidate_table_size; i++) {
+	pitem = items->data;
+	n = g_list_length(pitem) + 1;
+	server->candidate_table[i] = g_new(NabiCandidateItem*, n);
+	for (j = 0;  pitem != NULL; j++) {
+	    server->candidate_table[i][j] = pitem->data;
+	    pitem = g_list_next(pitem);
+	}
+	server->candidate_table[i][j] = NULL;
+	g_list_free((GList*)items->data);
+	items = g_list_next(items);
+    }
+    g_list_free(table);
+
+    return TRUE;
 }
 
 int verbose = 1;

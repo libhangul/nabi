@@ -31,6 +31,7 @@
 #include "../IMdkit/Xi18n.h"
 
 #include "ic.h"
+#include "candidate.h"
 
 typedef struct _NabiComposeItem NabiComposeItem;
 typedef struct _NabiServer NabiServer;
@@ -93,6 +94,8 @@ struct _NabiServer {
                                         unsigned int state);
     Bool                    dvorak;
     NabiOutputMode          output_mode;
+    int			    candidate_table_size;
+    NabiCandidateItem***    candidate_table;
 
     /* hangul converter */
     Bool                    check_charset;
@@ -153,6 +156,8 @@ void        nabi_server_on_keypress     (NabiServer *server,
 					 KeySym keyval,
 					 unsigned int state,
 					 wchar_t ch);
+Bool        nabi_server_load_candidate_table(NabiServer *server,
+				             const char *filename);
 
 #endif  /* __SERVER_H_ */
 

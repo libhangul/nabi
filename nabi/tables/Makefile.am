@@ -9,4 +9,7 @@ keyboard_DATA = \
 composedir = @NABI_DATA_DIR@/compose
 compose_DATA = compose/default
 
-EXTRA_DIST = $(keyboard_DATA) $(compose_DATA)
+candidatedir = @NABI_DATA_DIR@/candidate
+candidate_DATA = candidate/nabi.txt
+
+EXTRA_DIST = $(keyboard_DATA) $(compose_DATA) $(candidate_DATA)
