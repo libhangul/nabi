@@ -3,7 +3,7 @@
  * http://www.unicode.org/Public/MAPPINGS/OBSOLETE/EASTASIA/KSC/HANGUL.TXT
  */
 
-wchar_t ucs_to_ksc5601_table[] = {
+uint16_t ucs_to_ksc5601_table[] = {
     0xB0A1,         /* KIYEOK A      */
     0xB0A2,         /* KIYEOK A KIYEOK       */
     0x0000,         /* KIYEOK A SSANGKIYEOK  */
