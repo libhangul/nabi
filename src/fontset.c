@@ -8,14 +8,7 @@
 #include <glib.h>
 
 #include "gettext.h"
-
-struct _NabiFontSet {
-    XFontSet xfontset;
-    char *name;
-    int ref;
-};
-
-typedef struct _NabiFontSet NabiFontSet;
+#include "fontset.h"
 
 static GHashTable *fontset_hash = NULL;
 static GSList *fontset_list = NULL;
@@ -25,10 +18,13 @@ static NabiFontSet*
 nabi_fontset_new(const char *name)
 {
     XFontSet xfontset;
+    XFontStruct **font_structs;
+    int i, nfonts, ascent, descent;
+    char **font_names;
     NabiFontSet *fontset;
     char **missing_list;
-    int missing_list_count;
-    char *error_message;
+    int    missing_list_count;
+    char  *error_message;
 
     xfontset = XCreateFontSet(_display,
                               name,
@@ -46,10 +42,22 @@ nabi_fontset_new(const char *name)
         return NULL;
     }
 
+    /* get acsent and descent */
+    nfonts = XFontsOfFontSet(xfontset, &font_structs, &font_names);
+    /* find width, height */
+    for (i = 0, ascent = 1, descent = 0; i < nfonts; i++) {
+        if (ascent < font_structs[i]->ascent)
+            ascent = font_structs[i]->ascent;
+        if (descent < font_structs[i]->descent)
+            descent = font_structs[i]->descent;
+    }
+
     fontset = g_malloc(sizeof(NabiFontSet));
     fontset->name = g_strdup(name);
     fontset->ref = 1;
     fontset->xfontset = xfontset;
+    fontset->ascent = ascent;
+    fontset->descent = descent;
 
     g_hash_table_insert(fontset_hash, fontset->name, fontset);
     fontset_list = g_slist_prepend(fontset_list, fontset);
@@ -75,7 +83,7 @@ nabi_fontset_unref(NabiFontSet *fontset)
     fontset->ref--;
     if (fontset->ref <= 0) {
 	g_hash_table_remove(fontset_hash, fontset->name);
-	g_slist_remove(fontset_list, fontset);
+	fontset_list = g_slist_remove(fontset_list, fontset);
 
 	XFreeFontSet(_display, fontset->xfontset);
 	g_free(fontset->name);
@@ -100,7 +108,7 @@ nabi_fontset_find_by_xfontset(XFontSet xfontset)
     return NULL;
 }
 
-XFontSet
+NabiFontSet*
 nabi_fontset_create(Display *display, const char *fontset_name)
 {
     NabiFontSet *nabi_fontset;
@@ -112,14 +120,13 @@ nabi_fontset_create(Display *display, const char *fontset_name)
     nabi_fontset = g_hash_table_lookup(fontset_hash, fontset_name);
     if (nabi_fontset != NULL) {
 	nabi_fontset_ref(nabi_fontset);
-	return nabi_fontset->xfontset;
+	return nabi_fontset;
     }
 
     g_print("Load FontSet: %s\n", fontset_name);
     nabi_fontset = nabi_fontset_new(fontset_name);
-    if (nabi_fontset == NULL)
-	return 0;
-    return nabi_fontset->xfontset;
+
+    return nabi_fontset;
 }
 
 void
@@ -135,7 +142,24 @@ nabi_fontset_free(Display *display, XFontSet xfontset)
 void
 nabi_fontset_free_all(Display *display)
 {
+    NabiFontSet *fontset;
+    GSList *list;
     _display = display;
+
+    if (fontset_list != NULL) {
+	fprintf(stderr,
+		"Nabi: remaining fontsets will be freed,"
+		"this must be an error\n");
+	list = fontset_list;
+	while (list != NULL) {
+	    fontset = (NabiFontSet*)(list->data);
+	    XFreeFontSet(_display, fontset->xfontset);
+	    g_free(fontset->name);
+	    g_free(fontset);
+	    list = list->next;
+	}
+    }
+
     g_hash_table_destroy(fontset_hash);
     g_slist_free(fontset_list);
 }
