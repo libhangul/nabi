@@ -1122,6 +1122,7 @@ create_menu(void)
 {
     GtkWidget* menu;
     GtkWidget* menu_item;
+    GtkWidget* image;
     GtkAccelGroup *accel_group;
     NabiKeyboardMap *map;
     GSList *list;
@@ -1133,7 +1134,10 @@ create_menu(void)
     gtk_widget_show(menu);
 
     /* menu about */
-    menu_item = gtk_menu_item_new_with_mnemonic(_("_About..."));
+    image = gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_MENU);
+    gtk_widget_show(image);
+    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_About..."));
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
@@ -1152,7 +1156,10 @@ create_menu(void)
 			     G_CALLBACK(on_menu_pref), menu_item);
 
     /* menu themes */
+    image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
+    gtk_widget_show(image);
     menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes..."));
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
