@@ -563,7 +563,7 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 	return;
 
     nabi_free(ic->preedit.base_font);
-    ic->preedit.base_font = g_strdup(font_name);
+    ic->preedit.base_font = strdup(font_name);
     if (ic->preedit.font_set)
 	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 
@@ -621,7 +621,8 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
 	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
 	} else {
-	    g_print("Unknown IC_ATTR: %s\n", ic_attr->name);
+	    fprintf(stderr, "Nabi: set unknown ic attribute: %s\n",
+		    ic_attr->name);
 	}
     }
     
@@ -637,18 +638,35 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	} else if (streql(XNArea, preedit_attr->name)) {
 	    ic->preedit.area = *(XRectangle*)preedit_attr->value;
 	} else if (streql(XNLineSpace, preedit_attr->name)) {
-	    ic->preedit.line_space = *(long*)preedit_attr->value;
+	    ic->preedit.line_space = *(CARD32*)preedit_attr->value;
 	} else if (streql(XNPreeditState, preedit_attr->name)) {
 	    ic->preedit.state = *(XIMPreeditState*)preedit_attr->value;
 	} else if (streql(XNFontSet, preedit_attr->name)) {
 	    nabi_ic_load_preedit_fontset(ic, (char*)preedit_attr->value);
 	} else {
-	    g_print("Unknown PREEDIT_ATTR: %s\n", preedit_attr->name);
+	    fprintf(stderr, "Nabi: set unknown preedit attribute: %s\n",
+			    preedit_attr->name);
 	}
     }
     
     for (i = 0; i < data->status_attr_num; i++, status_attr++) {
-	g_print("STATUS_ATTR: %s\n", status_attr->name);
+	if (streql(XNArea, status_attr->name)) {
+	    ic->status_attr.area = *(XRectangle*)status_attr->value;
+	} else if (streql(XNAreaNeeded, status_attr->name)) {
+	    ic->status_attr.area_needed = *(XRectangle*)status_attr->value;
+	} else if (streql(XNForeground, status_attr->name)) {
+	    ic->status_attr.foreground = *(unsigned long*)status_attr->value;
+	} else if (streql(XNBackground, status_attr->name)) {
+	    ic->status_attr.background = *(unsigned long*)status_attr->value;
+	} else if (streql(XNLineSpace, status_attr->name)) {
+	    ic->status_attr.line_space = *(CARD32*)status_attr->value;
+	} else if (streql(XNFontSet, status_attr->name)) {
+	    nabi_free(ic->status_attr.base_font);
+	    ic->status_attr.base_font = strdup((char*)status_attr->value);
+	} else {
+	    g_print("Nabi: set unknown status attributes: %s\n",
+		status_attr->name);
+	}
     }
 }
 
@@ -678,7 +696,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    /* FIXME: what do I do here? */
 	    ;
 	} else {
-	    fprintf(stderr, _("Nabi: unkown ic attributes: %s\n"),
+	    fprintf(stderr, _("Nabi: get unknown ic attributes: %s\n"),
 		ic_attr->name);
 	}
     }
@@ -734,7 +752,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    strncpy(p, ic->preedit.base_font, base_len);
 	    preedit_attr->value_length = total_len;
 	} else {
-	    g_print("Nabi: unkown preedit attributes: %s\n",
+	    g_print("Nabi: get unknown preedit attributes: %s\n",
 		preedit_attr->name);
 	}
     }
@@ -773,7 +791,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    strncpy(p, ic->status_attr.base_font, base_len);
 	    status_attr->value_length = total_len;
 	} else {
-	    g_print("Nabi: unkown status attributes: %s\n",
+	    g_print("Nabi: get unknown status attributes: %s\n",
 		status_attr->name);
 	}
     }
