@@ -54,11 +54,10 @@ enum {
 
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
+static void create_resized_icons(gint default_size);
 
 static GtkWidget *main_label = NULL;
-
 static GdkPixbuf *default_icon = NULL;
-
 static EggTrayIcon *tray_icon = NULL;
 
 static GdkPixbuf *none_pixbuf = NULL;
@@ -775,6 +774,9 @@ nabi_app_free(void)
 static void
 on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 {
+    gint width, height;
+    GdkDrawable *drawable;
+
     if (nabi != NULL &&
 	nabi->main_window != NULL &&
 	GTK_WIDGET_VISIBLE(nabi->main_window)) {
@@ -782,6 +784,11 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 				&nabi->x, &nabi->y);
 	gtk_widget_hide(GTK_WIDGET(nabi->main_window));
     }
+
+    drawable = GTK_PLUG(widget)->socket_window;
+    gdk_drawable_get_size(GDK_DRAWABLE(drawable), &width, &height);
+    create_resized_icons(MIN(width, height));
+    g_print("Embeded: %dx%d\n", width, height);
 }
 
 static void
@@ -1116,7 +1123,7 @@ on_menu_pref(GtkWidget *widget)
 }
 
 static void
-load_icons(const gchar *theme)
+load_base_icons(const gchar *theme)
 {
     gchar buf[1024];
     GError    *gerror = NULL;
@@ -1155,44 +1162,8 @@ load_icons(const gchar *theme)
 static void
 load_theme(const gchar *theme)
 {
-    double factor;
-    gint new_width, new_height;
-    gint orig_width, orig_height;
-    gint default_width, default_height;
-    GdkPixbuf *pixbuf;
-
-    default_width = DEFAULT_ICON_SIZE;
-    default_height = DEFAULT_ICON_SIZE;
-
-    load_icons(theme);
-
-    orig_width = gdk_pixbuf_get_width(none_pixbuf);
-    orig_height = gdk_pixbuf_get_height(none_pixbuf);
-
-    if (orig_width > orig_height) {
-	factor =  (double)default_width / (double)orig_width;
-	new_width = default_width;
-	new_height = (int)(orig_height * factor);
-    } else {
-	factor = (double)default_height / (double)orig_height;
-	new_width = (int)(orig_width * factor);
-	new_height = default_height;
-    }
-
-    pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(none_image), pixbuf);
-    g_object_unref(G_OBJECT(pixbuf));
-
-    pixbuf = gdk_pixbuf_scale_simple(hangul_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(hangul_image), pixbuf);
-    g_object_unref(G_OBJECT(pixbuf));
-
-    pixbuf = gdk_pixbuf_scale_simple(english_pixbuf, new_width, new_height,
-	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(english_image), pixbuf);
-    g_object_unref(G_OBJECT(pixbuf));
+    load_base_icons(theme);
+    create_resized_icons(24);
 }
 
 static void
@@ -1558,45 +1529,59 @@ create_menu(void)
 }
 
 static void
-create_icons(gint default_size)
+create_resized_icons(gint default_size)
 {
     double factor;
     gint new_width, new_height;
     gint orig_width, orig_height;
-    gint default_width, default_height;
     GdkPixbuf *pixbuf;
 
-    default_width = default_size;
-    default_height = default_size;
-
-    load_icons(nabi->theme);
+    if (default_size < 36)
+	default_size = 24;
+    else if (default_size < 48)
+	default_size = 36;
+    else if (default_size < 64)
+	default_size = 48;
+    else if (default_size < 128)
+	default_size = 64;
+    else
+	default_size = 128;
 
     orig_width = gdk_pixbuf_get_width(none_pixbuf);
     orig_height = gdk_pixbuf_get_height(none_pixbuf);
 
     if (orig_width > orig_height) {
-	factor =  (double)default_width / (double)orig_width;
-	new_width = default_width;
+	factor =  (double)default_size / (double)orig_width;
+	new_width = default_size;
 	new_height = (int)(orig_height * factor);
     } else {
-	factor = (double)default_height / (double)orig_height;
+	factor = (double)default_size / (double)orig_height;
 	new_width = (int)(orig_width * factor);
-	new_height = default_height;
+	new_height = default_size;
     }
 
     pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    none_image = gtk_image_new_from_pixbuf(pixbuf);
+    if (none_image == NULL)
+	none_image = gtk_image_new_from_pixbuf(pixbuf);
+    else
+	gtk_image_set_from_pixbuf(GTK_IMAGE(none_image), pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(hangul_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    hangul_image = gtk_image_new_from_pixbuf(pixbuf);
+    if (hangul_image == NULL)
+	hangul_image = gtk_image_new_from_pixbuf(pixbuf);
+    else
+	gtk_image_set_from_pixbuf(GTK_IMAGE(hangul_image), pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(english_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    english_image = gtk_image_new_from_pixbuf(pixbuf);
+    if (english_image == NULL)
+	english_image = gtk_image_new_from_pixbuf(pixbuf);
+    else
+	gtk_image_set_from_pixbuf(GTK_IMAGE(english_image), pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 }
 
@@ -1775,7 +1760,8 @@ create_tray_icon(gpointer data)
 			 _("Hangul input method: Nabi"
 			   " - You can input hangul using this program"));
 
-    create_icons(24);
+    load_base_icons(nabi->theme);
+    create_resized_icons(24);
 
     hbox = gtk_hbox_new(TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), none_image, TRUE, TRUE, 0);

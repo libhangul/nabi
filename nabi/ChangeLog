@@ -1,3 +1,6 @@
+2003-12-15  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: icon의 크기를 좀더 똑똑하게 처리
+
 2003-12-14  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
 	* icon들 업데이트 (김석진님에게 감사드립니다)
