@@ -90,6 +90,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->preedit.descent = 0;
     ic->preedit.line_space = 0;
     ic->preedit.state = XIMPreeditEnable;
+    ic->preedit.start = False;
 
     /* status attributes */
     ic->status_attr.area.x = 0;
@@ -175,22 +176,35 @@ nabi_ic_destroy(NabiIC *ic)
 
     server->ic_table[ic->id] = NULL;
 
+    ic->connect_id = 0;
     ic->client_window = 0;
     ic->focus_window = 0;
     nabi_free(ic->resource_name);
     ic->resource_name = NULL;
+    nabi_free(ic->resource_class);
+    ic->resource_class = NULL;
 
     ic->preedit.area.x = 0;
     ic->preedit.area.y = 0;
     ic->preedit.area.width = 0;
     ic->preedit.area.height = 0;
+    ic->preedit.area_needed.x = 0;
+    ic->preedit.area_needed.y = 0;
+    ic->preedit.area_needed.width = 0;
+    ic->preedit.area_needed.height = 0;
     ic->preedit.spot.x = 0;
     ic->preedit.spot.y = 0;
+    ic->preedit.cmap = 0;
 
     ic->preedit.width = 1;
     ic->preedit.height = 1;
     ic->preedit.ascent = 0;
     ic->preedit.descent = 0;
+    ic->preedit.line_space = 0;
+    ic->preedit.cursor = 0;
+
+    ic->preedit.state = XIMPreeditEnable;
+    ic->preedit.start = False;
 
     /* destroy preedit window */
     if (ic->preedit.window != 0) {
@@ -205,9 +219,31 @@ nabi_ic_destroy(NabiIC *ic)
 	ic->preedit.font_set = NULL;
 	ic->preedit.base_font = NULL;
     }
+
     /* we do not free gc */
 
+    /* status attributes */
+    ic->status_attr.area.x = 0;
+    ic->status_attr.area.y = 0;
+    ic->status_attr.area.width = 0;
+    ic->status_attr.area.height = 0;
+
+    ic->status_attr.area_needed.x = 0;
+    ic->status_attr.area_needed.y = 0;
+    ic->status_attr.area_needed.width = 0;
+    ic->status_attr.area_needed.height = 0;
+
+    ic->status_attr.cmap = 0;
+    ic->status_attr.foreground = 0;
+    ic->status_attr.background = 0;
+    ic->status_attr.background = 0;
+    ic->status_attr.bg_pixmap = 0;
+    ic->status_attr.line_space = 0;
+    ic->status_attr.cursor = 0;
+    ic->status_attr.base_font = NULL;
+
     /* clear hangul buffer */
+    ic->mode = NABI_INPUT_MODE_DIRECT;
     nabi_ic_buf_clear(ic);
 }
 
@@ -802,6 +838,9 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 void
 nabi_ic_preedit_start(NabiIC *ic)
 {
+    if (ic->preedit.start)
+	return;
+
     if (server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
 
@@ -822,11 +861,15 @@ nabi_ic_preedit_start(NabiIC *ic)
     } else if (ic->input_style & XIMPreeditPosition) {
 	;
     }
+    ic->preedit.start = True;
 }
 
 void
 nabi_ic_preedit_done(NabiIC *ic)
 {
+    if (!ic->preedit.start)
+	return;
+
     if (ic->input_style & XIMPreeditCallbacks) {
 	IMPreeditCBStruct preedit_data;
 
@@ -847,6 +890,8 @@ nabi_ic_preedit_done(NabiIC *ic)
 	preedit_state.icid = ic->id;
 	IMPreeditEnd(server->xims, (XPointer)&preedit_state);
     }
+
+    ic->preedit.start = False;
 }
 
 void
