@@ -94,9 +94,9 @@ nabi_server_destroy(NabiServer *_server)
 }
 
 void
-nabi_server_set_keyboard_map(NabiServer *_server,
-			    wchar_t *keyboard_map,
-			    NabiKeyboardType type)
+nabi_server_set_keyboard(NabiServer *_server,
+			 const wchar_t *keyboard_map,
+			 NabiKeyboardType type)
 {
     _server->keyboard_map = keyboard_map;
 
@@ -104,6 +104,15 @@ nabi_server_set_keyboard_map(NabiServer *_server,
 	_server->automata = nabi_automata_2;
     else
 	_server->automata = nabi_automata_3;
+}
+
+void
+nabi_server_set_compose_map(NabiServer *_server,
+			    NabiComposeItem **compose_map,
+			    int size)
+{
+    _server->compose_map = compose_map;
+    _server->compose_map_size = size;
 }
 
 void

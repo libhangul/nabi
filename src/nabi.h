@@ -7,6 +7,7 @@ typedef struct _NabiApplication NabiApplication;
 
 #define KEYBOARD_MAP_SIZE 94
 struct _NabiKeyboardMap {
+    gchar*           filename;
     gchar*           name;
     gint             type;
     wchar_t          map[KEYBOARD_MAP_SIZE];
@@ -24,13 +25,12 @@ struct _NabiApplication {
     GtkWidget*      main_window;
 
     gchar*          theme;
-    gchar*          keyboardmap_filename;
-    gchar*          composemap_filename;
+    gchar*          keyboard_map_filename;
+    gchar*          compose_map_filename;
 
-    GSList 	    *keyboardmaps;
+    GSList 	    *keyboard_maps;
 
-    NabiKeyboardMap keyboardmap;
-    NabiComposeMap  composemap;
+    NabiComposeMap  compose_map;
 
     /* preedit attribute */
     gchar           *preedit_fg;
@@ -49,10 +49,6 @@ struct _NabiApplication {
 };
 
 extern NabiApplication* nabi;
-
-void load_keyboardmap(void);
-void load_compose_map(void);
-void load_config_file(void);
 
 void nabi_app_new(void);
 void nabi_app_init(void);

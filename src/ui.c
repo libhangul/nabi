@@ -23,6 +23,7 @@
 #include "nabi.h"
 
 #include "default-icons.h"
+#include "keyboard.h"
 
 #define DEFAULT_ICON_SIZE   24
 
@@ -72,14 +73,14 @@ guint32 string_to_hex(char* p)
 }
 
 NabiKeyboardMap *
-load_keyboardmap_from_file(char *filename)
+load_keyboard_map_from_file(const char *filename)
 {
     int i;
     char *line, *p, *saved_position;
     char buf[256];
     FILE* file;
     wchar_t key, value;
-    NabiKeyboardMap *keyboardmap;
+    NabiKeyboardMap *keyboard_map;
 
     file = fopen(filename, "r");
     if (file == NULL) {
@@ -87,14 +88,15 @@ load_keyboardmap_from_file(char *filename)
 	return NULL;
     }
 
-    keyboardmap = g_malloc(sizeof(NabiKeyboardMap));
+    keyboard_map = g_malloc(sizeof(NabiKeyboardMap));
 
     /* init */
-    keyboardmap->type = NABI_KEYBOARD_3SET;
-    keyboardmap->name = NULL;
+    keyboard_map->type = NABI_KEYBOARD_3SET;
+    keyboard_map->filename = g_strdup(filename);
+    keyboard_map->name = NULL;
 
-    for (i = 0; i < sizeof(keyboardmap->map); i++) {
-	keyboardmap->map[i] = XK_exclam + i;
+    for (i = 0; i < sizeof(keyboard_map->map) / sizeof(keyboard_map->map[0]); i++) {
+	keyboard_map->map[i] = XK_exclam + i;
     }
 
     for (line = fgets(buf, sizeof(buf), file);
@@ -109,10 +111,10 @@ load_keyboardmap_from_file(char *filename)
 	    p = strtok_r(NULL, "\n", &saved_position);
 	    if (p == NULL)
 		continue;
-	    keyboardmap->name = g_strdup(p);
+	    keyboard_map->name = g_strdup(p);
 	    continue;
 	} else if (strcmp(p, "Type2") == 0) {
-	    keyboardmap->type = NABI_KEYBOARD_2SET;
+	    keyboard_map->type = NABI_KEYBOARD_2SET;
 	} else {
 	    key = string_to_hex(p);
 	    if (key == 0)
@@ -128,17 +130,15 @@ load_keyboardmap_from_file(char *filename)
 	    if (key < XK_exclam || key > XK_asciitilde)
 		continue;
 
-	    keyboardmap->map[key - XK_exclam] = value;
+	    keyboard_map->map[key - XK_exclam] = value;
 	}
     }
     fclose(file);
 
-    if (keyboardmap->name == NULL) {
-	g_free(keyboardmap);
-	return NULL;
-    }
+    if (keyboard_map->name == NULL)
+	keyboard_map->name = g_path_get_basename(keyboard_map->filename);
 
-    return keyboardmap;
+    return keyboard_map;
 }
 
 static gint
@@ -148,7 +148,7 @@ compose_item_compare(gconstpointer a, gconstpointer b)
 }
 
 gboolean
-load_composemap_from_file(char *filename, NabiComposeMap *composemap)
+load_compose_map_from_file(char *filename, NabiComposeMap *compose_map)
 {
     int i;
     char *line, *p, *saved_position;
@@ -161,9 +161,9 @@ load_composemap_from_file(char *filename, NabiComposeMap *composemap)
     GSList *list = NULL;
 
     /* init */
-    composemap->name = NULL;
-    composemap->map = NULL;
-    composemap->size = 0;
+    compose_map->name = NULL;
+    compose_map->map = NULL;
+    compose_map->size = 0;
 
     file = fopen(filename, "r");
     if (file == NULL) {
@@ -183,7 +183,7 @@ load_composemap_from_file(char *filename, NabiComposeMap *composemap)
 	    p = strtok_r(NULL, "\n", &saved_position);
 	    if (p == NULL)
 		continue;
-	    composemap->name = g_strdup(p);
+	    compose_map->name = g_strdup(p);
 	    continue;
 	} else {
 	    key1 = string_to_hex(p);
@@ -214,7 +214,7 @@ load_composemap_from_file(char *filename, NabiComposeMap *composemap)
     }
     fclose(file);
 
-    if (composemap->name == NULL) {
+    if (compose_map->name == NULL) {
 	/* on error free the list */
 	while (list != NULL) {
 	    g_free(list->data);
@@ -231,13 +231,13 @@ load_composemap_from_file(char *filename, NabiComposeMap *composemap)
 
     /* move data to map */
     map_size = g_slist_length(list);
-    composemap->map = (NabiComposeItem**)
+    compose_map->map = (NabiComposeItem**)
 		g_malloc(map_size * sizeof(NabiComposeItem*));
     for (i = 0; i < map_size; i++, list = list->next) {
-	composemap->map[i] = list->data;
+	compose_map->map[i] = list->data;
 	list->data = NULL;
     }
-    composemap->size = map_size;
+    compose_map->size = map_size;
 
     /* free the list */
     g_slist_free(list);
@@ -266,14 +266,14 @@ struct config_item {
 #define CHAR_BY_OFFSET(offset)   (gchar**)((void*)(nabi) + offset)
 
 const static struct config_item config_items[] = {
-    { "x",                  CONF_TYPE_INT, OFFSET(x)                    },
-    { "y",                  CONF_TYPE_INT, OFFSET(y)                    },
-    { "theme",              CONF_TYPE_STR, OFFSET(theme)                },
-    { "keyboardmap",        CONF_TYPE_STR, OFFSET(keyboardmap_filename) },
-    { "composemap",         CONF_TYPE_STR, OFFSET(composemap_filename)  },
-    { "preedit_foreground", CONF_TYPE_STR, OFFSET(preedit_fg)           },
-    { "preedit_background", CONF_TYPE_STR, OFFSET(preedit_bg)           },
-    { NULL,                 0,             0                            }
+    { "x",                  CONF_TYPE_INT, OFFSET(x)                     },
+    { "y",                  CONF_TYPE_INT, OFFSET(y)                     },
+    { "theme",              CONF_TYPE_STR, OFFSET(theme)                 },
+    { "keyboard_map",       CONF_TYPE_STR, OFFSET(keyboard_map_filename) },
+    { "compose_map",        CONF_TYPE_STR, OFFSET(compose_map_filename)  },
+    { "preedit_foreground", CONF_TYPE_STR, OFFSET(preedit_fg)            },
+    { "preedit_background", CONF_TYPE_STR, OFFSET(preedit_bg)            },
+    { NULL,                 0,             0                             }
 };
 
 void
@@ -368,18 +368,20 @@ load_config_file(void)
 
     /* set default values */
     nabi->theme = g_strdup("SimplyRed");
-    nabi->keyboardmap_filename = g_strconcat(NABI_DATA_DIR,
-			     "/keyboard/2qwerty",
-			     NULL);
-    nabi->composemap_filename = g_strconcat(NABI_DATA_DIR,
-			    "/compose/default",
-			    NULL);
+    nabi->keyboard_map_filename = g_build_filename(NABI_DATA_DIR,
+						   "keyboard",
+						   "2qwerty",
+						   NULL);
+    nabi->compose_map_filename = g_build_filename(NABI_DATA_DIR,
+						 "compose",
+						 "default",
+						 NULL);
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
 
     /* load conf file */
     homedir = g_get_home_dir();
-    config_filename = g_strconcat(homedir, "/.nabi/config", NULL);
+    config_filename = g_build_filename(homedir, ".nabi", "config", NULL);
     file = fopen(config_filename, "r");
     if (file == NULL) {
 	fprintf(stderr, _("Nabi: Can't load config file\n"));
@@ -409,7 +411,7 @@ save_config_file(void)
     FILE *file;
 
     homedir = g_get_home_dir();
-    config_dir = g_strconcat(homedir, "/.nabi", NULL);
+    config_dir = g_build_filename(homedir, ".nabi", NULL);
 
     /* chech for nabi conf dir */
     if (!g_file_test(config_dir, G_FILE_TEST_EXISTS)) {
@@ -421,7 +423,7 @@ save_config_file(void)
 	}
     }
 
-    config_filename = g_strconcat(homedir, "/.nabi/config", NULL);
+    config_filename = g_build_filename(config_dir, "config", NULL);
     file = fopen(config_filename, "w");
     if (file == NULL) {
 	fprintf(stderr, _("Nabi: Can't write config file\n"));
@@ -446,73 +448,64 @@ save_config_file(void)
 	    break;
 	}
     }
-
     fclose(file);
+
+    g_free(config_dir);
     g_free(config_filename);
 }
 
-gint keyboardmap_list_cmp_func(gconstpointer a, gconstpointer b)
+gint keyboard_map_list_cmp_func(gconstpointer a, gconstpointer b)
 {
     return strcmp(((NabiKeyboardMap*)a)->name, ((NabiKeyboardMap*)b)->name);
 }
 
 void
-load_keyboardmaps(void)
+load_keyboard_maps(void)
 {
     gchar *path;
-    gchar *keyboardmap_filename;
+    gchar *keyboard_map_filename;
     DIR *dir;
     struct dirent *dent;
-    NabiKeyboardMap *keyboardmap;
+    NabiKeyboardMap *keyboard_map;
 
     path = g_build_filename(NABI_DATA_DIR, "keyboard", NULL);
 
     dir = opendir(path);
-    if (dir == NULL)
-	    return NULL;
+    if (dir == NULL) {
+	fprintf(stderr, _("Nabi: Can't open keyboard map dir\n"));
+	return;
+    }
 
     for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
 	if (dent->d_name[0] == '.')
 	    continue;
 
-	keyboardmap_filename = g_build_filename(path, dent->d_name, NULL);
-	keyboardmap = load_keyboardmap_from_file(keyboardmap_filename);
-	g_slist_prepend(nabi->keyboardmaps, keyboardmap);
-	g_free(keyboardmap_filename);
+	keyboard_map_filename = g_build_filename(path, dent->d_name, NULL);
+	keyboard_map = load_keyboard_map_from_file(keyboard_map_filename);
+	nabi->keyboard_maps = g_slist_prepend(nabi->keyboard_maps,
+					      keyboard_map);
+	g_free(keyboard_map_filename);
     }
 
-    g_slist_sort(nabi->keyboardmaps, keyboardmap_list_cmp_func);
+    nabi->keyboard_maps = g_slist_sort(nabi->keyboard_maps,
+	    			       keyboard_map_list_cmp_func);
 
     g_free(path);
 }
 
 void
-load_keyboardmap(void)
+load_compose_map(void)
 {
     gboolean ret;
 
-    ret = load_keyboardmap_from_file(nabi->keyboardmap_filename,
-		     &nabi->keyboardmap);
+    ret = load_compose_map_from_file(nabi->compose_map_filename,
+		    &nabi->compose_map);
     if (ret) {
-	server->keyboard_map = nabi->keyboardmap.map;
-	nabi_server_set_automata(server,
-		     nabi->keyboardmap.type);
+	nabi_server_set_compose_map(server,
+				    nabi->compose_map.map,
+				    nabi->compose_map.size);
     } else {
-	exit(1);
-    }
-}
-
-void
-load_composemap(void)
-{
-    gboolean ret;
-
-    ret = load_composemap_from_file(nabi->composemap_filename,
-		    &nabi->composemap);
-    if (ret) {
-	server->compose_map = nabi->composemap.map;
-	server->compose_map_size = nabi->composemap.size;
-    } else {
+	fprintf(stderr, _("Nabi: Can't load compose map\n"));
 	exit(1);
     }
 }
@@ -562,17 +555,49 @@ load_colors(void)
 }
 
 void
+set_up_keyboard(void)
+{
+    if (nabi->keyboard_map_filename != NULL) {
+	NabiKeyboardMap *map;
+	GSList *list = nabi->keyboard_maps;
+	while (list != NULL) {
+	    map = (NabiKeyboardMap*)list->data;
+	    if (strcmp(map->filename, nabi->keyboard_map_filename) == 0) {
+		nabi_server_set_keyboard(server, map->map, map->type);
+		return;
+	    }
+	    list = list->next;
+	}
+    }
+
+    /* no matching keyboard map, use default keyboard array */
+    nabi_server_set_keyboard(server, keyboard_map_2, NABI_KEYBOARD_2SET);
+    fprintf(stderr, _("Nabi: No matching keyboard config, use default\n"));
+}
+
+void
 nabi_app_new(void)
 {
     nabi = g_malloc(sizeof(NabiApplication));
     memset(nabi, 0, sizeof(NabiApplication));
+
+    nabi->main_window = NULL;
+    nabi->theme = NULL;
+    nabi->keyboard_map_filename = NULL;
+    nabi->compose_map_filename = NULL;
+    nabi->keyboard_maps = NULL;
+    nabi->compose_map.name = NULL;
+    nabi->compose_map.map = NULL;
+    nabi->preedit_fg = NULL;
+    nabi->preedit_bg = NULL;
+    nabi->root_window = NULL;
 }
 
 void
 nabi_app_init(void)
 {
-    load_keyboardmaps();
     load_config_file();
+    load_keyboard_maps();
 
     /* set atoms for hangul status */
     nabi->mode_info_atom = gdk_atom_intern("_HANGUL_INPUT_MODE", TRUE);
@@ -583,9 +608,19 @@ nabi_app_init(void)
 void
 nabi_app_setup_server(void)
 {
-    load_composemap();
-
+    set_up_keyboard();
+    load_compose_map();
     load_colors();
+}
+
+void
+keyboard_map_item_free(gpointer data, gpointer user_data)
+{
+    NabiKeyboardMap *keyboard_map = (NabiKeyboardMap*)data;
+
+    g_free(keyboard_map->filename);
+    g_free(keyboard_map->name);
+    g_free(keyboard_map->map);
 }
 
 void
@@ -597,15 +632,16 @@ nabi_app_free(void)
 
     g_free(nabi->theme);
 
-    g_free(nabi->keyboardmap_filename);
-    g_free(nabi->keyboardmap.name);
+    /* keyboard map */
+    g_free(nabi->keyboard_map_filename);
+    g_slist_foreach(nabi->keyboard_maps, keyboard_map_item_free, NULL);
+    g_slist_free(nabi->keyboard_maps);
 
-    g_free(nabi->composemap_filename);
-    g_free(nabi->composemap.name);
-    for (i = 0; i < nabi->composemap.size; i++) {
-	g_free(nabi->composemap.map[i]);
-    }
-    g_free(nabi->composemap.map);
+    g_free(nabi->compose_map_filename);
+    g_free(nabi->compose_map.name);
+    for (i = 0; i < nabi->compose_map.size; i++)
+	g_free(nabi->compose_map.map[i]);
+    g_free(nabi->compose_map.map);
 
     g_free(nabi->preedit_fg);
     g_free(nabi->preedit_bg);
@@ -637,13 +673,6 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	return FALSE;
 
     switch (event->button) {
-    case 1:
-	/* start moving */
-	nabi->x_clicked = (gint)event->x;
-	nabi->y_clicked = (gint)event->y;
-	nabi->start_moving = TRUE;
-	return TRUE;
-	break;
     case 3:
 	/* popup menu */
 	gtk_menu_popup(GTK_MENU(data), NULL, NULL, NULL, NULL,
@@ -654,34 +683,6 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
     }
 
     return FALSE;
-}
-
-gboolean
-on_button_release(GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-    if (event->type != GDK_BUTTON_RELEASE)
-	return FALSE;
-
-    nabi->start_moving = FALSE;
-
-    return TRUE;
-}
-
-gboolean
-on_motion_notify(GtkWidget *widget, GdkEventMotion *event, gpointer data)
-{
-    gint x, y;
-
-    if (event->type != GDK_MOTION_NOTIFY)
-	return FALSE;
-
-    if (!nabi->start_moving)
-	return FALSE;
-
-    x = (gint)(event->x_root - nabi->x_clicked);
-    y = (gint)(event->y_root - nabi->y_clicked);
-
-    return TRUE;
 }
 
 GtkWidget*
@@ -1029,6 +1030,14 @@ on_menu_themes(GtkWidget *widget, gpointer data)
 }
 
 void
+on_menu_keyboard(GtkWidget *widget, gpointer data)
+{
+    NabiKeyboardMap *map = (NabiKeyboardMap*)data;
+
+    nabi_server_set_keyboard(server, map->map, map->type);
+}
+
+void
 on_menu_quit(GtkWidget *widget)
 {
     nabi_quit();
@@ -1040,6 +1049,9 @@ create_menu(void)
     GtkWidget* menu;
     GtkWidget* menu_item;
     GtkAccelGroup *accel_group;
+    NabiKeyboardMap *map;
+    GSList *list;
+    GSList *radio_group = NULL;
 
     accel_group = gtk_accel_group_new();
 
@@ -1058,12 +1070,13 @@ create_menu(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
 
-    /* menu preferences */
+    /* menu preferences 
     menu_item = gtk_menu_item_new_with_mnemonic(_("_Preferences"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 		 G_CALLBACK(on_menu_pref), menu_item);
+		 */
 
     /* menu themes */
     menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Themes..."));
@@ -1072,13 +1085,25 @@ create_menu(void)
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 		 G_CALLBACK(on_menu_themes), menu_item);
 
+    /* keyboard list */
+    list = nabi->keyboard_maps;
+    while (list != NULL) {
+	map = (NabiKeyboardMap*)list->data;
+	menu_item = gtk_radio_menu_item_new_with_label(radio_group, map->name);
+	radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	gtk_widget_show(menu_item);
+	g_signal_connect(G_OBJECT(menu_item), "activate",
+			 G_CALLBACK(on_menu_keyboard), map);
+	list = list->next;
+    }
+
     /* menu quit */
-    //menu_item = gtk_menu_item_new_with_mnemonic(_("_Quit"));
     menu_item = gtk_image_menu_item_new_from_stock("gtk-quit", accel_group);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
     gtk_widget_show(menu_item);
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-		 G_CALLBACK(on_menu_quit), menu_item);
+			     G_CALLBACK(on_menu_quit), menu_item);
 
     return menu;
 }
@@ -1237,10 +1262,6 @@ create_main_widget(void)
     gtk_container_add(GTK_CONTAINER(tray_icon), eventbox);
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
 	     G_CALLBACK(on_button_press), menu);
-    g_signal_connect(G_OBJECT(eventbox), "button-release-event",
-	     G_CALLBACK(on_button_release), NULL);
-    g_signal_connect(G_OBJECT(eventbox), "motion-notify-event",
-	     G_CALLBACK(on_motion_notify), NULL);
 
     create_icons(24);
 
