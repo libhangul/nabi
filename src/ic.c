@@ -173,7 +173,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
 
-    ic->hanja_dialog = NULL;
+    ic->candidate_window = NULL;
 
     nabi_ic_buf_clear(ic);
 }
@@ -312,9 +312,9 @@ nabi_ic_destroy(NabiIC *ic)
     ic->status_attr.cursor = 0;
     ic->status_attr.base_font = NULL;
 
-    if (ic->hanja_dialog != NULL) {
-	gtk_widget_destroy(GTK_WIDGET(ic->hanja_dialog));
-	ic->hanja_dialog = NULL;
+    if (ic->candidate_window != NULL) {
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
     }
 
     /* clear hangul buffer */
@@ -1365,7 +1365,7 @@ get_index_of_hanjatable (wchar_t ch)
 }
 
 Bool
-nabi_ic_popup_hanja_window (NabiIC *ic)
+nabi_ic_popup_candidate_window (NabiIC *ic)
 {
     wchar_t ch;
 
@@ -1378,8 +1378,22 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
     if (ch) {
 	int index = get_index_of_hanjatable(ch);
 	if (index >= 0) {
+	    Window parent = 0;
 	    const wchar_t *ptr = hanjatable[index] + 1;
-	    ic->hanja_dialog = nabi_create_hanja_window(ic, ptr);
+	    char str[16];
+	    int n;
+
+	    if (ic->focus_window != 0)
+		parent = ic->focus_window;
+	    else if (ic->client_window != 0)
+		parent = ic->client_window;
+
+	    if (ic->candidate_window != NULL)
+		nabi_candidate_delete(ic->candidate_window);
+
+	    n = hangul_wchar_to_utf8(ch, str, sizeof(str));
+	    str[n] = '\0';
+	    ic->candidate_window = nabi_candidate_new(str, 0, ptr, parent);
 	    return True;
 	}
     }
@@ -1387,7 +1401,7 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
 }
 
 void
-nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch)
+nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch)
 {
     if (nabi_ic_is_destroyed(ic))
 	return;

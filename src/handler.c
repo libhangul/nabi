@@ -31,6 +31,7 @@
 #include "../IMdkit/Xi18n.h"
 #include "ic.h"
 #include "server.h"
+#include "candidate.h"
 
 #ifdef DEBUG
 #define dmesg debug_msg
@@ -241,6 +242,40 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 	return True;
 }
 
+static Bool
+nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
+{
+    wchar_t ch;
+
+    switch (keyval) {
+    case XK_Left:
+	nabi_candidate_prev(ic->candidate_window);
+	break;
+    case XK_Right:
+	nabi_candidate_next(ic->candidate_window);
+	break;
+    case XK_Up:
+	nabi_candidate_prev_row(ic->candidate_window);
+	break;
+    case XK_Down:
+	nabi_candidate_next_row(ic->candidate_window);
+	break;
+    case XK_Escape:
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
+	break;
+    case XK_Return:
+	ch = nabi_candidate_get_current(ic->candidate_window);
+	nabi_ic_insert_candidate(ic, ch);
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
+	break;
+    default:
+	return True;
+    }
+    return True;
+}
+
 /* return true if we treat this key event */
 static Bool
 nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
@@ -250,6 +285,9 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     g_print("KEY:   0x%x\n", keyval);
     g_print("STATE: 0x%x\n", kevent->state);
     */
+    if (ic->candidate_window) {
+	return nabi_filter_candidate_window(ic, keyval);
+    }
 
     /* if shift is pressed, we dont commit current string 
      * and silently ignore it */
@@ -263,7 +301,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     }
 
     if (keyval == XK_Hangul_Hanja || keyval == XK_F9) {
-	return nabi_ic_popup_hanja_window(ic);
+	return nabi_ic_popup_candidate_window(ic);
     }
 
     /* forward key event and commit current string if any state is on */

@@ -22,6 +22,7 @@ nabi_SOURCES = \
 	fontset.h fontset.c \
 	eggtrayicon.h eggtrayicon.c \
 	session.h session.c \
+	candidate.h candidate.c \
 	handler.c \
 	automata.c \
 	ui.c \

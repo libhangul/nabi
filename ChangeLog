@@ -1,3 +1,8 @@
+2003-11-02  Choe Hwanjin <krisna@kldp.org>
+	* src/Makefile.am, src/candidate.c, src/candidate.h,
+	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
+	  Add new candidate window routine
+
 2003-10-30  Choe Hwanjin <krisna@kldp.org>
 	* 텍스트 파일들의 인코딩을 UTF-8로 변환
 
