@@ -1281,7 +1281,7 @@ nabi_ic_commit(NabiIC *ic)
 static Bool
 nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
 {
-    int len = 0, size = 0;
+    int size = 0;
     char buf[64];
  
     size += hangul_wchar_to_utf8(ch, buf + size, sizeof(buf) - size);

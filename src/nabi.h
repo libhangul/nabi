@@ -19,6 +19,9 @@
 #ifndef __NABI_H_
 #define __NABI_H_
 
+#include <gtk/gtk.h>
+#include <X11/Xlib.h>
+
 typedef struct _NabiApplication NabiApplication;
 
 struct _NabiApplication {
@@ -32,11 +35,16 @@ struct _NabiApplication {
     gchar*	    session_id;
 
     gchar*          theme;
+    int             icon_size;
+
     gchar*          keyboard_table_name;
     gchar*          keyboard_table_dir;
     gchar*          compose_table_name;
     gchar*          compose_table_dir;
     gchar*	    candidate_table_filename;
+
+    int             trigger_keys;
+    int             candidate_keys;
 
     /* xim server option */
     gboolean        dvorak;
@@ -64,9 +72,14 @@ void nabi_app_setup_server(void);
 void nabi_app_quit(void);
 void nabi_app_free(void);
 void nabi_save_config_file(void);
+void nabi_app_set_icon_size(int size);
+void nabi_app_set_theme(const char *name);
+void nabi_app_set_dvorak(gboolean state);
+void nabi_app_set_keyboard(const char *name);
+void nabi_app_set_trigger_keys(int keys, gboolean add);
+void nabi_app_set_candidate_keys(int keys, gboolean add);
 
 GtkWidget* nabi_app_create_main_widget(void);
-GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 #endif /* __NABI_H_ */
 /* vim: set ts=8 sw=4 : */

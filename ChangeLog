@@ -1,3 +1,6 @@
+2004-07-25  Choe Hwanjin <krisna@kldp.org>
+	* 설정창 구현
+
 2004-06-23  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: nabi_ic_commit_keyval() 함수에서 더이상 XIM_COMMIT을 사용
 	하지 않고, 바로 key event를 forwarding하도록 수정함. 일부 프로그램에서

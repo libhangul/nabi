@@ -9,3 +9,4 @@ src/main.c
 src/server.c
 src/session.c
 src/ui.c
+src/preference.c

@@ -57,6 +57,18 @@ struct _NabiComposeTable {
     gint            size;
 };
 
+enum {
+    NABI_TRIGGER_KEY_HANGUL      = 1 << 0,
+    NABI_TRIGGER_KEY_SHIFT_SPACE = 1 << 1,
+    NABI_TRIGGER_KEY_ALT_R       = 1 << 2
+};
+
+enum {
+    NABI_CANDIDATE_KEY_HANJA  = 1 << 0,
+    NABI_CANDIDATE_KEY_F9     = 1 << 1,
+    NABI_CANDIDATE_KEY_CTRL_R = 1 << 2
+};
+
 typedef enum {
     NABI_OUTPUT_SYLLABLE,
     NABI_OUTPUT_JAMO,
@@ -90,8 +102,8 @@ struct _NabiServer {
     Display*                display;
     Window                  window;
     long                    filter_mask;
-    XIMTriggerKey*          trigger_keys;
-    XIMTriggerKey*          candidate_keys;
+    XIMTriggerKeys          trigger_keys;
+    XIMTriggerKeys          candidate_keys;
     GC			    gc;
 
     /* xim connect list */
@@ -152,6 +164,8 @@ Bool        nabi_server_is_trigger_key  (NabiServer*  server,
 Bool        nabi_server_is_candidate_key(NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
+void        nabi_server_set_trigger_keys(NabiServer *server, int keys);
+void        nabi_server_set_candidate_keys(NabiServer *server, int keys);
 void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
 void        nabi_server_set_keyboard_table(NabiServer *server,
