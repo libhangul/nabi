@@ -610,6 +610,7 @@ nabi_app_new(void)
     nabi->x = 0;
     nabi->y = 0;
     nabi->main_window = NULL;
+    nabi->status_only = FALSE;
 
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
@@ -635,9 +636,35 @@ nabi_app_new(void)
 }
 
 void
-nabi_app_init(void)
+nabi_app_init(int *argc, char ***argv)
 {
     gchar *icon_filename;
+
+    /* process command line options */
+    if (argc != NULL && argv != NULL) {
+	int i, j, k;
+	for (i = 1; i < *argc;) {
+	    if (strcmp("-s", (*argv)[i]) == 0 ||
+		strcmp("--status-only", (*argv)[i]) == 0) {
+		nabi->status_only = TRUE;
+		(*argv)[i] = NULL;
+	    }
+	    i++;
+	}
+
+	/* if we accept any command line options, compress argc, argv */
+	for (i = 1; i < *argc; i++) {
+	    for (k = i; k < *argc; k++)
+		if ((*argv)[k] == NULL)
+		    break;
+	    if (k > i) {
+		k -= i;
+		for (j = i + k; j < *argc; j++)
+		    (*argv)[j - k] = (*argv)[j];
+		*argc -= k;
+	    }
+	}
+    }
 
     load_config_file();
     load_keyboard_maps();
@@ -672,6 +699,9 @@ set_up_output_mode(void)
 void
 nabi_app_setup_server(void)
 {
+    if (nabi->status_only)
+	return;
+
     set_up_keyboard();
     load_compose_map();
     load_colors();
@@ -691,6 +721,8 @@ void
 nabi_app_quit(void)
 {
     if (nabi != NULL && nabi->main_window != NULL) {
+	gtk_window_get_position(GTK_WINDOW(nabi->main_window),
+				&nabi->x, &nabi->y);
 	gtk_widget_destroy(nabi->main_window);
 	nabi->main_window = NULL;
     }
@@ -745,8 +777,11 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 {
     if (nabi != NULL &&
 	nabi->main_window != NULL &&
-	GTK_WIDGET_VISIBLE(nabi->main_window))
+	GTK_WIDGET_VISIBLE(nabi->main_window)) {
+	gtk_window_get_position(GTK_WINDOW(nabi->main_window),
+				&nabi->x, &nabi->y);
 	gtk_widget_hide(GTK_WIDGET(nabi->main_window));
+    }
 }
 
 static void
@@ -765,8 +800,10 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 
     if (nabi != NULL &&
 	nabi->main_window != NULL &&
-	!GTK_WIDGET_VISIBLE(nabi->main_window))
+	!GTK_WIDGET_VISIBLE(nabi->main_window)) {
+	gtk_window_move(GTK_WINDOW(nabi->main_window), nabi->x, nabi->y);
 	gtk_widget_show(GTK_WIDGET(nabi->main_window));
+    }
 }
 
 static void
@@ -787,10 +824,14 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 
     switch (event->button) {
     case 1:
-	if (GTK_WIDGET_VISIBLE(nabi->main_window))
+	if (GTK_WIDGET_VISIBLE(nabi->main_window)) {
+	    gtk_window_get_position(GTK_WINDOW(nabi->main_window),
+			    &nabi->x, &nabi->y);
 	    gtk_widget_hide(GTK_WIDGET(nabi->main_window));
-	else
+	} else {
+	    gtk_window_move(GTK_WINDOW(nabi->main_window), nabi->x, nabi->y);
 	    gtk_widget_show(GTK_WIDGET(nabi->main_window));
+	}
 	return TRUE;
     case 3:
 	/* popup menu */
@@ -806,6 +847,9 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 
 static gchar *get_statistic_string(void)
 {
+    if (nabi_server == NULL)
+	return g_strdup("");
+
     return g_strdup_printf("%s: %3d\n"
 			   "%s: %3d\n"
 			   "%s: %3d\n"
@@ -998,13 +1042,15 @@ on_menu_about(GtkWidget *widget)
     g_free(image_filename);
 
     title = gtk_label_new(NULL);
-    title_str = g_strdup_printf(_("<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"), VERSION);
+    title_str = g_strdup_printf(_("<span size=\"xx-large\""
+				  "weight=\"bold\">Nabi %s</span>"), VERSION);
     gtk_label_set_markup(GTK_LABEL(title), title_str);
     g_free(title_str);
 
     comment = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(comment),
-	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003 (C) Choe Hwanjin"));
+	    _("<span size=\"large\">Simple Hangul XIM</span>\n2003 (C)"
+	      "Choe Hwanjin"));
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_RIGHT);
 
     hbox = gtk_hbox_new(FALSE, 10);
@@ -1013,17 +1059,21 @@ on_menu_about(GtkWidget *widget)
     gtk_box_pack_start(GTK_BOX(hbox), title, FALSE, TRUE, 0);
     gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 10);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), comment, TRUE, TRUE, 5);
+    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
+		       comment, TRUE, TRUE, 5);
 
-    frame = gtk_frame_new (_("Keypress Statistics"));
-    stat_str = get_statistic_string();
-    stat_label = gtk_label_new(stat_str);
-    gtk_misc_set_padding (GTK_MISC(stat_label), 5, 5);
-    g_free(stat_str);
-    gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
-    gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
-    gtk_container_add(GTK_CONTAINER(frame), stat_label);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), frame, TRUE, TRUE, 5);
+    if (!nabi->status_only) {
+	frame = gtk_frame_new (_("Keypress Statistics"));
+	stat_str = get_statistic_string();
+	stat_label = gtk_label_new(stat_str);
+	gtk_misc_set_padding (GTK_MISC(stat_label), 5, 5);
+	g_free(stat_str);
+	gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
+	gtk_container_set_border_width(GTK_CONTAINER(frame), 5);
+	gtk_container_add(GTK_CONTAINER(frame), stat_label);
+	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
+			   frame, TRUE, TRUE, 5);
+    }
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 200, 120);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
@@ -1450,31 +1500,35 @@ create_menu(void)
     gtk_widget_show(menu_item);
 
     /* keyboard list */
-    list = nabi->keyboard_maps;
-    while (list != NULL) {
-	map = (NabiKeyboardMap*)list->data;
-	menu_item = gtk_radio_menu_item_new_with_label(radio_group, map->name);
-	radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+    if (!nabi->status_only) {
+	list = nabi->keyboard_maps;
+	while (list != NULL) {
+	    map = (NabiKeyboardMap*)list->data;
+	    menu_item = gtk_radio_menu_item_new_with_label(radio_group,
+							   map->name);
+	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	    gtk_widget_show(menu_item);
+	    g_signal_connect(G_OBJECT(menu_item), "activate",
+			     G_CALLBACK(on_menu_keyboard), map);
+	    if (strcmp(map->filename, nabi->keyboard_map_filename) == 0)
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+					       TRUE);
+	    list = list->next;
+	}
+	menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+				       nabi->dvorak);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	gtk_widget_show(menu_item);
-	g_signal_connect(G_OBJECT(menu_item), "activate",
-			 G_CALLBACK(on_menu_keyboard), map);
-	if (strcmp(map->filename, nabi->keyboard_map_filename) == 0)
-	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
-	list = list->next;
-    }
-    menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
-				   nabi->dvorak);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_dvorak), menu_item);
+	g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
+				 G_CALLBACK(on_menu_dvorak), menu_item);
 
-    /* separator */
-    menu_item = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
+	/* separator */
+	menu_item = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+	gtk_widget_show(menu_item);
+    }
 
     /* menu quit */
     menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
@@ -1642,7 +1696,8 @@ static void
 on_main_window_realized(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
-    nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
+    if (!nabi->status_only)
+	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 
 static gboolean
@@ -1734,8 +1789,8 @@ nabi_app_create_main_widget(void)
     gtk_window_set_icon(GTK_WINDOW(window), default_icon);
     gtk_window_set_skip_pager_hint(GTK_WINDOW(window), TRUE);
     gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
-    gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_DOCK);
     gtk_window_stick(GTK_WINDOW(window));
+    gtk_window_move(GTK_WINDOW(window), nabi->x, nabi->y);
     g_signal_connect_after(G_OBJECT(window), "realize",
 	    		   G_CALLBACK(on_main_window_realized), NULL);
     g_signal_connect(G_OBJECT(window), "destroy",

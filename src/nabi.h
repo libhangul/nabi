@@ -41,6 +41,7 @@ struct _NabiApplication {
     gint            x;
     gint            y;
     GtkWidget*      main_window;
+    gboolean	    status_only;
 
     gchar*          theme;
     gchar*          keyboard_map_filename;
@@ -69,7 +70,7 @@ struct _NabiApplication {
 extern NabiApplication* nabi;
 
 void nabi_app_new(void);
-void nabi_app_init(void);
+void nabi_app_init(int *argc, char ***argv);
 void nabi_app_setup_server(void);
 void nabi_app_quit(void);
 void nabi_app_free(void);

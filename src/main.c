@@ -67,14 +67,16 @@ main(int argc, char *argv[])
     gtk_init(&argc, &argv);
 
     nabi_app_new();
-    nabi_app_init();
+    nabi_app_init(&argc, &argv);
 
 #ifdef HAVE_LIBSM
     nabi_session_open();
 #endif
 
-    nabi_server = nabi_server_new();
-    nabi_server_init(nabi_server);
+    if (!nabi->status_only) {
+	nabi_server = nabi_server_new();
+	nabi_server_init(nabi_server);
+    }
 
     nabi_app_setup_server();
 
@@ -87,9 +89,11 @@ main(int argc, char *argv[])
 
     gtk_main();
 
-    nabi_server_stop(nabi_server);
-    nabi_server_destroy(nabi_server);
-    nabi_server = NULL;
+    if (!nabi->status_only) {
+	nabi_server_stop(nabi_server);
+	nabi_server_destroy(nabi_server);
+	nabi_server = NULL;
+    }
     
 #ifdef HAVE_LIBSM
     nabi_session_close();
