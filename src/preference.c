@@ -176,9 +176,9 @@ static GtkWidget*
 create_theme_page(void)
 {
     GtkWidget *page;
+    GtkWidget *hbox;
     GtkWidget *label;
     GtkWidget *scrolledwindow;
-
     GtkWidget *treeview;
     GtkTreeModel *model;
     GtkTreeViewColumn *column;
@@ -189,9 +189,18 @@ create_theme_page(void)
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    label = gtk_label_new(_("Tray icons:"));
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Tray icons</span>"));
+    gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(page), hbox, TRUE, TRUE, 0);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -200,7 +209,7 @@ create_theme_page(void)
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
 					GTK_SHADOW_IN);
-    gtk_box_pack_start(GTK_BOX(page), scrolledwindow, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow, TRUE, TRUE, 0);
 
     /* loading themes list */
     model = get_themes_list(nabi->icon_size);
@@ -414,60 +423,6 @@ create_keyboard_page(void)
     return page;
 }
 
-static void
-on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
-{
-    gint result;
-    GtkWidget *dialog;
-
-    dialog = gtk_font_selection_dialog_new(_("Select candidate font"));
-    gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dialog),
-					    nabi->candidate_font);
-    gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dialog),
-					       "訓民正音 훈민정음");
-    gtk_widget_show_all(dialog);
-    gtk_widget_hide(GTK_FONT_SELECTION_DIALOG(dialog)->apply_button);
-
-    result = gtk_dialog_run(GTK_DIALOG(dialog));
-
-    if (result == GTK_RESPONSE_OK) {
-	char *font = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dialog));
-	nabi_app_set_candidate_font(font);
-	gtk_button_set_label(GTK_BUTTON(button), font);
-    }
-    gtk_widget_destroy(dialog);
-}
-
-static GtkWidget*
-create_candidate_page(void)
-{
-    GtkWidget *page;
-    GtkWidget *vbox1;
-    GtkWidget *hbox;
-    GtkWidget *label;
-    GtkWidget *button;
-
-    page = gtk_vbox_new(FALSE, 12);
-    gtk_container_set_border_width(GTK_CONTAINER(page), 12);
-
-    /* options for candidate */
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
-
-    label = gtk_label_new(_("Font:"));
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    button = gtk_button_new_with_label(nabi->candidate_font);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 12);
-    g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
-
-    return page;
-}
-
 static GtkTreeModel*
 get_key_list_store(const char *key_list)
 {
@@ -657,7 +612,7 @@ on_candidate_key_remove_button_clicked(GtkWidget *widget,
 }
 
 static GtkWidget*
-create_key_page(void)
+create_hangul_page(void)
 {
     GtkWidget *page;
     GtkWidget *vbox1;
@@ -678,7 +633,7 @@ create_key_page(void)
 
     /* options for trigger key */
     vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
 
     label = gtk_label_new("");
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
@@ -688,7 +643,7 @@ create_key_page(void)
     gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
 
     hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
 
     label = gtk_label_new("    ");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
@@ -743,13 +698,91 @@ create_key_page(void)
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_trigger_key_remove_button_clicked),treeview);
 
-    label = gtk_label_new(_("(You should restart nabi to apply this option)"));
+    label = gtk_label_new(_("* You should restart nabi to apply this option"));
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
 
+    return page;
+}
+
+static void
+on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
+{
+    gint result;
+    GtkWidget *dialog;
+
+    dialog = gtk_font_selection_dialog_new(_("Select hanja font"));
+    gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dialog),
+					    nabi->candidate_font);
+    gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dialog),
+					       "訓民正音 훈민정음");
+    gtk_widget_show_all(dialog);
+    gtk_widget_hide(GTK_FONT_SELECTION_DIALOG(dialog)->apply_button);
+
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    if (result == GTK_RESPONSE_OK) {
+	char *font = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dialog));
+	nabi_app_set_candidate_font(font);
+	gtk_button_set_label(GTK_BUTTON(button), font);
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static GtkWidget*
+create_candidate_page(void)
+{
+    GtkWidget *page;
+    GtkWidget *vbox1;
+    GtkWidget *vbox2;
+    GtkWidget *hbox;
+    GtkWidget *hbox2;
+    GtkWidget *label;
+    GtkWidget *button;
+    GtkWidget *scrolledwindow;
+    GtkWidget *treeview;
+    GtkTreeViewColumn *column;
+    GtkTreeSelection *selection;
+    GtkCellRenderer *renderer;
+    GtkTreeModel *model;
+
+    page = gtk_vbox_new(FALSE, 12);
+    gtk_container_set_border_width(GTK_CONTAINER(page), 12);
+
+    /* options for candidate */
+    vbox1 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Hanja Font</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+
+    hbox2 = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
+
+    button = gtk_button_new_with_label(nabi->candidate_font);
+    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, TRUE, 0);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
+
     /* options for candidate key */
     vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
 
     label = gtk_label_new("");
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
@@ -759,7 +792,7 @@ create_key_page(void)
     gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
 
     hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
 
     label = gtk_label_new("    ");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
@@ -782,7 +815,7 @@ create_key_page(void)
     gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
     column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Candidate Keys"));
+    gtk_tree_view_column_set_title(column, _("Hanja Keys"));
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
@@ -854,14 +887,14 @@ preference_window_create(void)
     child = create_keyboard_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* candidate */
-    label = gtk_label_new(_("Candidate"));
-    child = create_candidate_page();
+    /* key */
+    label = gtk_label_new(_("Hangul"));
+    child = create_hangul_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* key */
-    label = gtk_label_new(_("Key"));
-    child = create_key_page();
+    /* candidate */
+    label = gtk_label_new(_("Hanja"));
+    child = create_candidate_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
     /* advanced */
