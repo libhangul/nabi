@@ -229,7 +229,8 @@ nabi_ic_destroy(NabiIC *ic)
     if (nabi_ic_is_destroyed(ic))
 	return;
 
-    nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
+    if (nabi_server->mode_info_cb != NULL)
+	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
     /* we do not delete, just save it in ic_freed */
     if (nabi_server->ic_freed == NULL) {
@@ -887,12 +888,12 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_commit(ic);
 	nabi_ic_preedit_done(ic);
-	if (nabi_server->mode_info_cb)
+	if (nabi_server->mode_info_cb != NULL)
 	    nabi_server->mode_info_cb(NABI_MODE_INFO_ENGLISH);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
 	nabi_ic_preedit_start(ic);
-	if (nabi_server->mode_info_cb)
+	if (nabi_server->mode_info_cb != NULL)
 	    nabi_server->mode_info_cb(NABI_MODE_INFO_HANGUL);
 	break;
     default:

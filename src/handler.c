@@ -365,7 +365,7 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
     if (ic == NULL)
 	    return True;
 
-    if (nabi_server->mode_info_cb)
+    if (nabi_server->mode_info_cb != NULL)
 	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
     return True;
