@@ -1,3 +1,8 @@
+2004-03-01  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: GtkTextView를 사용하게 되면 GtkIMContext를 생성하게 되어
+	XIM 서버가 멈추는 위험한 상황이 자주 발생하므로 About 창에서
+	GtkTextView대신 GtkLabel를 사용하도록 수정함
+
 2004-02-29  Choe Hwanjin <krisna@kldp.org>
 	* IMdkit/i18nIc.c IMdkit/i18nMethod.c IMdkit/i18nPtHdr.c:
 	바이트 오더 문제를 해결하기 위한 수정
