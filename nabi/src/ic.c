@@ -159,6 +159,9 @@ nabi_ic_destroy(NabiIC *ic)
 
     ic->client_window = 0;
     ic->focus_window = 0;
+    g_free(ic->resource_name);
+    ic->resource_name = NULL;
+
     ic->preedit.area.x = 0;
     ic->preedit.area.y = 0;
     ic->preedit.area.width = 0;
@@ -480,6 +483,9 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 static void
 nabi_ic_set_spot(NabiIC *ic, XPoint *point)
 {
+    if (point == NULL)
+	return;
+
     ic->preedit.spot.x = point->x + 1; 
     ic->preedit.spot.y = point->y; 
 
