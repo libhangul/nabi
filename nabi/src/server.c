@@ -369,9 +369,6 @@ nabi_server_set_candidate_keys(NabiServer *server, int keys)
     int i = 0;
     XIMTriggerKey *keylist;
 
-    if (keys == 0)
-	return;
-
     if (server->candidate_keys.keylist != NULL)
 	g_free(server->candidate_keys.keylist);
 

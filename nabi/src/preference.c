@@ -484,7 +484,12 @@ on_trigger_key_button_changed(GtkToggleButton *button, gpointer data)
     int key = GPOINTER_TO_INT(data);
 
     state = gtk_toggle_button_get_active(button);
-    nabi_app_set_trigger_keys(key, state);
+    if (!state && key == nabi->trigger_keys) {
+	/* there is only one trigger key, so dont apply this option */
+	gtk_toggle_button_set_active(button, TRUE);
+    } else {
+	nabi_app_set_trigger_keys(key, state);
+    }
 }
 
 static void
@@ -553,6 +558,10 @@ create_key_page(void)
     g_signal_connect(G_OBJECT(check_button), "toggled",
 		     G_CALLBACK(on_trigger_key_button_changed),
 		     GINT_TO_POINTER(NABI_TRIGGER_KEY_ALT_R));
+
+    label = gtk_label_new(_("(You should restart nabi to apply this option)"));
+    gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
 
     /* options for candidate key */
     vbox1 = gtk_vbox_new(FALSE, 6);
@@ -655,7 +664,7 @@ preference_window_create(void)
     /* advanced */
     label = gtk_label_new(_("Advanced"));
     child = create_advanced_page();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+    //gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
     vbox = GTK_DIALOG(dialog)->vbox;
     gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);

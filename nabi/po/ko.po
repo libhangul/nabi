@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-07-27 22:02+0900\n"
+"POT-Creation-Date: 2004-07-31 19:04+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -32,12 +32,12 @@ msgstr ""
 msgid "Nabi: font: %s\n"
 msgstr ""
 
-#: src/ic.c:714
+#: src/ic.c:719
 #, c-format
 msgid "Nabi: get unknown ic attributes: %s\n"
 msgstr ""
 
-#: src/server.c:766
+#: src/server.c:763
 msgid "Nabi: Can't read keyboard map file\n"
 msgstr ""
 
@@ -205,58 +205,62 @@ msgstr "쿼티 자판"
 msgid "Dvorak keyboard"
 msgstr "드보락 자판"
 
-#: src/preference.c:521
+#: src/preference.c:526
 msgid "<span weight=\"bold\">Trigger keys</span>"
 msgstr "<span weight=\"bold\">한영 전환 키</span>"
 
-#: src/preference.c:533
+#: src/preference.c:538
 msgid "Hangul"
 msgstr "한/영 키"
 
-#: src/preference.c:541
+#: src/preference.c:546
 msgid "Shift-Space"
 msgstr ""
 
-#: src/preference.c:549
+#: src/preference.c:554
 msgid "Right Alt"
 msgstr "오른쪽 Alt"
 
-#: src/preference.c:565
+#: src/preference.c:562
+msgid "(You should restart nabi to apply this option)"
+msgstr "(이 옵션은 나비를 다시 시작해야 적용됩니다)"
+
+#: src/preference.c:574
 msgid "<span weight=\"bold\">Hanja keys</span>"
 msgstr "<span weight=\"bold\">한자 키</span>"
 
-#: src/preference.c:577
+#: src/preference.c:586
 msgid "Hanja"
 msgstr "한자 키"
 
-#: src/preference.c:585
+#: src/preference.c:594
 msgid "F9"
 msgstr ""
 
-#: src/preference.c:593
+#: src/preference.c:602
 msgid "Right Control"
 msgstr "오른쪽 Control"
 
-#: src/preference.c:629
+#: src/preference.c:638
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:641
+#: src/preference.c:650
 msgid "Theme"
 msgstr "테마"
 
 #. keyboard
-#: src/preference.c:646
+#: src/preference.c:655
 msgid "Keyboard"
 msgstr "자판"
 
 #. key
-#: src/preference.c:651
+#: src/preference.c:660
 msgid "Key"
 msgstr "키"
 
 #. advanced
-#: src/preference.c:656
+#: src/preference.c:665
 msgid "Advanced"
 msgstr "고급"
