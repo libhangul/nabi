@@ -75,6 +75,7 @@ struct _NabiServer {
     Window                  window;
     long                    filter_mask;
     XIMTriggerKey*          trigger_keys;
+    XIMTriggerKey*          candidate_keys;
     GC			    gc;
 
     /* xim connect list */
@@ -128,7 +129,10 @@ int         nabi_server_start           (NabiServer* server,
                                          Window      window);
 int         nabi_server_stop            (NabiServer *server);
 
-Bool        nabi_server_is_trigger      (NabiServer*  server,
+Bool        nabi_server_is_trigger_key  (NabiServer*  server,
+                                         KeySym       key,
+                                         unsigned int state);
+Bool        nabi_server_is_candidate_key(NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
 void        nabi_server_set_dvorak      (NabiServer *server,

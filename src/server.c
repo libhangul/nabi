@@ -63,6 +63,13 @@ static XIMTriggerKey nabi_trigger_keys[] = {
     { 0,	 0,	    0         }
 };
 
+static XIMTriggerKey nabi_candidate_keys[] = {
+    { XK_Hangul_Hanja,	    0,	    0         },
+    { XK_F9,                0,	    0         },
+    { XK_Control_R,         0,	    0         },
+    { 0,	            0,	    0         }
+};
+
 NabiServer*
 nabi_server_new(const char *name)
 {
@@ -82,6 +89,7 @@ nabi_server_new(const char *name)
     server->window = 0;
     server->filter_mask = 0;
     server->trigger_keys = NULL;
+    server->candidate_keys = NULL;
 
     /* connect list */
     server->n_connected = 0;
@@ -259,6 +267,7 @@ nabi_server_init(NabiServer *server)
 
     server->filter_mask = KeyPressMask;
     server->trigger_keys = nabi_trigger_keys;
+    server->candidate_keys = nabi_candidate_keys;
 
     server->automata = nabi_automata_2;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
@@ -298,9 +307,23 @@ nabi_server_ic_table_expand(NabiServer *server)
 }
 
 Bool
-nabi_server_is_trigger(NabiServer* server, KeySym key, unsigned int state)
+nabi_server_is_trigger_key(NabiServer* server, KeySym key, unsigned int state)
 {
     XIMTriggerKey *item = server->trigger_keys;
+
+    while (item->keysym != 0) {
+	if (key == item->keysym &&
+	    (state & item->modifier_mask) == item->modifier)
+	    return True;
+	item++;
+    }
+    return False;
+}
+
+Bool
+nabi_server_is_candidate_key(NabiServer* server, KeySym key, unsigned int state)
+{
+    XIMTriggerKey *item = server->candidate_keys;
 
     while (item->keysym != 0) {
 	if (key == item->keysym &&
