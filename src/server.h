@@ -107,6 +107,7 @@ struct _NabiServer {
     NabiInputMode           input_mode;
     unsigned long           preedit_fg;
     unsigned long           preedit_bg;
+    gchar*		    candidate_font;
 
     /* mode information */
     NabiModeInfoCallback    mode_info_cb;
@@ -140,6 +141,8 @@ void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
 void        nabi_server_set_output_mode (NabiServer *server,
 					 NabiOutputMode mode);
+void	    nabi_server_set_candidate_font(NabiServer *server,
+					   const gchar *font_name);
 
 void        nabi_server_ic_table_expand (NabiServer* server);
 NabiIC*     nabi_server_get_ic          (NabiServer *server,

@@ -105,6 +105,7 @@ nabi_server_new(void)
     /* options */
     server->preedit_fg = 1;
     server->preedit_bg = 0;
+    server->candidate_font = NULL;
 
     /* mode info */
     server->mode_info_cb = NULL;
@@ -222,6 +223,18 @@ nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
     else  {
 	if (!server->check_charset)
 	    server->output_mode = mode;
+    }
+}
+
+void
+nabi_server_set_candidate_font(NabiServer *server, const gchar *font_name)
+{
+    if (server == NULL)
+	return;
+
+    if (font_name != NULL) {
+	g_free(server->candidate_font);
+	server->candidate_font = g_strdup(font_name);
     }
 }
 

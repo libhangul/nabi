@@ -286,17 +286,18 @@ struct config_item {
 #define CHAR_BY_OFFSET(offset)   (gchar**)((void*)(nabi) + offset)
 
 const static struct config_item config_items[] = {
-    { "x",                  CONF_TYPE_INT,  OFFSET(x)                     },
-    { "y",                  CONF_TYPE_INT,  OFFSET(y)                     },
-    { "theme",              CONF_TYPE_STR,  OFFSET(theme)                 },
-    { "keyboard_map",       CONF_TYPE_STR,  OFFSET(keyboard_map_filename) },
-    { "compose_map",        CONF_TYPE_STR,  OFFSET(compose_map_filename)  },
+    { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
+    { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
+    { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
+    { "keyboard_map",       CONF_TYPE_STR,  OFFSET(keyboard_map_filename)    },
+    { "compose_map",        CONF_TYPE_STR,  OFFSET(compose_map_filename)     },
     { "candidate_table",    CONF_TYPE_STR,  OFFSET(candidate_table_filename) },
-    { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                },
-    { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)           },
-    { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)            },
-    { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)            },
-    { NULL,                 0,              0                             }
+    { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
+    { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)              },
+    { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)               },
+    { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)               },
+    { "candidate_font",	    CONF_TYPE_STR,  OFFSET(candidate_font)           },
+    { NULL,                 0,              0                                }
 };
 
 static void
@@ -352,7 +353,8 @@ write_value_str(FILE* file, gchar* key, guint offset)
 {
     char **member = CHAR_BY_OFFSET(offset);
 
-    fprintf(file, "%s=%s\n", key, *member);
+    if (*member != NULL)
+	fprintf(file, "%s=%s\n", key, *member);
 }
 
 static void
@@ -420,7 +422,7 @@ load_config_file(void)
 	 line != NULL;
 	 line = fgets(buf, sizeof(buf), file)) {
 	key = strtok_r(line, " =\t\n", &saved_position);
-	value = strtok_r(NULL, " \t\n", &saved_position);
+	value = strtok_r(NULL, "\r\n", &saved_position);
 	if (key == NULL || value == NULL)
 	    continue;
 	load_config_item(key, value);
@@ -627,7 +629,6 @@ nabi_app_new(void)
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
     nabi->candidate_table_filename = NULL;
-    nabi->hanja_font = NULL;
 
     nabi->keyboard_maps = NULL;
 
@@ -639,6 +640,7 @@ nabi_app_new(void)
 
     nabi->preedit_fg = NULL;
     nabi->preedit_bg = NULL;
+    nabi->candidate_font = NULL;
 
     nabi->root_window = NULL;
 
@@ -732,6 +734,9 @@ nabi_app_setup_server(void)
     load_candidate_table();
     load_colors();
     set_up_output_mode();
+
+    if (nabi->candidate_font != NULL)
+	nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
 }
 
 static void
@@ -1883,7 +1888,6 @@ nabi_app_create_main_widget(void)
 
     ebox = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(frame), ebox);
-    gtk_container_set_border_width(GTK_CONTAINER(ebox), 3);
     g_signal_connect(G_OBJECT(ebox), "button-press-event",
 		     G_CALLBACK(on_main_window_button_pressed), window);
     gtk_widget_show(ebox);

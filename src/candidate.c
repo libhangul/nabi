@@ -188,8 +188,8 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
     /* character column */
     renderer = gtk_cell_renderer_text_new();
-    g_object_set(renderer, "scale-set", TRUE, NULL);
-    g_object_set(renderer, "scale", PANGO_SCALE_X_LARGE, NULL);
+    if (nabi_server->candidate_font != NULL)
+	g_object_set(renderer, "font", nabi_server->candidate_font, NULL);
     column = gtk_tree_view_column_new_with_attributes("Character",
 						      renderer,
 						      "text", COLUMN_CHARACTER,

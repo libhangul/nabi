@@ -1,3 +1,7 @@
+2004-01-29  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c src/nabi.h src/server.c src/server.h src/ui.c:
+	  설정값 candidate_font 추가, candidate 글자에 사용할 폰트 지정
+
 2004-01-27  Choe Hwanjin <krisna@kldp.org>
 	* src/candidate.h src/candidate.c src/ic.c src/ic.h src/handler.c:
 	  candidate window에서 한자의 뜻을 보여주기 위해 GtkTable대신
