@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.14\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-11-21 15:45+0900\n"
+"POT-Creation-Date: 2004-11-26 22:27+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
@@ -134,11 +134,13 @@ msgstr "<span size=\"xx-large\" weight=\"bold\">나비 %s</span>"
 
 #: src/ui.c:1062
 msgid ""
-"<span size=\"large\">Simple Hangul XIM</span>\n"
-"2003-2004 (C) Choe Hwanjin"
+"<span size=\"large\">An easy Hangul XIM</span>\n"
+"\n"
+"Copyright (c) 2003-2004 Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">간단한 한글 입력기</span>\n"
-"2003-2004 (C) 최환진"
+"\n"
+"Copyright © 2003-2004 최환진"
 
 #: src/ui.c:1070
 msgid "<span weight=\"bold\">XIM name</span>: "
@@ -189,101 +191,105 @@ msgstr "한글 입력기: 나비"
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
-#: src/preference.c:192
-msgid "Tray icons:"
-msgstr "트레이 아이콘:"
+#: src/preference.c:196
+msgid "<span weight=\"bold\">Tray icons</span>"
+msgstr "<span weight=\"bold\">상태 아이콘</span>"
 
-#: src/preference.c:333
+#: src/preference.c:342
 msgid "<span weight=\"bold\">Hangul keyboard</span>"
 msgstr "<span weight=\"bold\">한글 자판</span>"
 
-#: src/preference.c:360
+#: src/preference.c:369
 msgid "Hangul Keyboard"
 msgstr "한글 자판"
 
-#: src/preference.c:379
+#: src/preference.c:388
 msgid "<span weight=\"bold\">English keyboard</span>"
 msgstr "<span weight=\"bold\">영문 자판</span>"
 
-#: src/preference.c:392
+#: src/preference.c:401
 msgid "Querty keyboard"
 msgstr "쿼티 자판"
 
-#: src/preference.c:397
+#: src/preference.c:406
 msgid "Dvorak keyboard"
 msgstr "드보락 자판"
 
-#: src/preference.c:423
-msgid "Select candidate font"
-msgstr "한자 선택창에 쓸 글꼴을 선택하십시오"
-
-#: src/preference.c:460
-msgid "Font:"
-msgstr "글꼴:"
-
-#: src/preference.c:531
+#: src/preference.c:486
 msgid ""
 "<span weight=\"bold\">Press any key which you want to use as trigger key. "
 "The key you pressed is displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\"</span>"
-msgstr "<span weight=\"bold\">한영 전환키로 사용할 키를 누르시면 "
-"아래쪽에 누른 키가 표시가 됩니다.\n그 키를 한영전환키로 사용하시려면 "
-"\"확인\"을 누르시고 아니면 \"취소\"를 누르십시오.</span>"
+msgstr ""
+"<span weight=\"bold\">한영 전환키로 사용할 키를 누르시면 아래쪽에 누른 키가 "
+"표시가 됩니다.\n"
+"그 키를 한영전환키로 사용하시려면 \"확인\"을 누르시고 아니면 \"취소\"를 누르"
+"십시오.</span>"
 
-#: src/preference.c:623
+#: src/preference.c:578
 msgid ""
 "<span weight=\"bold\">Press any key which you want to use as candidate key. "
 "The key you pressed is displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\"</span>"
-msgstr "<span weight=\"bold\">한자 키로 사용할 키를 누르시면 "
-"아래쪽에 누른 키가 표시가 됩니다.\n그 키를 한영전환키로 사용하시려면 "
-"\"확인\"을 누르시고 아니면 \"취소\"를 누르십시오.</span>"
+msgstr ""
+"<span weight=\"bold\">한자 키로 사용할 키를 누르시면 아래쪽에 누른 키가 표시"
+"가 됩니다.\n"
+"그 키를 한영전환키로 사용하시려면 \"확인\"을 누르시고 아니면 \"취소\"를 누르"
+"십시오.</span>"
 
-#: src/preference.c:687
+#: src/preference.c:642
 msgid "<span weight=\"bold\">Trigger keys</span>"
 msgstr "<span weight=\"bold\">한영 전환키</span>"
 
-#: src/preference.c:714
+#: src/preference.c:669
 msgid "Trigger Keys"
 msgstr "한영 전환키"
 
-#: src/preference.c:746
-msgid "(You should restart nabi to apply this option)"
-msgstr "(이 옵션은 나비를 다시 시작해야 적용됩니다)"
+#: src/preference.c:701
+msgid "* You should restart nabi to apply this option"
+msgstr "※ 이 옵션은 나비를 다시 시작해야 적용됩니다"
 
-#: src/preference.c:758
+#: src/preference.c:714
+msgid "Select hanja font"
+msgstr "한자 선택창에 쓸 글꼴을 선택하십시오"
+
+#: src/preference.c:763
+msgid "<span weight=\"bold\">Hanja Font</span>"
+msgstr "<span weight=\"bold\">한자 글꼴</span>"
+
+#: src/preference.c:791
 msgid "<span weight=\"bold\">Hanja keys</span>"
 msgstr "<span weight=\"bold\">한자 키</span>"
 
-#: src/preference.c:785
-msgid "Candidate Keys"
+#: src/preference.c:818
+msgid "Hanja Keys"
 msgstr "한자 키"
 
-#: src/preference.c:836
+#: src/preference.c:869
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:848
+#: src/preference.c:881
 msgid "Tray"
 msgstr "트레이"
 
 #. keyboard
-#: src/preference.c:853
+#: src/preference.c:886
 msgid "Keyboard"
 msgstr "자판"
 
+#. key
+#: src/preference.c:891
+msgid "Hangul"
+msgstr "한글"
+
 #. candidate
-#: src/preference.c:858
-msgid "Candidate"
+#: src/preference.c:896
+msgid "Hanja"
 msgstr "한자"
 
-#. key
-#: src/preference.c:863
-msgid "Key"
-msgstr "키"
-
 #. advanced
-#: src/preference.c:868
+#: src/preference.c:901
 msgid "Advanced"
 msgstr "고급"
