@@ -171,7 +171,7 @@ hangul_dvorak_to_qwerty (KeySym key)
 static wchar_t
 nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
-    wchar_t ch;
+    wchar_t ch = 0;
 
     if (nabi_server->keyboard_map == NULL)
 	return keyval;
@@ -180,8 +180,8 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	keyval = hangul_dvorak_to_qwerty(keyval);
 
     /* Support for unicode keysym */
-    if (keyval & 0x01000000)
-	ch = keyval & 0x0000ffff;
+    if ((keyval & 0xff000000) == 0x01000000)
+	ch = keyval & 0x00ffffff;
     else if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	/* treat capslock, as capslock is not on */
 	if (state & LockMask) {
@@ -194,9 +194,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	    }
 	}
 	ch = nabi_server->keyboard_map[keyval - XK_exclam];
-    } else
-	/* TODO: we need to translate keyval to Unicode char */
-	ch = keyval;
+    }
 
     nabi_server_on_keypress(nabi_server, ch, state);
     return ch;
@@ -383,17 +381,8 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
     }
 
     /* number and puctuation */
-    if (ch > 0) {
-	nabi_ic_commit(ic);
-	nabi_ic_commit_unicode(ic, ch);
-	return True;
-    }
-
-    /* Unknown key so we just commit current string */
-    if (!nabi_ic_is_empty(ic))
-	nabi_ic_commit(ic);
-
-    return False; /* we do not treat this key event */
+    nabi_ic_commit(ic);
+    return nabi_ic_commit_keyval(ic, keyval);
 
 insert:
     nabi_ic_preedit_insert(ic);
@@ -667,17 +656,8 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
     }
 
     /* number and puctuation */
-    if (ch > 0) {
-	nabi_ic_commit(ic);
-	nabi_ic_commit_unicode(ic, ch);
-	return True;
-    }
-
-    /* Unknown key so we just commit current string */
-    if (!nabi_ic_is_empty(ic))
-	nabi_ic_commit(ic);
-
-    return False; /* we do not treat this key event */
+    nabi_ic_commit(ic);
+    return nabi_ic_commit_keyval(ic, keyval);
 
 insert:
     nabi_ic_preedit_insert(ic);
