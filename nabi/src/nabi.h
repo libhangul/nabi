@@ -54,11 +54,6 @@ struct _NabiApplication {
     gchar           *preedit_fg;
     gchar           *preedit_bg;
 
-    /* flags */
-    gint            x_clicked;
-    gint            y_clicked;
-    gboolean        start_moving;
-
     /* hangul status data */
     GdkWindow       *root_window;
     GdkAtom         mode_info_atom;
