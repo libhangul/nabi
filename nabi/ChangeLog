@@ -1,3 +1,7 @@
+2003-10-15  Choe Hwanjin <krisna@kldp.org>
+	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: 한글자모 이외의
+	  글자를 처리하는 루틴을 개선
+
 2003-10-14  Choe Hwanjin <krisna@kldp.org>
 	* release 0.9
 
