@@ -31,7 +31,7 @@
 #include "nabi.h"
 
 NabiApplication* nabi = NULL;
-NabiServer* server = NULL;
+NabiServer* nabi_server = NULL;
 
 static void
 on_realize(GtkWidget *widget, gpointer data)
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
     nabi_app_init();
 
     server = nabi_server_new();
-    nabi_server_init(server);
+    nabi_server_init(nabi_server);
 
     nabi_app_setup_server();
 
@@ -84,8 +84,8 @@ main(int argc, char *argv[])
 
     gtk_main();
 
-    nabi_server_stop(server);
-    nabi_server_destroy(server);
+    nabi_server_stop(nabi_server);
+    nabi_server_destroy(nabi_server);
 
     nabi_app_free();
 

@@ -523,7 +523,7 @@ load_compose_map(void)
     ret = load_compose_map_from_file(nabi->compose_map_filename,
 		    &nabi->compose_map);
     if (ret) {
-	nabi_server_set_compose_map(server,
+	nabi_server_set_compose_map(nabi_server,
 				    nabi->compose_map.map,
 				    nabi->compose_map.size);
     } else {
@@ -545,14 +545,14 @@ load_colors(void)
     gdk_color_parse(nabi->preedit_fg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
-	server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color.pixel;
     else {
 	color.pixel = 1;
 	color.red = 0xffff;
 	color.green = 0xffff;
 	color.blue = 0xffff;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
-	server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color.pixel;
 	fprintf(stderr, _("Can't allocate color: %s\n"),
 		nabi->preedit_fg);
 	fprintf(stderr, _("Use default color: #FFFFFF\n"));
@@ -562,14 +562,14 @@ load_colors(void)
     gdk_color_parse(nabi->preedit_bg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
-	server->preedit_bg = color.pixel;
+	nabi_server->preedit_bg = color.pixel;
     else {
 	color.pixel = 0;
 	color.red = 0;
 	color.green = 0;
 	color.blue = 0;
 	ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
-	server->preedit_fg = color.pixel;
+	nabi_server->preedit_fg = color.pixel;
 	fprintf(stderr, _("Can't allocate color: %s\n"),
 		nabi->preedit_fg);
 	fprintf(stderr, _("Use default color: #000000\n"));
@@ -580,7 +580,7 @@ static void
 set_up_keyboard(void)
 {
     /* dvorak set */
-    nabi_server_set_dvorak(server, nabi->dvorak);
+    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
 
     if (nabi->keyboard_map_filename != NULL) {
 	NabiKeyboardMap *map;
@@ -588,7 +588,7 @@ set_up_keyboard(void)
 	while (list != NULL) {
 	    map = (NabiKeyboardMap*)list->data;
 	    if (strcmp(map->filename, nabi->keyboard_map_filename) == 0) {
-		nabi_server_set_keyboard(server, map->map, map->type);
+		nabi_server_set_keyboard(nabi_server, map->map, map->type);
 		return;
 	    }
 	    list = list->next;
@@ -596,7 +596,7 @@ set_up_keyboard(void)
     }
 
     /* no matching keyboard map, use default keyboard array */
-    nabi_server_set_keyboard(server, keyboard_map_2, NABI_KEYBOARD_2SET);
+    nabi_server_set_keyboard(nabi_server, keyboard_map_2, NABI_KEYBOARD_2SET);
     fprintf(stderr, _("Nabi: No matching keyboard config, use default\n"));
 }
 
@@ -1119,7 +1119,7 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
     NabiKeyboardMap *map = (NabiKeyboardMap*)data;
 
-    nabi_server_set_keyboard(server, map->map, map->type);
+    nabi_server_set_keyboard(nabi_server, map->map, map->type);
     g_free(nabi->keyboard_map_filename);
     nabi->keyboard_map_filename = g_strdup(map->filename);
     save_config_file();
@@ -1129,7 +1129,7 @@ static void
 on_menu_dvorak(GtkWidget *widget)
 {
     nabi->dvorak  = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
-    nabi_server_set_dvorak(server, nabi->dvorak);
+    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
     save_config_file();
 }
 
@@ -1363,7 +1363,7 @@ static void
 on_main_window_realize(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
-    nabi_server_set_mode_info_cb(server, nabi_set_input_mode_info);
+    nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 
 static gboolean
@@ -1474,7 +1474,7 @@ create_hanja_window (NabiIC *ic, const wchar_t* ch)
     y = 0;
     p = ch;
     while (*p != 0) {
-	if (!nabi_server_is_valid_char(server, *p)) {
+	if (!nabi_server_is_valid_char(nabi_server, *p)) {
 	    p++;
 	    continue;
 	}

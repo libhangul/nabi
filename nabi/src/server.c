@@ -64,163 +64,163 @@ NabiServer*
 nabi_server_new(void)
 {
     int i;
-    NabiServer *_server;
+    NabiServer *server;
 
-    _server = (NabiServer*)malloc(sizeof(NabiServer));
+    server = (NabiServer*)malloc(sizeof(NabiServer));
     /* server var */
-    _server->xims = 0;
-    _server->display = NULL;
-    _server->window = 0;
-    _server->filter_mask = 0;
-    _server->trigger_keys = NULL;
+    server->xims = 0;
+    server->display = NULL;
+    server->window = 0;
+    server->filter_mask = 0;
+    server->trigger_keys = NULL;
 
     /* connect list */
-    _server->connect_list = NULL;
+    server->connect_list = NULL;
 
     /* init IC table */
-    _server->ic_table = (NabiIC**)
+    server->ic_table = (NabiIC**)
 	    malloc(sizeof(NabiIC) * DEFAULT_IC_TABLE_SIZE);
-    _server->ic_table_size = DEFAULT_IC_TABLE_SIZE;
-    for (i = 0; i < _server->ic_table_size; i++)
-	_server->ic_table[i] = NULL;
-    _server->ic_freed = NULL;
+    server->ic_table_size = DEFAULT_IC_TABLE_SIZE;
+    for (i = 0; i < server->ic_table_size; i++)
+	server->ic_table[i] = NULL;
+    server->ic_freed = NULL;
 
 
     /* hangul data */
-    _server->keyboard_map = NULL;
-    _server->compose_map = NULL;
-    _server->automata = NULL;
+    server->keyboard_map = NULL;
+    server->compose_map = NULL;
+    server->automata = NULL;
 
-    _server->dynamic_event_flow = True;
-    _server->global_input_mode = True;
-    _server->dvorak = False;
-    _server->input_mode = NABI_INPUT_MODE_DIRECT;
+    server->dynamic_event_flow = True;
+    server->global_input_mode = True;
+    server->dvorak = False;
+    server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* hangul converter */
-    _server->check_ksc = False;
-    _server->converter = (iconv_t)(-1);
+    server->check_ksc = False;
+    server->converter = (iconv_t)(-1);
 
     /* options */
-    _server->preedit_fg = 1;
-    _server->preedit_bg = 0;
+    server->preedit_fg = 1;
+    server->preedit_bg = 0;
 
     /* mode info */
-    _server->mode_info_cb = NULL;
+    server->mode_info_cb = NULL;
 
-    return _server;
+    return server;
 }
 
 void
-nabi_server_destroy(NabiServer *_server)
+nabi_server_destroy(NabiServer *server)
 {
     int i;
     NabiConnect *connect;
 
     /* destroy remaining connect */
-    while (_server->connect_list != NULL) {
-	connect = _server->connect_list;
-	_server->connect_list = _server->connect_list->next;
+    while (server->connect_list != NULL) {
+	connect = server->connect_list;
+	server->connect_list = server->connect_list->next;
 	printf("remove connect id: 0x%x\n", connect->id);
 	nabi_connect_destroy(connect);
     }
 
     /* destroy remaining input contexts */
-    for (i = 0; i < _server->ic_table_size; i++) {
-	nabi_ic_real_destroy(_server->ic_table[i]);
-	_server->ic_table[i] = NULL;
+    for (i = 0; i < server->ic_table_size; i++) {
+	nabi_ic_real_destroy(server->ic_table[i]);
+	server->ic_table[i] = NULL;
     }
 
     /* free remaining fontsets */
-    nabi_fontset_free_all(_server->display);
+    nabi_fontset_free_all(server->display);
 }
 
 void
-nabi_server_set_keyboard(NabiServer *_server,
+nabi_server_set_keyboard(NabiServer *server,
 			 const wchar_t *keyboard_map,
 			 NabiKeyboardType type)
 {
-    _server->keyboard_map = keyboard_map;
+    server->keyboard_map = keyboard_map;
 
     if (type == NABI_KEYBOARD_2SET)
-	_server->automata = nabi_automata_2;
+	server->automata = nabi_automata_2;
     else
-	_server->automata = nabi_automata_3;
+	server->automata = nabi_automata_3;
 }
 
 void
-nabi_server_set_compose_map(NabiServer *_server,
+nabi_server_set_compose_map(NabiServer *server,
 			    NabiComposeItem **compose_map,
 			    int size)
 {
-    _server->compose_map = compose_map;
-    _server->compose_map_size = size;
+    server->compose_map = compose_map;
+    server->compose_map_size = size;
 }
 
 void
-nabi_server_set_automata(NabiServer *_server, NabiKeyboardType type)
+nabi_server_set_automata(NabiServer *server, NabiKeyboardType type)
 {
     if (type == NABI_KEYBOARD_2SET)
-	_server->automata = nabi_automata_2;
+	server->automata = nabi_automata_2;
     else
-	_server->automata = nabi_automata_3;
+	server->automata = nabi_automata_3;
 }
 
 void
-nabi_server_set_mode_info_cb(NabiServer *_server, NabiModeInfoCallback func)
+nabi_server_set_mode_info_cb(NabiServer *server, NabiModeInfoCallback func)
 {
-    _server->mode_info_cb = func;
+    server->mode_info_cb = func;
 }
 
 void
-nabi_server_set_dvorak(NabiServer *_server, Bool flag)
+nabi_server_set_dvorak(NabiServer *server, Bool flag)
 {
-    _server->dvorak = flag;
+    server->dvorak = flag;
 }
 
 void
-nabi_server_init(NabiServer *_server)
+nabi_server_init(NabiServer *server)
 {
     char *codeset;
 
-    _server->filter_mask = KeyPressMask;
-    _server->trigger_keys = nabi_trigger_keys;
+    server->filter_mask = KeyPressMask;
+    server->trigger_keys = nabi_trigger_keys;
 
-    _server->automata = nabi_automata_2;
-    _server->output_mode = NABI_OUTPUT_SYLLABLE;
-//  _server->output_mode = NABI_OUTPUT_JAMO;
+    server->automata = nabi_automata_2;
+    server->output_mode = NABI_OUTPUT_SYLLABLE;
+//  server->output_mode = NABI_OUTPUT_JAMO;
 
     /* check korean locale encoding */
-    _server->check_ksc = True;
+    server->check_ksc = True;
     codeset=nl_langinfo(CODESET);
     if (strcasecmp(codeset,"UTF-8") == 0)
-	_server->check_ksc = False;
+	server->check_ksc = False;
     else if (strcasecmp(codeset,"UTF8") == 0)
-	_server->check_ksc = False;
-    _server->converter = iconv_open(codeset, "WCHAR_T");
-    if ((iconv_t)_server->converter == (iconv_t)(-1)) {
-	_server->check_ksc = False;
+	server->check_ksc = False;
+    server->converter = iconv_open(codeset, "WCHAR_T");
+    if ((iconv_t)server->converter == (iconv_t)(-1)) {
+	server->check_ksc = False;
 	fprintf(stderr, "Nabi: iconv error, we does not check charset\n");
     }
 }
 
 void
-nabi_server_ic_table_expand(NabiServer *_server)
+nabi_server_ic_table_expand(NabiServer *server)
 {
     int i;
-    int old_size = _server->ic_table_size;
+    int old_size = server->ic_table_size;
 
-    _server->ic_table_size = _server->ic_table_size * 2;
-    _server->ic_table = (NabiIC**)realloc(_server->ic_table,
-			  _server->ic_table_size);
-    for (i = old_size; i < _server->ic_table_size; i++)
-	_server->ic_table[i] = NULL;
+    server->ic_table_size = server->ic_table_size * 2;
+    server->ic_table = (NabiIC**)realloc(server->ic_table,
+			  server->ic_table_size);
+    for (i = old_size; i < server->ic_table_size; i++)
+	server->ic_table[i] = NULL;
     printf("expand\n");
 }
 
 Bool
-nabi_server_is_trigger(NabiServer* _server, KeySym key, unsigned int state)
+nabi_server_is_trigger(NabiServer* server, KeySym key, unsigned int state)
 {
-    XIMTriggerKey *item = _server->trigger_keys;
+    XIMTriggerKey *item = server->trigger_keys;
 
     while (item->keysym != 0) {
 	if (key == item->keysym &&
@@ -232,7 +232,7 @@ nabi_server_is_trigger(NabiServer* _server, KeySym key, unsigned int state)
 }
 
 int
-nabi_server_start(NabiServer *_server, Display *display, Window window)
+nabi_server_start(NabiServer *server, Display *display, Window window)
 {
     XIMS xims;
     XIMStyles input_styles;
@@ -252,7 +252,7 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 
     trigger_keys.count_keys = sizeof(nabi_trigger_keys)
 		    / sizeof(XIMTriggerKey) - 1;
-    trigger_keys.keylist = _server->trigger_keys;
+    trigger_keys.keylist = server->trigger_keys;
 
     xims = IMOpenIM(display,
 		   IMModifiers, "Xi18n",
@@ -267,7 +267,7 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 	exit(1);
     }
 
-    if (_server->dynamic_event_flow) {
+    if (server->dynamic_event_flow) {
 	IMSetIMValues(xims,
 		      IMOnKeysList, &trigger_keys,
 		      NULL);
@@ -284,9 +284,9 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 		  IMEncodingList, &encodings_ret,
 		  NULL);
 
-    _server->xims = xims;
-    _server->display = display;
-    _server->window = window;
+    server->xims = xims;
+    server->display = display;
+    server->window = window;
 
     fprintf(stderr, "Nabi: xim server started\n");
 
@@ -294,43 +294,43 @@ nabi_server_start(NabiServer *_server, Display *display, Window window)
 }
 
 int
-nabi_server_stop(NabiServer *_server)
+nabi_server_stop(NabiServer *server)
 {
-    iconv_close(_server->converter);
-    IMCloseIM(_server->xims);
+    iconv_close(server->converter);
+    IMCloseIM(server->xims);
     fprintf(stderr, "Nabi: xim server stoped\n");
 
     return 0;
 }
 
 NabiIC*
-nabi_server_get_ic(NabiServer *_server, CARD16 icid)
+nabi_server_get_ic(NabiServer *server, CARD16 icid)
 {
-    if (icid > 0 && icid < _server->ic_table_size)
-	return _server->ic_table[icid];
+    if (icid > 0 && icid < server->ic_table_size)
+	return server->ic_table[icid];
     else
 	return NULL;
 }
 
 void
-nabi_server_add_connect(NabiServer *_server, NabiConnect *connect)
+nabi_server_add_connect(NabiServer *server, NabiConnect *connect)
 {
     NabiConnect *list;
 
     if (connect == NULL)
 	return;
 
-    list = _server->connect_list;
+    list = server->connect_list;
     connect->next = list;
-    _server->connect_list = connect;
+    server->connect_list = connect;
 }
 
 NabiConnect*
-nabi_server_get_connect_by_id(NabiServer *_server, CARD16 connect_id)
+nabi_server_get_connect_by_id(NabiServer *server, CARD16 connect_id)
 {
     NabiConnect *connect;
 
-    connect = _server->connect_list;
+    connect = server->connect_list;
     while (connect != NULL) {
 	if (connect->id == connect_id)
 	    return connect;
@@ -340,7 +340,7 @@ nabi_server_get_connect_by_id(NabiServer *_server, CARD16 connect_id)
 }
 
 void
-nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
+nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
 {
     NabiConnect *prev;
     NabiConnect *list;
@@ -349,11 +349,11 @@ nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
 	return;
 
     prev = NULL;
-    list = _server->connect_list;
+    list = server->connect_list;
     while (list != NULL) {
 	if (list->id == connect->id) {
 	    if (prev == NULL)
-		_server->connect_list = list->next;
+		server->connect_list = list->next;
 	    else
 		prev->next = list->next;
 	    list->next = NULL;
@@ -364,20 +364,20 @@ nabi_server_remove_connect(NabiServer *_server, NabiConnect *connect)
 }
 
 Bool
-nabi_server_is_valid_char(NabiServer *_server, wchar_t ch)
+nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
 {
     char buf[16];
     size_t ret, inbytesleft, outbytesleft;
     char *inbuf, *outbuf;
 
-    if ((iconv_t)_server->converter == (iconv_t)(-1))
+    if ((iconv_t)server->converter == (iconv_t)(-1))
 	return True;
 
     inbuf = (char *)&ch;
     outbuf = buf;
     inbytesleft = sizeof(ch);
     outbytesleft = sizeof(buf);
-    ret = iconv(_server->converter,
+    ret = iconv(server->converter,
 	    	&inbuf, &inbytesleft, &outbuf, &outbytesleft);
     if ((iconv_t)ret == (iconv_t)(-1))
 	return False;

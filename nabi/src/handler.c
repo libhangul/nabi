@@ -176,7 +176,7 @@ nabi_handler_open(XIMS ims, IMProtocol *call_data)
     NabiConnect *connect;
 
     connect = nabi_connect_create(data->connect_id);
-    nabi_server_add_connect(server, connect);
+    nabi_server_add_connect(nabi_server, connect);
 
     dmesg("open connect_id = 0x%x\n", (int)data->connect_id);
     return True;
@@ -188,8 +188,8 @@ nabi_handler_close(XIMS ims, IMProtocol *call_data)
     IMCloseStruct *data = (IMCloseStruct *)call_data;
     NabiConnect *connect;
 
-    connect = nabi_server_get_connect_by_id(server, data->connect_id);
-    nabi_server_remove_connect(server, connect);
+    connect = nabi_server_get_connect_by_id(nabi_server, data->connect_id);
+    nabi_server_remove_connect(nabi_server, connect);
     nabi_connect_destroy(connect);
 
     dmesg("closing connect_id 0x%x\n", (int)data->connect_id);
@@ -210,7 +210,7 @@ nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC *ic = nabi_server_get_ic(server, call_data->changeic.icid);
+    NabiIC *ic = nabi_server_get_ic(nabi_server, call_data->changeic.icid);
 
     if (ic != NULL) {
 	nabi_connect_remove_ic(ic->connect, ic);
@@ -223,7 +223,7 @@ static Bool
 nabi_handler_set_ic_values(XIMS ims, IMProtocol *call_data)
 {
 	IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-	NabiIC *ic = nabi_server_get_ic(server, data->icid);
+	NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
 			 
 	if (ic != NULL)
 		nabi_ic_set_values(ic, data);
@@ -234,7 +234,7 @@ static Bool
 nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 {
 	IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-	NabiIC *ic = nabi_server_get_ic(server, data->icid);
+	NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
 			 
 	if (ic != NULL)
 		nabi_ic_get_values(ic, data);
@@ -278,7 +278,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	return False;
     }
 
-    return server->automata(ic, keyval, kevent->state);
+    return nabi_server->automata(ic, keyval, kevent->state);
 }
 
 static Bool
@@ -302,7 +302,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	len = XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);
 	buf[len] = '\0';
 
-	ic = nabi_server_get_ic(server, data->icid);
+	ic = nabi_server_get_ic(nabi_server, data->icid);
 	if (ic == NULL)
 		return True;
 
@@ -310,7 +310,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 		/* direct mode */
 		if (ic->preedit.start)
 		    nabi_ic_preedit_done(ic);
-		if (nabi_server_is_trigger(server, keysym, kevent->state)) {
+		if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
 			/* change input mode to compose mode */
 			nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
 			return True;
@@ -318,7 +318,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 
 		IMForwardEvent(ims, (XPointer)data);
 	} else {
-		if (nabi_server_is_trigger(server, keysym, kevent->state)) {
+		if (nabi_server_is_trigger(nabi_server, keysym, kevent->state)) {
 			/* change input mode to direct mode */
 			nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
 			return True;
@@ -337,7 +337,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC* ic = nabi_server_get_ic(server, call_data->changefocus.icid);
+	NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
 
 	if (ic == NULL)
 		return True;
@@ -351,13 +351,13 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC* ic = nabi_server_get_ic(server, call_data->changefocus.icid);
+	NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
 
 	if (ic == NULL)
 		return True;
 
-	if (server->mode_info_cb)
-	    server->mode_info_cb(NABI_MODE_INFO_NONE);
+	if (nabi_server->mode_info_cb)
+	    nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
 
 	return True;
 }
@@ -365,7 +365,7 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(server, call_data->resetic.icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->resetic.icid);
 
     if (ic == NULL)
 	    return True;
@@ -378,7 +378,7 @@ static Bool
 nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 {
     IMTriggerNotifyStruct *data = (IMTriggerNotifyStruct *)call_data;
-    NabiIC* ic = nabi_server_get_ic(server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     if (ic == NULL)
 	return True;
@@ -392,7 +392,7 @@ nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(server, call_data->preedit_callback.icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->preedit_callback.icid);
 
     if (ic != NULL)
 	    return True;
@@ -402,7 +402,7 @@ nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(server, call_data->preedit_callback.icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->preedit_callback.icid);
 
     if (ic != NULL)
 	    return True;
