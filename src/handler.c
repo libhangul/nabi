@@ -279,9 +279,6 @@ nabi_filter_candidate(NabiIC* ic, KeySym keyval)
     case XK_KP_Enter:
 	ch = nabi_candidate_get_current(ic->candidate);
 	break;
-    case XK_0:
-	ch = nabi_candidate_get_nth(ic->candidate, 9);
-	break;
     case XK_1:
     case XK_2:
     case XK_3:
@@ -292,9 +289,6 @@ nabi_filter_candidate(NabiIC* ic, KeySym keyval)
     case XK_8:
     case XK_9:
 	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
-	break;
-    case XK_KP_0:
-	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     case XK_KP_1:
     case XK_KP_2:
@@ -333,9 +327,6 @@ nabi_filter_candidate(NabiIC* ic, KeySym keyval)
 	break;
     case XK_KP_Prior:
 	ch = nabi_candidate_get_nth(ic->candidate, 8);
-	break;
-    case XK_KP_Insert:
-	ch = nabi_candidate_get_nth(ic->candidate, 9);
 	break;
     default:
 	return False;

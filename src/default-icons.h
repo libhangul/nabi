@@ -1,5 +1,5 @@
 /* XPM */
-const static char * none_default_xpm[] = {
+static const char * none_default_xpm[] = {
 "144 96 149 2",
 "  	c None",
 ". 	c #4E4E4E",

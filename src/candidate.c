@@ -495,11 +495,12 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
     if (candidate == NULL)
 	return 0;
 
+    n += candidate->first;
     if (n < 0 && n >= candidate->n)
 	return 0;
 
-    candidate->current = candidate->first + n;
-    return candidate->data[candidate->first + n]->ch;
+    candidate->current = n;
+    return candidate->data[n]->ch;
 }
 
 void
