@@ -1,5 +1,6 @@
 INCLUDES = \
 	@GTK_CFLAGS@ \
+	-DLOCALEDIR=\"${datadir}/locale\" \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
 	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
 
