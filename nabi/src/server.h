@@ -25,7 +25,7 @@
 
 #include <X11/Xlib.h>
 #include <wchar.h>
-#include <iconv.h>
+#include <glib.h>
 
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
@@ -96,7 +96,7 @@ struct _NabiServer {
 
     /* hangul converter */
     Bool                    check_charset;
-    iconv_t                 converter;
+    GIConv                  converter;
 
     /* options */
     Bool                    dynamic_event_flow;
