@@ -1032,15 +1032,14 @@ static void
 on_menu_about(GtkWidget *widget)
 {
     GtkWidget *dialog = NULL;
-    GtkWidget *hbox;
-    GtkWidget *title;
+    GtkWidget *vbox;
     GtkWidget *comment;
     GtkWidget *server_info;
     GtkWidget *image;
     GtkWidget *label;
     GList *list;
     gchar *image_filename;
-    gchar *title_str;
+    gchar *comment_str;
     gchar buf[256];
     const char *encoding = "";
 
@@ -1056,25 +1055,23 @@ on_menu_about(GtkWidget *widget)
 					 GTK_RESPONSE_CLOSE,
 					 NULL);
     about_dialog = dialog;
+    vbox = GTK_DIALOG(dialog)->vbox;
 
     image_filename = g_build_filename(NABI_DATA_DIR, "nabi-about.png", NULL);
     image = gtk_image_new_from_file(image_filename);
+    gtk_misc_set_padding(GTK_MISC(image), 0, 6);
+    gtk_box_pack_start(GTK_BOX(vbox), image, FALSE, TRUE, 0);
     gtk_widget_show(image);
     g_free(image_filename);
 
-    title = gtk_label_new(NULL);
-    title_str = g_strdup_printf(_("<span size=\"xx-large\" "
-				  "weight=\"bold\">Nabi %s</span>"), VERSION);
-    gtk_label_set_markup(GTK_LABEL(title), title_str);
-    gtk_widget_show(title);
-    g_free(title_str);
-
     comment = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(comment),
-	    _("<span size=\"large\">An easy Hangul XIM</span>\n"
-	      "version " VERSION "\n\n"
-	      "Copyright (c) 2003-2004 Choe Hwanjin"));
+    comment_str = g_strdup_printf(
+			_("<span size=\"large\">An Easy Hangul XIM</span>\n"
+			  "version %s\n\n"
+			  "Copyright (c) 2003-2004 Choe Hwanjin"), VERSION);
+    gtk_label_set_markup(GTK_LABEL(comment), comment_str);
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
+    gtk_box_pack_start(GTK_BOX(vbox), comment, FALSE, TRUE, 0);
     gtk_widget_show(comment);
 
     server_info = gtk_table_new(4, 2, TRUE);
@@ -1120,19 +1117,8 @@ on_menu_about(GtkWidget *widget)
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 3, 4);
 
+    gtk_box_pack_start(GTK_BOX(vbox), server_info, FALSE, TRUE, 5);
     gtk_widget_show_all(server_info);
-
-    hbox = gtk_hbox_new(FALSE, 10);
-    gtk_container_set_border_width(GTK_CONTAINER(hbox), 10);
-    gtk_box_pack_start(GTK_BOX(hbox), image, FALSE, TRUE, 0);
-    //gtk_box_pack_start(GTK_BOX(hbox), title, FALSE, TRUE, 0);
-    gtk_container_set_border_width(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox), 0);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, FALSE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
-		       comment, FALSE, TRUE, 5);
-    gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
-		       server_info, FALSE, TRUE, 5);
-    gtk_widget_show(hbox);
 
     if (!nabi->status_only) {
 	GtkWidget *hbox;
