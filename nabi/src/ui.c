@@ -292,6 +292,7 @@ const static struct config_item config_items[] = {
     { "keyboard_map",       CONF_TYPE_STR,  OFFSET(keyboard_map_filename) },
     { "compose_map",        CONF_TYPE_STR,  OFFSET(compose_map_filename)  },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                },
+    { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)           },
     { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)            },
     { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)            },
     { NULL,                 0,              0                             }
@@ -397,6 +398,7 @@ load_config_file(void)
 						 "compose",
 						 "default",
 						 NULL);
+    nabi->output_mode = g_strdup("syllable");
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
 
@@ -416,7 +418,7 @@ load_config_file(void)
 	value = strtok_r(NULL, " \t\n", &saved_position);
 	if (key == NULL || value == NULL)
 	    continue;
-	    load_config_item(key, value);
+	load_config_item(key, value);
     }
     fclose(file);
     g_free(config_filename);
@@ -612,13 +614,15 @@ nabi_app_new(void)
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
-    nabi->dvorak = FALSE;
     nabi->hanja_font = NULL;
 
     nabi->keyboard_maps = NULL;
 
     nabi->compose_map.name = NULL;
     nabi->compose_map.map = NULL;
+
+    nabi->dvorak = FALSE;
+    nabi->output_mode = NULL;
 
     nabi->preedit_fg = NULL;
     nabi->preedit_bg = NULL;
@@ -649,12 +653,29 @@ nabi_app_init(void)
     g_free(icon_filename);
 }
 
+static void
+set_up_output_mode(void)
+{
+    NabiOutputMode mode;
+
+    mode = NABI_OUTPUT_SYLLABLE;
+    if (nabi->output_mode != NULL) {
+	if (g_ascii_strcasecmp(nabi->output_mode, "jamo") == 0) {
+	    mode = NABI_OUTPUT_JAMO;
+	} else if (g_ascii_strcasecmp(nabi->output_mode, "manual") == 0) {
+	    mode = NABI_OUTPUT_MANUAL;
+	}
+    }
+    nabi_server_set_output_mode(nabi_server, mode);
+}
+
 void
 nabi_app_setup_server(void)
 {
     set_up_keyboard();
     load_compose_map();
     load_colors();
+    set_up_output_mode();
 }
 
 static void
@@ -709,6 +730,8 @@ nabi_app_free(void)
     for (i = 0; i < nabi->compose_map.size; i++)
 	g_free(nabi->compose_map.map[i]);
     g_free(nabi->compose_map.map);
+
+    g_free(nabi->output_mode);
 
     g_free(nabi->preedit_fg);
     g_free(nabi->preedit_bg);

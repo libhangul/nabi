@@ -45,12 +45,15 @@ struct _NabiApplication {
     gchar*          theme;
     gchar*          keyboard_map_filename;
     gchar*          compose_map_filename;
-    gboolean        dvorak;
     gchar*          hanja_font;
 
     GSList 	    *keyboard_maps;
 
     NabiComposeMap  compose_map;
+
+    /* xim server option */
+    gboolean        dvorak;
+    gchar           *output_mode;
 
     /* preedit attribute */
     gchar           *preedit_fg;
