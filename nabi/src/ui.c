@@ -1628,6 +1628,7 @@ nabi_app_set_candidate_font(const char *font)
 	g_free(nabi->candidate_font);
 	nabi->candidate_font = g_strdup(font);
 	nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
+	nabi_save_config_file();
     }
 }
 
