@@ -457,8 +457,6 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 
     ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
     ic->preedit.width = 1;
-    g_print("width: %d, height: %d\n",
-	    ic->preedit.width, ic->preedit.height);
 }
 
 static void
@@ -478,8 +476,6 @@ nabi_ic_set_spot(NabiIC *ic, XPoint *point)
 	nabi_ic_preedit_hide(ic);
     else
 	nabi_ic_preedit_show(ic);
-
-    //g_print("spot: ( %d, %d )\n", point->x, point->y);
 }
 
 #define streql(x, y)	(strcmp((x), (y)) == 0)
@@ -498,7 +494,6 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
     for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
 	if (streql(XNInputStyle, ic_attr->name)) {
 	    ic->input_style = *(INT32*)ic_attr->value;
-	    g_print("input_style: %x\n", ic->input_style);
 	} else if (streql(XNClientWindow, ic_attr->name)) {
 	    ic->client_window = *(Window*)ic_attr->value;
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
@@ -506,7 +501,6 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	} else {
 	    g_print("Unknown IC_ATTR: %s\n", ic_attr->name);
 	}
-	//g_print("IC_ATTR: %s\n", ic_attr->name);
     }
     
     for (i = 0; i < data->preedit_attr_num; i++, preedit_attr++) {
@@ -531,7 +525,6 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    g_print("Unknown PREEDIT_ATTR: %s\n",
 		    preedit_attr->name);
 	}
-	//g_print("SET PREEDIT_ATTR: %s\n", preedit_attr->name);
     }
     
     for (i = 0; i < data->status_attr_num; i++, status_attr++) {
@@ -565,7 +558,6 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    fprintf(stderr, _("Nabi: unkown ic attributes: %s\n"),
 		ic_attr->name);
 	}
-	g_print("IC_ATTR: %s\n", ic_attr->name);
     }
     
     for (i = 0; i < data->preedit_attr_num; i++, preedit_attr++) {
@@ -622,7 +614,6 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    g_print("Nabi: unkown preedit attributes: %s\n",
 		preedit_attr->name);
 	}
-	g_print("GET PREEDIT_ATTR: %s\n", preedit_attr->name);
     }
 
     for (i = 0; i < data->status_attr_num; i++, status_attr++) {
@@ -662,7 +653,6 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    g_print("Nabi: unkown status attributes: %s\n",
 		status_attr->name);
 	}
-	g_print("STATUS_ATTR: %s\n", status_attr->name);
     }
 }
 
@@ -776,7 +766,6 @@ nabi_ic_preedit_start(NabiIC *ic)
 	preedit_state.connect_id = ic->connect_id;
 	preedit_state.icid = ic->id;
 	IMPreeditStart(server->xims, (XPointer)&preedit_state);
-	g_print("Preedit Start\n");
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
@@ -815,7 +804,6 @@ nabi_ic_preedit_done(NabiIC *ic)
 	preedit_state.connect_id = ic->connect_id;
 	preedit_state.icid = ic->id;
 	IMPreeditEnd(server->xims, (XPointer)&preedit_state);
-	g_print("Preedit End\n");
     }
 }
 
