@@ -263,7 +263,7 @@ hangul_jamo_to_syllable(wchar_t choseong, wchar_t jungseong, wchar_t jongseong)
 
 /* from glib 2.0 gutf8.c:g_unichar_to_utf8() */
 int
-hangul_wchar_to_utf8 (wchar_t c, char *outbuf)
+hangul_wchar_to_utf8 (wchar_t c, char *outbuf, int bufsize)
 {
     unsigned int len = 0;
     int first;
@@ -289,6 +289,9 @@ hangul_wchar_to_utf8 (wchar_t c, char *outbuf)
 	len = 6;
     }
 
+    if (len > bufsize)
+	return 0;
+
     if (outbuf) {
 	for (i = len - 1; i > 0; --i) {
 	    outbuf[i] = (c & 0x3f) | 0x80;
@@ -301,13 +304,18 @@ hangul_wchar_to_utf8 (wchar_t c, char *outbuf)
 }
 
 int
-hangul_wcharstr_to_utf8str(wchar_t *wstr, char *buf)
+hangul_wcharstr_to_utf8str(wchar_t *wstr, char *buf, int bufsize)
 {
+    int ret = 0;
     int n = 0;
 
-    while (*wstr != 0) {
-	n += hangul_wchar_to_utf8(*wstr, buf);
-	buf += n;
+    while (*wstr != 0 && bufsize > 0) {
+	ret = hangul_wchar_to_utf8(*wstr, buf, bufsize);
+	if (ret == 0)
+	    break;
+	buf += ret;
+	bufsize -= ret;
+	n += ret;
 	wstr++;
     }
 
