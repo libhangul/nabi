@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <gtk/gtk.h>
@@ -24,6 +25,17 @@
 #include "default-icons.h"
 
 #define KEYBOARD_MAP_SIZE   94
+#define DEFAULT_ICON_SIZE   24
+
+enum {
+	THEMES_LIST_PATH = 0,
+	THEMES_LIST_NONE,
+	THEMES_LIST_HANGUL,
+	THEMES_LIST_ENGLISH,
+	THEMES_LIST_NAME,
+	N_COLS
+};
+
 
 static void remove_event_filter();
 
@@ -663,9 +675,249 @@ on_menu_pref(GtkWidget *widget)
 }
 
 static void
+selection_changed_cb (GtkTreeSelection *selection, gpointer data)
+{
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    gchar *path;
+    gchar *theme;
+    gboolean ret;
+    AppletData *applet_data = (AppletData*)data;
+    GError *gerror = NULL;
+
+    ret = gtk_tree_selection_get_selected(selection, &model, &iter);
+    if (!ret)
+	return;
+    gtk_tree_model_get(model, &iter,
+		       THEMES_LIST_PATH, &path,
+		       THEMES_LIST_NAME, &theme,
+		       -1);
+
+    load_theme(applet_data, path);
+
+    /* saving theme setting */
+    panel_applet_gconf_set_string(applet_data->applet,
+				  "theme", theme,
+				  &gerror);
+    if (gerror)
+	g_print("%s:error on saving theme setting: %s\n",
+		PACKAGE, gerror->message);
+}
+
+static GtkTreePath *
+search_theme_in_model (GtkTreeModel *model, gchar *target_theme)
+{
+    gchar *theme = "";
+    GtkTreeIter iter;
+    GtkTreePath *path;
+
+    gtk_tree_model_get_iter_first(model, &iter);
+    do {
+	gtk_tree_model_get(model, &iter,
+			   THEMES_LIST_NAME, &theme,
+			   -1);
+	if (strcmp(target_theme, theme) == 0) {
+	    path = gtk_tree_model_get_path(model, &iter);
+	    return path;
+	}
+    } while (gtk_tree_model_iter_next(model, &iter));
+
+    return NULL;
+}
+
+static GdkPixbuf *
+load_resized_icons_from_file(const gchar *filename)
+{
+    GdkPixbuf *pixbuf;
+    GdkPixbuf *pixbuf_resized;
+    gdouble factor;
+    gint orig_width, orig_height;
+    gint new_width, new_height;
+
+    pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
+    orig_width = gdk_pixbuf_get_width(pixbuf);
+    orig_height = gdk_pixbuf_get_height(pixbuf);
+
+    if (orig_width > orig_height) {
+	factor =  (double)DEFAULT_ICON_SIZE / (double)orig_width;
+	new_width = DEFAULT_ICON_SIZE;
+	new_height = (int)(orig_height * factor);
+    } else {
+	factor = (double)DEFAULT_ICON_SIZE / (double)orig_height;
+	new_width = (int)(orig_width * factor);
+	new_height = DEFAULT_ICON_SIZE;
+    }
+
+    pixbuf_resized = gdk_pixbuf_scale_simple(pixbuf,
+					     new_width, new_height,
+					     GDK_INTERP_BILINEAR);
+    g_object_unref(pixbuf);
+
+    return pixbuf_resized;
+}
+
+static GtkTreeModel *
+get_themes_list(void)
+{
+    gchar *path;
+    gchar *theme_dir;
+    gchar *file_none;
+    gchar *file_hangul;
+    gchar *file_english;
+    GdkPixbuf *pixbuf_none;
+    GdkPixbuf *pixbuf_hangul;
+    GdkPixbuf *pixbuf_english;
+    GtkListStore *store;
+    GtkTreeIter iter;
+    DIR *dir;
+    struct dirent *dent;
+
+    store = gtk_list_store_new(N_COLS,
+			       G_TYPE_STRING,
+			       GDK_TYPE_PIXBUF,
+			       GDK_TYPE_PIXBUF,
+			       GDK_TYPE_PIXBUF,
+			       G_TYPE_STRING);
+
+    path = NABI_THEMES_DIR;
+
+    dir = opendir(path);
+    if (dir == NULL)
+	    return NULL;
+
+    for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
+	if (dent->d_name[0] == '.')
+	    continue;
+
+	theme_dir = g_build_filename(path, dent->d_name, NULL);
+	file_none = g_build_filename(theme_dir, "none.png", NULL);
+	file_hangul = g_build_filename(theme_dir, "hangul.png", NULL);
+	file_english = g_build_filename(theme_dir, "english.png", NULL);
+	pixbuf_none = load_resized_icons_from_file(file_none);
+	pixbuf_hangul = load_resized_icons_from_file(file_hangul);
+	pixbuf_english = load_resized_icons_from_file(file_english);
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set (store, &iter,
+			    THEMES_LIST_PATH, theme_dir,
+			    THEMES_LIST_NONE, pixbuf_none,
+			    THEMES_LIST_HANGUL, pixbuf_hangul,
+			    THEMES_LIST_ENGLISH, pixbuf_english,
+			    THEMES_LIST_NAME, dent->d_name,
+			    -1);
+	g_free(theme_dir);
+	g_free(file_none);
+	g_free(file_hangul);
+	g_free(file_english);
+	gdk_pixbuf_unref(pixbuf_none);
+	gdk_pixbuf_unref(pixbuf_hangul);
+	gdk_pixbuf_unref(pixbuf_english);
+    }
+
+    return GTK_TREE_MODEL(store);
+}
+
+static void
 on_menu_themes(GtkWidget *widget, gpointer data)
 {
-    g_print("themes\n");
+    static GtkWidget *dialog = NULL;
+
+    GtkWidget *vbox;
+    GtkWidget *scrolledwindow;
+    gchar *theme;
+
+    GtkWidget *treeview;
+    GtkTreeModel *model;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
+    GtkTreeSelection *selection;
+    GtkTreePath *path;
+    GtkRequisition treeview_size;
+
+    if (dialog != NULL) {
+	gtk_window_present(GTK_WINDOW(dialog));
+	return;
+    }
+
+    dialog = gtk_dialog_new_with_buttons(_(PACKAGE ": Select Theme"),
+					 NULL,
+					 GTK_DIALOG_MODAL,
+					 GTK_STOCK_CLOSE,
+					 GTK_RESPONSE_CLOSE,
+					 NULL);
+
+    vbox = GTK_DIALOG(dialog)->vbox;
+    gtk_widget_show(vbox);
+
+    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
+				   GTK_POLICY_AUTOMATIC,
+				   GTK_POLICY_AUTOMATIC);
+    gtk_widget_show(scrolledwindow);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 8);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
+
+    /* loading themes list */
+    model = get_themes_list();
+    treeview = gtk_tree_view_new_with_model(model);
+    g_object_unref(G_OBJECT(model));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_widget_show(treeview);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+
+    /* theme icons */
+    /* state None */
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("None"));
+    renderer = gtk_cell_renderer_pixbuf_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer,
+				       "pixbuf", THEMES_LIST_NONE);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    /* state Hangul */
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("Hangul"));
+    renderer = gtk_cell_renderer_pixbuf_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer,
+				       "pixbuf", THEMES_LIST_HANGUL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    /* state English */
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("English"));
+    renderer = gtk_cell_renderer_pixbuf_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer,
+				       "pixbuf", THEMES_LIST_ENGLISH);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes(_("Theme Name"),
+						      renderer,
+						      "text",
+						      THEMES_LIST_NAME,
+						      NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    g_signal_connect(G_OBJECT(selection), "changed",
+		     G_CALLBACK(selection_changed_cb), NULL);
+
+    path = search_theme_in_model(model, nabi->theme);
+    if (path) {
+	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview),
+				  path, NULL, FALSE);
+	gtk_tree_path_free(path);
+    }
+
+    gtk_widget_size_request(treeview, &treeview_size);
+    gtk_widget_set_size_request(scrolledwindow,
+	    CLAMP(treeview_size.width + 50, 200, gdk_screen_width()), 250);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+    dialog = NULL;
 }
 
 void
