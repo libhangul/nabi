@@ -1,3 +1,7 @@
+2004-02-29  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/i18nIc.c IMdkit/i18nMethod.c IMdkit/i18nPtHdr.c:
+	바이트 오더 문제를 해결하기 위한 수정
+
 2004-02-18  Choe Hwanjin <krisna@kldp.org>
 	* GNU gettext 대신 glib gettext를 사용하도록 수정
 
