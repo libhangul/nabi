@@ -1,3 +1,7 @@
+2004-02-16  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c: 한자 선택창 페이지를 바꾸면서 화면에서 벗어나는
+	  문제를 수정 (#300256)
+
 2004-02-10  Choe Hwanjin <krisna@kldp.org>
 	* IMdkit/Makefile.am src/Makefile.am: -Wall 컴파일 옵션 제거(#300245)
 
