@@ -29,6 +29,7 @@
 
 #include "server.h"
 #include "fontset.h"
+#include "hangul.h"
 
 #define DEFAULT_IC_TABLE_SIZE	1024
 
@@ -203,7 +204,8 @@ nabi_server_init(NabiServer *server)
 	server->check_charset = False;
     else if (strcasecmp(codeset,"UTF8") == 0)
 	server->check_charset = False;
-    server->converter = iconv_open(codeset, "WCHAR_T");
+
+    server->converter = iconv_open(codeset, "UTF-8");
     if ((iconv_t)server->converter == (iconv_t)(-1)) {
 	server->check_charset = False;
 	fprintf(stderr, "Nabi: iconv error, we does not check charset\n");
@@ -380,16 +382,22 @@ nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
 Bool
 nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
 {
+    int n;
+    char utf8[16];
     char buf[16];
     size_t ret, inbytesleft, outbytesleft;
-    char *inbuf, *outbuf;
+    char *inbuf;
+    char *outbuf;
 
     if ((iconv_t)server->converter == (iconv_t)(-1))
 	return True;
 
-    inbuf = (char *)&ch;
+    n = hangul_wchar_to_utf8(ch, utf8);
+    utf8[n] = '\0';
+
+    inbuf = utf8;
     outbuf = buf;
-    inbytesleft = sizeof(ch);
+    inbytesleft = n;
     outbytesleft = sizeof(buf);
     ret = iconv(server->converter,
 	    	&inbuf, &inbytesleft, &outbuf, &outbytesleft);

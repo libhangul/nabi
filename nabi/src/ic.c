@@ -40,7 +40,8 @@
 GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 static void nabi_ic_buf_clear(NabiIC *ic);
-static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
+static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf,
+				       int *len, int *size);
 
 static inline void *
 nabi_malloc(size_t size)
@@ -345,7 +346,7 @@ nabi_ic_real_destroy(NabiIC *ic)
 }
 
 static void
-nabi_ic_preedit_draw_string(NabiIC *ic, wchar_t *str, int len)
+nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 {
     int width;
 
@@ -356,7 +357,7 @@ nabi_ic_preedit_draw_string(NabiIC *ic, wchar_t *str, int len)
     if (ic->preedit.gc == 0)
 	return;
 
-    width = XwcTextEscapement(ic->preedit.font_set, str, len);
+    width = Xutf8TextEscapement(ic->preedit.font_set, str, size);
     if (ic->preedit.width != width) {
 	ic->preedit.width = width;
 	ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
@@ -372,26 +373,26 @@ nabi_ic_preedit_draw_string(NabiIC *ic, wchar_t *str, int len)
 		    ic->preedit.spot.x, 
 		    ic->preedit.spot.y - ic->preedit.ascent);
     }
-    XwcDrawImageString(nabi_server->display,
-		       ic->preedit.window,
-		       ic->preedit.font_set,
-		       ic->preedit.gc,
-		       0,
-		       ic->preedit.ascent,
-		       str, len);
+    Xutf8DrawImageString(nabi_server->display,
+		         ic->preedit.window,
+		         ic->preedit.font_set,
+		         ic->preedit.gc,
+		         0,
+		         ic->preedit.ascent,
+		         str, size);
 }
 
 static void
 nabi_ic_preedit_draw(NabiIC *ic)
 {
-    int len;
-    wchar_t buf[16] = { 0, };
+    int len, size;
+    char buf[48] = { 0, };
 
     if (nabi_ic_is_empty(ic))
 	return;
 
-    nabi_ic_get_preedit_string(ic, buf, &len);
-    nabi_ic_preedit_draw_string(ic, buf, len);
+    nabi_ic_get_preedit_string(ic, buf, &len, &size);
+    nabi_ic_preedit_draw_string(ic, buf, size);
 }
 
 /* map preedit window */
@@ -961,10 +962,11 @@ nabi_ic_preedit_done(NabiIC *ic)
 }
 
 void
-nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len)
+nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int *len, int *size)
 {
     int i, n;
     wchar_t ch;
+    wchar_t buf[16];
     
     n = 0;
     if (nabi_server->output_mode == NABI_OUTPUT_MANUAL) {
@@ -1046,26 +1048,28 @@ nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len)
 
     buf[n] = L'\0';
     *len = n;
+    *size = hangul_wcharstr_to_utf8str(buf, utf8);
 }
 
 void
 nabi_ic_preedit_insert(NabiIC *ic)
 {
-    int len;
-    wchar_t buf[16] = { 0, };
-    wchar_t *list[1];
+    int len, size;
+    char *list[2];
+    char buf[48] = { 0, };
     IMPreeditCBStruct data;
     XIMText text;
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
     XTextProperty tp;
 
-    nabi_ic_get_preedit_string(ic, buf, &len);
-    list[0] = buf;
+    nabi_ic_get_preedit_string(ic, buf, &len, &size);
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	XwcTextListToTextProperty(nabi_server->display, list, 1,
-				  XCompoundTextStyle,
-				  &tp);
+	list[0] = buf;
+	list[1] = 0;
+	Xutf8TextListToTextProperty(nabi_server->display, list, 1,
+				    XCompoundTextStyle,
+				    &tp);
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
@@ -1084,7 +1088,7 @@ nabi_ic_preedit_insert(NabiIC *ic)
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(tp.value);
     } else if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_draw_string(ic, buf, len);
+	nabi_ic_preedit_draw_string(ic, buf, size);
 	nabi_ic_preedit_show(ic);
     }
 }
@@ -1092,16 +1096,15 @@ nabi_ic_preedit_insert(NabiIC *ic)
 void
 nabi_ic_preedit_update(NabiIC *ic)
 {
-    int len, ret;
-    wchar_t buf[16] = { 0, };
-    wchar_t *list[1] = { 0 };
+    int len, size, ret;
+    char *list[2] = { 0, };
+    char buf[48] = { 0, };
     IMPreeditCBStruct data;
     XIMText text;
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
     XTextProperty tp;
 
-    nabi_ic_get_preedit_string(ic, buf, &len);
-    list[0] = buf;
+    nabi_ic_get_preedit_string(ic, buf, &len, &size);
 
     if (len == 0) {
 	nabi_ic_preedit_clear(ic);
@@ -1109,9 +1112,11 @@ nabi_ic_preedit_update(NabiIC *ic)
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
-					XCompoundTextStyle,
-					&tp);
+	list[0] = buf;
+	list[1] = 0;
+	ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
+					  XCompoundTextStyle,
+					  &tp);
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
 	data.connect_id = ic->connect_id;
@@ -1134,7 +1139,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(tp.value);
     } else if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_draw_string(ic, buf, len);
+	nabi_ic_preedit_draw_string(ic, buf, size);
     }
 }
 
@@ -1184,7 +1189,8 @@ nabi_ic_commit(NabiIC *ic)
     XTextProperty tp;
     IMCommitStruct commit_data;
     wchar_t buf[16];
-    wchar_t *list[1];
+    char *list[2];
+    char utf8buf[48];
  
     buf[0] = L'\0';
 
@@ -1259,13 +1265,15 @@ nabi_ic_commit(NabiIC *ic)
     if (!(ic->input_style & XIMPreeditPosition))
 	nabi_ic_preedit_clear(ic);
 
-    list[0] = buf;
-        ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
-					XCompoundTextStyle,
-					&tp);
-        commit_data.connect_id = ic->connect_id;
-        commit_data.icid = ic->id;
-        commit_data.flag = XimLookupChars;
+    hangul_wcharstr_to_utf8str(buf, utf8buf);
+    list[0] = utf8buf;
+    list[1] = 0;
+    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
+				      XCompoundTextStyle,
+				      &tp);
+    commit_data.connect_id = ic->connect_id;
+    commit_data.icid = ic->id;
+    commit_data.flag = XimLookupChars;
     if (ret) /* conversion failure */
 	commit_data.commit_string = "?";
     else
@@ -1288,15 +1296,18 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     XTextProperty tp;
     IMCommitStruct commit_data;
     wchar_t buf[16];
-    wchar_t *list[1];
+    char *list[2];
+    char utf8buf[48];
  
     buf[0] = ch;
     buf[1] = L'\0';
 
-    list[0] = buf;
-    ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
-			XCompoundTextStyle,
-			&tp);
+    hangul_wcharstr_to_utf8str(buf, utf8buf);
+    list[0] = utf8buf;
+    list[1] = 0;
+    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
+				      XCompoundTextStyle,
+				      &tp);
     commit_data.connect_id = ic->connect_id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
