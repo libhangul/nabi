@@ -1,0 +1,21 @@
+한자 정보 파일
+
+hanjatable.py는 python 스크립트로 Unihan.txt 파일을 읽어서 한국어음을 가지고
+있는 한자를 골라서 나비, 새나루 같은 한글 입력기에서 사용 가능한 포맷의
+파일을 생성한다.
+
+사용법:
+$ hanjatable.py Unihan.txt > nabi-hanja.txt
+
+에러나 다른 정보는 stderr로 출력되므로 확인할 수 있다.
+
+출력되는 파일 형식은 
+
+[글자]
+한자=설명
+
+이다.
+
+여기서 출력된 한자 데이터 파일과 심벌 데이터 파일을 아래와 같이 합쳐
+데이터 파일을 만든다.
+$ cat nabi-symbol.txt nabi-hanja.txt > nabi.txt
