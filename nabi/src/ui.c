@@ -652,7 +652,7 @@ nabi_app_init(int *argc, char ***argv)
 	    i++;
 	}
 
-	/* if we accept any command line options, compress argc, argv */
+	/* if we accept any command line options, compress rest of argc, argv */
 	for (i = 1; i < *argc; i++) {
 	    for (k = i; k < *argc; k++)
 		if ((*argv)[k] == NULL)
