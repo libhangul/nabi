@@ -225,7 +225,6 @@ create_theme_page(void)
 {
     GtkWidget *page;
     GtkWidget *label;
-    GtkWidget *combobox;
     GtkWidget *spinbutton;
     GtkWidget *hbox;
     GtkWidget *scrolledwindow;
@@ -372,6 +371,9 @@ GtkWidget*
 create_keyboard_page(void)
 {
     GtkWidget *page;
+    GtkWidget *hbox;
+    GtkWidget *vbox1;
+    GtkWidget *vbox2;
     GtkWidget *label;
     GtkWidget *scrolledwindow;
     GtkWidget *treeview;
@@ -380,14 +382,29 @@ create_keyboard_page(void)
     GtkCellRenderer *renderer;
     GtkTreeModel *model;
     GtkTreePath *path;
-    GtkWidget *check_button;
+    GtkWidget *radio_button;
 
-    page = gtk_vbox_new(FALSE, 6);
+    page = gtk_vbox_new(FALSE, 12);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    label = gtk_label_new(_("Hangul Keyboard:"));
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
+    vbox1 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Hangul keyboard</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -395,7 +412,7 @@ create_keyboard_page(void)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
 					GTK_SHADOW_IN);
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(page), scrolledwindow, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
 
     model = get_keyboard_list();
     treeview = gtk_tree_view_new_with_model(model);
@@ -416,10 +433,35 @@ create_keyboard_page(void)
     g_signal_connect(G_OBJECT(selection), "changed",
 		     G_CALLBACK(on_keyboard_list_selection_changed), NULL);
 
-    check_button = gtk_check_button_new_with_label(_("Use dvorak keyboard"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button), nabi->dvorak);
-    gtk_box_pack_start(GTK_BOX(page), check_button, FALSE, TRUE, 0);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
+    vbox1 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">English keyboard</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+
+    radio_button = gtk_radio_button_new_with_label(NULL,
+					_("Querty keyboard"));
+    gtk_box_pack_start(GTK_BOX(vbox2), radio_button, FALSE, TRUE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button),!nabi->dvorak);
+
+    radio_button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(radio_button),
+							_("Dvorak keyboard"));
+    gtk_box_pack_start(GTK_BOX(vbox2), radio_button, FALSE, TRUE, 0);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), nabi->dvorak);
+    g_signal_connect(G_OBJECT(radio_button), "toggled",
 		     G_CALLBACK(on_dvorak_button_toggled), NULL);
 
     path = search_text_in_model(model, 0, nabi->keyboard_table_name);
