@@ -1,3 +1,11 @@
+2003-10-13  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c,src/hangul.c,src/hangul.h,src/server.c:
+	  XwcXXX 함수를 모두 Xutf8XXX 함수로 바꿈, UCS 코드를 UTF8 스트링으로
+	  만드는 자체 루틴 추가, charset 체크에서도 WCHAR_T 대신 UTF-8
+	  사용 (BSD 지원을 위해)
+	  BSD 서버 사용을 지원해주신 Perky(http://openlook.org/)님께
+	  감사드립니다.
+
 2003-10-10  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.c: qt에서 한자 변환시 안보이던 문제 해결
 
