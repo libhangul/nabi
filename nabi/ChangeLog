@@ -1,4 +1,7 @@
 2003-10-08  Choe Hwanjin <krisna@kldp.org>
+	* release 0.8
+
+2003-10-08  Choe Hwanjin <krisna@kldp.org>
 	* src/automata.c: charset을 체크하는 부분을 더 추가
 	  (ㅃㅞㄹㄱ의 경우 고려), 세벌식 자판에서도 charset 체크 강화
 	* src/automata.c, src/server.h, src/server.c, src/ui.c: 각 키별로 눌린
