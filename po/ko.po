@@ -5,14 +5,14 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: nabi 0.1\n"
+"Project-Id-Version: nabi 0.9\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2003-08-11 15:25+0900\n"
+"POT-Creation-Date: 2003-10-30 21:23+0900\n"
 "PO-Revision-Date: 2003-08-04 17:33+0900\n"
 "Last-Translator: Choe Hwanjin <krisna@kldp.org>\n"
 "Language-Team: Choe Hwanjin <krisna@kldp.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=EUC-KR\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: src/eggtrayicon.c:118
@@ -23,107 +23,130 @@ msgstr ""
 msgid "The orientation of the tray."
 msgstr ""
 
-#: src/ic.c:511
-msgid "Nabi: missing charset\n"
-msgstr ""
-
-#: src/ic.c:512
+#: src/ic.c:703
 #, c-format
-msgid "Nabi: font: %s\n"
+msgid "Nabi: get unknown ic attributes: %s\n"
 msgstr ""
 
-#: src/ic.c:636
-#, c-format
-msgid "Nabi: unkown ic attributes: %s\n"
-msgstr ""
-
-#: src/ui.c:105
+#: src/ui.c:108
 msgid "Nabi: Can't read keyboard map file\n"
 msgstr ""
 
-#: src/ui.c:188
+#: src/ui.c:190
 msgid "Nabi: Can't read compose map file\n"
 msgstr ""
 
-#: src/ui.c:405
+#: src/ui.c:410
 msgid "Nabi: Can't load config file\n"
 msgstr ""
 
-#: src/ui.c:447
+#: src/ui.c:452
 msgid "Nabi: Can't write config file\n"
 msgstr ""
 
-#: src/ui.c:493
+#: src/ui.c:498
 msgid "Nabi: Can't open keyboard map dir\n"
 msgstr ""
 
-#: src/ui.c:526
+#: src/ui.c:532
 msgid "Nabi: Can't load compose map\n"
 msgstr ""
 
-#: src/ui.c:552 src/ui.c:569
+#: src/ui.c:558 src/ui.c:575
 #, c-format
 msgid "Can't allocate color: %s\n"
 msgstr ""
 
-#: src/ui.c:554
+#: src/ui.c:560
 msgid "Use default color: #FFFFFF\n"
 msgstr ""
 
-#: src/ui.c:571
+#: src/ui.c:577
 msgid "Use default color: #000000\n"
 msgstr ""
 
-#: src/ui.c:593
+#: src/ui.c:602
 msgid "Nabi: No matching keyboard config, use default\n"
 msgstr ""
 
-#: src/ui.c:730
-msgid "About Nabi"
-msgstr "Nabi¿¡ ´ëÇØ¼­"
+#: src/ui.c:872
+msgid "Total"
+msgstr "ì „ì²´"
 
-#: src/ui.c:741
+#: src/ui.c:874
+msgid "BackSpace"
+msgstr "ë°±ìŠ¤í˜ì´ìŠ¤"
+
+#: src/ui.c:876
+msgid "Shift"
+msgstr "ì‰¬í”„íŠ¸"
+
+#: src/ui.c:880
+msgid "Choseong"
+msgstr "ì´ˆì„±"
+
+#: src/ui.c:902
+msgid "Jungseong"
+msgstr "ì¤‘ì„±"
+
+#: src/ui.c:926
+msgid "Jongseong"
+msgstr "ì¢…ì„±"
+
+#: src/ui.c:970
+msgid "About Nabi"
+msgstr "Nabiì— ëŒ€í•´ì„œ"
+
+#: src/ui.c:981
 #, c-format
 msgid "<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"
 msgstr ""
 
-#: src/ui.c:747
+#: src/ui.c:987
 msgid ""
 "<span size=\"large\">Simple Hangul XIM</span>\n"
 "2003 (C) Choe Hwanjin"
 msgstr ""
-"<span size=\"large\">°£´ÜÇÑ ÇÑ±Û ÀÔ·Â±â</span>\n"
+"<span size=\"large\">ê°„ë‹¨í•œ í•œê¸€ ì…ë ¥ê¸°</span>\n"
 "2003 (C) Choe Hwanjin"
 
-#: src/ui.c:1017
+#: src/ui.c:998
+msgid "Keypress Statistics"
+msgstr "í‚¤ì…ë ¥ í†µê³„"
+
+#: src/ui.c:1269
 #, fuzzy
 msgid "Select theme"
-msgstr "Å×¸¶¸¦ ¼±ÅÃÇÏ½Ã¿À"
+msgstr "í…Œë§ˆë¥¼ ì„ íƒí•˜ì‹œì˜¤"
 
-#: src/ui.c:1046
+#: src/ui.c:1298
 msgid "None"
 msgstr ""
 
-#: src/ui.c:1055
+#: src/ui.c:1307
 msgid "Hangul"
 msgstr ""
 
-#: src/ui.c:1064
+#: src/ui.c:1316
 msgid "English"
 msgstr ""
 
-#: src/ui.c:1072
+#: src/ui.c:1324
 msgid "Theme Name"
-msgstr "Å×¸¶ ÀÌ¸§"
+msgstr "í…Œë§ˆ ì´ë¦„"
 
-#: src/ui.c:1132
+#: src/ui.c:1398
 msgid "_About..."
-msgstr "ÇÁ·Î±×·¥ Á¤º¸(_A)..."
+msgstr "í”„ë¡œê·¸ë¨ ì •ë³´(_A)..."
 
-#: src/ui.c:1144
+#: src/ui.c:1411
 msgid "_Preferences..."
-msgstr "¼³Á¤(_P)..."
+msgstr "ì„¤ì •(_P)..."
 
-#: src/ui.c:1151
+#: src/ui.c:1420
 msgid "_Themes..."
-msgstr "Å×¸¶(_T)..."
+msgstr "í…Œë§ˆ(_T)..."
+
+#: src/ui.c:1446
+msgid "Dvorak layout"
+msgstr "ë“œë³´ë½ ìíŒ"
