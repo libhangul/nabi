@@ -263,41 +263,220 @@ nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 	return True;
 }
 
+static void
+print_xim_protocol(IMProtocol *call_data)
+{
+    char *protocol;
+
+    switch (call_data->major_code) {
+    case XIM_CONNECT:
+	protocol = "XIM_CONNECT";
+	break;
+    case XIM_CONNECT_REPLY:
+	protocol = "XIM_CONNECT_REPLY";
+	break;
+    case XIM_DISCONNECT:
+	protocol = "XIM_DISCONNECT";
+	break;
+    case XIM_DISCONNECT_REPLY:
+	protocol = "XIM_DISCONNECT_REPLY";
+	break;
+    case XIM_AUTH_REQUIRED:
+	protocol = "XIM_AUTH_REQUIRED";
+	break;
+    case XIM_AUTH_REPLY:
+	protocol = "XIM_AUTH_REPLY";
+	break;
+    case XIM_AUTH_NEXT:
+	protocol = "XIM_AUTH_NEXT";
+	break;
+    case XIM_AUTH_SETUP:
+	protocol = "XIM_AUTH_SETUP";
+	break;
+    case XIM_AUTH_NG:
+	protocol = "XIM_AUTH_NG";
+	break;
+    case XIM_ERROR:
+	protocol = "XIM_ERROR";
+	break;
+    case XIM_OPEN:
+	protocol = "XIM_OPEN";
+	break;
+    case XIM_OPEN_REPLY:
+	protocol = "XIM_OPEN_REPLY";
+	break;
+    case XIM_CLOSE:
+	protocol = "XIM_CLOSE";
+	break;
+    case XIM_CLOSE_REPLY:
+	protocol = "XIM_CLOSE_REPLY";
+	break;
+    case XIM_REGISTER_TRIGGERKEYS:
+	protocol = "XIM_REGISTER_TRIGGERKEYS";
+	break;
+    case XIM_TRIGGER_NOTIFY:
+	protocol = "XIM_TRIGGER_NOTIFY";
+	break;
+    case XIM_TRIGGER_NOTIFY_REPLY:
+	protocol = "XIM_TRIGGER_NOTIFY_REPLY";
+	break;
+    case XIM_SET_EVENT_MASK:
+	protocol = "XIM_SET_EVENT_MASK";
+	break;
+    case XIM_ENCODING_NEGOTIATION:
+	protocol = "XIM_ENCODING_NEGOTIATION";
+	break;
+    case XIM_ENCODING_NEGOTIATION_REPLY:
+	protocol = "XIM_ENCODING_NEGOTIATION_REPLY";
+	break;
+    case XIM_QUERY_EXTENSION:
+	protocol = "XIM_QUERY_EXTENSION";
+	break;
+    case XIM_QUERY_EXTENSION_REPLY:
+	protocol = "XIM_QUERY_EXTENSION_REPLY";
+	break;
+    case XIM_SET_IM_VALUES:
+	protocol = "XIM_SET_IM_VALUES";
+	break;
+    case XIM_SET_IM_VALUES_REPLY:
+	protocol = "XIM_SET_IM_VALUES_REPLY";
+	break;
+    case XIM_GET_IM_VALUES:
+	protocol = "XIM_GET_IM_VALUES";
+	break;
+    case XIM_GET_IM_VALUES_REPLY:
+	protocol = "XIM_GET_IM_VALUES_REPLY";
+	break;
+    case XIM_CREATE_IC:
+	protocol = "XIM_CREATE_IC";
+	break;
+    case XIM_CREATE_IC_REPLY:
+	protocol = "XIM_CREATE_IC_REPLY";
+	break;
+    case XIM_DESTROY_IC:
+	protocol = "XIM_DESTROY_IC";
+	break;
+    case XIM_DESTROY_IC_REPLY:
+	protocol = "XIM_DESTROY_IC_REPLY";
+	break;
+    case XIM_SET_IC_VALUES:
+	protocol = "XIM_SET_IC_VALUES";
+	break;
+    case XIM_SET_IC_VALUES_REPLY:
+	protocol = "XIM_SET_IC_VALUES_REPLY";
+	break;
+    case XIM_GET_IC_VALUES:
+	protocol = "XIM_GET_IC_VALUES";
+	break;
+    case XIM_GET_IC_VALUES_REPLY:
+	protocol = "XIM_GET_IC_VALUES_REPLY";
+	break;
+    case XIM_SET_IC_FOCUS:
+	protocol = "XIM_SET_IC_FOCUS";
+	break;
+    case XIM_UNSET_IC_FOCUS:
+	protocol = "XIM_UNSET_IC_FOCUS";
+	break;
+    case XIM_FORWARD_EVENT:
+	protocol = "XIM_FORWARD_EVENT";
+	break;
+    case XIM_SYNC:
+	protocol = "XIM_SYNC";
+	break;
+    case XIM_SYNC_REPLY:
+	protocol = "XIM_SYNC_REPLY";
+	break;
+    case XIM_COMMIT:
+	protocol = "XIM_COMMIT";
+	break;
+    case XIM_RESET_IC:
+	protocol = "XIM_RESET_IC";
+	break;
+    case XIM_RESET_IC_REPLY:
+	protocol = "XIM_RESET_IC_REPLY";
+	break;
+    case XIM_GEOMETRY:
+	protocol = "XIM_GEOMETRY";
+	break;
+    case XIM_STR_CONVERSION:
+	protocol = "XIM_STR_CONVERSION";
+	break;
+    case XIM_STR_CONVERSION_REPLY:
+	protocol = "XIM_STR_CONVERSION_REPLY";
+	break;
+    case XIM_PREEDIT_START:
+	protocol = "XIM_PREEDIT_START";
+	break;
+    case XIM_PREEDIT_START_REPLY:
+	protocol = "XIM_PREEDIT_START_REPLY";
+	break;
+    case XIM_PREEDIT_DRAW:
+	protocol = "XIM_PREEDIT_DRAW";
+	break;
+    case XIM_PREEDIT_CARET:
+	protocol = "XIM_PREEDIT_CARET";
+	break;
+    case XIM_PREEDIT_CARET_REPLY:
+	protocol = "XIM_PREEDIT_CARET_REPLY";
+	break;
+    case XIM_PREEDIT_DONE:
+	protocol = "XIM_PREEDIT_DONE";
+	break;
+    case XIM_STATUS_START:
+	protocol = "XIM_STATUS_START";
+	break;
+    case XIM_STATUS_DRAW:
+	protocol = "XIM_STATUS_DRAW";
+	break;
+    case XIM_STATUS_DONE:
+	protocol = "XIM_STATUS_DONE";
+	break;
+    default:
+	break;
+    }
+
+    fprintf(stderr, "%s 0x%x 0x%x\n",
+	    protocol,
+	    call_data->any.connect_id,
+	    call_data->changeic.icid);
+}
+
 Bool
 nabi_handler(XIMS ims, IMProtocol *call_data)
 {
-	switch (call_data->major_code) {
-	case XIM_OPEN:
-		return nabi_handler_open(ims, call_data);
-	case XIM_CLOSE:
-		return nabi_handler_close(ims, call_data);
-	case XIM_CREATE_IC:
-		return nabi_handler_create_ic(ims, call_data);
-	case XIM_DESTROY_IC:
-		return nabi_handler_destroy_ic(ims, call_data);
-	case XIM_SET_IC_VALUES:
-		return nabi_handler_set_ic_values(ims, call_data);
-	case XIM_GET_IC_VALUES:
-		return nabi_handler_get_ic_values(ims, call_data);
-	case XIM_FORWARD_EVENT:
-		return nabi_handler_forward_event(ims, call_data);
-	case XIM_SET_IC_FOCUS:
-		return nabi_handler_set_ic_focus(ims, call_data);
-	case XIM_UNSET_IC_FOCUS:
-		return nabi_handler_unset_ic_focus(ims, call_data);
-	case XIM_RESET_IC:
-		return nabi_handler_reset_ic(ims, call_data);
-	case XIM_TRIGGER_NOTIFY:
-		return nabi_handler_trigger_notify(ims, call_data);
-	case XIM_PREEDIT_START_REPLY:
-		return nabi_handler_preedit_start_reply(ims, call_data);
-	case XIM_PREEDIT_CARET_REPLY:
-		return nabi_handler_preedit_caret_reply(ims, call_data);
-	default:
-		fprintf(stderr, "Unknown IMDKit Protocol message type\n");
-		break;
-	}
-	return True;
+    print_xim_protocol(call_data);
+    switch (call_data->major_code) {
+    case XIM_OPEN:
+	    return nabi_handler_open(ims, call_data);
+    case XIM_CLOSE:
+	    return nabi_handler_close(ims, call_data);
+    case XIM_CREATE_IC:
+	    return nabi_handler_create_ic(ims, call_data);
+    case XIM_DESTROY_IC:
+	    return nabi_handler_destroy_ic(ims, call_data);
+    case XIM_SET_IC_VALUES:
+	    return nabi_handler_set_ic_values(ims, call_data);
+    case XIM_GET_IC_VALUES:
+	    return nabi_handler_get_ic_values(ims, call_data);
+    case XIM_FORWARD_EVENT:
+	    return nabi_handler_forward_event(ims, call_data);
+    case XIM_SET_IC_FOCUS:
+	    return nabi_handler_set_ic_focus(ims, call_data);
+    case XIM_UNSET_IC_FOCUS:
+	    return nabi_handler_unset_ic_focus(ims, call_data);
+    case XIM_RESET_IC:
+	    return nabi_handler_reset_ic(ims, call_data);
+    case XIM_TRIGGER_NOTIFY:
+	    return nabi_handler_trigger_notify(ims, call_data);
+    case XIM_PREEDIT_START_REPLY:
+	    return nabi_handler_preedit_start_reply(ims, call_data);
+    case XIM_PREEDIT_CARET_REPLY:
+	    return nabi_handler_preedit_caret_reply(ims, call_data);
+    default:
+	    fprintf(stderr, "Unknown IMDKit Protocol message type\n");
+	    break;
+    }
+    return True;
 }
 
 /* vim: set ts=8 sw=4 : */
