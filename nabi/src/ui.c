@@ -1,3 +1,6 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -18,7 +21,12 @@
 #include "server.h"
 #include "nabi.h"
 
+#include "default-icons.h"
+
 #define KEYBOARD_MAP_SIZE   94
+
+static void remove_event_filter();
+
 
 static GdkPixbuf *none_pixbuf = NULL;
 static GdkPixbuf *hangul_pixbuf = NULL;
@@ -248,6 +256,7 @@ struct config_item {
 const static struct config_item config_items[] = {
     { "x",                  CONF_TYPE_INT, OFFSET(x)                    },
     { "y",                  CONF_TYPE_INT, OFFSET(y)                    },
+    { "theme",              CONF_TYPE_STR, OFFSET(theme)                },
     { "keyboardmap",        CONF_TYPE_STR, OFFSET(keyboardmap_filename) },
     { "composemap",         CONF_TYPE_STR, OFFSET(composemap_filename)  },
     { "preedit_foreground", CONF_TYPE_STR, OFFSET(preedit_fg)           },
@@ -329,6 +338,7 @@ load_config_item(gchar* key, gchar* value)
 		set_value_str(config_items[i].offset, value);
 		break;
 	    default:
+		break;
 	    }
 	}
     }
@@ -345,6 +355,7 @@ load_config_file(void)
     FILE *file;
 
     /* set default values */
+    nabi->theme = g_strdup("SimplyRed");
     nabi->keyboardmap_filename = g_strconcat(NABI_DATA_DIR,
 			     "/keyboard/2qwerty",
 			     NULL);
@@ -420,6 +431,7 @@ save_config_file(void)
 			  config_items[i].offset);
 	    break;
 	default:
+	    break;
 	}
     }
 
@@ -506,8 +518,14 @@ void
 nabi_app_new(void)
 {
     nabi = g_malloc(sizeof(NabiApplication));
+    memset(nabi, 0, sizeof(NabiApplication));
 
     load_config_file();
+
+    /* set atoms for hangul status */
+    nabi->mode_info_atom = gdk_atom_intern("_HANGUL_INPUT_MODE", TRUE);
+    nabi->mode_info_type = gdk_atom_intern("INTEGER", TRUE);
+    nabi->mode_info_xatom = gdk_x11_atom_to_xatom(nabi->mode_info_atom);
 }
 
 void
@@ -530,6 +548,8 @@ nabi_app_free(void)
     int i;
 
     save_config_file();
+
+    g_free(nabi->theme);
 
     g_free(nabi->keyboardmap_filename);
     g_free(nabi->keyboardmap.name);
@@ -555,6 +575,12 @@ nabi_quit(void)
 gboolean
 on_delete(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+    g_object_unref(G_OBJECT(none_pixbuf));
+    g_object_unref(G_OBJECT(hangul_pixbuf));
+    g_object_unref(G_OBJECT(english_pixbuf));
+
+    remove_event_filter();
+
     nabi_quit();
     return TRUE;
 }
@@ -579,6 +605,7 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 		   event->button, event->time);
 	return TRUE;
     default:
+	break;
     }
 
     return FALSE;
@@ -680,73 +707,177 @@ create_menu(void)
 }
 
 void
-on_size_allocate(GtkWidget *widget, GtkAllocation *allocation, gpointer data)
+load_icons(const gchar *theme)
+{
+    gchar buf[1024];
+    GError    *gerror = NULL;
+
+    if (theme == NULL)
+    	theme = "SimplyRed";
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/none.png", NABI_THEMES_DIR, theme);
+    none_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
+    }
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/hangul.png", NABI_THEMES_DIR, theme);
+    hangul_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
+    }
+
+    g_snprintf(buf, sizeof(buf), "%s/%s/english.png", NABI_THEMES_DIR, theme);
+    english_pixbuf = gdk_pixbuf_new_from_file(buf, &gerror);
+    if (gerror != NULL) {
+	g_print("Error on reading image file: %s\n", gerror->message);
+	g_error_free(gerror);
+	gerror = NULL;
+	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
+    }
+}
+
+void
+create_icons(gint default_size)
 {
     double factor;
-    int new_width, new_height;
-    int orig_width, orig_height;
-    gint cur_width, cur_height;
+    gint new_width, new_height;
+    gint orig_width, orig_height;
+    gint default_width, default_height;
     GdkPixbuf *pixbuf;
-    GtkRequisition requisition;
-    GtkOrientation orientation;
 
-    g_print("Allocation:%d %d\n", allocation->width, allocation->height);
-    gtk_widget_get_size_request(GTK_WIDGET(widget), &cur_width, &cur_height);
-    gtk_widget_size_request(GTK_WIDGET(widget), &requisition);
+    default_width = default_size;
+    default_height = default_size;
 
-    if (requisition.width <= allocation->width &&
-	requisition.height <= allocation->height)
-	return;
+    load_icons(nabi->theme);
 
-    orientation = egg_tray_icon_get_orientation(EGG_TRAY_ICON(widget));
     orig_width = gdk_pixbuf_get_width(none_pixbuf);
     orig_height = gdk_pixbuf_get_height(none_pixbuf);
 
-    if (orientation == GTK_ORIENTATION_VERTICAL) {
-	factor =  (double)allocation->width / (double)orig_width;
-	new_width = allocation->width;
+    if (orig_width > orig_height) {
+	factor =  (double)default_width / (double)orig_width;
+	new_width = default_width;
 	new_height = (int)(orig_height * factor);
-	if (allocation->height > 1 && new_height > allocation->height) {
-	    factor = (double)allocation->height / (double)orig_height;
-	    new_width = (int)(orig_width * factor);
-	    new_height = allocation->height;
-	}
     } else {
-	factor = (double)allocation->height / (double)orig_height;
+	factor = (double)default_height / (double)orig_height;
 	new_width = (int)(orig_width * factor);
-	new_height = allocation->height;
-	if (allocation->width > 1 && new_width > allocation->width) {
-	    factor = (double)allocation->width / (double)orig_width;
-	    new_width = allocation->width;
-	    new_height = (int)(orig_height * factor);
-	}
+	new_height = default_height;
     }
-
-    g_print("New size: %d %d (current: %d, %d)\n",
-	    new_width, new_height, cur_width, cur_height);
 
     pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(none_image), pixbuf);
+    none_image = gtk_image_new_from_pixbuf(pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(hangul_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(hangul_image), pixbuf);
+    hangul_image = gtk_image_new_from_pixbuf(pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 
     pixbuf = gdk_pixbuf_scale_simple(english_pixbuf, new_width, new_height,
 	    			     GDK_INTERP_BILINEAR);
-    gtk_image_set_from_pixbuf(GTK_IMAGE(english_image), pixbuf);
+    english_image = gtk_image_new_from_pixbuf(pixbuf);
     g_object_unref(G_OBJECT(pixbuf));
 }
 
-void
+static void
+update_state (int state)
+{
+    switch (state) {
+    case 0:
+	gtk_widget_show(none_image);
+	gtk_widget_hide(hangul_image);
+	gtk_widget_hide(english_image);
+	break;
+    case 1:
+	gtk_widget_hide(none_image);
+	gtk_widget_hide(hangul_image);
+	gtk_widget_show(english_image);
+	break;
+    case 2:
+	gtk_widget_hide(none_image);
+	gtk_widget_show(hangul_image);
+	gtk_widget_hide(english_image);
+	break;
+    default:
+	gtk_widget_show(none_image);
+	gtk_widget_hide(hangul_image);
+	gtk_widget_hide(english_image);
+	break;
+    }
+}
+
+static void
+nabi_set_input_mode_info (int state)
+{
+    long data = state;
+
+    if (nabi->root_window == NULL)
+	return;
+
+    gdk_property_change (nabi->root_window,
+		         gdk_atom_intern ("_HANGUL_INPUT_MODE", FALSE),
+		         gdk_atom_intern ("INTEGER", FALSE),
+		         32, GDK_PROP_MODE_REPLACE,
+		         (const guchar *)&data, 1);
+}
+
+static GdkFilterReturn
+mode_info_cb (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
+{
+	int *state;
+	XEvent *xevent;
+	XPropertyEvent *pevent;
+
+	xevent = (XEvent*)gxevent;
+	if (xevent->type != PropertyNotify)
+		return GDK_FILTER_CONTINUE;
+
+	pevent = (XPropertyEvent*)xevent;
+	if (pevent->atom == nabi->mode_info_xatom) {
+		gboolean ret;
+
+		ret = gdk_property_get (nabi->root_window,
+					nabi->mode_info_atom,
+					nabi->mode_info_type,
+					0, 32, 0,
+					NULL, NULL, NULL,
+					(guchar**)&state);
+		update_state(*state);
+		g_free(state);
+	}
+
+	return GDK_FILTER_CONTINUE;
+}
+
+static void
+install_event_filter(GtkWidget *widget)
+{
+    GdkScreen *screen;
+
+    screen = gdk_drawable_get_screen(GDK_DRAWABLE(widget->window));
+    nabi->root_window = gdk_screen_get_root_window(screen);
+    gdk_window_set_events(nabi->root_window, GDK_PROPERTY_CHANGE_MASK);
+    gdk_window_add_filter(nabi->root_window, mode_info_cb, NULL);
+}
+
+static void
+remove_event_filter()
+{
+    gdk_window_remove_filter(nabi->root_window, mode_info_cb, NULL);
+}
+
+static void
 on_realize(GtkWidget *widget, gpointer data)
 {
-    GtkRequisition req;
-    gtk_widget_size_request(GTK_WIDGET(widget), &req);
-    g_print("tray_icon: %d %d\n", req.width, req.height);
+    install_event_filter(widget);
+    nabi_server_set_mode_info_cb(server, nabi_set_input_mode_info);
 }
 
 GtkWidget*
@@ -756,15 +887,13 @@ create_main_widget(void)
     GtkWidget *eventbox;
     GtkWidget *hbox;
     GtkWidget *menu;
-    //GtkWidget *image;
-    GdkPixbuf *pixbuf;
-    GError    *gerror = NULL;
 
     menu = create_menu();
 
     tray_icon = egg_tray_icon_new("Tray icon");
 
     eventbox = gtk_event_box_new();
+    gtk_widget_show(eventbox);
     gtk_container_add(GTK_CONTAINER(tray_icon), eventbox);
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
 	     G_CALLBACK(on_button_press), menu);
@@ -773,41 +902,24 @@ create_main_widget(void)
     g_signal_connect(G_OBJECT(eventbox), "motion-notify-event",
 	     G_CALLBACK(on_motion_notify), NULL);
 
-    none_pixbuf = gdk_pixbuf_new_from_file("/usr/local/share/imhangul/themes/Default/none.png", &gerror);
-    hangul_pixbuf = gdk_pixbuf_new_from_file("/usr/local/share/imhangul/themes/Default/hangul.png", &gerror);
-    english_pixbuf = gdk_pixbuf_new_from_file("/usr/local/share/imhangul/themes/Default/english.png", &gerror);
-    if (gerror != NULL) {
-	//g_assert(pixbuf == NULL);
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	//pixbuf = gdk_pixbuf_new_from_xpm_data(default_xpm);
-    }
-
-    pixbuf = gdk_pixbuf_scale_simple(none_pixbuf, 1, 1, GDK_INTERP_BILINEAR);
-    none_image = gtk_image_new_from_pixbuf(pixbuf);
-    none_image = gtk_image_new_from_pixbuf(none_pixbuf);
-    gtk_widget_show(none_image);
-    hangul_image = gtk_image_new_from_pixbuf(hangul_pixbuf);
-    english_image = gtk_image_new_from_pixbuf(english_pixbuf);
-    //g_object_unref(G_OBJECT(pixbuf));
+    create_icons(25);
 
     hbox = gtk_hbox_new(TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), none_image, TRUE, TRUE, 0);
+    gtk_widget_show(none_image);
+    gtk_box_pack_start(GTK_BOX(hbox), hangul_image, TRUE, TRUE, 0);
+    gtk_widget_hide(hangul_image);
+    gtk_box_pack_start(GTK_BOX(hbox), english_image, TRUE, TRUE, 0);
+    gtk_widget_hide(english_image);
+    gtk_container_add(GTK_CONTAINER(eventbox), hbox);
     gtk_widget_show(hbox);
 
-    gtk_container_add(GTK_CONTAINER(eventbox), hbox);
-
-    g_signal_connect(G_OBJECT(tray_icon), "size-allocate",
-	    	     G_CALLBACK(on_size_allocate), NULL);
-    g_signal_connect(G_OBJECT(tray_icon), "realize",
-	    	     G_CALLBACK(on_realize), NULL);
+    g_signal_connect_after(G_OBJECT(tray_icon), "realize",
+	    		   G_CALLBACK(on_realize), NULL);
     g_signal_connect(G_OBJECT(tray_icon), "delete-event",
 		     G_CALLBACK(on_delete), NULL);
     g_signal_connect(G_OBJECT(tray_icon), "destroy-event",
 		     G_CALLBACK(on_delete), NULL);
-
-    gtk_widget_show(GTK_WIDGET(tray_icon));
-    //gtk_widget_realize(GTK_WIDGET(tray_icon));
 
     return GTK_WIDGET(tray_icon);
 }
