@@ -69,6 +69,7 @@ void nabi_app_new(void);
 void nabi_app_init(void);
 void nabi_app_setup_server(void);
 void nabi_app_free(void);
+void nabi_save_config_file(void);
 
 GtkWidget* create_main_widget(void);
 GtkWidget* create_hanja_window(NabiIC *ic, const wchar_t* ch);

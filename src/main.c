@@ -28,6 +28,7 @@
 
 #include "gettext.h"
 #include "server.h"
+#include "session.h"
 #include "nabi.h"
 
 NabiApplication* nabi = NULL;
@@ -69,6 +70,8 @@ main(int argc, char *argv[])
     nabi_app_new();
     nabi_app_init();
 
+    nabi_session_open();
+
     nabi_server = nabi_server_new();
     nabi_server_init(nabi_server);
 
@@ -86,6 +89,8 @@ main(int argc, char *argv[])
 
     nabi_server_stop(nabi_server);
     nabi_server_destroy(nabi_server);
+    
+    nabi_session_close();
 
     nabi_app_free();
 
