@@ -16,6 +16,7 @@ nabi_SOURCES = \
 	server.h server.c \
 	hangul.h hangul.c \
 	ic.h ic.c \
+	fontset.h fontset.c \
 	eggtrayicon.h eggtrayicon.c \
 	handler.c \
 	automata.c \
