@@ -145,7 +145,7 @@ Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch);
 
 Bool    nabi_ic_popup_hanja_window(NabiIC *ic);
-void    nabi_ic_commit_hanja(NabiIC *ic, wchar_t ch);
+void    nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch);
 
 #endif /* _NABIIC_H_ */
 /* vim: set ts=8 sw=4 sts=4 : */

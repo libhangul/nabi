@@ -62,7 +62,7 @@ hangul_choseong_to_cjamo(wchar_t ch)
 	0x314e	    /* 0x1112 */
     };
     if (ch < 0x1100 || ch > 0x1112)
-	return 0;
+	return ch;
     return table[ch - 0x1100];
 }
 
