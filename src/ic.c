@@ -229,6 +229,8 @@ nabi_ic_destroy(NabiIC *ic)
     if (nabi_ic_is_destroyed(ic))
 	return;
 
+    nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
+
     /* we do not delete, just save it in ic_freed */
     if (nabi_server->ic_freed == NULL) {
 	nabi_server->ic_freed = ic;
