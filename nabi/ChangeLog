@@ -1,3 +1,7 @@
+2003-08-29  Choe Hwanjin <krisna@kldp.org>
+	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc 테이블을 wchar_t에서 uint16_t
+	  형으로 바꿔서 크기를 줄임
+
 2003-08-27  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,server.c,automata.c: dvorak 자판 지원
 	* src/server.h,server.c,nabi.h,ui.c: dvorak 설정 지원
