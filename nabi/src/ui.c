@@ -946,7 +946,7 @@ on_menu_themes(GtkWidget *widget, gpointer data)
 	return;
     }
 
-    dialog = gtk_dialog_new_with_buttons(_(PACKAGE ": Select Theme"),
+    dialog = gtk_dialog_new_with_buttons(_("Select theme"),
 					 NULL,
 					 GTK_DIALOG_MODAL,
 					 GTK_STOCK_CLOSE,
@@ -1035,6 +1035,8 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
     NabiKeyboardMap *map = (NabiKeyboardMap*)data;
 
     nabi_server_set_keyboard(server, map->map, map->type);
+    g_free(nabi->keyboard_map_filename);
+    nabi->keyboard_map_filename = g_strdup(map->filename);
 }
 
 void
@@ -1084,6 +1086,11 @@ create_menu(void)
     g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
 		 G_CALLBACK(on_menu_themes), menu_item);
 
+    /* separator */
+    menu_item = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_widget_show(menu_item);
+
     /* keyboard list */
     list = nabi->keyboard_maps;
     while (list != NULL) {
@@ -1094,8 +1101,15 @@ create_menu(void)
 	gtk_widget_show(menu_item);
 	g_signal_connect(G_OBJECT(menu_item), "activate",
 			 G_CALLBACK(on_menu_keyboard), map);
+	if (strcmp(map->filename, nabi->keyboard_map_filename) == 0)
+	    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), TRUE);
 	list = list->next;
     }
+
+    /* separator */
+    menu_item = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+    gtk_widget_show(menu_item);
 
     /* menu quit */
     menu_item = gtk_image_menu_item_new_from_stock("gtk-quit", accel_group);
