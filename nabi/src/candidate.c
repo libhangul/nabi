@@ -327,6 +327,7 @@ nabi_candidate_delete(NabiCandidate *candidate)
 	return;
 
     gtk_widget_destroy(candidate->window);
+    g_free(candidate->children);
     g_free(candidate->label);
     g_free(candidate->data);
     g_free(candidate);
