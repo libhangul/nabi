@@ -366,7 +366,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     /* if shift is pressed, we dont commit current string 
      * and silently ignore it */
     if (keyval == XK_Shift_L || keyval == XK_Shift_R)
-	return True;
+	return False;
 
     /* for vi user: on Esc we change state to direct mode */
     if (keyval == XK_Escape) {
