@@ -310,7 +310,7 @@ nabi_ic_destroy(NabiIC *ic)
 
     if (ic->hanja_dialog != NULL) {
 	gtk_widget_destroy(GTK_WIDGET(ic->hanja_dialog));
-	ic->hanja_dialog == NULL;
+	ic->hanja_dialog = NULL;
     }
 
     /* clear hangul buffer */
