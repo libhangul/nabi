@@ -654,10 +654,11 @@ nabi_app_init(int *argc, char ***argv)
 {
     gchar *icon_filename;
 
-    /* set XMODIFIERS env var to NULL before creating any widget
+    /* set XMODIFIERS env var to none before creating any widget
      * If this is not set, xim server will try to connect herself.
-     * So It would blocked */
-    putenv("XMODIFIERS=");
+     * So It would be blocked */
+    putenv("XMODIFIERS=\"@im=none\"");
+    putenv("GTK_IM_MODULE=gtk-im-context-simple");
 
     /* process command line options */
     if (argc != NULL && argv != NULL) {
@@ -1112,7 +1113,7 @@ static void
 on_menu_about(GtkWidget *widget)
 {
     static GtkWidget *dialog = NULL;
-    static GtkTextBuffer *textbuffer = NULL;
+    static GtkWidget *stat_label = NULL;
 
     GtkWidget *hbox;
     GtkWidget *title;
@@ -1123,9 +1124,9 @@ on_menu_about(GtkWidget *widget)
     gchar stat_str[1536];
 
     if (dialog != NULL) {
-	if (!nabi->status_only && GTK_IS_TEXT_BUFFER(textbuffer)) {
+	if (!nabi->status_only && GTK_IS_LABEL(stat_label)) {
 	    get_statistic_string(stat_str, sizeof(stat_str));
-	    gtk_text_buffer_set_text(textbuffer, stat_str, -1);
+	    gtk_label_set_text(GTK_LABEL(stat_label), stat_str);
 	}
 	gtk_window_present(GTK_WINDOW(dialog));
 	return;
@@ -1165,7 +1166,6 @@ on_menu_about(GtkWidget *widget)
     if (!nabi->status_only) {
 	GtkWidget *frame;
 	GtkWidget *scrolled;
-	GtkWidget *textview;
 
 	frame = gtk_frame_new (_("Keypress Statistics"));
 	gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_NONE);
@@ -1177,15 +1177,11 @@ on_menu_about(GtkWidget *widget)
 				        GTK_POLICY_AUTOMATIC);
 	gtk_container_add(GTK_CONTAINER(frame), scrolled);
 
-	textview = gtk_text_view_new();
-	gtk_text_view_set_editable(GTK_TEXT_VIEW(textview), FALSE);
-	gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(textview), FALSE);
-	gtk_text_view_set_left_margin(GTK_TEXT_VIEW(textview), 10);
-	gtk_container_add (GTK_CONTAINER(scrolled), textview); 
-
-	textbuffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
 	get_statistic_string(stat_str, sizeof(stat_str));
-	gtk_text_buffer_set_text(textbuffer, stat_str, -1);
+	stat_label = gtk_label_new(stat_str);
+	gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
+	gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled),
+					      stat_label);
 
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
 			   frame, TRUE, TRUE, 5);
@@ -1199,7 +1195,7 @@ on_menu_about(GtkWidget *widget)
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
     dialog = NULL;
-    textbuffer = NULL;
+    stat_label = NULL;
 }
 
 static void
