@@ -40,7 +40,7 @@ hangul_compose(wchar_t first, wchar_t last)
     int min, max, mid;
     uint32_t key;
 
-    if (server->compose_map == NULL)
+    if (nabi_server->compose_map == NULL)
 	return 0;
 
     /* make key */
@@ -48,16 +48,16 @@ hangul_compose(wchar_t first, wchar_t last)
 
     /* binary search in table */
     min = 0;
-    max = server->compose_map_size - 1;
+    max = nabi_server->compose_map_size - 1;
 
     while (max >= min) {
 	mid = (min + max) / 2;
-	if (server->compose_map[mid]->key < key)
+	if (nabi_server->compose_map[mid]->key < key)
 	    min = mid + 1;
-	else if (server->compose_map[mid]->key > key)
+	else if (nabi_server->compose_map[mid]->key > key)
 	    max = mid - 1;
 	else
-	    return server->compose_map[mid]->code;
+	    return nabi_server->compose_map[mid]->code;
     }
     return 0;
 }
@@ -171,10 +171,10 @@ hangul_dvorak_to_qwerty (KeySym key)
 wchar_t
 nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
-    if (server->keyboard_map == NULL)
+    if (nabi_server->keyboard_map == NULL)
 	return keyval;
 
-    if (server->dvorak)
+    if (nabi_server->dvorak)
 	keyval = hangul_dvorak_to_qwerty(keyval);
 
     /* hangul jamo keysym */
@@ -192,7 +192,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 		    keyval += (XK_a - XK_A);
 	    }
 	}
-	return server->keyboard_map[keyval - XK_exclam];
+	return nabi_server->keyboard_map[keyval - XK_exclam];
     } else
 	return keyval;
 }
@@ -213,7 +213,7 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 	    comp_ch = hangul_compose(ic->jongseong[0], jong_ch);
 	    if (hangul_is_jongseong(comp_ch)) {
 		/* check for ksc */
-		if (server->check_ksc &&
+		if (nabi_server->check_ksc &&
 		    hangul_ucs_to_ksc(ic->choseong[0],
 			      ic->jungseong[0],
 			      comp_ch) == 0) {
@@ -265,7 +265,7 @@ nabi_automata_2 (NabiIC *ic, KeySym keyval, unsigned int state)
 		jong_ch = hangul_choseong_to_jongseong(ch);
 		if (hangul_is_jongseong(jong_ch)) {
 		    /* check for ksc */
-		    if (server->check_ksc &&
+		    if (nabi_server->check_ksc &&
 			hangul_ucs_to_ksc(ic->choseong[0],
 				  ic->jungseong[0],
 				  jong_ch) == 0) {
@@ -380,7 +380,7 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 
     ch = nabi_keyboard_mapping(keyval, state);
 
-    if (server->check_ksc) {
+    if (nabi_server->check_ksc) {
 	if (ic->jongseong[0]) {
 	    if (hangul_is_choseong(ch)) {
 		nabi_ic_commit(ic);

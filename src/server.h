@@ -100,7 +100,7 @@ struct _NabiServer {
     NabiModeInfoCallback     mode_info_cb;
 };
 
-extern NabiServer* server;
+extern NabiServer* nabi_server;
 
 NabiServer* nabi_server_new(void);
 void        nabi_server_destroy         (NabiServer* _server);

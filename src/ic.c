@@ -33,9 +33,11 @@
 #include "ic.h"
 #include "server.h"
 #include "fontset.h"
-#include "nabi.h"
 
 #include "hanjatable.h"
+
+/* from ui.c */
+GtkWidget* create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
@@ -119,7 +121,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->resource_class = NULL;
     ic->next = NULL;
 
-    ic->connect = nabi_server_get_connect_by_id(server, ic->connect_id);
+    ic->connect = nabi_server_get_connect_by_id(nabi_server, ic->connect_id);
     ic->mode = NABI_INPUT_MODE_DIRECT;
 
     /* preedit attr */
@@ -138,8 +140,8 @@ nabi_ic_init_values(NabiIC *ic)
     ic->preedit.spot.y = 0;
     ic->preedit.cmap = 0;
     ic->preedit.gc = 0;
-    ic->preedit.foreground = server->preedit_fg;
-    ic->preedit.background = server->preedit_bg;
+    ic->preedit.foreground = nabi_server->preedit_fg;
+    ic->preedit.background = nabi_server->preedit_bg;
     ic->preedit.bg_pixmap = 0;
     ic->preedit.cursor = 0;
     ic->preedit.base_font = NULL;
@@ -179,7 +181,7 @@ nabi_ic_create(IMChangeICStruct *data)
     static CARD16 id = 0;
     NabiIC *ic;
 
-    if (server->ic_freed == NULL) {
+    if (nabi_server->ic_freed == NULL) {
 	/* really make ic */
 	id++;
 
@@ -187,17 +189,17 @@ nabi_ic_create(IMChangeICStruct *data)
 	if (id == 0)
 	    id++;
 
-	if (id >= server->ic_table_size)
-	    nabi_server_ic_table_expand(server);
+	if (id >= nabi_server->ic_table_size)
+	    nabi_server_ic_table_expand(nabi_server);
 
 	ic = (NabiIC*)nabi_malloc(sizeof(NabiIC));
 	ic->id = id;
-	server->ic_table[id] = ic;
+	nabi_server->ic_table[id] = ic;
     } else {
 	/* pick from ic_freed */ 
-	ic = server->ic_freed;
-	server->ic_freed = server->ic_freed->next;
-	server->ic_table[ic->id] = ic;
+	ic = nabi_server->ic_freed;
+	nabi_server->ic_freed = nabi_server->ic_freed->next;
+	nabi_server->ic_table[ic->id] = ic;
     }
     
     /* store ic id */
@@ -213,8 +215,8 @@ nabi_ic_create(IMChangeICStruct *data)
 static Bool
 nabi_ic_is_destroyed(NabiIC *ic)
 {
-    if (ic->id > 0 && ic->id < server->ic_table_size)
-	return server->ic_table[ic->id] == NULL;
+    if (ic->id > 0 && ic->id < nabi_server->ic_table_size)
+	return nabi_server->ic_table[ic->id] == NULL;
     else
 	return True;
 }
@@ -226,15 +228,15 @@ nabi_ic_destroy(NabiIC *ic)
 	return;
 
     /* we do not delete, just save it in ic_freed */
-    if (server->ic_freed == NULL) {
-	server->ic_freed = ic;
-	server->ic_freed->next = NULL;
+    if (nabi_server->ic_freed == NULL) {
+	nabi_server->ic_freed = ic;
+	nabi_server->ic_freed->next = NULL;
     } else {
-	ic->next = server->ic_freed;
-	server->ic_freed = ic;
+	ic->next = nabi_server->ic_freed;
+	nabi_server->ic_freed = ic;
     }
 
-    server->ic_table[ic->id] = NULL;
+    nabi_server->ic_table[ic->id] = NULL;
 
     ic->connect_id = 0;
     ic->client_window = 0;
@@ -270,13 +272,13 @@ nabi_ic_destroy(NabiIC *ic)
 
     /* destroy preedit window */
     if (ic->preedit.window != 0) {
-	XDestroyWindow(server->display, ic->preedit.window);
+	XDestroyWindow(nabi_server->display, ic->preedit.window);
 	ic->preedit.window = 0;
     }
 
     /* destroy fontset data */
     if (ic->preedit.font_set) {
-	nabi_fontset_free(server->display, ic->preedit.font_set);
+	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 	nabi_free(ic->preedit.base_font);
 	ic->preedit.font_set = NULL;
 	ic->preedit.base_font = NULL;
@@ -321,13 +323,13 @@ nabi_ic_real_destroy(NabiIC *ic)
     nabi_free(ic->status_attr.base_font);
 
     if (ic->preedit.window != 0)
-	XDestroyWindow(server->display, ic->preedit.window);
+	XDestroyWindow(nabi_server->display, ic->preedit.window);
 
     if (ic->preedit.font_set)
-	nabi_fontset_free(server->display, ic->preedit.font_set);
+	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 
     if (ic->preedit.gc)
-	XFreeGC(server->display, ic->preedit.gc);
+	XFreeGC(nabi_server->display, ic->preedit.gc);
 
     nabi_free(ic);
 }
@@ -348,7 +350,7 @@ nabi_ic_preedit_draw_string(NabiIC *ic, wchar_t *str, int len)
     if (ic->preedit.width != width) {
 	ic->preedit.width = width;
 	ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
-	XResizeWindow(server->display, ic->preedit.window,
+	XResizeWindow(nabi_server->display, ic->preedit.window,
 		      ic->preedit.width, ic->preedit.height);
     }
 
@@ -356,11 +358,11 @@ nabi_ic_preedit_draw_string(NabiIC *ic, wchar_t *str, int len)
      * we force to put it in focus window (preedit.area) */
     if (ic->preedit.spot.x + ic->preedit.width > ic->preedit.area.width) {
 	ic->preedit.spot.x = ic->preedit.area.width - ic->preedit.width;
-	XMoveWindow(server->display, ic->preedit.window,
+	XMoveWindow(nabi_server->display, ic->preedit.window,
 		    ic->preedit.spot.x, 
 		    ic->preedit.spot.y - ic->preedit.ascent);
     }
-    XwcDrawImageString(server->display,
+    XwcDrawImageString(nabi_server->display,
 		       ic->preedit.window,
 		       ic->preedit.font_set,
 		       ic->preedit.gc,
@@ -391,7 +393,7 @@ nabi_ic_preedit_show(NabiIC *ic)
 
     /* draw preedit only when ic have any hangul data */
     if (!nabi_ic_is_empty(ic))
-	XMapWindow(server->display, ic->preedit.window);
+	XMapWindow(nabi_server->display, ic->preedit.window);
 }
 
 /* unmap preedit window */
@@ -401,7 +403,7 @@ nabi_ic_preedit_hide(NabiIC *ic)
     if (ic->preedit.window == 0)
 	return;
 
-    XUnmapWindow(server->display, ic->preedit.window);
+    XUnmapWindow(nabi_server->display, ic->preedit.window);
 }
 
 /* move and resize preedit window */
@@ -411,7 +413,7 @@ nabi_ic_preedit_configure(NabiIC *ic)
     if (ic->preedit.window == 0)
 	return;
 
-    XMoveResizeWindow(server->display, ic->preedit.window,
+    XMoveResizeWindow(nabi_server->display, ic->preedit.window,
 		      ic->preedit.spot.x, 
 		      ic->preedit.spot.y - ic->preedit.ascent, 
 		      ic->preedit.width,
@@ -459,7 +461,7 @@ nabi_ic_preedit_window_new(NabiIC *ic, Window parent)
 {
     GdkWindow *gdk_window;
 
-    ic->preedit.window = XCreateSimpleWindow(server->display,
+    ic->preedit.window = XCreateSimpleWindow(nabi_server->display,
 					     parent,
 					     ic->preedit.spot.x,
 					     ic->preedit.spot.y
@@ -467,9 +469,9 @@ nabi_ic_preedit_window_new(NabiIC *ic, Window parent)
 					     ic->preedit.width,
 					     ic->preedit.height,
 					     0,
-					     server->preedit_fg,
-					     server->preedit_bg);
-    XSelectInput(server->display, ic->preedit.window,
+					     nabi_server->preedit_fg,
+					     nabi_server->preedit_bg);
+    XSelectInput(nabi_server->display, ic->preedit.window,
 		 ExposureMask | StructureNotifyMask);
 
     /* install our preedit window event filter */
@@ -491,10 +493,10 @@ nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
     if (ic->preedit.gc == 0) {
 	XGCValues values;
 
-	values.foreground = server->preedit_fg;
-	values.background = server->preedit_bg;
-	ic->preedit.gc = XCreateGC(server->display,
-				   server->window,
+	values.foreground = nabi_server->preedit_fg;
+	values.background = nabi_server->preedit_bg;
+	ic->preedit.gc = XCreateGC(nabi_server->display,
+				   nabi_server->window,
 				   GCForeground | GCBackground,
 				   &values);
     }
@@ -508,18 +510,18 @@ nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
 static void
 nabi_ic_set_preedit_foreground(NabiIC *ic, unsigned long foreground)
 {
-    foreground = server->preedit_fg;
+    foreground = nabi_server->preedit_fg;
     ic->preedit.foreground = foreground;
 
     if (ic->focus_window == 0)
 	return;
 
     if (ic->preedit.gc) {
-	XSetForeground(server->display, ic->preedit.gc, foreground);
+	XSetForeground(nabi_server->display, ic->preedit.gc, foreground);
     } else {
 	XGCValues values;
 	values.foreground = foreground;
-	ic->preedit.gc = XCreateGC(server->display, server->window,
+	ic->preedit.gc = XCreateGC(nabi_server->display, nabi_server->window,
 		       GCForeground, &values);
     }
 }
@@ -527,18 +529,18 @@ nabi_ic_set_preedit_foreground(NabiIC *ic, unsigned long foreground)
 static void
 nabi_ic_set_preedit_background(NabiIC *ic, unsigned long background)
 {
-    background = server->preedit_bg;
+    background = nabi_server->preedit_bg;
     ic->preedit.background = background;
 
     if (ic->focus_window == 0)
 	return;
 
     if (ic->preedit.gc) {
-	XSetBackground(server->display, ic->preedit.gc, background);
+	XSetBackground(nabi_server->display, ic->preedit.gc, background);
     } else {
 	XGCValues values;
 	values.background = background;
-	ic->preedit.gc = XCreateGC(server->display, server->window,
+	ic->preedit.gc = XCreateGC(nabi_server->display, nabi_server->window,
 		       GCBackground, &values);
     }
 }
@@ -556,9 +558,9 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
     nabi_free(ic->preedit.base_font);
     ic->preedit.base_font = g_strdup(font_name);
     if (ic->preedit.font_set)
-	nabi_fontset_free(server->display, ic->preedit.font_set);
+	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 
-    fontset = nabi_fontset_create(server->display, font_name);
+    fontset = nabi_fontset_create(nabi_server->display, font_name);
     if (fontset == NULL)
 	return;
 
@@ -857,13 +859,13 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_commit(ic);
 	nabi_ic_preedit_done(ic);
-	if (server->mode_info_cb)
-	    server->mode_info_cb(NABI_MODE_INFO_ENGLISH);
+	if (nabi_server->mode_info_cb)
+	    nabi_server->mode_info_cb(NABI_MODE_INFO_ENGLISH);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
 	nabi_ic_preedit_start(ic);
-	if (server->mode_info_cb)
-	    server->mode_info_cb(NABI_MODE_INFO_HANGUL);
+	if (nabi_server->mode_info_cb)
+	    nabi_server->mode_info_cb(NABI_MODE_INFO_HANGUL);
 	break;
     default:
 	break;
@@ -876,12 +878,12 @@ nabi_ic_preedit_start(NabiIC *ic)
     if (ic->preedit.start)
 	return;
 
-    if (server->dynamic_event_flow) {
+    if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
 
 	preedit_state.connect_id = ic->connect_id;
 	preedit_state.icid = ic->id;
-	IMPreeditStart(server->xims, (XPointer)&preedit_state);
+	IMPreeditStart(nabi_server->xims, (XPointer)&preedit_state);
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
@@ -892,7 +894,7 @@ nabi_ic_preedit_start(NabiIC *ic)
 	preedit_data.connect_id = ic->connect_id;
 	preedit_data.icid = ic->id;
 	preedit_data.todo.return_value = 0;
-	IMCallCallback(server->xims, (XPointer)&preedit_data);
+	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
 	;
     }
@@ -913,17 +915,17 @@ nabi_ic_preedit_done(NabiIC *ic)
 	preedit_data.connect_id = ic->connect_id;
 	preedit_data.icid = ic->id;
 	preedit_data.todo.return_value = 0;
-	IMCallCallback(server->xims, (XPointer)&preedit_data);
+	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
 	; /* do nothing */
     }
 
-    if (server->dynamic_event_flow) {
+    if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
 
 	preedit_state.connect_id = ic->connect_id;
 	preedit_state.icid = ic->id;
-	IMPreeditEnd(server->xims, (XPointer)&preedit_state);
+	IMPreeditEnd(nabi_server->xims, (XPointer)&preedit_state);
     }
 
     ic->preedit.start = False;
@@ -936,7 +938,7 @@ nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len)
     wchar_t ch;
     
     n = 0;
-    if (server->output_mode == NABI_OUTPUT_MANUAL) {
+    if (nabi_server->output_mode == NABI_OUTPUT_MANUAL) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
@@ -954,7 +956,7 @@ nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len)
 	    for (i = 0; i <= ic->tindex; i++)
 		buf[n++] = ic->jongseong[i];
 	}
-    } else if (server->output_mode == NABI_OUTPUT_JAMO) {
+    } else if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
@@ -1032,7 +1034,7 @@ nabi_ic_preedit_insert(NabiIC *ic)
     list[0] = buf;
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	XwcTextListToTextProperty(server->display, list, 1,
+	XwcTextListToTextProperty(nabi_server->display, list, 1,
 				  XCompoundTextStyle,
 				  &tp);
 
@@ -1050,7 +1052,7 @@ nabi_ic_preedit_insert(NabiIC *ic)
 	text.string.multi_byte = tp.value;
 	text.length = strlen(tp.value);
 
-	IMCallCallback(server->xims, (XPointer)&data);
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(tp.value);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, len);
@@ -1078,7 +1080,7 @@ nabi_ic_preedit_update(NabiIC *ic)
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	ret = XwcTextListToTextProperty(server->display, list, 1,
+	ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
 					XCompoundTextStyle,
 					&tp);
 	data.major_code = XIM_PREEDIT_DRAW;
@@ -1100,7 +1102,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 	    text.length = strlen(tp.value);
 	}
 
-	IMCallCallback(server->xims, (XPointer)&data);
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
 	XFree(tp.value);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_draw_string(ic, buf, len);
@@ -1129,7 +1131,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	text.string.multi_byte = NULL;
 	text.length = 0;
 
-	IMCallCallback(server->xims, (XPointer)&data);
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
     } else if (ic->input_style & XIMPreeditPosition) {
 	if (ic->preedit.window == 0)
 	    return;
@@ -1139,7 +1141,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	 * key sequences become wrong */
 	ic->preedit.width = 1;
 	ic->preedit.height = 1;
-	XResizeWindow(server->display, ic->preedit.window,
+	XResizeWindow(nabi_server->display, ic->preedit.window,
 		  ic->preedit.width, ic->preedit.height);
     }
 }
@@ -1159,7 +1161,7 @@ nabi_ic_commit(NabiIC *ic)
 	return False;
 
     n = 0;
-    if (server->output_mode == NABI_OUTPUT_MANUAL) {
+    if (nabi_server->output_mode == NABI_OUTPUT_MANUAL) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
@@ -1177,7 +1179,7 @@ nabi_ic_commit(NabiIC *ic)
 	    for (i = 0; i <= ic->tindex; i++)
 		buf[n++] = ic->jongseong[i];
 	}
-    } else if (server->output_mode == NABI_OUTPUT_JAMO) {
+    } else if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
 	/* we use conjoining jamo, U+1100 - U+11FF */
 	if (ic->choseong[0] == 0)
 	    buf[n++] = HCF;
@@ -1223,7 +1225,7 @@ nabi_ic_commit(NabiIC *ic)
     /* nabi_ic_preedit_clear(ic); */
 
     list[0] = buf;
-        ret = XwcTextListToTextProperty(server->display, list, 1,
+        ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
 					XCompoundTextStyle,
 					&tp);
         commit_data.connect_id = ic->connect_id;
@@ -1234,7 +1236,7 @@ nabi_ic_commit(NabiIC *ic)
     else
 	commit_data.commit_string = tp.value;
 
-    IMCommitString(server->xims, (XPointer)&commit_data);
+    IMCommitString(nabi_server->xims, (XPointer)&commit_data);
     XFree(tp.value);
 
     /* we delete preedit string here */
@@ -1256,7 +1258,7 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     buf[1] = L'\0';
 
     list[0] = buf;
-    ret = XwcTextListToTextProperty(server->display, list, 1,
+    ret = XwcTextListToTextProperty(nabi_server->display, list, 1,
 			XCompoundTextStyle,
 			&tp);
     commit_data.connect_id = ic->connect_id;
@@ -1267,7 +1269,7 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     else
 	commit_data.commit_string = tp.value;
 
-    IMCommitString(server->xims, (XPointer)&commit_data);
+    IMCommitString(nabi_server->xims, (XPointer)&commit_data);
     XFree(tp.value);
 
     return True;
