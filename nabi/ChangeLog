@@ -1,3 +1,7 @@
+2003-08-31  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c,main.c: system tray가 닫혀도 프로그램을 종료하지 않음
+	* src/ui.c: dvorak 자판을 위한 설정을 메뉴에 추가
+
 2003-08-29  Choe Hwanjin <krisna@kldp.org>
 	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc 테이블을 wchar_t에서 uint16_t
 	  형으로 바꿔서 크기를 줄임
