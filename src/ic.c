@@ -1362,11 +1362,10 @@ nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch)
 	return;
 
     nabi_ic_buf_clear(ic);
-    nabi_ic_preedit_clear(ic);
     nabi_ic_push(ic, ch);
     ic->choseong[0] = ch;
     ic->lindex++;
-    nabi_ic_preedit_insert(ic);
+    nabi_ic_preedit_update(ic);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */
