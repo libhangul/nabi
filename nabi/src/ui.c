@@ -724,6 +724,7 @@ on_menu_about(GtkWidget *widget)
     GtkWidget *comment;
     GtkWidget *image;
     gchar *image_filename;
+    gchar *title_str;
     GtkWidget *dialog;
 
     dialog = gtk_dialog_new_with_buttons(_("About Nabi"),
@@ -737,8 +738,9 @@ on_menu_about(GtkWidget *widget)
     g_free(image_filename);
 
     title = gtk_label_new(NULL);
-    gtk_label_set_markup(GTK_LABEL(title),
-	    _("<span size=\"xx-large\" weight=\"bold\">Nabi</span>"));
+    title_str = g_strdup_printf(_("<span size=\"xx-large\" weight=\"bold\">Nabi %s</span>"), VERSION);
+    gtk_label_set_markup(GTK_LABEL(title), title_str);
+    g_free(title_str);
 
     comment = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(comment),
