@@ -43,6 +43,7 @@ typedef struct _NabiServer NabiServer;
 struct _NabiKeyboardTable {
     gchar*           filename;
     gchar*           name;
+    gchar*           compose;
     gint             type;
     wchar_t          table[KEYBOARD_TABLE_SIZE];
 };
