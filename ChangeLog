@@ -1,6 +1,7 @@
 2003-08-11  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.h,ic.c: preedit start 플래그 추가, preedit_start된 경우만
 	  preedit_done 메세지를 보냄(mozilla flash player와 관련된 문제점)
+	* src/ui.c: about 창에서 버젼 넘버 볼 수 있게
 
 2003-08-09  Choe Hwanjin <krisna@kldp.org>
 	* configure.in: gtk+ 2.2를 필요로 하도록 함
