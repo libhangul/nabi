@@ -754,8 +754,8 @@ candidate_item_compare(gconstpointer a, gconstpointer b)
 	    - ((NabiCandidateItem*)((GList*)b)->data)->ch;
 }
 
-static guchar*
-skip_space(guchar* p)
+static gchar*
+skip_space(gchar* p)
 {
     while (g_ascii_isspace(*p))
 	p++;
@@ -985,8 +985,8 @@ nabi_server_load_candidate_table(NabiServer *server,
 {
     FILE *file;
     gint n, i, j;
-    unsigned char *p;
-    unsigned char buf[256];
+    char *p;
+    char buf[256];
     gunichar ch;
     gunichar key;
     NabiCandidateItem *item;

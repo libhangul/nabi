@@ -36,6 +36,7 @@
 #include "fontset.h"
 
 static void nabi_ic_buf_clear(NabiIC *ic);
+static void nabi_ic_preedit_configure(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf, int buflen,
 				       int *len, int *size);
 
@@ -906,7 +907,7 @@ static char *utf8_to_compound_text(char *utf8)
 				      &tp);
     if (ret > 0)
 	fprintf(stdout, "Nabi: conversion failure: %d\n", ret);
-    return tp.value;
+    return (char*)tp.value;
 }
 
 void

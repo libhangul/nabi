@@ -233,7 +233,8 @@ nabi_candidate_set_window_position(NabiCandidate *candidate)
 {
     Window root;
     Window child;
-    int x = 0, y = 0, width = 0, height = 0, border = 0, depth = 0;
+    int x = 0, y = 0;
+    unsigned int width = 0, height = 0, border = 0, depth = 0;
     int absx = 0;
     int absy = 0;
     int root_w, root_h, cand_w, cand_h;
