@@ -34,7 +34,7 @@
 #include "server.h"
 #include "nabi.h"
 
-NabiApplication* nabi;
+NabiApplication* nabi = NULL;
 NabiServer* server = NULL;
 
 static void
@@ -44,6 +44,17 @@ on_realize(GtkWidget *widget, gpointer data)
 		      GDK_WINDOW_XDISPLAY(widget->window),
 		      GDK_WINDOW_XWINDOW(widget->window));
     g_print("XIM server started...\n");
+}
+
+static int
+my_error_handler(Display *display, XErrorEvent *error)
+{
+    gchar buf[64];
+
+    XGetErrorText (display, error->error_code, buf, 63);
+    g_print("X error: %s\n", buf);
+
+    return 0;
 }
 
 int
@@ -69,6 +80,8 @@ main(int argc, char *argv[])
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), server);
     gtk_widget_show(widget);
+
+    XSetErrorHandler(my_error_handler);
 
     gtk_main();
 
