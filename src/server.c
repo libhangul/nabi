@@ -289,10 +289,8 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     if (server == NULL)
 	return 0;
 
-    if (server->xims != NULL) {
-	printf("Nabi: XIM server is already running\n");
+    if (server->xims != NULL)
 	return 0;
-    }
 
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
@@ -315,7 +313,7 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 		   IMInputStyles, &input_styles,
 		   NULL);
     if (xims == NULL) {
-	printf("Can't open Input Method Service\n");
+	fprintf(stderr, "Nabi: Can't open Input Method Service\n");
 	exit(1);
     }
 
