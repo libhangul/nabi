@@ -55,6 +55,8 @@ enum {
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 
+static GdkPixbuf *default_icon = NULL;
+
 static EggTrayIcon *tray_icon = NULL;
 
 static GdkPixbuf *none_pixbuf = NULL;
@@ -631,6 +633,8 @@ nabi_app_new(void)
 void
 nabi_app_init(void)
 {
+    gchar *icon_filename;
+
     load_config_file();
     load_keyboard_maps();
 
@@ -638,6 +642,11 @@ nabi_app_init(void)
     nabi->mode_info_atom = gdk_atom_intern("_HANGUL_INPUT_MODE", TRUE);
     nabi->mode_info_type = gdk_atom_intern("INTEGER", TRUE);
     nabi->mode_info_xatom = gdk_x11_atom_to_xatom(nabi->mode_info_atom);
+
+    /* default icon */
+    icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
+    default_icon = gdk_pixbuf_new_from_file(icon_filename, NULL);
+    g_free(icon_filename);
 }
 
 void
@@ -670,6 +679,12 @@ void
 nabi_app_free(void)
 {
     int i;
+
+    /* remove default icon */
+    if (default_icon != NULL) {
+	gdk_pixbuf_unref(default_icon);
+	default_icon = NULL;
+    }
 
     if (nabi == NULL)
 	return;
@@ -787,6 +802,7 @@ on_menu_about(GtkWidget *widget)
 
     gtk_window_set_default_size(GTK_WINDOW(dialog), 200, 120);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
+    gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
     gtk_widget_show_all(dialog);
 
     gtk_dialog_run(GTK_DIALOG(dialog));
@@ -1122,6 +1138,8 @@ on_menu_themes(GtkWidget *widget, gpointer data)
     gtk_widget_size_request(treeview, &treeview_size);
     gtk_widget_set_size_request(scrolledwindow,
 	    CLAMP(treeview_size.width + 50, 200, gdk_screen_width()), 250);
+    gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
+
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 
@@ -1424,6 +1442,7 @@ nabi_app_create_main_widget(void)
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_resize(GTK_WINDOW(window), 1, 1);
     gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
+    gtk_window_set_icon(GTK_WINDOW(window), default_icon);
     g_signal_connect_after(G_OBJECT(window), "realize",
 	    		   G_CALLBACK(on_main_window_realized), NULL);
     g_signal_connect(G_OBJECT(window), "destroy",
@@ -1489,6 +1508,7 @@ nabi_create_hanja_window (NabiIC *ic, const wchar_t* ch)
     window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
     hanja_window = window;
     gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_MOUSE);
+    gtk_window_set_icon(GTK_WINDOW(window), default_icon);
     table = gtk_table_new (1, 10, TRUE);
 
     if (nabi->hanja_font)
