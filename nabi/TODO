@@ -2,5 +2,4 @@ TODO
 -----
  * 설정 창 제공
  * 한자 입력
- * font cache를 사용하여 Preedit Position 일 경우 속도를 개선
-
+ * 한/영 상태를 각 connect 별로 관리함
