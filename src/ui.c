@@ -1434,7 +1434,7 @@ on_hanja_button_clicked (GtkWidget *widget, gpointer data)
     if (str) {
 	wchar_t ch = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(widget),
 				      "hanja"));
-	nabi_ic_commit_hanja(ic, ch);
+	nabi_ic_insert_hanja(ic, ch);
     }
     gtk_widget_destroy (hanja_window);
 }

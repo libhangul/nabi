@@ -1318,11 +1318,15 @@ nabi_ic_popup_hanja_window (NabiIC *ic)
 }
 
 void
-nabi_ic_commit_hanja(NabiIC *ic, wchar_t ch)
+nabi_ic_insert_hanja(NabiIC *ic, wchar_t ch)
 {
+    //TODO: check whether ch is valid char on the current locale or not
     nabi_ic_buf_clear(ic);
     nabi_ic_preedit_clear(ic);
-    nabi_ic_commit_unicode(ic, ch);
+    nabi_ic_push(ic, ch);
+    ic->choseong[0] = ch;
+    ic->lindex++;
+    nabi_ic_preedit_insert(ic);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */
