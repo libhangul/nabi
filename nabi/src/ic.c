@@ -476,6 +476,8 @@ static void
 nabi_ic_preedit_window_new(NabiIC *ic)
 {
     Window parent;
+    int cmask = 0;
+    XSetWindowAttributes attributes;
     GdkWindow *gdk_window;
 
     if (ic->focus_window != 0)
@@ -495,6 +497,14 @@ nabi_ic_preedit_window_new(NabiIC *ic)
 					     0,
 					     nabi_server->preedit_fg,
 					     nabi_server->preedit_bg);
+
+    /* set override-redirect to true
+     * we should set this to show preedit window on qt apps */
+    cmask = CWOverrideRedirect;
+    attributes.override_redirect = True;
+    XChangeWindowAttributes(nabi_server->display, ic->preedit.window,
+			    cmask, &attributes);
+
     XSelectInput(nabi_server->display, ic->preedit.window,
 		 ExposureMask | StructureNotifyMask);
 
