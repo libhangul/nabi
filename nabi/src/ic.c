@@ -1582,7 +1582,7 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	if (index >= 0) {
 	    ptr = (const NabiCandidateItem **)
 		    nabi_server->candidate_table[index] + 1;
-	    ic->candidate = nabi_candidate_new(NULL, 10, ptr, parent,
+	    ic->candidate = nabi_candidate_new(NULL, 9, ptr, parent,
 				    &nabi_ic_candidate_commit_cb, ic);
 	    return True;
 	}

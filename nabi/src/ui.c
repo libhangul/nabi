@@ -1301,7 +1301,8 @@ update_state (int state)
     switch (state) {
     case 0:
 	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: None"));
-	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
+	if (main_label != NULL)
+	    gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
 	if (none_image != NULL &&
 	    hangul_image != NULL &&
 	    english_image != NULL) {
@@ -1312,7 +1313,8 @@ update_state (int state)
 	break;
     case 1:
 	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: English"));
-	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: English"));
+	if (main_label != NULL)
+	    gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: English"));
 	if (none_image != NULL &&
 	    hangul_image != NULL &&
 	    english_image != NULL) {
@@ -1323,7 +1325,8 @@ update_state (int state)
 	break;
     case 2:
 	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: Hangul"));
-	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: Hangul"));
+	if (main_label != NULL)
+	    gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: Hangul"));
 	if (none_image != NULL &&
 	    hangul_image != NULL &&
 	    english_image != NULL) {
@@ -1334,7 +1337,8 @@ update_state (int state)
 	break;
     default:
 	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: None"));
-	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
+	if (main_label != NULL)
+	    gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
 	gtk_widget_show(none_image);
 	gtk_widget_hide(hangul_image);
 	gtk_widget_hide(english_image);
@@ -1406,14 +1410,6 @@ remove_event_filter()
     gdk_window_remove_filter(nabi->root_window, root_window_event_filter, NULL);
 }
 
-static void
-on_main_window_realized(GtkWidget *widget, gpointer data)
-{
-    install_event_filter(widget);
-    if (!nabi->status_only)
-	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
-}
-
 static gboolean
 on_main_window_button_pressed(GtkWidget *widget,
 			      GdkEventButton *event,
@@ -1443,6 +1439,14 @@ on_main_window_button_pressed(GtkWidget *widget,
 	break;
     }
     return FALSE;
+}
+
+static void
+on_main_window_realized(GtkWidget *widget, gpointer data)
+{
+    install_event_filter(widget);
+    if (!nabi->status_only)
+	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 
 static void
