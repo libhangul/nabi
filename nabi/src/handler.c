@@ -270,8 +270,10 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
     if (keyval != XK_BackSpace && 
 	((keyval & 0xff00) == 0xff00 ||
          (keyval & 0xfe00) == 0xfe00 ||
-         (keyval & 0xfd00) == 0xfd00))
+         (keyval & 0xfd00) == 0xfd00)) {
+	nabi_ic_commit(ic);
 	return False;
+    }
 
     /* forward key event and commit current string if any state is on */
     if (kevent->state & 
