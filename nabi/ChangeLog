@@ -1,3 +1,6 @@
+2003-12-29  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/i18nIc.c,IMdkit/i18nPtHdr.c: 메모리 leak 문제 몇가지 해결
+
 2003-12-23  Choe Hwanjin <krisna@kldp.org>
 	* src/server.h,src/server.c,src/automata.c: backspace정보를 통계 정보
 	  구조체에 남기는 코드의 버그를 해결

@@ -722,6 +722,15 @@ void _Xi18nChangeIC (XIMS ims,
         /*endif*/
     }
     /*endif*/
+
+    /* Here, we must free value of ic_attr, pre_attr and sts_attr */ 
+    for (i = 0; i < ic_num; i++)
+	XFree (ic_attr[i].value);
+    for (i = 0; i < preedit_ic_num; i++)
+	XFree (pre_attr[i].value);
+    for (i = 0; i < status_ic_num; i++)
+	XFree (sts_attr[i].value);
+
     if (create_flag == True)
     {
         fm = FrameMgrInit (create_ic_reply_fr,
