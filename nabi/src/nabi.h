@@ -42,6 +42,7 @@ struct _NabiApplication {
     gint            y;
     GtkWidget*      main_window;
     gboolean	    status_only;
+    gchar*	    session_id;
 
     gchar*          theme;
     gchar*          keyboard_map_filename;

@@ -62,6 +62,7 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
 int
 main(int argc, char *argv[])
 {
+    char *session_id;
     GtkWidget *widget;
 
 #ifdef ENABLE_NLS
@@ -76,7 +77,7 @@ main(int argc, char *argv[])
     nabi_app_init(&argc, &argv);
 
 #ifdef HAVE_LIBSM
-    nabi_session_open();
+    nabi_session_open(nabi->session_id);
 #endif
 
     if (!nabi->status_only) {

@@ -605,6 +605,7 @@ nabi_app_new(void)
     nabi->y = 0;
     nabi->main_window = NULL;
     nabi->status_only = FALSE;
+    nabi->session_id = NULL;
 
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
@@ -642,6 +643,19 @@ nabi_app_init(int *argc, char ***argv)
 		strcmp("--status-only", (*argv)[i]) == 0) {
 		nabi->status_only = TRUE;
 		(*argv)[i] = NULL;
+	    } else if (strcmp("--sm-client-id", (*argv)[i]) == 0 ||
+		       strncmp("--sm-client-id=", (*argv)[i], 15) == 0) {
+		gchar *session_id = (*argv)[i] + 14;
+		if (*session_id == '=') {
+		    session_id++;
+		} else {
+		    (*argv)[i] = NULL;
+		    i++;
+		    session_id = (*argv)[i];
+		}
+		(*argv)[i] = NULL;
+
+		nabi->session_id = g_strdup(session_id);
 	    }
 	    i++;
 	}

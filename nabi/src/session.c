@@ -86,12 +86,103 @@ shutdown_cancelled_proc(SmcConn smc_conn, SmPointer client_data)
     SmcSaveYourselfDone(smc_conn, True);
 }
 
+static SmProp *
+property_new(const char *name, const char *type, ...)
+{
+    SmProp *prop;
+    SmPropValue *val_list;
+    va_list args;
+    const char *str;
+    int n, i;
+
+    prop = g_malloc(sizeof(SmProp));
+    prop->name = g_strdup(name);
+    prop->type = g_strdup(type);
+
+    va_start(args, type);
+    str = va_arg(args, const char*);
+    for (n = 0; str != NULL; n++, str = va_arg(args, const char*))
+	continue;
+    va_end(args);
+
+    prop->num_vals = n;
+
+    val_list = g_malloc(sizeof(SmPropValue) * n);
+    va_start(args, type);
+    for (i = 0; i < n; i++) {
+	str = va_arg(args, const char*);
+	g_print("Sm property: %s\n", str);
+	val_list[i].length = strlen(str);
+	val_list[i].value = g_strdup(str);
+    }
+    va_end(args);
+
+    prop->vals = val_list;
+
+    return prop;
+}
+
+static void
+property_free(SmProp *prop)
+{
+    int i;
+
+    g_free(prop->name);
+    g_free(prop->type);
+    for (i = 0; i < prop->num_vals; i++)
+	g_free(prop->vals[i].value);
+    g_free(prop);
+}
+
+static void
+setup_properties(const char *client_id)
+{
+    gchar *process_id;
+    gchar *restart_style_hint;
+    const gchar *program;
+    const gchar *user_id;
+    SmProp *prop_list[6];
+
+    if (session_connection == NULL)
+	return;
+
+    process_id = g_strdup_printf("%d", (int) getpid());
+    program = g_get_prgname();
+    user_id = g_get_user_name();
+
+    prop_list[0] = property_new(SmCloneCommand, SmLISTofARRAY8, program, NULL);
+    prop_list[1] = property_new(SmProcessID, SmARRAY8, process_id, NULL);
+    prop_list[2] = property_new(SmProgram, SmARRAY8, program, NULL);
+    if (nabi->status_only)
+	prop_list[3] = property_new(SmRestartCommand, SmLISTofARRAY8,
+				    program, "--status-only",
+				    "--sm-client-id", client_id, NULL);
+    else
+	prop_list[3] = property_new(SmRestartCommand, SmLISTofARRAY8,
+				    program, "--sm-client-id", client_id, NULL);
+    prop_list[4] = property_new(SmUserID, SmARRAY8, user_id, NULL);
+    restart_style_hint = g_strdup_printf("%c", (char)SmRestartImmediately);
+    prop_list[5] = property_new(SmRestartStyleHint,
+				SmCARD8, restart_style_hint, NULL);
+    g_free(restart_style_hint);
+
+    SmcSetProperties(session_connection, 6, prop_list);
+
+    property_free(prop_list[0]);
+    property_free(prop_list[1]);
+    property_free(prop_list[2]);
+    property_free(prop_list[3]);
+    property_free(prop_list[4]);
+    property_free(prop_list[5]);
+
+    g_free(process_id);
+}
+
 void
-nabi_session_open(void)
+nabi_session_open(char *previos_id)
 {
     char buf[256];
     SmcCallbacks callbacks;
-    char *previos_id = NULL;
     char *client_id = NULL;
 
     IceAddConnectionWatch(ice_watch_proc, NULL);
@@ -121,10 +212,16 @@ nabi_session_open(void)
 	return;
     }
 
+    if (client_id == NULL)
+	return;
+
     g_print("SM: client id: %s\n", client_id);
+    setup_properties(client_id);
     gdk_set_sm_client_id(client_id);
-    if (client_id != NULL)
-	free(client_id);
+
+    g_free(nabi->session_id);
+    nabi->session_id = client_id;
+    return;
 }
 
 void
@@ -135,6 +232,8 @@ nabi_session_close(void)
 
     SmcCloseConnection(session_connection, 0, NULL);
     gdk_set_sm_client_id(NULL);
+    g_free(nabi->session_id);
+    nabi->session_id = NULL;
 }
 
 #endif /* HAVE_LIBSM */
