@@ -848,9 +848,11 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 static gchar *get_statistic_string(void)
 {
     if (nabi_server == NULL)
-	return g_strdup("");
+	return g_strdup(_("XIM Server is not running"));
 
-    return g_strdup_printf("%s: %3d\n"
+    return g_strdup_printf("%s: %d\n"
+			   "\n"
+			   "%s: %3d\n"
 			   "%s: %3d\n"
 			   "%s: %3d\n"
 			   "\n"
@@ -932,6 +934,9 @@ static gchar *get_statistic_string(void)
 			   "\341\207\200: %-3d "
 			   "\341\207\201: %-3d "
 			   "\341\207\202: %-3d\n",
+
+			   _("Connected applications"),
+			   nabi_server->n_connected,
 
 			   _("Total"),
 			   nabi_server->statistics.total,
