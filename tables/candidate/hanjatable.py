@@ -186,7 +186,6 @@ except:
 
 gather_copyright = 0
 table = { }
-hanja = { }
 lineno = 0
 for line in data_file.readlines():
 	lineno = lineno + 1
@@ -202,36 +201,21 @@ for line in data_file.readlines():
 		else:
 			continue
 		
-	if line[:2] == 'U+':
-		tokens = string.split(line)
-		hanjacode = unicodetohexnum(tokens[0])
-		if not hanja.has_key(hanjacode):
-			hanja[hanjacode] = {}
-
-	if string.find(line, "kRSKangXi") >= 0:
-		tokens = line.split()
-		hanjacode = unicodetohexnum(tokens[0])
-		if tokens[2]:
-		    (radical, stroke) = tokens[2].split('.')[:2]
-		    hanja[hanjacode]['Radical'] = int(radical) + 0x2F00 - 1
-		    hanja[hanjacode]['RadicalStroke'] = int(stroke)
-
 	# check for korean phonetic data
-	if string.find(line, "kKorean") >= 0:
-		tokens = string.split(line)
-		hanjacode = unicodetohexnum(tokens[0])
-		hanja[hanjacode]['kKorean'] = { }
-		for hangulphone in tokens[2:]:
-			hangulcode = phonetocode(hangulphone, "%s: U+%X " % (data_file_name, hanjacode))
-			if hangulcode == 0:
-				continue
+	if string.find(line, "kKorean") < 0:
+		continue
 
-			if table.has_key(hangulcode):
-				table[hangulcode].append(hanjacode)
-			else:
-				table[hangulcode] = [ hanjacode ]
-			if hanja.has_key(hanjacode):
-				hanja[hanjacode]['kKorean'] = hanjacode
+	tokens = string.split(line)
+	hanjacode = unicodetohexnum(tokens[0])
+	for hangulphone in tokens[2:]:
+		hangulcode = phonetocode(hangulphone, "%s: U+%X " % (data_file_name, hanjacode))
+		if hangulcode == 0:
+			continue
+
+		if table.has_key(hangulcode):
+			table[hangulcode].append(hanjacode)
+		else:
+			table[hangulcode] = [ hanjacode ]
 
 data_file.close()
 
@@ -243,16 +227,13 @@ threshold = 0
 section_no = 1
 char_num = 0
 table_len = 0
+sys.stderr.write("-- %d --\n" % section_no)
 for key in list:
 	print '[' + unichr(key).encode('utf-8') + ']'
 	i = 0
 	table[key].sort()
-	for hanjacode in table[key]:
-		str = unichr(hanjacode).encode('utf-8') + ' ' + 'U+%04X' % hanjacode
-		if hanja.has_key(hanjacode) and hanja[hanjacode].has_key('Radical') and hanja[hanjacode].has_key('RadicalStroke'):
-
-			str = str + ' ' + unichr(hanja[hanjacode]['Radical']).encode('utf-8') + ' %d' % hanja[hanjacode]['RadicalStroke']
-		print str
+	for hanja in table[key]:
+		print unichr(hanja).encode('utf-8') + '='
 		char_num = char_num + 1
 	table_len = len(table[key])
 	threshold = threshold + table_len
@@ -260,5 +241,6 @@ for key in list:
 	if threshold > 100:
 		threshold = 0
 		section_no = section_no + 1
+		sys.stderr.write("-- %d --\n" % section_no)
 
 sys.stderr.write("Total %d chars are written\n" % char_num)
