@@ -6,7 +6,7 @@
 #include <X11/Xutil.h>
 #include <gtk/gtk.h>
 
-#include "nls.h"
+#include "gettext.h"
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 #include "hangul.h"

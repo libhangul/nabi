@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
 #include <X11/Xlib.h>
@@ -5,7 +9,7 @@
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
-#include "nls.h"
+#include "gettext.h"
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 #include "ic.h"
@@ -19,6 +23,9 @@ int
 main(int argc, char *argv[])
 {
     GtkWidget *widget;
+
+    bindtextdomain(PACKAGE, LOCALEDIR);
+    bind_textdomain_codeset(PACKAGE, "UTF-8");
 
     gtk_init(&argc, &argv);
 
