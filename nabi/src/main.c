@@ -21,7 +21,6 @@
 #endif
 
 #include <stdio.h>
-#include <stdint.h>
 #include <X11/Xlib.h>
 #include <langinfo.h>
 #include <gdk/gdkx.h>

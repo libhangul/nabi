@@ -16,8 +16,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
-#include <stdint.h>
 #include <stddef.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -29,6 +32,17 @@
 #include "ic.h"
 #include "server.h"
 
+
+static void
+debug_msg(const char *fmt, ...)
+{
+    va_list args;
+
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    fputc('\n', stderr);
+}
 
 static Bool
 nabi_handler_open(XIMS ims, IMProtocol *call_data)
@@ -263,188 +277,133 @@ nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 	return True;
 }
 
-static void
-print_xim_protocol(IMProtocol *call_data)
+static const char *
+xim_protocol_name(int major_code)
 {
-    char *protocol;
-
-    switch (call_data->major_code) {
+    switch (major_code) {
     case XIM_CONNECT:
-	protocol = "XIM_CONNECT";
-	break;
+	return "XIM_CONNECT";
     case XIM_CONNECT_REPLY:
-	protocol = "XIM_CONNECT_REPLY";
-	break;
+	return "XIM_CONNECT_REPLY";
     case XIM_DISCONNECT:
-	protocol = "XIM_DISCONNECT";
-	break;
+	return "XIM_DISCONNECT";
     case XIM_DISCONNECT_REPLY:
-	protocol = "XIM_DISCONNECT_REPLY";
-	break;
+	return "XIM_DISCONNECT_REPLY";
     case XIM_AUTH_REQUIRED:
-	protocol = "XIM_AUTH_REQUIRED";
-	break;
+	return "XIM_AUTH_REQUIRED";
     case XIM_AUTH_REPLY:
-	protocol = "XIM_AUTH_REPLY";
-	break;
+	return "XIM_AUTH_REPLY";
     case XIM_AUTH_NEXT:
-	protocol = "XIM_AUTH_NEXT";
-	break;
+	return "XIM_AUTH_NEXT";
     case XIM_AUTH_SETUP:
-	protocol = "XIM_AUTH_SETUP";
-	break;
+	return "XIM_AUTH_SETUP";
     case XIM_AUTH_NG:
-	protocol = "XIM_AUTH_NG";
-	break;
+	return "XIM_AUTH_NG";
     case XIM_ERROR:
-	protocol = "XIM_ERROR";
-	break;
+	return "XIM_ERROR";
     case XIM_OPEN:
-	protocol = "XIM_OPEN";
-	break;
+	return "XIM_OPEN";
     case XIM_OPEN_REPLY:
-	protocol = "XIM_OPEN_REPLY";
-	break;
+	return "XIM_OPEN_REPLY";
     case XIM_CLOSE:
-	protocol = "XIM_CLOSE";
-	break;
+	return "XIM_CLOSE";
     case XIM_CLOSE_REPLY:
-	protocol = "XIM_CLOSE_REPLY";
-	break;
+	return "XIM_CLOSE_REPLY";
     case XIM_REGISTER_TRIGGERKEYS:
-	protocol = "XIM_REGISTER_TRIGGERKEYS";
-	break;
+	return "XIM_REGISTER_TRIGGERKEYS";
     case XIM_TRIGGER_NOTIFY:
-	protocol = "XIM_TRIGGER_NOTIFY";
-	break;
+	return "XIM_TRIGGER_NOTIFY";
     case XIM_TRIGGER_NOTIFY_REPLY:
-	protocol = "XIM_TRIGGER_NOTIFY_REPLY";
-	break;
+	return "XIM_TRIGGER_NOTIFY_REPLY";
     case XIM_SET_EVENT_MASK:
-	protocol = "XIM_SET_EVENT_MASK";
-	break;
+	return "XIM_SET_EVENT_MASK";
     case XIM_ENCODING_NEGOTIATION:
-	protocol = "XIM_ENCODING_NEGOTIATION";
-	break;
+	return "XIM_ENCODING_NEGOTIATION";
     case XIM_ENCODING_NEGOTIATION_REPLY:
-	protocol = "XIM_ENCODING_NEGOTIATION_REPLY";
-	break;
+	return "XIM_ENCODING_NEGOTIATION_REPLY";
     case XIM_QUERY_EXTENSION:
-	protocol = "XIM_QUERY_EXTENSION";
-	break;
+	return "XIM_QUERY_EXTENSION";
     case XIM_QUERY_EXTENSION_REPLY:
-	protocol = "XIM_QUERY_EXTENSION_REPLY";
-	break;
+	return "XIM_QUERY_EXTENSION_REPLY";
     case XIM_SET_IM_VALUES:
-	protocol = "XIM_SET_IM_VALUES";
-	break;
+	return "XIM_SET_IM_VALUES";
     case XIM_SET_IM_VALUES_REPLY:
-	protocol = "XIM_SET_IM_VALUES_REPLY";
-	break;
+	return "XIM_SET_IM_VALUES_REPLY";
     case XIM_GET_IM_VALUES:
-	protocol = "XIM_GET_IM_VALUES";
-	break;
+	return "XIM_GET_IM_VALUES";
     case XIM_GET_IM_VALUES_REPLY:
-	protocol = "XIM_GET_IM_VALUES_REPLY";
-	break;
+	return "XIM_GET_IM_VALUES_REPLY";
     case XIM_CREATE_IC:
-	protocol = "XIM_CREATE_IC";
-	break;
+	return "XIM_CREATE_IC";
     case XIM_CREATE_IC_REPLY:
-	protocol = "XIM_CREATE_IC_REPLY";
-	break;
+	return "XIM_CREATE_IC_REPLY";
     case XIM_DESTROY_IC:
-	protocol = "XIM_DESTROY_IC";
-	break;
+	return "XIM_DESTROY_IC";
     case XIM_DESTROY_IC_REPLY:
-	protocol = "XIM_DESTROY_IC_REPLY";
-	break;
+	return "XIM_DESTROY_IC_REPLY";
     case XIM_SET_IC_VALUES:
-	protocol = "XIM_SET_IC_VALUES";
-	break;
+	return "XIM_SET_IC_VALUES";
     case XIM_SET_IC_VALUES_REPLY:
-	protocol = "XIM_SET_IC_VALUES_REPLY";
-	break;
+	return "XIM_SET_IC_VALUES_REPLY";
     case XIM_GET_IC_VALUES:
-	protocol = "XIM_GET_IC_VALUES";
-	break;
+	return "XIM_GET_IC_VALUES";
     case XIM_GET_IC_VALUES_REPLY:
-	protocol = "XIM_GET_IC_VALUES_REPLY";
-	break;
+	return "XIM_GET_IC_VALUES_REPLY";
     case XIM_SET_IC_FOCUS:
-	protocol = "XIM_SET_IC_FOCUS";
-	break;
+	return "XIM_SET_IC_FOCUS";
     case XIM_UNSET_IC_FOCUS:
-	protocol = "XIM_UNSET_IC_FOCUS";
-	break;
+	return "XIM_UNSET_IC_FOCUS";
     case XIM_FORWARD_EVENT:
-	protocol = "XIM_FORWARD_EVENT";
-	break;
+	return "XIM_FORWARD_EVENT";
     case XIM_SYNC:
-	protocol = "XIM_SYNC";
-	break;
+	return "XIM_SYNC";
     case XIM_SYNC_REPLY:
-	protocol = "XIM_SYNC_REPLY";
-	break;
+	return "XIM_SYNC_REPLY";
     case XIM_COMMIT:
-	protocol = "XIM_COMMIT";
-	break;
+	return "XIM_COMMIT";
     case XIM_RESET_IC:
-	protocol = "XIM_RESET_IC";
-	break;
+	return "XIM_RESET_IC";
     case XIM_RESET_IC_REPLY:
-	protocol = "XIM_RESET_IC_REPLY";
-	break;
+	return "XIM_RESET_IC_REPLY";
     case XIM_GEOMETRY:
-	protocol = "XIM_GEOMETRY";
-	break;
+	return "XIM_GEOMETRY";
     case XIM_STR_CONVERSION:
-	protocol = "XIM_STR_CONVERSION";
-	break;
+	return "XIM_STR_CONVERSION";
     case XIM_STR_CONVERSION_REPLY:
-	protocol = "XIM_STR_CONVERSION_REPLY";
-	break;
+	return "XIM_STR_CONVERSION_REPLY";
     case XIM_PREEDIT_START:
-	protocol = "XIM_PREEDIT_START";
-	break;
+	return "XIM_PREEDIT_START";
     case XIM_PREEDIT_START_REPLY:
-	protocol = "XIM_PREEDIT_START_REPLY";
-	break;
+	return "XIM_PREEDIT_START_REPLY";
     case XIM_PREEDIT_DRAW:
-	protocol = "XIM_PREEDIT_DRAW";
-	break;
+	return "XIM_PREEDIT_DRAW";
     case XIM_PREEDIT_CARET:
-	protocol = "XIM_PREEDIT_CARET";
-	break;
+	return "XIM_PREEDIT_CARET";
     case XIM_PREEDIT_CARET_REPLY:
-	protocol = "XIM_PREEDIT_CARET_REPLY";
-	break;
+	return "XIM_PREEDIT_CARET_REPLY";
     case XIM_PREEDIT_DONE:
-	protocol = "XIM_PREEDIT_DONE";
-	break;
+	return "XIM_PREEDIT_DONE";
     case XIM_STATUS_START:
-	protocol = "XIM_STATUS_START";
-	break;
+	return "XIM_STATUS_START";
     case XIM_STATUS_DRAW:
-	protocol = "XIM_STATUS_DRAW";
-	break;
+	return "XIM_STATUS_DRAW";
     case XIM_STATUS_DONE:
-	protocol = "XIM_STATUS_DONE";
-	break;
+	return "XIM_STATUS_DONE";
     default:
 	break;
     }
 
-    fprintf(stderr, "%s 0x%x 0x%x\n",
-	    protocol,
-	    call_data->any.connect_id,
-	    call_data->changeic.icid);
+    return "XIM_UNKNOWN";
 }
 
 Bool
 nabi_handler(XIMS ims, IMProtocol *call_data)
 {
-    print_xim_protocol(call_data);
+    debug_msg("%s\t 0x%x 0x%x",
+    	      xim_protocol_name(call_data->major_code),
+	      call_data->any.connect_id,
+	      call_data->changeic.icid);
+
     switch (call_data->major_code) {
     case XIM_OPEN:
 	    return nabi_handler_open(ims, call_data);
