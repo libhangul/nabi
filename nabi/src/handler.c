@@ -262,7 +262,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 
     /* forward key event and commit current string if any state is on */
     if (kevent->state & 
-	(ControlMask |	/* Ctl */
+	(ControlMask |		/* Ctl */
 	 Mod1Mask |		/* Alt */
 	 Mod3Mask |
 	 Mod4Mask |		/* Windows */
@@ -376,13 +376,13 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 {
-	NabiIC* ic = nabi_server_get_ic(server, call_data->resetic.icid);
+    NabiIC* ic = nabi_server_get_ic(server, call_data->resetic.icid);
 
-	if (ic == NULL)
-		return True;
+    if (ic == NULL)
+	    return True;
 
-	nabi_ic_reset(ic);
-	return True;
+    nabi_ic_reset(ic);
+    return True;
 }
 
 static Bool
@@ -403,13 +403,13 @@ nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 {
-	return True;
+    return True;
 }
 
 static Bool
 nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 {
-	return True;
+    return True;
 }
 
 Bool
@@ -454,4 +454,4 @@ nabi_handler(XIMS ims, IMProtocol *call_data)
     return True;
 }
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sw=4 sts=4 : */
