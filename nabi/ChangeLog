@@ -1,5 +1,6 @@
 2004-10-05  Choe Hwanjin <krisna@kldp.org>
 	* full compose map 추가(엣글 입력에 필요함)
+	* 세벌식 옛글 자판 추가
 
 2004-10-04  Choe Hwanjin <krisna@kldp.org>
 	* compose table을 제대로 로딩하지 못하던 버그 수정

@@ -239,10 +239,14 @@ nabi_server_set_keyboard_table(NabiServer *server,
 	NabiKeyboardTable *table = (NabiKeyboardTable*)list->data;
 	if (strcmp(table->name, name) == 0) {
 	    server->keyboard_table = table;
+	    /* set keyboard */
 	    if (table->type == NABI_KEYBOARD_2SET)
 		server->automata = nabi_automata_2;
 	    else
 		server->automata = nabi_automata_3;
+	    /* set compose table */
+	    if (table->compose != NULL)
+		nabi_server_set_compose_table(server, table->compose);
 	    return;
 	}
     }
@@ -816,6 +820,7 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
     table->type = NABI_KEYBOARD_3SET;
     table->filename = g_strdup(filename);
     table->name = NULL;
+    table->compose = NULL;
 
     for (i = 0; i < sizeof(table->table) / sizeof(table->table[0]); i++)
 	table->table[i] = 0;
@@ -833,7 +838,11 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
 	    if (p == NULL)
 		continue;
 	    table->name = g_strdup(p);
-	    continue;
+	} else if (strcmp(p, "Compose:") == 0) {
+	    p = strtok_r(NULL, "\n", &saved_position);
+	    if (p == NULL)
+		continue;
+	    table->compose = g_strdup(p);
 	} else if (strcmp(p, "Type2") == 0) {
 	    table->type = NABI_KEYBOARD_2SET;
 	} else {

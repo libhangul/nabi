@@ -595,9 +595,9 @@ nabi_app_setup_server(void)
 	gtk_widget_destroy(message);
     }
 
-    set_up_keyboard();
     load_compose_table();
     load_candidate_table();
+    set_up_keyboard();
     load_colors();
     set_up_output_mode();
     nabi_server_set_trigger_keys(nabi_server, nabi->trigger_keys);
