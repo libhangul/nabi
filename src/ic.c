@@ -26,6 +26,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <gtk/gtk.h>
+#include <glib.h>
 
 #include "gettext.h"
 #include "../IMdkit/IMdkit.h"
@@ -56,6 +57,57 @@ nabi_free(void *ptr)
 	free(ptr);
 }
 
+NabiConnect*
+nabi_connect_create(CARD16 id)
+{
+    NabiConnect* connect;
+
+    connect = nabi_malloc(sizeof(NabiConnect));
+    connect->id = id;
+    connect->mode = NABI_INPUT_MODE_DIRECT;
+    connect->ic_list = NULL;
+    connect->next = NULL;
+    
+    return connect;
+}
+
+void
+nabi_connect_destroy(NabiConnect* connect)
+{
+    NabiIC *ic;
+    GSList *list;
+
+    /* remove all input contexts */
+    list = connect->ic_list;
+    while (list != NULL) {
+	ic = (NabiIC*)(list->data);
+	if (ic != NULL)
+	    nabi_ic_destroy(ic);
+	list = list->next;
+    }
+
+    g_slist_free(connect->ic_list);
+    nabi_free(connect);
+}
+
+void
+nabi_connect_add_ic(NabiConnect* connect, NabiIC *ic)
+{
+    if (connect == NULL || ic == NULL)
+	return;
+
+    connect->ic_list = g_slist_prepend(connect->ic_list, ic);
+}
+
+void
+nabi_connect_remove_ic(NabiConnect* connect, NabiIC *ic)
+{
+    if (connect == NULL || ic == NULL)
+	return;
+
+    connect->ic_list = g_slist_remove(connect->ic_list, ic);
+}
+
 static void
 nabi_ic_init_values(NabiIC *ic)
 {
@@ -66,6 +118,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->resource_class = NULL;
     ic->next = NULL;
 
+    ic->connect = nabi_server_get_connect_by_id(server, ic->connect_id);
     ic->mode = NABI_INPUT_MODE_DIRECT;
 
     /* preedit attr */
@@ -119,7 +172,7 @@ nabi_ic_init_values(NabiIC *ic)
     nabi_ic_buf_clear(ic);
 }
 
-void
+NabiIC*
 nabi_ic_create(IMChangeICStruct *data)
 {
     static CARD16 id = 0;
@@ -152,6 +205,8 @@ nabi_ic_create(IMChangeICStruct *data)
 
     nabi_ic_init_values(ic);
     nabi_ic_set_values(ic, data);
+
+    return ic;
 }
 
 static Bool
@@ -187,6 +242,8 @@ nabi_ic_destroy(NabiIC *ic)
     ic->resource_name = NULL;
     nabi_free(ic->resource_class);
     ic->resource_class = NULL;
+
+    ic->connect = NULL;
 
     ic->preedit.area.x = 0;
     ic->preedit.area.y = 0;
@@ -792,8 +849,8 @@ void
 nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 {
     ic->mode = mode;
-    if (server->global_input_mode)
-	server->input_mode = mode;
+    if (ic->connect != NULL)
+	ic->connect->mode = mode;
 
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:
