@@ -262,7 +262,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	return False;
     }
 
-    if (keyval == XK_Hangul_Hanja) {
+    if (keyval == XK_Hangul_Hanja || keyval == XK_F9) {
 	return nabi_ic_popup_hanja_window(ic);
     }
 
