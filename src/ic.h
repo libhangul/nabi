@@ -22,6 +22,7 @@
 
 #include <X11/Xlib.h>
 #include <glib.h>
+#include <gtk/gtk.h>
 
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
@@ -106,6 +107,9 @@ struct _NabiIC {
     wchar_t             choseong[4];
     wchar_t             jungseong[4];
     wchar_t             jongseong[4];
+
+    /* hanja data */
+    GtkWidget*		hanja_dialog;
 
     struct _NabiIC*     next;
 };
