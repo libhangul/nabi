@@ -1,6 +1,6 @@
 AC_INIT(src/nabi.h)
 
-AM_INIT_AUTOMAKE(nabi, 0.6)
+AM_INIT_AUTOMAKE(nabi, 0.6.99)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -12,12 +12,15 @@ AC_PROG_INSTALL
 dnl Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h])
+AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h wchar.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_C_INLINE
+AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
