@@ -339,7 +339,7 @@ load_compose_table(void)
 	/* we have no valid compose table */
 	fprintf(stderr, _("Nabi: Can't load any compose table\n"));
     }
-    nabi_server_set_compose_table(nabi_server, NULL);
+    nabi_server_set_compose_table(nabi_server, nabi->compose_table_name);
 }
 
 static void
