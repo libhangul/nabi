@@ -1,3 +1,4 @@
-Nabi 0.4 
- * 폰트셋 관련 실행 속도 개선 
- * 각 프로세스 별로 한영 상태를 따로 저장
+Nabi 0.8 
+ * Over the spot 개선
+ * EUC-KR charset을 좀더 정확히 구분
+ * About menu에서 키 입력에 대한 간단한 정보 제공
