@@ -1,6 +1,11 @@
+2003-08-23  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnect를 추가해서
+	  connect_id 별로 한영 상태를 관리하도록 함
+
 2003-08-21  Choe Hwanjin <krisna@kldp.org>
 	* src/main.c,server.h,server.c: nabi_server_stop 함수 추가
 	* src/fontset.h,fontset.c: fontset 관련 루틴 추가
+	* src/ic.c: nabi_fontset 관련 함수 사용하도록 수정
 
 2003-08-11  Choe Hwanjin <krisna@kldp.org>
 	* src/ic.h,ic.c: preedit start 플래그 추가, preedit_start된 경우만
