@@ -141,7 +141,7 @@ get_themes_list(int size)
 static GtkTreePath *
 search_text_in_model (GtkTreeModel *model, int column, const char *target_text)
 {
-    gchar *text = "";
+    gchar *text = NULL;
     GtkTreeIter iter;
     GtkTreePath *path;
 
@@ -150,10 +150,12 @@ search_text_in_model (GtkTreeModel *model, int column, const char *target_text)
 	gtk_tree_model_get(model, &iter,
 			   column, &text,
 			   -1);
-	if (strcmp(target_text, text) == 0) {
+	if (text != NULL && strcmp(target_text, text) == 0) {
 	    path = gtk_tree_model_get_path(model, &iter);
+	    g_free(text);
 	    return path;
 	}
+	g_free(text);
     } while (gtk_tree_model_iter_next(model, &iter));
 
     return NULL;
@@ -169,6 +171,7 @@ on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
     if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
 	gtk_tree_model_get(model, &iter, THEMES_LIST_NAME, &theme, -1);
 	nabi_app_set_theme(theme);
+	g_free(theme);
     }
 }
 
@@ -296,11 +299,12 @@ on_keyboard_list_selection_changed(GtkTreeSelection *selection, gpointer data)
 {
     GtkTreeModel *model;
     GtkTreeIter iter;
-    gchar *name;
+    gchar *name = NULL;
 
     if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
 	gtk_tree_model_get(model, &iter, 0, &name, -1);
 	nabi_app_set_keyboard(name);
+	g_free(name);
     }
 }
 
@@ -464,7 +468,7 @@ update_trigger_keys_setting(GtkTreeModel *model)
     while (ret) {
 	char *key = NULL;
 	gtk_tree_model_get(model, &iter, 0, &key, -1);
-	keys[n++] = g_strdup(key);
+	keys[n++] = key;
 	ret = gtk_tree_model_iter_next(model, &iter);
     }
     keys[n] = NULL;
@@ -556,7 +560,7 @@ update_candidate_keys_setting(GtkTreeModel *model)
     while (ret) {
 	char *key = NULL;
 	gtk_tree_model_get(model, &iter, 0, &key, -1);
-	keys[n++] = g_strdup(key);
+	keys[n++] = key;
 	ret = gtk_tree_model_iter_next(model, &iter);
     }
     keys[n] = NULL;
