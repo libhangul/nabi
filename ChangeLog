@@ -1,3 +1,8 @@
+2004-03-05  Choe Hwanjin <krisna@kldp.org>
+	* src/nabi.h src/main.c src/server.h src/server.c src/ui.c:
+	xim_name이라는 컨피그 옵션과 --xim-name 이라는 커맨드 라인 옵션을
+	추가함. 이것을 지정하면 XMODIFIER값을 다른 것을 사용할 수 있음
+
 2004-03-01  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: GtkTextView를 사용하게 되면 GtkIMContext를 생성하게 되어
 	XIM 서버가 멈추는 위험한 상황이 자주 발생하므로 About 창에서

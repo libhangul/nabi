@@ -38,6 +38,9 @@ struct _NabiComposeMap {
 };
 
 struct _NabiApplication {
+    gchar*	    xim_name;		/* xim server name from config file */
+    gchar*	    optional_xim_name;	/* xim server name from command line */
+
     gint            x;
     gint            y;
     GtkWidget*      main_window;
