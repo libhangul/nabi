@@ -687,8 +687,8 @@ nabi_app_free(void)
     nabi = NULL;
 }
 
-static gboolean
-on_tray_icon_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
+static void
+on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
     g_object_unref(G_OBJECT(none_pixbuf));
     none_pixbuf = NULL;
@@ -700,18 +700,16 @@ on_tray_icon_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
     tray_icon = NULL;
     g_idle_add(create_tray_icon, NULL);
     g_print("tray icon destroyed\n");
-    return TRUE;
 }
 
-static gboolean
-on_main_window_destroy(GtkWidget *widget, GdkEvent *event, gpointer data)
+static void
+on_main_window_destroyed(GtkWidget *widget, gpointer data)
 {
     if (tray_icon != NULL)
 	gtk_widget_destroy(GTK_WIDGET(tray_icon));
     remove_event_filter();
     gtk_main_quit();
     g_print("main window destroyed\n");
-    return TRUE;
 }
 
 static gboolean
@@ -1398,7 +1396,7 @@ create_tray_icon(gpointer data)
     gtk_widget_show(hbox);
 
     g_signal_connect(G_OBJECT(tray_icon), "destroy",
-		     G_CALLBACK(on_tray_icon_destroy), NULL);
+		     G_CALLBACK(on_tray_icon_destroyed), NULL);
     gtk_widget_show(GTK_WIDGET(tray_icon));
     return FALSE;
 }
@@ -1412,7 +1410,7 @@ create_main_widget(void)
     g_signal_connect_after(G_OBJECT(main_window), "realize",
 	    		   G_CALLBACK(on_main_window_realize), NULL);
     g_signal_connect(G_OBJECT(main_window), "destroy",
-		     G_CALLBACK(on_main_window_destroy), NULL);
+		     G_CALLBACK(on_main_window_destroyed), NULL);
 
     create_tray_icon(NULL);
     return main_window;
