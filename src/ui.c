@@ -1377,4 +1377,4 @@ create_main_widget(void)
     return GTK_WIDGET(tray_icon);
 }
 
-/* vim: set ts=8 sw=4 : */
+/* vim: set ts=8 sts=4 sw=4 : */
