@@ -1,4 +1,22 @@
-static const wchar_t symbol_1100[] = {
+/* Nabi - X Input Method server for hangul
+ * Copyright (C) 2003 Choe Hwanjin
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
+ */
+
+static const unsigned short int symbol_1100[] = {
     0x1100,   /* key */
     0x3000,   /* IDEOGRAPHIC SPACE */
     0xFF01,   /* FULLWIDTH EXCLAMATION MARK */
@@ -39,7 +57,7 @@ static const wchar_t symbol_1100[] = {
     0
 };
 
-static const wchar_t symbol_1102[] = {
+static const unsigned short int symbol_1102[] = {
     0x1102,   /* key */
     0x3003,   /* DITTO MARK */
     0xFF08,   /* FULLWIDTH LEFT PARENTHESIS */
@@ -68,7 +86,7 @@ static const wchar_t symbol_1102[] = {
     0
 };
 
-static const wchar_t symbol_1103[] = {
+static const unsigned short int symbol_1103[] = {
     0x1103,   /* key */
     0xFF0B,   /* FULLWIDTH PLUS SIGN */
     0xFF0D,   /* FULLWIDTH HYPHEN-MINUS */
@@ -121,7 +139,7 @@ static const wchar_t symbol_1103[] = {
     0
 };
 
-static const wchar_t symbol_1105[] = {
+static const unsigned short int symbol_1105[] = {
     0x1105,   /* key */
     0xFF04,   /* FULLWIDTH DOLLAR SIGN */
     0xFF05,   /* FULLWIDTH PERCENT SIGN */
@@ -218,7 +236,7 @@ static const wchar_t symbol_1105[] = {
     0
 };
 
-static const wchar_t symbol_1106[] = {
+static const unsigned short int symbol_1106[] = {
     0x1106,   /* key */
     0xFF03,   /* FULLWIDTH NUMBER SIGN */
     0xFF06,   /* FULLWIDTH AMPERSAND */
@@ -294,7 +312,7 @@ static const wchar_t symbol_1106[] = {
     0
 };
 
-static const wchar_t symbol_1107[] = {
+static const unsigned short int symbol_1107[] = {
     0x1107,   /* key */
     0x2500,   /* BOX DRAWINGS LIGHT HORIZONTAL */
     0x2502,   /* BOX DRAWINGS LIGHT VERTICAL */
@@ -367,7 +385,7 @@ static const wchar_t symbol_1107[] = {
     0
 };
 
-static const wchar_t symbol_1109[] = {
+static const unsigned short int symbol_1109[] = {
     0x1109,   /* key */
     0x3260,   /* CIRCLED HANGUL KIYEOK */
     0x3261,   /* CIRCLED HANGUL NIEUN */
@@ -428,7 +446,7 @@ static const wchar_t symbol_1109[] = {
     0
 };
 
-static const wchar_t symbol_110b[] = {
+static const unsigned short int symbol_110b[] = {
     0x110b,   /* key */
     0x24D0,   /* CIRCLED LATIN SMALL LETTER A */
     0x24D1,   /* CIRCLED LATIN SMALL LETTER B */
@@ -515,7 +533,7 @@ static const wchar_t symbol_110b[] = {
     0
 };
 
-static const wchar_t symbol_110c[] = {
+static const unsigned short int symbol_110c[] = {
     0x110c,   /* key */
     0xFF10,   /* FULLWIDTH DIGIT ZERO */
     0xFF11,   /* FULLWIDTH DIGIT ONE */
@@ -550,7 +568,7 @@ static const wchar_t symbol_110c[] = {
     0
 };
 
-static const wchar_t symbol_110e[] = {
+static const unsigned short int symbol_110e[] = {
     0x110e,   /* key */
     0x00BD,   /* VULGAR FRACTION ONE HALF */
     0x2153,   /* VULGAR FRACTION ONE THIRD */
@@ -573,7 +591,7 @@ static const wchar_t symbol_110e[] = {
     0
 };
 
-static const wchar_t symbol_110f[] = {
+static const unsigned short int symbol_110f[] = {
     0x110f,   /* key */
     0x3131,   /* HANGUL LETTER KIYEOK */
     0x3132,   /* HANGUL LETTER SSANGKIYEOK */
@@ -629,7 +647,7 @@ static const wchar_t symbol_110f[] = {
     0
 };
 
-static const wchar_t symbol_1110[] = {
+static const unsigned short int symbol_1110[] = {
     0x1110,   /* key */
     0x3165,   /* HANGUL LETTER SSANGNIEUN */
     0x3166,   /* HANGUL LETTER NIEUN-TIKEUT */
@@ -676,7 +694,7 @@ static const wchar_t symbol_1110[] = {
     0
 };
 
-static const wchar_t symbol_1111[] = {
+static const unsigned short int symbol_1111[] = {
     0x1111,   /* key */
     0xFF21,   /* FULLWIDTH LATIN CAPITAL LETTER A */
     0xFF22,   /* FULLWIDTH LATIN CAPITAL LETTER B */
@@ -733,7 +751,7 @@ static const wchar_t symbol_1111[] = {
     0
 };
 
-static const wchar_t symbol_1112[] = {
+static const unsigned short int symbol_1112[] = {
     0x1112,   /* key */
     0x0391,   /* GREEK CAPITAL LETTER ALPHA */
     0x0392,   /* GREEK CAPITAL LETTER BETA */
@@ -786,7 +804,7 @@ static const wchar_t symbol_1112[] = {
     0
 };
 
-static const wchar_t symbol_1161[] = {
+static const unsigned short int symbol_1161[] = {
     0x1161,   /* key */
     0x3041,   /* HIRAGANA LETTER SMALL A */
     0x3042,   /* HIRAGANA LETTER A */
@@ -960,7 +978,7 @@ static const wchar_t symbol_1161[] = {
     0
 };
 
-static const wchar_t symbol_1163[] = {
+static const unsigned short int symbol_1163[] = {
     0x1163,   /* key */
     0x0410,   /* CYRILLIC CAPITAL LETTER A */
     0x0411,   /* CYRILLIC CAPITAL LETTER BE */
@@ -1031,7 +1049,7 @@ static const wchar_t symbol_1163[] = {
     0
 };
 
-static const wchar_t symbol_1165[] = {
+static const unsigned short int symbol_1165[] = {
     0x1165,   /* key */
     0x00C6,   /* LATIN CAPITAL LIGATURE AE */
     0x00D0,   /* LATIN CAPITAL LETTER ETH */
@@ -1065,7 +1083,7 @@ static const wchar_t symbol_1165[] = {
     0
 };
 
-static const wchar_t *symbol_table[] = {
+static const unsigned short int *symbol_table[] = {
     symbol_1100,
     symbol_1102,
     symbol_1103,

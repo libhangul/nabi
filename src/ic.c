@@ -37,9 +37,6 @@
 #include "hanjatable.h"
 #include "symboltable.h"
 
-/* from ui.c */
-GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
-
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf, int buflen,
 				       int *len, int *size);
@@ -1344,7 +1341,9 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
 }
 
 static int
-get_index_of_candidate_table (wchar_t key, const wchar_t **table, int size)
+get_index_of_candidate_table (unsigned short int key,
+			      const unsigned short int **table,
+			      int size)
 {
     int first, last, mid;
 
@@ -1368,9 +1367,9 @@ get_index_of_candidate_table (wchar_t key, const wchar_t **table, int size)
 Bool
 nabi_ic_popup_candidate_window (NabiIC *ic)
 {
-    wchar_t key = 0;
+    unsigned short int key = 0;
     Window parent = 0;
-    const wchar_t *ptr;
+    const unsigned short int *ptr;
 
     if (ic->focus_window != 0)
 	parent = ic->focus_window;
@@ -1380,11 +1379,14 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     if (ic->candidate_window != NULL)
 	nabi_candidate_delete(ic->candidate_window);
 
-    if (ic->choseong[0] != 0 &&
-	ic->jungseong[0] == 0 &&
-	ic->jongseong[0] == 0) {
+    if ((ic->choseong[0] != 0 &&
+	 ic->jungseong[0] == 0 &&
+	 ic->jongseong[0] == 0) ||
+	(ic->choseong[0] == 0 &&
+	 ic->jungseong[0] != 0 &&
+	 ic->jongseong[0] == 0)) {
 	int index;
-	key = ic->choseong[0];
+	key = ic->choseong[0] + ic->jungseong[0];
 	index = get_index_of_candidate_table(key, symbol_table, 
 				sizeof(symbol_table) / sizeof(symbol_table[0]));
 

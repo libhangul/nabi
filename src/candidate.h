@@ -19,7 +19,6 @@
 #ifndef _NABICANDIDATE_H_
 #define _NABICANDIDATE_H_
 
-#include <wchar.h>
 #include <X11/Xlib.h>
 #include <gtk/gtk.h>
 
@@ -28,7 +27,7 @@ struct _NabiCandidate {
     Window parent;
     gchar *label;
     GtkWidget **children;
-    wchar_t *data;
+    unsigned short int *data;
     int first;
     int n_per_window;
     int n_per_row;
@@ -38,16 +37,16 @@ struct _NabiCandidate {
 
 typedef struct _NabiCandidate NabiCandidate;
 
-NabiCandidate* nabi_candidate_new(char *label_str,
-			          int n_per_window,
-			          const wchar_t *data,
-			          Window parent);
-void    nabi_candidate_prev(NabiCandidate *candidate);
-void    nabi_candidate_next(NabiCandidate *candidate);
-void    nabi_candidate_prev_row(NabiCandidate *candidate);
-void    nabi_candidate_next_row(NabiCandidate *candidate);
-wchar_t nabi_candidate_get_current(NabiCandidate *candidate);
-wchar_t nabi_candidate_get_nth(NabiCandidate *candidate, int n);
-void    nabi_candidate_delete(NabiCandidate *candidate);
+NabiCandidate*     nabi_candidate_new(char *label_str,
+		   	              int n_per_window,
+			              const unsigned short int *data,
+			              Window parent);
+void               nabi_candidate_prev(NabiCandidate *candidate);
+void               nabi_candidate_next(NabiCandidate *candidate);
+void               nabi_candidate_prev_row(NabiCandidate *candidate);
+void               nabi_candidate_next_row(NabiCandidate *candidate);
+unsigned short int nabi_candidate_get_current(NabiCandidate *candidate);
+unsigned short int nabi_candidate_get_nth(NabiCandidate *candidate, int n);
+void               nabi_candidate_delete(NabiCandidate *candidate);
 
 #endif /* _NABICANDIDATE_H_ */
