@@ -39,7 +39,7 @@
 
 #include "keyboard.h"
 
-#define DEFAULT_IC_TABLE_SIZE	1024
+#define DEFAULT_IC_TABLE_SIZE	512
 
 /* from automata.c */
 Bool nabi_automata_2(NabiIC* ic, KeySym keyval, unsigned int state);
@@ -100,8 +100,7 @@ nabi_server_new(const char *name)
     server->connect_list = NULL;
 
     /* init IC table */
-    server->ic_table = (NabiIC**)
-	    malloc(sizeof(NabiIC) * DEFAULT_IC_TABLE_SIZE);
+    server->ic_table = g_new(NabiIC*, DEFAULT_IC_TABLE_SIZE);
     server->ic_table_size = DEFAULT_IC_TABLE_SIZE;
     for (i = 0; i < server->ic_table_size; i++)
 	server->ic_table[i] = NULL;
@@ -170,6 +169,7 @@ nabi_server_destroy(NabiServer *server)
 	nabi_ic_real_destroy(server->ic_table[i]);
 	server->ic_table[i] = NULL;
     }
+    g_free(server->ic_table);
 
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
@@ -471,8 +471,7 @@ nabi_server_ic_table_expand(NabiServer *server)
 
     old_size = server->ic_table_size;
     server->ic_table_size = server->ic_table_size * 2;
-    server->ic_table = (NabiIC**)realloc(server->ic_table,
-					 server->ic_table_size);
+    server->ic_table = g_renew(NabiIC*, server->ic_table,server->ic_table_size);
     for (i = old_size; i < server->ic_table_size; i++)
 	server->ic_table[i] = NULL;
 }
