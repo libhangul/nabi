@@ -553,7 +553,7 @@ nabi_app_init(int *argc, char ***argv)
     nabi->mode_info_xatom = gdk_x11_atom_to_xatom(nabi->mode_info_atom);
 
     /* default icon */
-    icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
+    icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.svg", NULL);
     default_icon = gdk_pixbuf_new_from_file(icon_filename, NULL);
     g_free(icon_filename);
 }
@@ -1057,7 +1057,7 @@ on_menu_about(GtkWidget *widget)
 					 NULL);
     about_dialog = dialog;
 
-    image_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
+    image_filename = g_build_filename(NABI_DATA_DIR, "nabi.svg", NULL);
     image = gtk_image_new_from_file(image_filename);
     gtk_widget_show(image);
     g_free(image_filename);
