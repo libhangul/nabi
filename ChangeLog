@@ -1,3 +1,7 @@
+2003-12-23  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,src/server.c,src/automata.c: backspace정보를 통계 정보
+	  구조체에 남기는 코드의 버그를 해결
+
 2003-12-20  Choe Hwanjin <krisna@kldp.org>
 	* src/nabi.h,src/session.h,src/session.c,src/ui.c,src/main.c:
 	  세션 기능을 구현, 세션저장만 하면 다음번에 제대로 다시 뜨게함,

@@ -150,8 +150,9 @@ NabiConnect* nabi_server_get_connect_by_id(NabiServer *server,
                                            CARD16 connect_id);
 Bool        nabi_server_is_valid_char   (NabiServer *server, wchar_t ch);
 void        nabi_server_on_keypress     (NabiServer *server,
-					 wchar_t ch,
-					 unsigned int state);
+					 KeySym keyval,
+					 unsigned int state,
+					 wchar_t ch);
 
 #endif  /* __SERVER_H_ */
 

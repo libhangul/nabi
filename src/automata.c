@@ -196,7 +196,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	ch = nabi_server->keyboard_map[keyval - XK_exclam];
     }
 
-    nabi_server_on_keypress(nabi_server, ch, state);
+    nabi_server_on_keypress(nabi_server, keyval, state, ch);
     return ch;
 }
 
