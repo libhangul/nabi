@@ -80,13 +80,15 @@ main(int argc, char *argv[])
     widget = create_main_widget();
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), server);
-    gtk_widget_show(widget);
+    gtk_widget_realize(widget);
+    gtk_widget_hide(widget);
 
     XSetErrorHandler(my_error_handler);
 
     gtk_main();
 
     nabi_server_stop(server);
+    g_print("XIM server terminated\n");
     nabi_server_destroy(server);
 
     nabi_app_free();
