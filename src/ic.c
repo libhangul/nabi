@@ -1300,6 +1300,7 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
     if (ch != 0)
 	return nabi_ic_commit_unicode(ic, ch);
 
+    /* we forward all keys which does not accepted by nabi */
     return False;
 #if 0
     /* This code was for mozilla bug.
