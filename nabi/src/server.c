@@ -401,6 +401,8 @@ nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
 void
 nabi_server_on_keypress(NabiServer *server, wchar_t ch, unsigned int state)
 {
+    server->statistics.total++;
+
     if (ch == XK_BackSpace)
 	server->statistics.backspace++;
     else {

@@ -60,6 +60,7 @@ enum {
 typedef void (*NabiModeInfoCallback)(int);
 
 struct NabiStatistics {
+    int total;
     int backspace;
     int shift;
     int jamo[256];
