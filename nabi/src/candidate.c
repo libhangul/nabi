@@ -94,6 +94,47 @@ nabi_candidate_update_cursor(NabiCandidate *candidate)
     gtk_tree_path_free(path);
 }
 
+/* keep the whole window on screen */
+static void
+nabi_candidate_set_window_position(NabiCandidate *candidate)
+{
+    Window root;
+    Window child;
+    int x = 0, y = 0, width = 0, height = 0, border = 0, depth = 0;
+    int absx = 0;
+    int absy = 0;
+    int root_w, root_h, cand_w, cand_h;
+    GtkRequisition requisition;
+
+    if (candidate == NULL ||
+	candidate->parent == 0 ||
+	candidate->window == NULL)
+	return;
+
+    /* move candidate window to focus window below */
+    XGetGeometry(nabi_server->display,
+		 candidate->parent,
+		 &root, &x, &y, &width, &height, &border, &depth);
+    XTranslateCoordinates(nabi_server->display,
+			  candidate->parent, root,
+			  0, 0, &absx, &absy, &child);
+
+    root_w = gdk_screen_width();
+    root_h = gdk_screen_height();
+
+    gtk_widget_size_request(GTK_WIDGET(candidate->window), &requisition);
+    cand_w = requisition.width;
+    cand_h = requisition.height;
+
+    absx += width;
+    /* absy += height; */
+    if (absy + cand_h > root_h)
+	absy = root_h - cand_h;
+    if (absx + cand_w > root_w)
+	absx = root_w - cand_w;
+    gtk_window_move(GTK_WINDOW(candidate->window), absx, absy);
+}
+
 static void
 nabi_candidate_update_list(NabiCandidate *candidate)
 {
@@ -116,44 +157,7 @@ nabi_candidate_update_list(NabiCandidate *candidate)
 			   COLUMN_COMMENT, candidate->data[candidate->first + i]->comment,
 			   -1);
     }
-}
-
-static void
-nabi_candidate_on_realize(GtkWidget *widget, NabiCandidate *candidate)
-{
-    Window root;
-    Window child;
-    int x = 0, y = 0, width = 0, height = 0, border = 0, depth = 0;
-    int absx = 0;
-    int absy = 0;
-    int root_w, root_h, cand_w, cand_h;
-    GtkRequisition requisition;
-
-    if (candidate->parent == 0)
-	return;
-
-    /* move candidate window to focus window below */
-    XGetGeometry(nabi_server->display,
-		 candidate->parent,
-		 &root, &x, &y, &width, &height, &border, &depth);
-    XTranslateCoordinates(nabi_server->display,
-			  candidate->parent, root,
-			  0, 0, &absx, &absy, &child);
-
-    root_w = gdk_screen_width();
-    root_h = gdk_screen_height();
-
-    gtk_widget_size_request(GTK_WIDGET(widget), &requisition);
-    cand_w = requisition.width;
-    cand_h = requisition.height;
-
-    absx += width;
-    /* absy += height; */
-    if (absy + cand_h > root_h)
-	absy = root_h - cand_h;
-    if (absx + cand_w > root_w)
-	absx = root_w - cand_w;
-    gtk_window_move(GTK_WINDOW(candidate->window), absx, absy);
+    nabi_candidate_set_window_position(candidate);
 }
 
 static void
@@ -213,8 +217,9 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
     g_signal_connect_after(G_OBJECT(candidate->window), "expose-event",
                            G_CALLBACK(nabi_candidate_on_expose), candidate);
-    g_signal_connect_after(G_OBJECT(candidate->window), "realize",
-		           G_CALLBACK(nabi_candidate_on_realize), candidate);
+    g_signal_connect_swapped(G_OBJECT(candidate->window), "realize",
+		             G_CALLBACK(nabi_candidate_set_window_position),
+			     candidate);
 
     gtk_widget_show_all(candidate->window);
 }
