@@ -55,6 +55,7 @@ enum {
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 static void create_resized_icons(gint default_size);
+static GtkWidget* create_menu(void);
 
 static GtkWidget *main_label = NULL;
 static GdkPixbuf *default_icon = NULL;
@@ -823,9 +824,48 @@ on_main_window_destroyed(GtkWidget *widget, gpointer data)
     g_print("Nabi: main window destroyed\n");
 }
 
-static gboolean
-on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
+static void
+nabi_menu_position_func(GtkMenu *menu,
+			gint *x, gint *y,
+			gboolean *push_in,
+			gpointer data)
 {
+    GdkWindow *window;
+    GdkScreen *screen;
+    gint width, height, menu_width, menu_height;
+    gint xcenter, ycenter;
+
+    window = GDK_WINDOW(GTK_WIDGET(data)->window);
+    screen = gdk_drawable_get_screen(GDK_DRAWABLE(window));
+    xcenter = gdk_screen_get_width(screen) / 2;
+    ycenter = gdk_screen_get_height(screen) / 2;
+    gdk_window_get_origin(window, x, y);
+    gdk_drawable_get_size(window, &width, &height);
+    if (!GTK_WIDGET_REALIZED(menu))
+	gtk_widget_realize(GTK_WIDGET(menu));
+    gdk_drawable_get_size(GDK_WINDOW(GTK_WIDGET(menu)->window),
+			  &menu_width, &menu_height);
+
+    if (*x + width < xcenter && *y + height < ycenter) {
+	*y += height;
+    } else if (*x >= xcenter && *y + height < ycenter) {
+	*x = *x - menu_width + width;
+	*y += height;
+    } else if (*x + width < xcenter && *y > ycenter) {
+	*y -= menu_height;
+    } else {
+	*x = *x - menu_width + width;
+	*y -= menu_height;
+    }
+}
+
+static gboolean
+on_tray_icon_button_press(GtkWidget *widget,
+			  GdkEventButton *event,
+			  gpointer data)
+{
+    static GtkWidget *menu = NULL;
+
     if (event->type != GDK_BUTTON_PRESS)
 	return FALSE;
 
@@ -842,8 +882,11 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	return TRUE;
     case 3:
 	/* popup menu */
-	gtk_menu_popup(GTK_MENU(data), NULL, NULL, NULL, NULL,
-		   event->button, event->time);
+	if (menu == NULL)
+	    menu = create_menu();
+	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
+		       nabi_menu_position_func, widget,
+		       event->button, event->time);
 	return TRUE;
     default:
 	break;
@@ -1739,7 +1782,6 @@ create_tray_icon(gpointer data)
 {
     GtkWidget *eventbox;
     GtkWidget *hbox;
-    GtkWidget *menu;
     GtkTooltips *tooltips;
 
     if (tray_icon != NULL)
@@ -1750,9 +1792,8 @@ create_tray_icon(gpointer data)
     eventbox = gtk_event_box_new();
     gtk_widget_show(eventbox);
     gtk_container_add(GTK_CONTAINER(tray_icon), eventbox);
-    menu = create_menu();
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
-		     G_CALLBACK(on_button_press), menu);
+		     G_CALLBACK(on_tray_icon_button_press), NULL);
 
     tooltips = gtk_tooltips_new();
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), eventbox,
