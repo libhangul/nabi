@@ -22,6 +22,7 @@ struct _NabiApplication {
     gint            y;
     GtkWidget*      main_window;
 
+    gchar*          theme;
     gchar*          keyboardmap_filename;
     gchar*          composemap_filename;
 
@@ -36,6 +37,12 @@ struct _NabiApplication {
     gint            x_clicked;
     gint            y_clicked;
     gboolean        start_moving;
+
+    /* hangul status data */
+    GdkWindow       *root_window;
+    GdkAtom         mode_info_atom;
+    GdkAtom         mode_info_type;
+    Atom            mode_info_xatom;
 };
 
 extern NabiApplication* nabi;
