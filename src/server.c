@@ -111,7 +111,7 @@ nabi_server_new(const char *name)
     server->converter = (GIConv)(-1);
 
     /* options */
-    server->show_status = True;
+    server->show_status = False;
     server->preedit_fg = 1;
     server->preedit_bg = 0;
     server->candidate_font = NULL;
