@@ -40,7 +40,7 @@ hangul_compose(wchar_t first, wchar_t last)
     int min, max, mid;
     uint32_t key;
 
-    if (nabi_server->compose_map == NULL)
+    if (nabi_server->compose_table == NULL)
 	return 0;
 
     /* make key */
@@ -48,16 +48,16 @@ hangul_compose(wchar_t first, wchar_t last)
 
     /* binary search in table */
     min = 0;
-    max = nabi_server->compose_map_size - 1;
+    max = nabi_server->compose_table->size - 1;
 
     while (max >= min) {
 	mid = (min + max) / 2;
-	if (nabi_server->compose_map[mid]->key < key)
+	if (nabi_server->compose_table->items[mid].key < key)
 	    min = mid + 1;
-	else if (nabi_server->compose_map[mid]->key > key)
+	else if (nabi_server->compose_table->items[mid].key > key)
 	    max = mid - 1;
 	else
-	    return nabi_server->compose_map[mid]->code;
+	    return nabi_server->compose_table->items[mid].code;
     }
     return 0;
 }
@@ -173,7 +173,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 {
     wchar_t ch = 0;
 
-    if (nabi_server->keyboard_map == NULL)
+    if (nabi_server->keyboard_table == NULL)
 	return keyval;
 
     if (nabi_server->dvorak)
@@ -193,7 +193,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 		    keyval += (XK_a - XK_A);
 	    }
 	}
-	ch = nabi_server->keyboard_map[keyval - XK_exclam];
+	ch = nabi_server->keyboard_table->table[keyval - XK_exclam];
     }
 
     nabi_server_on_keypress(nabi_server, keyval, state, ch);

@@ -33,12 +33,28 @@
 #include "ic.h"
 #include "candidate.h"
 
+typedef struct _NabiKeyboardTable NabiKeyboardTable;
 typedef struct _NabiComposeItem NabiComposeItem;
+typedef struct _NabiComposeTable NabiComposeTable;
 typedef struct _NabiServer NabiServer;
+
+#define KEYBOARD_TABLE_SIZE 94
+struct _NabiKeyboardTable {
+    gchar*           filename;
+    gchar*           name;
+    gint             type;
+    wchar_t          table[KEYBOARD_TABLE_SIZE];
+};
 
 struct _NabiComposeItem {
     uint32_t key;
     wchar_t code;
+};
+
+struct _NabiComposeTable {
+    gchar           *name;
+    NabiComposeItem *items;
+    gint            size;
 };
 
 typedef enum {
@@ -88,9 +104,10 @@ struct _NabiServer {
     NabiIC*                 ic_freed;
 
     /* hangul automata */
-    const wchar_t*          keyboard_map;
-    NabiComposeItem**       compose_map;
-    int                     compose_map_size;
+    GList*		    keyboard_tables;
+    GList*		    compose_tables;
+    NabiKeyboardTable*	    keyboard_table;
+    NabiComposeTable*	    compose_table;
     Bool                    (*automata)(NabiIC*,
                                         KeySym,
                                         unsigned int state);
@@ -137,12 +154,10 @@ Bool        nabi_server_is_candidate_key(NabiServer*  server,
                                          unsigned int state);
 void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
-void        nabi_server_set_keyboard    (NabiServer *server,
-					 const wchar_t *keyboard_map,
-					 NabiKeyboardType type);
-void        nabi_server_set_compose_map (NabiServer *server,
-			    		 NabiComposeItem **compose_map,
-			    		 int size);
+void        nabi_server_set_keyboard_table(NabiServer *server,
+					 const char *name);
+void        nabi_server_set_compose_table(NabiServer *server,
+					 const char *name);
 void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
 void        nabi_server_set_output_mode (NabiServer *server,
@@ -165,6 +180,11 @@ void        nabi_server_on_keypress     (NabiServer *server,
 					 KeySym keyval,
 					 unsigned int state,
 					 wchar_t ch);
+
+Bool	    nabi_server_load_keyboard_table(NabiServer *server,
+					    const char *filename);
+Bool	    nabi_server_load_compose_table(NabiServer *server,
+					   const char *filename);
 Bool        nabi_server_load_candidate_table(NabiServer *server,
 				             const char *filename);
 

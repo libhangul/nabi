@@ -19,23 +19,7 @@
 #ifndef __NABI_H_
 #define __NABI_H_
 
-typedef struct _NabiKeyboardMap NabiKeyboardMap;
-typedef struct _NabiComposeMap NabiComposeMap;
 typedef struct _NabiApplication NabiApplication;
-
-#define KEYBOARD_MAP_SIZE 94
-struct _NabiKeyboardMap {
-    gchar*           filename;
-    gchar*           name;
-    gint             type;
-    wchar_t          map[KEYBOARD_MAP_SIZE];
-};
-
-struct _NabiComposeMap {
-    gchar*                  name;
-    NabiComposeItem**       map;
-    gint                    size;
-};
 
 struct _NabiApplication {
     gchar*	    xim_name;		/* xim server name from config file */
@@ -48,13 +32,11 @@ struct _NabiApplication {
     gchar*	    session_id;
 
     gchar*          theme;
-    gchar*          keyboard_map_filename;
-    gchar*          compose_map_filename;
+    gchar*          keyboard_table_name;
+    gchar*          keyboard_table_dir;
+    gchar*          compose_table_name;
+    gchar*          compose_table_dir;
     gchar*	    candidate_table_filename;
-
-    GSList 	    *keyboard_maps;
-
-    NabiComposeMap  compose_map;
 
     /* xim server option */
     gboolean        dvorak;
