@@ -2,8 +2,9 @@
 static NabiKeyboardTable nabi_keyboard_table_internal = {
     "internal",
     "internal",
-    "internal",
     NABI_KEYBOARD_2SET,
+    -1,
+    NULL,
     {
         0x0021,     /* XK_exclam:       exclamation mark               */
         0x0022,     /* XK_quotedbl:     quotation mark                 */

@@ -39,8 +39,12 @@ hangul_compose(wchar_t first, wchar_t last)
 {
     int min, max, mid;
     uint32_t key;
+    NabiComposeTable *table = nabi_server->compose_table;
 
-    if (nabi_server->compose_table == NULL)
+    if (nabi_server->keyboard_table->compose_table != NULL)
+	table = nabi_server->keyboard_table->compose_table;
+
+    if (table == NULL)
 	return 0;
 
     /* make key */
@@ -48,16 +52,16 @@ hangul_compose(wchar_t first, wchar_t last)
 
     /* binary search in table */
     min = 0;
-    max = nabi_server->compose_table->size - 1;
+    max = table->size - 1;
 
     while (max >= min) {
 	mid = (min + max) / 2;
-	if (nabi_server->compose_table->items[mid].key < key)
+	if (table->items[mid].key < key)
 	    min = mid + 1;
-	else if (nabi_server->compose_table->items[mid].key > key)
+	else if (table->items[mid].key > key)
 	    max = mid - 1;
 	else
-	    return nabi_server->compose_table->items[mid].code;
+	    return table->items[mid].code;
     }
     return 0;
 }

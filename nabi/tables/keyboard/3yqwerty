@@ -1,5 +1,6 @@
 Name: 세벌식 옛글 
 Compose: full
+Output: jamo
 
 U0021  U11bd	# GDK_exclam:		jongseong cieuc
 U0022  U0022	# GDK_quotedbl:		quotatioin mark			
