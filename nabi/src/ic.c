@@ -665,9 +665,6 @@ nabi_ic_set_area(NabiIC *ic, XRectangle *rect)
     ic->preedit.area.width = rect->width; 
     ic->preedit.area.height = rect->height; 
 
-    ic->preedit.spot.x = rect->x; 
-    ic->preedit.spot.y = rect->y; 
-
     nabi_ic_preedit_configure(ic);
 
     if (nabi_ic_is_empty(ic))

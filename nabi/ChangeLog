@@ -1,3 +1,8 @@
+2004-11-03  Choe Hwanjin <krisna@kldp.org>
+	* 키 입력 통계를 다른 창으로 띄움
+	* 하드코딩된 locale 스트링을 제거
+	* Qt immodule의 XIM에서 preedit window 위치를 잘못 찾던 버그 수정
+
 2004-10-05  Choe Hwanjin <krisna@kldp.org>
 	* full compose map 추가(엣글 입력에 필요함)
 	* 세벌식 옛글 자판 추가
