@@ -37,6 +37,7 @@ NabiServer* nabi_server = NULL;
 static void
 on_realize(GtkWidget *widget, gpointer data)
 {
+    return;
     nabi_server_start(nabi_server,
 		      GDK_WINDOW_XDISPLAY(widget->window),
 		      GDK_WINDOW_XWINDOW(widget->window));
@@ -64,7 +65,6 @@ main(int argc, char *argv[])
     textdomain(PACKAGE);
 #endif
 
-
     gtk_init(&argc, &argv);
 
     nabi_app_new();
@@ -82,8 +82,7 @@ main(int argc, char *argv[])
     widget = nabi_app_create_main_widget();
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), nabi_server);
-    gtk_widget_realize(widget);
-    gtk_widget_hide(widget);
+    gtk_widget_show(widget);
 
     XSetErrorHandler(nabi_x_error_handler);
 

@@ -55,6 +55,8 @@ enum {
 static gboolean create_tray_icon(gpointer data);
 static void remove_event_filter();
 
+static GtkWidget *main_label = NULL;
+
 static GdkPixbuf *default_icon = NULL;
 
 static EggTrayIcon *tray_icon = NULL;
@@ -739,6 +741,15 @@ nabi_app_free(void)
 }
 
 static void
+on_tray_icon_embedded(GtkWidget *widget, gpointer data)
+{
+    if (nabi != NULL &&
+	nabi->main_window != NULL &&
+	GTK_WIDGET_VISIBLE(nabi->main_window))
+	gtk_widget_hide(GTK_WIDGET(nabi->main_window));
+}
+
+static void
 on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
     g_object_unref(G_OBJECT(none_pixbuf));
@@ -751,6 +762,11 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
     tray_icon = NULL;
     g_idle_add(create_tray_icon, NULL);
     g_print("Nabi: tray icon destroyed\n");
+
+    if (nabi != NULL &&
+	nabi->main_window != NULL &&
+	!GTK_WIDGET_VISIBLE(nabi->main_window))
+	gtk_widget_show(GTK_WIDGET(nabi->main_window));
 }
 
 static void
@@ -770,6 +786,12 @@ on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	return FALSE;
 
     switch (event->button) {
+    case 1:
+	if (GTK_WIDGET_VISIBLE(nabi->main_window))
+	    gtk_widget_hide(GTK_WIDGET(nabi->main_window));
+	else
+	    gtk_widget_show(GTK_WIDGET(nabi->main_window));
+	return TRUE;
     case 3:
 	/* popup menu */
 	gtk_menu_popup(GTK_MENU(data), NULL, NULL, NULL, NULL,
@@ -1512,21 +1534,41 @@ update_state (int state)
 {
     switch (state) {
     case 0:
-	gtk_widget_show(none_image);
-	gtk_widget_hide(hangul_image);
-	gtk_widget_hide(english_image);
+	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: None"));
+	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
+	if (none_image != NULL &&
+	    hangul_image != NULL &&
+	    english_image != NULL) {
+	    gtk_widget_show(none_image);
+	    gtk_widget_hide(hangul_image);
+	    gtk_widget_hide(english_image);
+	}
 	break;
     case 1:
-	gtk_widget_hide(none_image);
-	gtk_widget_hide(hangul_image);
-	gtk_widget_show(english_image);
+	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: English"));
+	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: English"));
+	if (none_image != NULL &&
+	    hangul_image != NULL &&
+	    english_image != NULL) {
+	    gtk_widget_hide(none_image);
+	    gtk_widget_hide(hangul_image);
+	    gtk_widget_show(english_image);
+	}
 	break;
     case 2:
-	gtk_widget_hide(none_image);
-	gtk_widget_show(hangul_image);
-	gtk_widget_hide(english_image);
+	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: Hangul"));
+	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: Hangul"));
+	if (none_image != NULL &&
+	    hangul_image != NULL &&
+	    english_image != NULL) {
+	    gtk_widget_hide(none_image);
+	    gtk_widget_show(hangul_image);
+	    gtk_widget_hide(english_image);
+	}
 	break;
     default:
+	gtk_window_set_title(GTK_WINDOW(nabi->main_window), _("Nabi: None"));
+	gtk_label_set_text(GTK_LABEL(main_label), _("Nabi: None"));
 	gtk_widget_show(none_image);
 	gtk_widget_hide(hangul_image);
 	gtk_widget_hide(english_image);
@@ -1604,6 +1646,36 @@ on_main_window_realized(GtkWidget *widget, gpointer data)
 }
 
 static gboolean
+on_main_window_button_pressed(GtkWidget *widget,
+			      GdkEventButton *event,
+			      gpointer data)
+{
+    static GtkWidget *menu = NULL;
+
+    if (event->type != GDK_BUTTON_PRESS)
+	return FALSE;
+
+    switch (event->button) {
+    case 1:
+	gtk_window_begin_move_drag(GTK_WINDOW(data),
+				   event->button,
+				   event->x_root, event->y_root, 
+				   event->time);
+	return TRUE;
+	break;
+    case 3:
+	if (menu == NULL)
+	    menu = create_menu();
+	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
+		       event->button, event->time);
+	return TRUE;
+    default:
+	break;
+    }
+    return FALSE;
+}
+
+static gboolean
 create_tray_icon(gpointer data)
 {
     GtkWidget *eventbox;
@@ -1641,6 +1713,8 @@ create_tray_icon(gpointer data)
     gtk_container_add(GTK_CONTAINER(eventbox), hbox);
     gtk_widget_show(hbox);
 
+    g_signal_connect(G_OBJECT(tray_icon), "embedded",
+		     G_CALLBACK(on_tray_icon_embedded), NULL);
     g_signal_connect(G_OBJECT(tray_icon), "destroy",
 		     G_CALLBACK(on_tray_icon_destroyed), NULL);
     gtk_widget_show(GTK_WIDGET(tray_icon));
@@ -1651,18 +1725,43 @@ GtkWidget*
 nabi_app_create_main_widget(void)
 {
     GtkWidget *window;
+    GtkWidget *frame;
+    GtkWidget *ebox;
+
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_resize(GTK_WINDOW(window), 1, 1);
+    gtk_window_set_title(GTK_WINDOW(window), _("Nabi: None"));
     gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
     gtk_window_set_icon(GTK_WINDOW(window), default_icon);
+    gtk_window_set_skip_pager_hint(GTK_WINDOW(window), TRUE);
+    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
+    gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_DOCK);
+    gtk_window_stick(GTK_WINDOW(window));
     g_signal_connect_after(G_OBJECT(window), "realize",
 	    		   G_CALLBACK(on_main_window_realized), NULL);
     g_signal_connect(G_OBJECT(window), "destroy",
 		     G_CALLBACK(on_main_window_destroyed), NULL);
 
-    create_tray_icon(NULL);
+    frame = gtk_frame_new(NULL);
+    gtk_container_add(GTK_CONTAINER(window), frame);
+    gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
+    gtk_widget_show(frame);
+
+    ebox = gtk_event_box_new();
+    gtk_container_add(GTK_CONTAINER(frame), ebox);
+    gtk_container_set_border_width(GTK_CONTAINER(ebox), 3);
+    g_signal_connect(G_OBJECT(ebox), "button-press-event",
+		     G_CALLBACK(on_main_window_button_pressed), window);
+    gtk_widget_show(ebox);
+
+    main_label = gtk_label_new(_("Nabi: None"));
+    gtk_container_add(GTK_CONTAINER(ebox), main_label);
+    gtk_widget_show(main_label);
+
     if (nabi != NULL)
 	nabi->main_window = window;
+
+    g_idle_add(create_tray_icon, NULL);
+
     return window;
 }
 
