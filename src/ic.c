@@ -16,8 +16,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <stdio.h>
-#include <stdint.h>
 #include <stddef.h>
 #include <string.h>
 #include <X11/Xlib.h>
@@ -491,6 +494,7 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
     char **font_names;
     int i, n_fonts;
 
+    fprintf(stderr, "%s:%s\n", ic->preedit.base_font, font_name);
     if (ic->preedit.base_font != NULL &&
 	strcmp(ic->preedit.base_font, font_name) == 0)
 	/* same font, do not create fontset */

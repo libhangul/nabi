@@ -19,6 +19,10 @@
 #ifndef __SERVER_H_
 #define __SERVER_H_
 
+#ifdef HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
 typedef struct _NabiComposeItem NabiComposeItem;
 typedef struct _NabiServer NabiServer;
 
