@@ -40,7 +40,7 @@
 GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
 
 static void nabi_ic_buf_clear(NabiIC *ic);
-static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf,
+static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf, int buflen,
 				       int *len, int *size);
 
 static inline void *
@@ -391,7 +391,7 @@ nabi_ic_preedit_draw(NabiIC *ic)
     if (nabi_ic_is_empty(ic))
 	return;
 
-    nabi_ic_get_preedit_string(ic, buf, &len, &size);
+    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
     nabi_ic_preedit_draw_string(ic, buf, size);
 }
 
@@ -962,7 +962,8 @@ nabi_ic_preedit_done(NabiIC *ic)
 }
 
 void
-nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int *len, int *size)
+nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
+			   int *len, int *size)
 {
     int i, n;
     wchar_t ch;
@@ -1048,7 +1049,7 @@ nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int *len, int *size)
 
     buf[n] = L'\0';
     *len = n;
-    *size = hangul_wcharstr_to_utf8str(buf, utf8);
+    *size = hangul_wcharstr_to_utf8str(buf, utf8, sizeof(utf8));
 }
 
 void
@@ -1062,7 +1063,7 @@ nabi_ic_preedit_insert(NabiIC *ic)
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
     XTextProperty tp;
 
-    nabi_ic_get_preedit_string(ic, buf, &len, &size);
+    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	list[0] = buf;
@@ -1104,7 +1105,7 @@ nabi_ic_preedit_update(NabiIC *ic)
     XIMFeedback feedback[4] = { XIMUnderline, 0, 0, 0 };
     XTextProperty tp;
 
-    nabi_ic_get_preedit_string(ic, buf, &len, &size);
+    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
 
     if (len == 0) {
 	nabi_ic_preedit_clear(ic);
@@ -1265,7 +1266,7 @@ nabi_ic_commit(NabiIC *ic)
     if (!(ic->input_style & XIMPreeditPosition))
 	nabi_ic_preedit_clear(ic);
 
-    hangul_wcharstr_to_utf8str(buf, utf8buf);
+    hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
     list[0] = utf8buf;
     list[1] = 0;
     ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
@@ -1302,7 +1303,7 @@ nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
     buf[0] = ch;
     buf[1] = L'\0';
 
-    hangul_wcharstr_to_utf8str(buf, utf8buf);
+    hangul_wcharstr_to_utf8str(buf, utf8buf, sizeof(utf8buf));
     list[0] = utf8buf;
     list[1] = 0;
     ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,

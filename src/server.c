@@ -392,7 +392,7 @@ nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
     if ((iconv_t)server->converter == (iconv_t)(-1))
 	return True;
 
-    n = hangul_wchar_to_utf8(ch, utf8);
+    n = hangul_wchar_to_utf8(ch, utf8, sizeof(utf8));
     utf8[n] = '\0';
 
     inbuf = utf8;
