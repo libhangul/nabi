@@ -96,6 +96,8 @@ nabi_server_new(void)
 
     _server->dynamic_event_flow = True;
     _server->global_input_mode = True;
+    _server->check_ksc = False;
+    _server->dvorak = False;
     _server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* options */
