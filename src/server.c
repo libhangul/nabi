@@ -27,7 +27,7 @@
 #include <dirent.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
-#include <langinfo.h>
+#include <locale.h>
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -67,11 +67,7 @@ static XIMEncoding nabi_encodings[] = {
 
 static char *nabi_locales[] = {
     "ko",
-    "ja_JP.UTF-8",
-    "zh_CN.UTF-8",
-    "zh_HK.UTF-8",
-    "zh_TW.UTF-8",
-    "en_US.UTF-8",
+    NULL,
     NULL
 };
 
@@ -452,9 +448,10 @@ nabi_server_init(NabiServer *server)
     server->candidate_table_size = 0;
     server->candidate_table = NULL;
 
-    /* check korean locale encoding */
+    /* check locale encoding */
     server->check_charset = !g_get_charset(&charset);
     if (server->check_charset) {
+	/* not utf8 encoding */
 	fprintf(stderr, "Nabi: Using charset: %s\n", charset);
 	server->converter = g_iconv_open(charset, "UTF-8");
 	if ((GIConv)server->converter == (GIConv)(-1)) {
@@ -463,6 +460,15 @@ nabi_server_init(NabiServer *server)
 		    "Nabi: g_iconv_open error: %s\n"
 		    "We does not check charset\n", charset);
 	}
+    } else {
+	/* utf8 encoding */
+	/* We add current locale to nabi support  locales array,
+	 * so whatever the locale string is, if its encoding is utf8,
+	 * nabi support the locale */
+	int i;
+	for (i = 0; server->locales[i] != NULL; i++)
+	    continue;
+	server->locales[i] = setlocale(LC_CTYPE, NULL);
     }
 }
 
@@ -667,14 +673,13 @@ nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
 Bool
 nabi_server_is_locale_supported(NabiServer *server, const char *locale)
 {
-    int i;
+    const char *charset;
 
     if (strncmp("ko", locale, 2) == 0)
 	return True;
 
-    for (i = 0; server->locales[i] != NULL; i++) {
-	if (strcmp(server->locales[i], locale) == 0)
-	    return True;
+    if (g_get_charset(&charset)) {
+	return True;
     }
 
     return False;
@@ -867,6 +872,9 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
 
     if (table->name == NULL)
 	table->name = g_path_get_basename(table->filename);
+
+    if (table->compose == NULL)
+	table->compose = g_strdup("default");
 
     server->keyboard_tables = g_list_append(server->keyboard_tables,
 					    table);
