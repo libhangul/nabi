@@ -25,5 +25,6 @@ nabi_SOURCES = \
 	ui.c \
 	main.c
 
-nabi_LDADD = @X_LIBS@ -lX11 @GTK_LIBS@ ../IMdkit/libXimd.a
+nabi_LDFLAGS = @X_LIBS@ -lX11 @GTK_LIBS@ 
+nabi_LDADD = ../IMdkit/libXimd.a
 
