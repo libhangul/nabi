@@ -3363,7 +3363,7 @@ static const wchar_t hangul_D790[] = {
 	0x72B5,0x7E88,0x896D,0x8A70,0x9821,0x9EE0,
 	0
 };
-static const wchar_t *hanjatable[] = {
+static const wchar_t *hanja_table[] = {
 	hangul_AC00, hangul_AC01, hangul_AC04, hangul_AC08, hangul_AC10, 
 	hangul_AC11, hangul_AC15, hangul_AC1C, hangul_AC1D, hangul_AC31, 
 	hangul_AC39, hangul_AC70, hangul_AC71, hangul_AC74, hangul_AC78, 

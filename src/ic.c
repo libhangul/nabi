@@ -35,6 +35,7 @@
 #include "fontset.h"
 
 #include "hanjatable.h"
+#include "symboltable.h"
 
 /* from ui.c */
 GtkWidget* nabi_create_hanja_window(NabiIC *ic, const wchar_t* ch);
@@ -1343,20 +1344,20 @@ nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
 }
 
 static int
-get_index_of_hanjatable (wchar_t ch)
+get_index_of_candidate_table (wchar_t key, const wchar_t **table, int size)
 {
     int first, last, mid;
 
     /* binary search */
     first = 0;
-    last = sizeof(hanjatable) / sizeof(hanjatable[0]) - 1;
+    last = size - 1;
     while (first <= last) {
 	mid = (first + last) / 2;
 
-	if (ch == hanjatable[mid][0])
+	if (key == table[mid][0])
 	    return mid;
 
-	if (ch < hanjatable[mid][0])
+	if (key < table[mid][0])
 	    last = mid - 1;
 	else
 	    first = mid + 1;
@@ -1367,36 +1368,51 @@ get_index_of_hanjatable (wchar_t ch)
 Bool
 nabi_ic_popup_candidate_window (NabiIC *ic)
 {
-    wchar_t ch;
+    wchar_t key = 0;
+    Window parent = 0;
+    const wchar_t *ptr;
 
-    if (ic->choseong[0] == 0 || ic->jungseong[0] == 0)
-	return False; 
+    if (ic->focus_window != 0)
+	parent = ic->focus_window;
+    else if (ic->client_window != 0)
+	parent = ic->client_window;
 
-    ch = hangul_jamo_to_syllable (ic->choseong[0],
-				  ic->jungseong[0],
-				  ic->jongseong[0]);
-    if (ch) {
-	int index = get_index_of_hanjatable(ch);
+    if (ic->candidate_window != NULL)
+	nabi_candidate_delete(ic->candidate_window);
+
+    if (ic->choseong[0] != 0 &&
+	ic->jungseong[0] == 0 &&
+	ic->jongseong[0] == 0) {
+	int index;
+	key = ic->choseong[0];
+	index = get_index_of_candidate_table(key, symbol_table, 
+				sizeof(symbol_table) / sizeof(symbol_table[0]));
+
 	if (index >= 0) {
-	    Window parent = 0;
-	    const wchar_t *ptr = hanjatable[index] + 1;
-	    char str[16];
-	    int n;
+	    ptr = symbol_table[index] + 1;
+	    ic->candidate_window = nabi_candidate_new(NULL, 10, ptr, parent);
+	}
+    } else if (ic->choseong[0] != 0 && ic->jungseong[0] != 0) {
+	key = hangul_jamo_to_syllable (ic->choseong[0],
+				       ic->jungseong[0],
+				       ic->jongseong[0]);
+	if (key) {
+	    int index;
+	    index = get_index_of_candidate_table(key, hanja_table,
+				sizeof(hanja_table) / sizeof(hanja_table[0]));
+	    if (index >= 0) {
+		gchar str[16];
+		int n;
 
-	    if (ic->focus_window != 0)
-		parent = ic->focus_window;
-	    else if (ic->client_window != 0)
-		parent = ic->client_window;
-
-	    if (ic->candidate_window != NULL)
-		nabi_candidate_delete(ic->candidate_window);
-
-	    n = hangul_wchar_to_utf8(ch, str, sizeof(str));
-	    str[n] = '\0';
-	    ic->candidate_window = nabi_candidate_new(str, 0, ptr, parent);
-	    return True;
+		ptr = hanja_table[index] + 1;
+		n = hangul_wchar_to_utf8(key, str, sizeof(str));
+		str[n] = '\0';
+		ic->candidate_window = nabi_candidate_new(str, 10, ptr, parent);
+		return True;
+	    }
 	}
     }
+
     return False;
 }
 
@@ -1407,10 +1423,8 @@ nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch)
 	return;
 
     nabi_ic_buf_clear(ic);
-    nabi_ic_push(ic, ch);
-    ic->choseong[0] = ch;
-    ic->lindex++;
     nabi_ic_preedit_update(ic);
+    nabi_ic_commit_unicode(ic, ch);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */

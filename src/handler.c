@@ -249,15 +249,19 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 
     switch (keyval) {
     case XK_Left:
+    case XK_BackSpace:
 	nabi_candidate_prev(ic->candidate_window);
 	break;
     case XK_Right:
+    case XK_space:
 	nabi_candidate_next(ic->candidate_window);
 	break;
     case XK_Up:
+    case XK_Page_Up:
 	nabi_candidate_prev_row(ic->candidate_window);
 	break;
     case XK_Down:
+    case XK_Page_Down:
 	nabi_candidate_next_row(ic->candidate_window);
 	break;
     case XK_Escape:
@@ -266,6 +270,21 @@ nabi_filter_candidate_window(NabiIC* ic, KeySym keyval)
 	break;
     case XK_Return:
 	ch = nabi_candidate_get_current(ic->candidate_window);
+	nabi_ic_insert_candidate(ic, ch);
+	nabi_candidate_delete(ic->candidate_window);
+	ic->candidate_window = NULL;
+	break;
+    case XK_a:
+    case XK_b:
+    case XK_c:
+    case XK_d:
+    case XK_e:
+    case XK_f:
+    case XK_g:
+    case XK_h:
+    case XK_i:
+    case XK_j:
+	ch = nabi_candidate_get_nth(ic->candidate_window, keyval);
 	nabi_ic_insert_candidate(ic, ch);
 	nabi_candidate_delete(ic->candidate_window);
 	ic->candidate_window = NULL;
