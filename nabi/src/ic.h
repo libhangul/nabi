@@ -101,6 +101,7 @@ void    nabi_ic_preedit_update(NabiIC *ic);
 void    nabi_ic_preedit_clear(NabiIC *ic);
 
 Bool    nabi_ic_commit(NabiIC *ic);
+Bool    nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch);
 
 #endif /* __IC_H_ */
 /* vim: set ts=8 sw=4 : */
