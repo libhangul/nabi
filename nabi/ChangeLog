@@ -1,2 +1,5 @@
+2003-08-06  Choe Hwanjin <krisna@kldp.org>
+	* handler.c: CapsLock, NumLock 처리 못하는 버그 수정
+
 2003-08-05  Choe Hwanjin <krisna@kldp.org>
 	* Release
