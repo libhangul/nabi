@@ -11,9 +11,9 @@ AC_PROG_INSTALL
 
 dnl Checks for libraries.
 AC_PATH_PROG(PKG_CONFIG, pkg-config,
-	     AC_MSG_ERROR([ximhangul needs pkg-config]))
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0,,
-		  AC_MSG_ERROR([ximhangul needs GTK+ 2.0.0 or higher]))
+	     AC_MSG_ERROR([xnabi needs pkg-config]))
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
+		  AC_MSG_ERROR([xnabi needs GTK+ 2.2.0 or higher]))
 
 dnl Checks for header files.
 AC_PATH_X
