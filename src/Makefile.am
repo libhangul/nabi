@@ -18,10 +18,12 @@ nabi_SOURCES = \
 	ic.h ic.c \
 	fontset.h fontset.c \
 	eggtrayicon.h eggtrayicon.c \
+	session.h session.c \
 	handler.c \
 	automata.c \
 	ui.c \
 	main.c
 
-nabi_LDADD = @GTK_LIBS@ ../IMdkit/libXimd.a
+nabi_LDFLAGS = -L/usr/X11R6/lib
+nabi_LDADD = @GTK_LIBS@ ../IMdkit/libXimd.a -lSM -lICE
 
