@@ -1,0 +1,96 @@
+Name: 세벌식 순아래
+
+U0021	U0021	# exclam:	exclamation mark
+U0022	U0022	# quotedbl:	quotatioin mark
+U0023	U0023	# numbersign:	number sign	 
+U0024	U0024	# dollar:	dollar sign
+U0025	U0025	# percent:	percent sign
+U0026	U0026	# ampersand:	ampersand		 
+U0027	U1110	# apostrophe:	choseong thieuth
+U0028	U0028	# parenleft:	left parenthesis
+U0029	U0029	# parenright:	right parenthesis
+U002A	U002A	# asterisk:	asterisk
+U002B	U002B	# plus:		plus sign
+U002C	U002C	# comma:	comma
+U002D	U11BD	# minus:	jongseong cieuc
+U002E	U002E	# period:	period
+U002F	U11AE	# slash:	jongseong tikeut
+U0030	U1164	# 0:		choseong  yae
+U0031	U11C2	# 1:		jongseong hieuh
+U0032	U11BB	# 2:		jongseong ssangsios
+U0033	U11B8	# 3:		jongseong pieup
+U0034	U116D	# 4:		jungseong yo
+U0035	U1172	# 5:		jungseong yu
+U0036	U1163	# 6:		jungseong ya
+U0037	U1168	# 7:		jungseong ye
+U0038	U1174	# 8:		jungseong yi
+U0039	U110F	# 9:		choseong khieukh
+U003A	U003A	# colon:	colon
+U003B	U1107	# semicolon:	choseong  pieup
+U003C	U0032	# less:		2
+U003D	U11BE	# equal:	jongseong chieuch
+U003E	U0033	# greater:	3
+U003F	U003F	# question:	question mark	 
+U0040	U0040	# at:		commertial at
+U0041	U11BC	# A:		jongseong ieung
+U0042	U0021	# B:		exclamation mark
+U0043	U005C	# C:		backslash
+U0044	U005D	# D:		right bracket
+U0045	U1167	# E:		jungseong yeo
+U0046	U1161	# F:		jungseong a
+U0047	U002F	# G:		slash
+U0048	U0027	# H:		apostrophe
+U0049	U0038	# I:		8
+U004A	U0034	# J:		4
+U004B	U0035	# K:		5
+U004C	U0036	# L:		6
+U004D	U0031	# M:		1
+U004E	U0030	# N:		0
+U004F	U0039	# O:		9
+U0050	U003E	# P:		greater-than sign
+U0051	U11BA	# Q:		jongseong sios
+U0052	U1162	# R:		jungseong ae
+U0053	U005B	# S:		left bracket
+U0054	U003B	# T:		semicolon
+U0055	U0037	# U:		7
+U0056	U1169	# V:		jungseong o
+U0057	U11AF	# W:		jongseong rieul
+U0058	U003D	# X:		equals sign
+U0059	U003C	# Y:		less-than sign
+U005A	U002D	# Z:		minus sign
+U005B	U11C0	# bracketleft:	jongseong thieuth
+U005C	U11BF	# backslash:	jongseong khieukh
+U005D	U11C1	# bracketright:	jongseong phieuph
+U005E	U005E	# asciicircum:	circumflex accent
+U005F	U005F	# underscore:	underscore
+U0060	U0060	# quoteleft:	grave accent
+U0061	U11BC	# a:		jongseong ieung
+U0062	U116E	# b:		jungseong u
+U0063	U1166	# c:		jungseong e
+U0064	U1175	# d:		jungseong i
+U0065	U1167	# e:		jungseong yeo
+U0066	U1161	# f:		jungseong a
+U0067	U1173	# g:		jungseong eu
+U0068	U1102	# h:		choseong  nieun
+U0069	U1106	# i:		choseong  mieum
+U006A	U110B	# j:		choseong  ieung
+U006B	U1100	# k:		choseong  kiyeok
+U006C	U110C	# l:		choseong  cieuc
+U006D	U1112	# m:		choseong  hieuh
+U006E	U1109	# n:		choseong  sios
+U006F	U110E	# o:		choseong  chieuch
+U0070	U1111	# p:		choseong  phieuph
+U0071	U11BA	# q:		jongseong sios
+U0072	U1162	# r:		jungseong ae
+U0073	U11AB	# s:		jongseong nieun
+U0074	U1165 	# t:		jungseong eo
+U0075	U1103	# u:		choseong  tikeut
+U0076	U1169	# v:		jungseong o
+U0077	U11AF	# w:		jongseong rieul
+U0078	U11A8	# x:		jongseong kiyeok
+U0079	U1105	# y:		choseong  rieul
+U007A	U11B7	# z:		jongseong mieum
+U007B	U007B	# braceleft:	left brace
+U007C	U007C	# bar:		vertical line(bar)
+U007D	U007D	# braceright:	right brace
+U007E	U007E	# asciitilde:	tilde
