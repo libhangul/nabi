@@ -179,8 +179,8 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
     if (nabi_server->dvorak)
 	keyval = hangul_dvorak_to_qwerty(keyval);
 
-    /* hangul jamo keysym */
-    if (keyval >= 0x01001100 && keyval <= 0x010011ff)
+    /* Support for unicode keysym */
+    if (keyval & 0x01000000)
 	ch = keyval & 0x0000ffff;
     else if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	/* treat capslock, as capslock is not on */
@@ -195,6 +195,7 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	}
 	ch = nabi_server->keyboard_map[keyval - XK_exclam];
     } else
+	/* TODO: we need to translate keyval to Unicode char */
 	ch = keyval;
 
     nabi_server_on_keypress(nabi_server, ch, state);
