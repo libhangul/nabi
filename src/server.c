@@ -116,6 +116,9 @@ nabi_server_destroy(NabiServer *server)
     int i;
     NabiConnect *connect;
 
+    if (server == NULL)
+	return;
+
     /* destroy remaining connect */
     while (server->connect_list != NULL) {
 	connect = server->connect_list;
@@ -132,6 +135,7 @@ nabi_server_destroy(NabiServer *server)
 
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
+    free(server);
 }
 
 void
@@ -296,8 +300,15 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 int
 nabi_server_stop(NabiServer *server)
 {
-    iconv_close(server->converter);
-    IMCloseIM(server->xims);
+    if (server == NULL)
+	return 0;
+
+    if ((iconv_t)(server->converter) != (iconv_t)(-1))
+	iconv_close(server->converter);
+    if (server->xims != NULL) {
+	IMCloseIM(server->xims);
+	server->xims = NULL;
+    }
     fprintf(stderr, "Nabi: xim server stoped\n");
 
     return 0;
