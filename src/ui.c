@@ -283,14 +283,15 @@ struct config_item {
 #define CHAR_BY_OFFSET(offset)   (gchar**)((void*)(nabi) + offset)
 
 const static struct config_item config_items[] = {
-    { "x",                  CONF_TYPE_INT, OFFSET(x)                     },
-    { "y",                  CONF_TYPE_INT, OFFSET(y)                     },
-    { "theme",              CONF_TYPE_STR, OFFSET(theme)                 },
-    { "keyboard_map",       CONF_TYPE_STR, OFFSET(keyboard_map_filename) },
-    { "compose_map",        CONF_TYPE_STR, OFFSET(compose_map_filename)  },
-    { "preedit_foreground", CONF_TYPE_STR, OFFSET(preedit_fg)            },
-    { "preedit_background", CONF_TYPE_STR, OFFSET(preedit_bg)            },
-    { NULL,                 0,             0                             }
+    { "x",                  CONF_TYPE_INT,  OFFSET(x)                     },
+    { "y",                  CONF_TYPE_INT,  OFFSET(y)                     },
+    { "theme",              CONF_TYPE_STR,  OFFSET(theme)                 },
+    { "keyboard_map",       CONF_TYPE_STR,  OFFSET(keyboard_map_filename) },
+    { "compose_map",        CONF_TYPE_STR,  OFFSET(compose_map_filename)  },
+    { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                },
+    { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)            },
+    { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)            },
+    { NULL,                 0,              0                             }
 };
 
 static void
@@ -574,6 +575,9 @@ load_colors(void)
 static void
 set_up_keyboard(void)
 {
+    /* dvorak set */
+    nabi_server_set_dvorak(server, nabi->dvorak);
+
     if (nabi->keyboard_map_filename != NULL) {
 	NabiKeyboardMap *map;
 	GSList *list = nabi->keyboard_maps;
@@ -604,6 +608,7 @@ nabi_app_new(void)
     nabi->theme = NULL;
     nabi->keyboard_map_filename = NULL;
     nabi->compose_map_filename = NULL;
+    nabi->dvorak = FALSE;
 
     nabi->keyboard_maps = NULL;
 

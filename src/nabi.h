@@ -45,6 +45,7 @@ struct _NabiApplication {
     gchar*          theme;
     gchar*          keyboard_map_filename;
     gchar*          compose_map_filename;
+    gboolean        dvorak;
 
     GSList 	    *keyboard_maps;
 
