@@ -33,6 +33,7 @@
 #include "hangul.h"
 #include "ic.h"
 #include "server.h"
+#include "fontset.h"
 
 static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_get_preedit_string(NabiIC *ic, wchar_t *buf, int *len);
@@ -217,7 +218,7 @@ nabi_ic_destroy(NabiIC *ic)
 
     /* destroy fontset data */
     if (ic->preedit.font_set) {
-	XFreeFontSet(server->display, ic->preedit.font_set);
+	nabi_fontset_free(server->display, ic->preedit.font_set);
 	nabi_free(ic->preedit.base_font);
 	ic->preedit.font_set = NULL;
 	ic->preedit.base_font = NULL;
@@ -265,7 +266,7 @@ nabi_ic_real_destroy(NabiIC *ic)
 	XDestroyWindow(server->display, ic->preedit.window);
 
     if (ic->preedit.font_set)
-	XFreeFontSet(server->display, ic->preedit.font_set);
+	nabi_fontset_free(server->display, ic->preedit.font_set);
 
     if (ic->preedit.gc)
 	XFreeGC(server->display, ic->preedit.gc);
@@ -487,14 +488,10 @@ nabi_ic_set_preedit_background(NabiIC *ic, unsigned long background)
 static void
 nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
 {
-    char **missing_list;
-    int missing_list_count;
-    char *error_message;
     XFontStruct **font_structs;
     char **font_names;
     int i, n_fonts;
 
-    fprintf(stderr, "%s:%s\n", ic->preedit.base_font, font_name);
     if (ic->preedit.base_font != NULL &&
 	strcmp(ic->preedit.base_font, font_name) == 0)
 	/* same font, do not create fontset */
@@ -503,24 +500,11 @@ nabi_ic_load_preedit_fontset(NabiIC *ic, char *font_name)
     nabi_free(ic->preedit.base_font);
     ic->preedit.base_font = g_strdup(font_name);
     if (ic->preedit.font_set)
-	XFreeFontSet(server->display, ic->preedit.font_set);
+	nabi_fontset_free(server->display, ic->preedit.font_set);
 
-    ic->preedit.font_set = XCreateFontSet(server->display,
-					  font_name,
-					  &missing_list,
-					  &missing_list_count,
-					  &error_message);
-    if (missing_list_count > 0) {
-	int i;
-	fprintf(stderr, _("Nabi: missing charset\n"));
-	fprintf(stderr, _("Nabi: font: %s\n"), font_name);
-	for (i = 0; i < missing_list_count; i++) {
-	    fprintf(stderr, "  %s\n", missing_list[i]);
-	}
-	XFreeStringList(missing_list);
-	ic->preedit.font_set = 0;
+    ic->preedit.font_set = nabi_fontset_create(server->display, font_name);
+    if (ic->preedit.font_set == 0)
 	return;
-    }
 
     /* now we set the preedit window properties from the font metric */
     n_fonts = XFontsOfFontSet(ic->preedit.font_set,
