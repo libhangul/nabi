@@ -1646,32 +1646,34 @@ nabi_set_input_mode_info (int state)
 }
 
 static GdkFilterReturn
-mode_info_cb (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
+root_window_event_filter (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
 {
     XEvent *xevent;
     XPropertyEvent *pevent;
 
     xevent = (XEvent*)gxevent;
-    if (xevent->type != PropertyNotify)
-	return GDK_FILTER_CONTINUE;
+    switch (xevent->type) {
+    case PropertyNotify:
+	pevent = (XPropertyEvent*)xevent;
+	if (pevent->atom == nabi->mode_info_xatom) {
+	    int state;
+	    guchar *buf;
+	    gboolean ret;
 
-    pevent = (XPropertyEvent*)xevent;
-    if (pevent->atom == nabi->mode_info_xatom) {
-	int state;
-	guchar *buf;
-	gboolean ret;
-
-	ret = gdk_property_get (nabi->root_window,
-				nabi->mode_info_atom,
-				nabi->mode_info_type,
-				0, 32, 0,
-				NULL, NULL, NULL,
-				&buf);
-	memcpy(&state, buf, sizeof(state));
-	update_state(state);
-	g_free(buf);
+	    ret = gdk_property_get (nabi->root_window,
+				    nabi->mode_info_atom,
+				    nabi->mode_info_type,
+				    0, 32, 0,
+				    NULL, NULL, NULL,
+				    &buf);
+	    memcpy(&state, buf, sizeof(state));
+	    update_state(state);
+	    g_free(buf);
+	}
+	break;
+    default:
+	break;
     }
-
     return GDK_FILTER_CONTINUE;
 }
 
@@ -1683,13 +1685,13 @@ install_event_filter(GtkWidget *widget)
     screen = gdk_drawable_get_screen(GDK_DRAWABLE(widget->window));
     nabi->root_window = gdk_screen_get_root_window(screen);
     gdk_window_set_events(nabi->root_window, GDK_PROPERTY_CHANGE_MASK);
-    gdk_window_add_filter(nabi->root_window, mode_info_cb, NULL);
+    gdk_window_add_filter(nabi->root_window, root_window_event_filter, NULL);
 }
 
 static void
 remove_event_filter()
 {
-    gdk_window_remove_filter(nabi->root_window, mode_info_cb, NULL);
+    gdk_window_remove_filter(nabi->root_window, root_window_event_filter, NULL);
 }
 
 static void
