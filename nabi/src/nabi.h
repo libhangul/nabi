@@ -69,7 +69,6 @@ void nabi_app_init(void);
 void nabi_app_setup_server(void);
 void nabi_app_free(void);
 
-
 GtkWidget* create_main_widget(void);
 
 #endif /* __NABI_H_ */
