@@ -108,7 +108,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	data = (IMForwardEventStruct *)call_data;
 
 	if (data->event.type != KeyPress) {
-		printf("Not key press\n");
+		printf("Not a key press\n");
 		return True;
 	}
 
@@ -242,42 +242,30 @@ nabi_handler(XIMS ims, IMProtocol *call_data)
 {
 	switch (call_data->major_code) {
 	case XIM_OPEN:
-		fprintf(stderr, "XIM_OPEN:\n");
 		return nabi_handler_open(ims, call_data);
 	case XIM_CLOSE:
-		fprintf(stderr, "XIM_CLOSE:\n");
 		return nabi_handler_close(ims, call_data);
 	case XIM_CREATE_IC:
-		fprintf(stderr, "XIM_CREATE_IC:\n");
 		return nabi_handler_create_ic(ims, call_data);
 	case XIM_DESTROY_IC:
-		fprintf(stderr, "XIM_DESTROY_IC.\n");
 		return nabi_handler_destroy_ic(ims, call_data);
 	case XIM_SET_IC_VALUES:
-		//fprintf(stderr, "XIM_SET_IC_VALUES:\n");
 		return nabi_handler_set_ic_values(ims, call_data);
 	case XIM_GET_IC_VALUES:
-		fprintf(stderr, "XIM_GET_IC_VALUES:\n");
 		return nabi_handler_get_ic_values(ims, call_data);
 	case XIM_FORWARD_EVENT:
 		return nabi_handler_forward_event(ims, call_data);
 	case XIM_SET_IC_FOCUS:
-		fprintf(stderr, "XIM_SET_IC_FOCUS()\n");
 		return nabi_handler_set_ic_focus(ims, call_data);
 	case XIM_UNSET_IC_FOCUS:
-		fprintf(stderr, "XIM_UNSET_IC_FOCUS:\n");
 		return nabi_handler_unset_ic_focus(ims, call_data);
 	case XIM_RESET_IC:
-		fprintf(stderr, "XIM_RESET_IC:\n");
 		return nabi_handler_reset_ic(ims, call_data);
 	case XIM_TRIGGER_NOTIFY:
-		fprintf(stderr, "XIM_TRIGGER_NOTIFY:\n");
 		return nabi_handler_trigger_notify(ims, call_data);
 	case XIM_PREEDIT_START_REPLY:
-		fprintf(stderr, "XIM_PREEDIT_START_REPLY:\n");
 		return nabi_handler_preedit_start_reply(ims, call_data);
 	case XIM_PREEDIT_CARET_REPLY:
-		fprintf(stderr, "XIM_PREEDIT_CARET_REPLY:\n");
 		return nabi_handler_preedit_caret_reply(ims, call_data);
 	default:
 		fprintf(stderr, "Unknown IMDKit Protocol message type\n");
