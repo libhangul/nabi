@@ -25,6 +25,7 @@
 
 #include <X11/Xlib.h>
 #include <wchar.h>
+#include <iconv.h>
 
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
@@ -81,9 +82,12 @@ struct _NabiServer {
     Bool                    (*automata)(NabiIC*,
                                         KeySym,
                                         unsigned int state);
-    Bool                    check_ksc;
     Bool                    dvorak;
     NabiOutputMode          output_mode;
+
+    /* hangul converter */
+    Bool                    check_ksc;
+    iconv_t                 converter;
 
     /* options */
     Bool                    dynamic_event_flow;
@@ -130,6 +134,7 @@ void        nabi_server_remove_connect  (NabiServer *_server,
                                          NabiConnect *connect);
 NabiConnect* nabi_server_get_connect_by_id(NabiServer *_server,
                                            CARD16 connect_id);
+Bool        nabi_server_check_valid     (NabiServer *_server, wchar_t ch);
 
 #endif  /* __SERVER_H_ */
 
