@@ -1,8 +1,31 @@
-2003-11-29  Choe Hwanjin  <krisna@people.kldp.org>
-	* release 0.11
+2003-12-09  Choe Hwanjin  <krisna@people.kldp.org>
+	* configure.in,
+	  themes/MSWindows2000/Makefile.am,
+	  themes/MSWindows2000/english.png,
+	  themes/MSWindows2000/hangul.png,
+	  themes/MSWindows2000/none.png,
+	  themes/Makefile.am: MSWindows2000 테마 추가
 
+2003-12-05  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c, src/ic.c, src/ic.h: add utf8_to_compound_text() func.
+	  do not commit on ICReset, just send last preedit string
+
+2003-12-03  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c:
+	  PreeditPosition에서 preedit window를 spot location보다 한픽셀 뒤로 밂
+	  (커서위치를 보이게 하기 위함)
+
+2003-12-02  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c:
+	    set overide-redirect to show preedit window correctly on Qt app
+
+2003-11-29  Choe Hwanjin  <krisna@people.kldp.org>
+	* po/ko.po: update po
+	* ChangeLog: update ChangeLog
 	* src/ui.c: set dialog variable to NULL when about window closed
 	* src/ui.c: about window가 하나만 뜨게 함
+
+	* release 0.11
 
 2003-11-28  Choe Hwanjin  <krisna@people.kldp.org>
 	* src/ic.c, src/server.c, src/server.h: gc를 ic별로 관리하는 대신
