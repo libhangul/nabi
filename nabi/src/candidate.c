@@ -27,38 +27,52 @@
 #include "server.h"
 #include "candidate.h"
 
+enum {
+    COLUMN_INDEX,
+    COLUMN_CHARACTER,
+    COLUMN_COMMENT,
+    NO_OF_COLUMNS
+};
+
+static void
+nabi_candidate_on_row_activated(GtkWidget *widget,
+				GtkTreePath *path,
+				GtkTreeViewColumn *column,
+				NabiCandidate *candidate)
+{
+    if (path != NULL) {
+	int *indices;
+	indices = gtk_tree_path_get_indices(path);
+	candidate->current = candidate->first + indices[0];
+    }
+    if (candidate->commit != NULL && candidate->commit_data != NULL)
+	candidate->commit(candidate, candidate->commit_data);
+}
+
+static void
+nabi_candidate_on_cursor_changed(GtkWidget *widget,
+				 NabiCandidate *candidate)
+{
+    GtkTreePath *path;
+
+    gtk_tree_view_get_cursor(GTK_TREE_VIEW(widget), &path, NULL);
+    if (path != NULL) {
+	int *indices;
+	indices = gtk_tree_path_get_indices(path);
+	candidate->current = candidate->first + indices[0];
+	gtk_tree_path_free(path);
+    }
+}
+
 static void
 nabi_candidate_on_expose(GtkWidget *widget,
 		    GdkEventExpose *event,
 		    gpointer data)
 {
-    NabiCandidate *candidate;
     GtkStyle *style;
     GtkAllocation alloc;
-    GtkWidget *child;
-    int i;
 
-    candidate = (NabiCandidate *)data;
     style = gtk_widget_get_style(widget);
-
-    i = candidate->current - candidate->first;
-    if (i >= 0 && i < candidate->n_per_window) {
-	int width, height;
-	child = candidate->ch[i];
-	alloc = GTK_WIDGET(child)->allocation;
-	gdk_draw_rectangle(widget->window, style->bg_gc[GTK_STATE_SELECTED],
-			   TRUE,
-			   alloc.x, alloc.y,
-			   alloc.width, alloc.height);
-	pango_layout_get_pixel_size(GTK_LABEL(child)->layout, &width, &height);
-	if (alloc.width > width)
-	    alloc.x += (alloc.width - width) / 2;
-	if (alloc.height > height)
-	    alloc.y += (alloc.height - height) / 2;
-	gdk_draw_layout(widget->window, style->text_gc[GTK_STATE_SELECTED],
-			alloc.x, alloc.y,
-			GTK_LABEL(child)->layout);
-    }
     alloc = GTK_WIDGET(widget)->allocation;
     gdk_draw_rectangle(widget->window, style->black_gc,
 		       FALSE,
@@ -66,27 +80,41 @@ nabi_candidate_on_expose(GtkWidget *widget,
 }
 
 static void
-nabi_candidate_update_labels(NabiCandidate *candidate)
+nabi_candidate_update_cursor(NabiCandidate *candidate)
+{
+    GtkTreePath *path;
+
+    if (candidate->treeview == NULL)
+	return;
+
+    path = gtk_tree_path_new_from_indices(candidate->current - candidate->first,
+					  -1);
+    gtk_tree_view_set_cursor(GTK_TREE_VIEW(candidate->treeview),
+			     path, NULL, FALSE);
+    gtk_tree_path_free(path);
+}
+
+static void
+nabi_candidate_update_list(NabiCandidate *candidate)
 {
     int i;
     int len;
     gchar buf[16];
+    GtkTreeIter iter;
 
+    gtk_list_store_clear(candidate->store);
     for (i = 0;
-	 i < candidate->n_per_window &&
-	 candidate->first + i < candidate->n;
+	 i < candidate->n_per_page && candidate->first + i < candidate->n;
 	 i++) {
-	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
-	len += g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
-				 buf + len);
+	len = g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
+				buf);
 	buf[len] = '\0';
-	gtk_label_set_text(GTK_LABEL(candidate->ch[i]), buf);
-	gtk_label_set_text(GTK_LABEL(candidate->comment[i]),
-			   candidate->data[candidate->first + i]->comment);
-    }
-    for (; i < candidate->n_per_window; i++)  {
-	gtk_label_set_text(GTK_LABEL(candidate->ch[i]), "");
-	gtk_label_set_text(GTK_LABEL(candidate->comment[i]), "");
+	gtk_list_store_append(candidate->store, &iter);
+	gtk_list_store_set(candidate->store, &iter,
+			   COLUMN_INDEX, (i + 1) % 10,
+			   COLUMN_CHARACTER, buf,
+			   COLUMN_COMMENT, candidate->data[candidate->first + i]->comment,
+			   -1);
     }
 }
 
@@ -132,76 +160,60 @@ static void
 nabi_candidate_create_window(NabiCandidate *candidate)
 {
     GtkWidget *frame;
-    GtkWidget *table;
-    GtkWidget *label;
-    PangoAttrList *attr_list;
-    PangoAttribute *attr;
-    int i, row, col, n_per_row, n_per_window;
-    int len;
-    gchar buf[16];
-
-    n_per_window = candidate->n_per_window;
-    n_per_row = candidate->n_per_row;
+    GtkWidget *treeview;
+    GtkTreeViewColumn *column;
+    GtkCellRenderer *renderer;
 
     candidate->window = gtk_window_new(GTK_WINDOW_POPUP);
-    candidate->ch = (GtkWidget**)g_malloc(sizeof(GtkWidget*) * n_per_window);
-    candidate->comment = (GtkWidget**)
-			    g_malloc(sizeof(GtkWidget*) * n_per_window);
+
+    nabi_candidate_update_list(candidate);
 
     frame = gtk_frame_new(candidate->label);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
     gtk_container_add(GTK_CONTAINER(candidate->window), frame);
 
-    table = gtk_table_new((n_per_window  - 1)/ n_per_row + 1,
-			  n_per_row * 2, FALSE);
-    gtk_container_set_border_width(GTK_CONTAINER(table), 2);
-    gtk_table_set_col_spacings(GTK_TABLE(table), 5);
-    gtk_container_add(GTK_CONTAINER(frame), table);
+    treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(candidate->store));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_container_add(GTK_CONTAINER(frame), treeview);
+    candidate->treeview = treeview;
+    g_object_unref(candidate->store);
 
-    attr_list = pango_attr_list_new();
-    attr = pango_attr_scale_new(PANGO_SCALE_X_LARGE);
-    attr->start_index = 0;
-    attr->end_index = G_MAXINT;
-    pango_attr_list_insert(attr_list, attr);
-    for (i = 0; i < n_per_window && candidate->first + i < candidate->n; i++) {
-	len = g_snprintf(buf, sizeof(buf), "%d", (i + 1) % 10);
-	len += g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
-				buf + len);
-	buf[len] = '\0';
-	label = gtk_label_new(buf);
-	gtk_label_set_use_markup(GTK_LABEL(label), FALSE);
-	gtk_label_set_use_underline(GTK_LABEL(label), FALSE);
-	gtk_label_set_attributes(GTK_LABEL(label), attr_list);
+    /* number column */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("No",
+						      renderer,
+						      "text", COLUMN_INDEX,
+						      NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 
-	row = i / n_per_row;
-	col = i - row * n_per_row;
-	gtk_table_attach_defaults(GTK_TABLE(table), label,
-				  col, col + 1, row, row + 1);
-	candidate->ch[i] = label;
+    /* character column */
+    renderer = gtk_cell_renderer_text_new();
+    g_object_set(renderer, "scale-set", TRUE, NULL);
+    g_object_set(renderer, "scale", PANGO_SCALE_X_LARGE, NULL);
+    column = gtk_tree_view_column_new_with_attributes("Character",
+						      renderer,
+						      "text", COLUMN_CHARACTER,
+						      NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 
-	label = gtk_label_new(candidate->data[candidate->first + i]->comment);
-	gtk_label_set_attributes(GTK_LABEL(label), attr_list);
-	gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
-	gtk_table_attach_defaults(GTK_TABLE(table), label,
-				  col + 1, col + 2, row, row + 1);
-	candidate->comment[i] = label;
-    }
-    pango_attr_list_unref(attr_list);
-    for (; i < n_per_window; i++) {
-	label = gtk_label_new("");
-	row = i / n_per_row;
-	col = i - row * n_per_row;
-	gtk_table_attach_defaults(GTK_TABLE(table), label,
-				  col, col + 1, row, row + 1);
-	candidate->ch[i] = label;
-	label = gtk_label_new("");
-	gtk_table_attach_defaults(GTK_TABLE(table), label,
-				  col + 1, col + 2, row, row + 1);
-	candidate->comment[i] = label;
-    }
+    /* comment column */
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes("Comment",
+						      renderer,
+						      "text", COLUMN_COMMENT,
+						      NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    nabi_candidate_update_cursor(candidate);
+
+    g_signal_connect(G_OBJECT(treeview), "row-activated",
+		     G_CALLBACK(nabi_candidate_on_row_activated), candidate);
+    g_signal_connect(G_OBJECT(treeview), "cursor-changed",
+		     G_CALLBACK(nabi_candidate_on_cursor_changed), candidate);
+
     g_signal_connect_after(G_OBJECT(candidate->window), "expose-event",
-		           G_CALLBACK(nabi_candidate_on_expose), candidate);
-    g_signal_connect_after(G_OBJECT(frame), "realize",
+                           G_CALLBACK(nabi_candidate_on_expose), candidate);
+    g_signal_connect_after(G_OBJECT(candidate->window), "realize",
 		           G_CALLBACK(nabi_candidate_on_realize), candidate);
 
     gtk_widget_show_all(candidate->window);
@@ -209,9 +221,11 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
 NabiCandidate*
 nabi_candidate_new(char *label_str,
-		   int n_per_window,
+		   int n_per_page,
 		   const NabiCandidateItem **data,
-		   Window parent)
+		   Window parent,
+		   NabiCandidateCommitFunc commit,
+		   gpointer commit_data)
 {
     int i, k, n;
     NabiCandidate *candidate;
@@ -220,12 +234,15 @@ nabi_candidate_new(char *label_str,
     candidate = (NabiCandidate*)g_malloc(sizeof(NabiCandidate));
     candidate->first = 0;
     candidate->current = 0;
-    candidate->n_per_window = n_per_window;
-    candidate->n_per_row = 10;
+    candidate->n_per_page = n_per_page;
     candidate->n = 0;
     candidate->data = NULL;
     candidate->parent = parent;
     candidate->label = g_strdup(label_str);
+    candidate->store = NULL;
+    candidate->treeview = NULL;
+    candidate->commit = commit;
+    candidate->commit_data = commit_data;
 
     for (n = 0; data[n] != 0; n++)
 	continue;
@@ -245,10 +262,11 @@ nabi_candidate_new(char *label_str,
     candidate->data = table;
     candidate->n = k;
 
-    if (n_per_window == 0)
-	candidate->n_per_window = candidate->n;
-    else
-	candidate->n_per_row = 1;
+    candidate->store = gtk_list_store_new(NO_OF_COLUMNS,
+				    G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);
+
+    if (n_per_page == 0)
+	candidate->n_per_page = candidate->n;
 
     nabi_candidate_create_window(candidate);
 
@@ -265,11 +283,10 @@ nabi_candidate_prev(NabiCandidate *candidate)
 	candidate->current--;
 
     if (candidate->current < candidate->first) {
-	candidate->first -= candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
+	candidate->first -= candidate->n_per_page;
+	nabi_candidate_update_list(candidate);
     }
-    gtk_widget_queue_draw(candidate->window);
+    nabi_candidate_update_cursor(candidate);
 }
 
 void
@@ -281,46 +298,11 @@ nabi_candidate_next(NabiCandidate *candidate)
     if (candidate->current < candidate->n - 1)
 	candidate->current++;
 
-    if (candidate->current >= candidate->first + candidate->n_per_window) {
-	candidate->first += candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
+    if (candidate->current >= candidate->first + candidate->n_per_page) {
+	candidate->first += candidate->n_per_page;
+	nabi_candidate_update_list(candidate);
     }
-    gtk_widget_queue_draw(candidate->window);
-}
-
-void
-nabi_candidate_prev_row(NabiCandidate *candidate)
-{
-    if (candidate == NULL)
-	return;
-
-    if (candidate->current - candidate->n_per_row >= 0)
-	candidate->current -= candidate->n_per_row;
-
-    if (candidate->current < candidate->first) {
-	candidate->first -= candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
-    }
-    gtk_widget_queue_draw(candidate->window);
-}
-
-void
-nabi_candidate_next_row(NabiCandidate *candidate)
-{
-    if (candidate == NULL)
-	return;
-
-    if (candidate->current + candidate->n_per_row < candidate->n)
-	candidate->current += candidate->n_per_row;
-
-    if (candidate->current >= candidate->first + candidate->n_per_window) {
-	candidate->first += candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
-    }
-    gtk_widget_queue_draw(candidate->window);
+    nabi_candidate_update_cursor(candidate);
 }
 
 void
@@ -329,13 +311,14 @@ nabi_candidate_prev_page(NabiCandidate *candidate)
     if (candidate == NULL)
 	return;
 
-    if (candidate->first - candidate->n_per_window >= 0) {
-	candidate->current -= candidate->n_per_window;
-	candidate->first -= candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
+    if (candidate->first - candidate->n_per_page >= 0) {
+	candidate->current -= candidate->n_per_page;
+	if (candidate->current < 0)
+	    candidate->current = 0;
+	candidate->first -= candidate->n_per_page;
+	nabi_candidate_update_list(candidate);
     }
-    gtk_widget_queue_draw(candidate->window);
+    nabi_candidate_update_cursor(candidate);
 }
 
 void
@@ -344,13 +327,14 @@ nabi_candidate_next_page(NabiCandidate *candidate)
     if (candidate == NULL)
 	return;
 
-    if (candidate->first + candidate->n_per_window < candidate->n) {
-	candidate->current += candidate->n_per_window;
-	candidate->first += candidate->n_per_window;
-	nabi_candidate_update_labels(candidate);
-	return;
+    if (candidate->first + candidate->n_per_page < candidate->n) {
+	candidate->current += candidate->n_per_page;
+	if (candidate->current > candidate->n - 1)
+	    candidate->current = candidate->n - 1;
+	candidate->first += candidate->n_per_page;
+	nabi_candidate_update_list(candidate);
     }
-    gtk_widget_queue_draw(candidate->window);
+    nabi_candidate_update_cursor(candidate);
 }
 
 unsigned short int
@@ -381,8 +365,6 @@ nabi_candidate_delete(NabiCandidate *candidate)
 	return;
 
     gtk_widget_destroy(candidate->window);
-    g_free(candidate->ch);
-    g_free(candidate->comment);
     g_free(candidate->label);
     g_free(candidate->data);
     g_free(candidate);

@@ -1,3 +1,8 @@
+2004-01-27  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.h src/candidate.c src/ic.c src/ic.h src/handler.c:
+	  candidate window에서 한자의 뜻을 보여주기 위해 GtkTable대신
+	  GtkTreeView를 사용함
+
 2004-01-09  Choe Hwanjin <krisna@kldp.org>
 	* src/candidate.c src/candidate.h src/ic.c src/nabi.h src/server.c
           src/server.h src/ui.c tables/Makefile.am tables/candidate/nabi.txt:

@@ -24,6 +24,7 @@
 
 typedef struct _NabiCandidate     NabiCandidate;
 typedef struct _NabiCandidateItem NabiCandidateItem;
+typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
 
 struct _NabiCandidateItem {
     unsigned short int ch;
@@ -34,20 +35,23 @@ struct _NabiCandidate {
     GtkWidget *window;
     Window parent;
     gchar *label;
-    GtkWidget **ch;
-    GtkWidget **comment;
+    GtkListStore *store;
+    GtkWidget *treeview;
     const NabiCandidateItem **data;
+    NabiCandidateCommitFunc commit;
+    gpointer commit_data;
     int first;
-    int n_per_window;
-    int n_per_row;
     int n;
+    int n_per_page;
     int current;
 };
 
 NabiCandidate*     nabi_candidate_new(char *label_str,
-		   	              int n_per_window,
+		   	              int n_per_page,
 			              const NabiCandidateItem **data,
-			              Window parent);
+			              Window parent,
+				      NabiCandidateCommitFunc commit,
+				      gpointer commit_data);
 void               nabi_candidate_prev(NabiCandidate *candidate);
 void               nabi_candidate_next(NabiCandidate *candidate);
 void               nabi_candidate_prev_row(NabiCandidate *candidate);
