@@ -84,6 +84,7 @@ main(int argc, char *argv[])
 
     gtk_main();
 
+    nabi_server_stop(server);
     nabi_server_destroy(server);
 
     nabi_app_free();
