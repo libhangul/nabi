@@ -1043,10 +1043,33 @@ static void ResetICMessageProc (XIMS ims,
     XFree(reply);
 }
 
+/* For byte swapping */
+#define Swap16(n) \
+	(((n) << 8 & 0xFF00) | \
+	 ((n) >> 8 & 0xFF)     \
+	)
+#define Swap32(n) \
+        (((n) << 24 & 0xFF000000) | \
+         ((n) <<  8 & 0xFF0000) |   \
+         ((n) >>  8 & 0xFF00) |     \
+         ((n) >> 24 & 0xFF)         \
+        )
+#define Swap64(n) \
+        (((n) << 56 & 0xFF00000000000000) | \
+         ((n) << 40 & 0xFF000000000000) |   \
+         ((n) << 24 & 0xFF0000000000) |     \
+         ((n) <<  8 & 0xFF00000000) |       \
+         ((n) >>  8 & 0xFF000000) |         \
+         ((n) >> 24 & 0xFF0000) |           \
+         ((n) >> 40 & 0xFF00) |             \
+         ((n) >> 56 & 0xFF)                 \
+        ) 
+
 static int WireEventToEvent (Xi18n i18n_core,
                              xEvent *event,
                              CARD16 serial,
-                             XEvent *ev)
+                             XEvent *ev,
+			     Bool need_swap)
 {
     ev->xany.serial = event->u.u.sequenceNumber & ((unsigned long) 0xFFFF);
     ev->xany.serial |= serial << 16;
@@ -1056,15 +1079,27 @@ static int WireEventToEvent (Xi18n i18n_core,
     {
     case KeyPress:
     case KeyRelease:
-        ((XKeyEvent *) ev)->keycode = event->u.u.detail;
-        ((XKeyEvent *) ev)->window = event->u.keyButtonPointer.event;
-        ((XKeyEvent *) ev)->state = event->u.keyButtonPointer.state;
-        ((XKeyEvent *) ev)->time = event->u.keyButtonPointer.time;
-        ((XKeyEvent *) ev)->root = event->u.keyButtonPointer.root;
-        ((XKeyEvent *) ev)->x = event->u.keyButtonPointer.eventX;
-        ((XKeyEvent *) ev)->y = event->u.keyButtonPointer.eventY;
-        ((XKeyEvent *) ev)->x_root = 0;
-        ((XKeyEvent *) ev)->y_root = 0;
+	if (need_swap) {
+	    ((XKeyEvent *) ev)->keycode = event->u.u.detail;
+	    ((XKeyEvent *) ev)->window = Swap32(event->u.keyButtonPointer.event);
+	    ((XKeyEvent *) ev)->state = Swap16(event->u.keyButtonPointer.state);
+	    ((XKeyEvent *) ev)->time = Swap32(event->u.keyButtonPointer.time);
+	    ((XKeyEvent *) ev)->root = Swap32(event->u.keyButtonPointer.root);
+	    ((XKeyEvent *) ev)->x = Swap16(event->u.keyButtonPointer.eventX);
+	    ((XKeyEvent *) ev)->y = Swap16(event->u.keyButtonPointer.eventY);
+	    ((XKeyEvent *) ev)->x_root = 0;
+	    ((XKeyEvent *) ev)->y_root = 0;
+	} else {
+	    ((XKeyEvent *) ev)->keycode = event->u.u.detail;
+	    ((XKeyEvent *) ev)->window = event->u.keyButtonPointer.event;
+	    ((XKeyEvent *) ev)->state = event->u.keyButtonPointer.state;
+	    ((XKeyEvent *) ev)->time = event->u.keyButtonPointer.time;
+	    ((XKeyEvent *) ev)->root = event->u.keyButtonPointer.root;
+	    ((XKeyEvent *) ev)->x = event->u.keyButtonPointer.eventX;
+	    ((XKeyEvent *) ev)->y = event->u.keyButtonPointer.eventY;
+	    ((XKeyEvent *) ev)->x_root = 0;
+	    ((XKeyEvent *) ev)->y_root = 0;
+	}
         return True;
     }
     return False;
@@ -1082,10 +1117,12 @@ static void ForwardEventMessageProc (XIMS ims,
         (IMForwardEventStruct*) &call_data->forwardevent;
     CARD16 connect_id = call_data->any.connect_id;
     CARD16 input_method_ID;
+    Bool need_swap;
 
+    need_swap = _Xi18nNeedSwap (i18n_core, connect_id);
     fm = FrameMgrInit (forward_event_fr,
                        (char *) p,
-                       _Xi18nNeedSwap (i18n_core, connect_id));
+                       need_swap);
     /* get data */
     FrameMgrGetToken (fm, input_method_ID);
     FrameMgrGetToken (fm, forward->icid);
@@ -1099,7 +1136,8 @@ static void ForwardEventMessageProc (XIMS ims,
     if (WireEventToEvent (i18n_core,
                           &wire_event,
                           forward->serial_number,
-                          &forward->event) == True)
+                          &forward->event,
+			  need_swap) == True)
     {
         if (i18n_core->address.improto)
         {

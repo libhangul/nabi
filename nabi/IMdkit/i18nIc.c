@@ -137,10 +137,6 @@ static void SetPointAttribute (XICAttribute *value_ret,
     FrameMgrGetToken (fm, buf->y);
     FrameMgrFree (fm);
 
-    memmove (&(buf->x), p, sizeof (INT16));
-    p += sizeof (INT16);
-    memmove (&(buf->y), p, sizeof (INT16));
-
     value_ret->attribute_id = ic_attr->attribute_id;
     value_ret->name = ic_attr->name;
     value_ret->name_length = ic_attr->length;
@@ -405,6 +401,41 @@ static int ReadICValue (Xi18n i18n_core,
     }
     /*endswitch*/
     return 0;
+}
+
+static void UpdateICAttributeList(XICAttribute *list,
+				  int number,
+				  int need_swap)
+{
+    register int i;
+    FrameMgr fm;
+    unsigned char rec[sizeof(CARD32)];
+
+    for (i = 0; i < number; i++) {
+	switch (list[i].type) {
+	case XimType_CARD8:
+	case XimType_CARD16:
+	case XimType_CARD32:
+	case XimType_Window:
+	    memmove(rec, list[i].value, list[i].value_length);
+	    if (list[i].value_length == sizeof (CARD16)) {
+		INT16 *value = (INT16 *) list[i].value;
+		extern XimFrameRec short_fr[];
+
+		fm = FrameMgrInit (short_fr, (char *)rec, need_swap);
+		FrameMgrPutToken (fm, *value);
+		FrameMgrFree (fm);
+	    } else if (list->value_length == sizeof (CARD32)) {
+		INT32 *value = (INT32 *) list[i].value;
+		extern XimFrameRec long_fr[];
+
+		fm = FrameMgrInit (long_fr, (char *)rec, need_swap);
+		FrameMgrPutToken (fm, *value);
+		FrameMgrFree (fm);
+	    }
+	    break;
+	}
+    }
 }
 
 static XICAttribute *CreateNestedList (CARD16 attr_id,
@@ -822,6 +853,7 @@ void _Xi18nGetIC (XIMS ims, IMProtocol *call_data, unsigned char *p)
     register int i;
     register int number;
     int iter_count;
+    int need_swap;
     CARD16 *attrID_list;
     XICAttribute pre_attr[IC_SIZE];
     XICAttribute sts_attr[IC_SIZE];
@@ -911,26 +943,29 @@ void _Xi18nGetIC (XIMS ims, IMProtocol *call_data, unsigned char *p)
         /*endif*/
     }
     /*endif*/
+
+    need_swap = _Xi18nNeedSwap (i18n_core, connect_id);
+    UpdateICAttributeList(getic->ic_attr, getic->ic_attr_num, need_swap);
     iter_count = getic->ic_attr_num;
 
     preedit_ret = CreateNestedList (i18n_core->address.preeditAttr_id,
                                     getic->preedit_attr,
                                     getic->preedit_attr_num,
-                                    _Xi18nNeedSwap (i18n_core, connect_id));
+                                    need_swap);
     if (preedit_ret)
         iter_count++;
     /*endif*/
     status_ret = CreateNestedList (i18n_core->address.statusAttr_id,
                                    getic->status_attr,
                                    getic->status_attr_num,
-                                   _Xi18nNeedSwap (i18n_core, connect_id));
+                                   need_swap);
     if (status_ret)
         iter_count++;
     /*endif*/
 
     fm = FrameMgrInit (get_ic_values_reply_fr,
                        NULL,
-                       _Xi18nNeedSwap (i18n_core, connect_id));
+                       need_swap);
 
     /* set iteration count for list of ic_attribute */
     FrameMgrSetIterCount (fm, iter_count);

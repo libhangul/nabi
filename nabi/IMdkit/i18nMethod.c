@@ -816,7 +816,29 @@ static char *xi18n_getIMValues (XIMS ims, XIMArg *args)
     return NULL;
 }
 
-static void EventToWireEvent (XEvent *ev, xEvent *event, CARD16 *serial)
+/* For byte swapping */
+#define Swap16(n) \
+	(((n) << 8 & 0xFF00) | \
+	 ((n) >> 8 & 0xFF)     \
+	)
+#define Swap32(n) \
+        (((n) << 24 & 0xFF000000) | \
+         ((n) <<  8 & 0xFF0000) |   \
+         ((n) >>  8 & 0xFF00) |     \
+         ((n) >> 24 & 0xFF)         \
+        )
+#define Swap64(n) \
+        (((n) << 56 & 0xFF00000000000000) | \
+         ((n) << 40 & 0xFF000000000000) |   \
+         ((n) << 24 & 0xFF0000000000) |     \
+         ((n) <<  8 & 0xFF00000000) |       \
+         ((n) >>  8 & 0xFF000000) |         \
+         ((n) >> 24 & 0xFF0000) |           \
+         ((n) >> 40 & 0xFF00) |             \
+         ((n) >> 56 & 0xFF)                 \
+        ) 
+
+static void EventToWireEvent (XEvent *ev, xEvent *event, CARD16 *serial, Bool need_swap)
 {
     *serial = (CARD16) (ev->xany.serial >> 16);
     event->u.u.sequenceNumber =
@@ -829,18 +851,33 @@ static void EventToWireEvent (XEvent *ev, xEvent *event, CARD16 *serial)
         {
             XKeyEvent *kev = (XKeyEvent *) ev;
 
-            event->u.u.type = ev->type;
-            event->u.keyButtonPointer.root = kev->root;
-            event->u.keyButtonPointer.state = kev->state;
-            event->u.keyButtonPointer.time = kev->time;
-            event->u.keyButtonPointer.event = kev->window;
-            event->u.keyButtonPointer.child = kev->subwindow;
-            event->u.keyButtonPointer.eventX = kev->x;
-            event->u.keyButtonPointer.eventY = kev->y;
-            event->u.keyButtonPointer.rootX = kev->x_root;
-            event->u.keyButtonPointer.rootY = kev->y_root;
-            event->u.keyButtonPointer.sameScreen = kev->same_screen;
-            event->u.u.detail = kev->keycode;
+	    if (need_swap) {
+		event->u.u.type = ev->type;
+		event->u.keyButtonPointer.root = Swap32(kev->root);
+		event->u.keyButtonPointer.state = Swap16(kev->state);
+		event->u.keyButtonPointer.time = Swap32(kev->time);
+		event->u.keyButtonPointer.event = Swap32(kev->window);
+		event->u.keyButtonPointer.child = Swap32(kev->subwindow);
+		event->u.keyButtonPointer.eventX = Swap16(kev->x);
+		event->u.keyButtonPointer.eventY = Swap16(kev->y);
+		event->u.keyButtonPointer.rootX = Swap16(kev->x_root);
+		event->u.keyButtonPointer.rootY = Swap16(kev->y_root);
+		event->u.keyButtonPointer.sameScreen = kev->same_screen;
+		event->u.u.detail = kev->keycode;
+	    } else {
+		event->u.u.type = ev->type;
+		event->u.keyButtonPointer.root = kev->root;
+		event->u.keyButtonPointer.state = kev->state;
+		event->u.keyButtonPointer.time = kev->time;
+		event->u.keyButtonPointer.event = kev->window;
+		event->u.keyButtonPointer.child = kev->subwindow;
+		event->u.keyButtonPointer.eventX = kev->x;
+		event->u.keyButtonPointer.eventY = kev->y;
+		event->u.keyButtonPointer.rootX = kev->x_root;
+		event->u.keyButtonPointer.rootY = kev->y_root;
+		event->u.keyButtonPointer.sameScreen = kev->same_screen;
+		event->u.u.detail = kev->keycode;
+	    }
         }
     }
     /*endswitch*/
@@ -858,13 +895,15 @@ static Status xi18n_forwardEvent (XIMS ims, XPointer xp)
     CARD16 serial;
     int event_size;
     Xi18nClient *client;
+    Bool need_swap;
 
     client = (Xi18nClient *) _Xi18nFindClient (i18n_core, call_data->connect_id);
 
     /* create FrameMgr */
+    need_swap = _Xi18nNeedSwap (i18n_core, call_data->connect_id);
     fm = FrameMgrInit (forward_event_fr,
                        NULL,
-                       _Xi18nNeedSwap (i18n_core, call_data->connect_id));
+                       need_swap);
 
     total_size = FrameMgrGetTotalSize (fm);
     event_size = sizeof (xEvent);
@@ -892,7 +931,7 @@ static Status xi18n_forwardEvent (XIMS ims, XPointer xp)
     FrameMgrPutToken (fm, call_data->sync_bit);
 
     replyp += total_size;
-    EventToWireEvent (&(call_data->event), (xEvent *) replyp, &serial);
+    EventToWireEvent (&(call_data->event), (xEvent *) replyp, &serial, need_swap);
 
     FrameMgrPutToken (fm, serial);
 
