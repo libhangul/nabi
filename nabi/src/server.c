@@ -460,11 +460,14 @@ nabi_server_is_valid_char(NabiServer *server, wchar_t ch)
 }
 
 void
-nabi_server_on_keypress(NabiServer *server, wchar_t ch, unsigned int state)
+nabi_server_on_keypress(NabiServer *server,
+			KeySym keyval,
+			unsigned int state,
+			wchar_t ch)
 {
     server->statistics.total++;
 
-    if (ch == XK_BackSpace)
+    if (keyval == XK_BackSpace)
 	server->statistics.backspace++;
     else if (ch >= 0x1100 && ch <= 0x11FF) {
 	int index = (unsigned int)ch & 0xff;
