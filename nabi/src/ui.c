@@ -655,6 +655,7 @@ nabi_app_free(void)
     g_slist_foreach(nabi->keyboard_maps, keyboard_map_item_free, NULL);
     g_slist_free(nabi->keyboard_maps);
 
+    /* compose_map */
     g_free(nabi->compose_map_filename);
     g_free(nabi->compose_map.name);
     for (i = 0; i < nabi->compose_map.size; i++)
@@ -663,6 +664,9 @@ nabi_app_free(void)
 
     g_free(nabi->preedit_fg);
     g_free(nabi->preedit_bg);
+
+    g_free(nabi);
+    nabi = NULL;
 }
 
 void
