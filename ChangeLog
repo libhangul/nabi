@@ -1,3 +1,6 @@
+2005-01-13  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ic.c: PreeditArea에서 preedit window의 위치를 제대로 잡음
+
 2005-01-08  Choe Hwanjin <choe.hwanjin@gmail.com>
 	* src/ic.c: reset할때 preedit window 숨김
 	  gtk1 text widget에서 preedit string이 안나오던 문제 수정(over the

@@ -365,6 +365,7 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 	return False;
     }
 
+    /* candiate */
     if (nabi_server_is_candidate_key(nabi_server, keyval, kevent->state)) {
 	return nabi_ic_popup_candidate_window(ic);
     }

@@ -437,6 +437,8 @@ nabi_ic_preedit_show(NabiIC *ic)
     if (ic->preedit.window == NULL)
 	return;
 
+    nabi_ic_preedit_configure(ic);
+
     /* draw preedit only when ic have any hangul data */
     if (!nabi_ic_is_empty(ic))
 	gdk_window_show(ic->preedit.window);
@@ -469,8 +471,8 @@ nabi_ic_preedit_configure(NabiIC *ic)
 	gdk_window_move_resize(ic->preedit.window,
 			       ic->preedit.area.x + 1, 
 			       ic->preedit.area.y, 
-			       ic->preedit.width,
-			       ic->preedit.height);
+			       ic->preedit.area.width,
+			       ic->preedit.area.height);
     } else if (ic->input_style & XIMPreeditNothing) {
 	gdk_window_move_resize(ic->preedit.window,
 			       ic->preedit.spot.x + 1, 
