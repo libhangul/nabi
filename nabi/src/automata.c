@@ -401,7 +401,106 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 
     ch = nabi_keyboard_mapping(keyval, state);
 
-    if (nabi_server->check_charset) {
+    if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
+	/* choseong */
+	if (hangul_is_choseong(ch)) {
+	    if (ic->choseong[0] == 0) {
+		ic->choseong[0] = ch;
+		nabi_ic_push(ic, ch);
+		if (ic->index == 0)
+		    goto insert;
+		else
+		    goto update;
+	    }
+	    if (hangul_is_choseong(nabi_ic_peek(ic))) {
+		wchar_t choseong =
+		    hangul_compose(ic->choseong[0], ch);
+		if (choseong) {
+		    ic->choseong[0] = choseong;
+		    nabi_ic_push(ic, choseong);
+		    goto update;
+		}
+	    }
+	    nabi_ic_commit(ic);
+	    ic->choseong[0] = ch;
+	    nabi_ic_push(ic, ch);
+	    goto insert;
+	}
+
+	/* jungseong */
+	if (hangul_is_jungseong(ch)) {
+	    if (ic->jungseong[0] == 0) {
+		ic->jungseong[0] = ch;
+		nabi_ic_push(ic, ch);
+		if (ic->index == 0)
+		    goto insert;
+		else
+		    goto update;
+	    }
+	    if (hangul_is_jungseong(nabi_ic_peek(ic))) {
+		wchar_t jungseong =
+		    hangul_compose(ic->jungseong[0], ch);
+		if (jungseong) {
+		    ic->jungseong[0] = jungseong;
+		    nabi_ic_push(ic, jungseong);
+		    goto update;
+		}
+	    }
+	    nabi_ic_commit(ic);
+	    ic->jungseong[0] = ch;
+	    nabi_ic_push(ic, ch);
+	    goto insert;
+	}
+
+	/* jongseong */
+	if (hangul_is_jongseong(ch)) {
+	    if (ic->jongseong[0] == 0) {
+		ic->jongseong[0] = ch;
+		nabi_ic_push(ic, ch);
+		if (ic->index == 0)
+		    goto insert;
+		else
+		    goto update;
+	    }
+	    if (hangul_is_jongseong(nabi_ic_peek(ic))) {
+		wchar_t jongseong =
+		    hangul_compose(ic->jongseong[0], ch);
+		if (jongseong) {
+		    ic->jongseong[0] = jongseong;
+		    nabi_ic_push(ic, jongseong);
+		    goto update;
+		}
+	    }
+	    nabi_ic_commit(ic);
+	    ic->jongseong[0] = ch;
+	    nabi_ic_push(ic, ch);
+	    goto insert;
+	}
+
+	/* treat backspace */
+	if (keyval == XK_BackSpace) {
+	    ch = nabi_ic_pop(ic);
+	    if (ch == 0)
+		return False;
+
+	    if (hangul_is_choseong(ch)) {
+		ch = nabi_ic_peek(ic);
+		ic->choseong[0] = hangul_is_choseong(ch) ? ch : 0;
+		goto update;
+	    }
+	    if (hangul_is_jungseong(ch)) {
+		ch = nabi_ic_peek(ic);
+		ic->jungseong[0] = hangul_is_jungseong(ch) ? ch : 0;
+		goto update;
+	    }
+	    if (hangul_is_jongseong(ch)) {
+		ch = nabi_ic_peek(ic);
+		ic->jongseong[0] = hangul_is_jongseong(ch) ? ch : 0;
+		goto update;
+	    }
+	    return False;
+	}
+    } else {
 	if (ic->jongseong[0]) {
 	    if (hangul_is_choseong(ch)) {
 		nabi_ic_commit(ic);
@@ -538,96 +637,6 @@ nabi_automata_3 (NabiIC *ic, KeySym keyval, unsigned int state)
 		nabi_ic_push(ic, ch);
 		goto insert;
 	    }
-	}
-
-	/* treat backspace */
-	if (keyval == XK_BackSpace) {
-	    ch = nabi_ic_pop(ic);
-	    if (ch == 0)
-		return False;
-
-	    if (hangul_is_choseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->choseong[0] = hangul_is_choseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jungseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jungseong[0] = hangul_is_jungseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    if (hangul_is_jongseong(ch)) {
-		ch = nabi_ic_peek(ic);
-		ic->jongseong[0] = hangul_is_jongseong(ch) ? ch : 0;
-		goto update;
-	    }
-	    return False;
-	}
-    } else {
-	/* choseong */
-	if (hangul_is_choseong(ch)) {
-	    if (ic->choseong[0] == 0) {
-		ic->choseong[0] = ch;
-		nabi_ic_push(ic, ch);
-		goto update;
-	    }
-	    if (hangul_is_choseong(nabi_ic_peek(ic))) {
-		wchar_t choseong =
-		    hangul_compose(ic->choseong[0], ch);
-		if (choseong) {
-		    ic->choseong[0] = choseong;
-		    nabi_ic_push(ic, choseong);
-		    goto update;
-		}
-	    }
-	    nabi_ic_commit(ic);
-	    ic->choseong[0] = ch;
-	    nabi_ic_push(ic, ch);
-	    goto insert;
-	}
-
-	/* jungseong */
-	if (hangul_is_jungseong(ch)) {
-	    if (ic->jungseong[0] == 0) {
-		ic->jungseong[0] = ch;
-		nabi_ic_push(ic, ch);
-		goto update;
-	    }
-	    if (hangul_is_jungseong(nabi_ic_peek(ic))) {
-		wchar_t jungseong =
-		    hangul_compose(ic->jungseong[0], ch);
-		if (jungseong) {
-		    ic->jungseong[0] = jungseong;
-		    nabi_ic_push(ic, jungseong);
-		    goto update;
-		}
-	    }
-	    nabi_ic_commit(ic);
-	    ic->jungseong[0] = ch;
-	    nabi_ic_push(ic, ch);
-	    goto insert;
-	}
-
-	/* jongseong */
-	if (hangul_is_jongseong(ch)) {
-	    if (ic->jongseong[0] == 0) {
-		ic->jongseong[0] = ch;
-		nabi_ic_push(ic, ch);
-		goto update;
-	    }
-	    if (hangul_is_jongseong(nabi_ic_peek(ic))) {
-		wchar_t jongseong =
-		    hangul_compose(ic->jongseong[0], ch);
-		if (jongseong) {
-		    ic->jongseong[0] = jongseong;
-		    nabi_ic_push(ic, jongseong);
-		    goto update;
-		}
-	    }
-	    nabi_ic_commit(ic);
-	    ic->jongseong[0] = ch;
-	    nabi_ic_push(ic, ch);
-	    goto insert;
 	}
 
 	/* treat backspace */
