@@ -34,7 +34,8 @@ struct _NabiCandidate {
     GtkWidget *window;
     Window parent;
     gchar *label;
-    GtkWidget **children;
+    GtkWidget **ch;
+    GtkWidget **comment;
     const NabiCandidateItem **data;
     int first;
     int n_per_window;
@@ -51,6 +52,8 @@ void               nabi_candidate_prev(NabiCandidate *candidate);
 void               nabi_candidate_next(NabiCandidate *candidate);
 void               nabi_candidate_prev_row(NabiCandidate *candidate);
 void               nabi_candidate_next_row(NabiCandidate *candidate);
+void               nabi_candidate_prev_page(NabiCandidate *candidate);
+void               nabi_candidate_next_page(NabiCandidate *candidate);
 unsigned short int nabi_candidate_get_current(NabiCandidate *candidate);
 unsigned short int nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void               nabi_candidate_delete(NabiCandidate *candidate);
