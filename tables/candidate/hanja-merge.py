@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+#
+# $Author$
+# $date$
+# $id$
 
 # A tool for merging commented hanja dictionary file with new hanja template
 # file
