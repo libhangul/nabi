@@ -41,6 +41,27 @@ NABI_THEMES_DIR="${NABI_DATA_DIR}/themes"
 AC_SUBST(NABI_DATA_DIR)
 AC_SUBST(NABI_THEMES_DIR)
 
+dnl default keyboard
+AC_ARG_WITH(default-keyboard, [  --with-default-keyboard=2/39/3f   default hangul keyboard])
+case "$with_default_keyboard" in
+    2)
+	AC_DEFINE_UNQUOTED(DEFATUL_KEYBOARD, "2qwerty",
+			   [Define default hangul keyboard])
+	;;
+    39)
+	AC_DEFINE_UNQUOTED(DEFATUL_KEYBOARD, "39qwerty",
+			   [Define default hangul keyboard])
+	;;
+    3f)
+	AC_DEFINE_UNQUOTED(DEFATUL_KEYBOARD, "3fqwerty",
+			   [Define default hangul keyboard])
+	;;
+    *)
+	AC_DEFINE_UNQUOTED(DEFATUL_KEYBOARD, "2qwerty",
+			   [Define default hangul keyboard])
+	;;
+esac
+
 AC_OUTPUT([
 Makefile
 IMdkit/Makefile
