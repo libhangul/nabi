@@ -881,7 +881,6 @@ on_tray_icon_button_press(GtkWidget *widget,
 	}
 	return TRUE;
     case 3:
-	/* popup menu */
 	if (menu == NULL)
 	    menu = create_menu();
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
