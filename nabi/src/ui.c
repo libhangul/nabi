@@ -1531,29 +1531,31 @@ nabi_set_input_mode_info (int state)
 static GdkFilterReturn
 mode_info_cb (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
 {
-	int *state;
-	XEvent *xevent;
-	XPropertyEvent *pevent;
+    XEvent *xevent;
+    XPropertyEvent *pevent;
 
-	xevent = (XEvent*)gxevent;
-	if (xevent->type != PropertyNotify)
-		return GDK_FILTER_CONTINUE;
-
-	pevent = (XPropertyEvent*)xevent;
-	if (pevent->atom == nabi->mode_info_xatom) {
-		gboolean ret;
-
-		ret = gdk_property_get (nabi->root_window,
-					nabi->mode_info_atom,
-					nabi->mode_info_type,
-					0, 32, 0,
-					NULL, NULL, NULL,
-					(guchar**)&state);
-		update_state(*state);
-		g_free(state);
-	}
-
+    xevent = (XEvent*)gxevent;
+    if (xevent->type != PropertyNotify)
 	return GDK_FILTER_CONTINUE;
+
+    pevent = (XPropertyEvent*)xevent;
+    if (pevent->atom == nabi->mode_info_xatom) {
+	int state;
+	guchar *buf;
+	gboolean ret;
+
+	ret = gdk_property_get (nabi->root_window,
+				nabi->mode_info_atom,
+				nabi->mode_info_type,
+				0, 32, 0,
+				NULL, NULL, NULL,
+				&buf);
+	memcpy(&state, buf, sizeof(state));
+	update_state(state);
+	g_free(buf);
+    }
+
+    return GDK_FILTER_CONTINUE;
 }
 
 static void
