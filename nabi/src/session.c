@@ -238,9 +238,12 @@ nabi_session_open(char *previos_id)
 void
 nabi_session_close(void)
 {
+    char *prop_names[] = { SmRestartStyleHint, 0 };
+
     if (session_connection == NULL)
 	return;
 
+    SmcDeleteProperties(session_connection, 1, prop_names);
     SmcCloseConnection(session_connection, 0, NULL);
     gdk_set_sm_client_id(NULL);
     g_free(nabi->session_id);

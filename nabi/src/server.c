@@ -340,93 +340,86 @@ nabi_server_set_candidate_font(NabiServer *server, const gchar *font_name)
     }
 }
 
-void
-nabi_server_set_trigger_keys(NabiServer *server, int keys)
+static XIMTriggerKey*
+xim_trigger_keys_create(char **keys, int n)
 {
-    int i = 0;
+    int i, j;
     XIMTriggerKey *keylist;
 
-    if (keys == 0)
+    keylist = g_new(XIMTriggerKey, n);
+    for (i = 0; i < n; i++) {
+	keylist[i].keysym = 0;
+	keylist[i].modifier = 0;
+	keylist[i].modifier_mask = 0;
+    }
+
+    for (i = 0; i < n; i++) {
+	gchar **list = g_strsplit(keys[i], "+", 0);
+
+	for (j = 0; list[j] != NULL; j++) {
+	    if (strcmp("Shift", list[j]) == 0) {
+		keylist[i].modifier |= ShiftMask;
+		keylist[i].modifier_mask |= ShiftMask;
+	    } else if (strcmp("Ctrl", list[j]) == 0) {
+		keylist[i].modifier |= ControlMask;
+		keylist[i].modifier_mask |= ControlMask;
+	    } else if (strcmp("Alt", list[j]) == 0) {
+		keylist[i].modifier |= Mod1Mask;
+		keylist[i].modifier_mask |= Mod1Mask;
+	    } else if (strcmp("Super", list[j]) == 0) {
+		keylist[i].modifier |= Mod4Mask;
+		keylist[i].modifier_mask |= Mod4Mask;
+	    } else {
+		keylist[i].keysym = gdk_keyval_from_name(list[j]);
+	    }
+	}
+    }
+
+    return keylist;
+}
+
+void
+nabi_server_set_trigger_keys(NabiServer *server, char **keys)
+{
+    int n;
+
+    if (keys == NULL)
 	return;
 
     if (server->trigger_keys.keylist != NULL)
 	g_free(server->trigger_keys.keylist);
 
-    keylist = g_new(XIMTriggerKey, 4);
-    for (i = 0; i < 4; i++) {
-	keylist[i].keysym = 0;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-    }
+    for (n = 0; keys[n] != NULL; n++)
+	continue;
 
-    i = 0;
-    if (keys & NABI_TRIGGER_KEY_HANGUL) {
-	keylist[i].keysym = XK_Hangul;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-	i++;
-    }
-    if (keys & NABI_TRIGGER_KEY_SHIFT_SPACE) {
-	keylist[i].keysym = XK_space;
-	keylist[i].modifier = ShiftMask;
-	keylist[i].modifier_mask = ShiftMask;
-	i++;
-    }
-    if (keys & NABI_TRIGGER_KEY_ALT_R) {
-	keylist[i].keysym = XK_Alt_R;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-	i++;
-    }
-
-    server->trigger_keys.keylist = keylist;
-    server->trigger_keys.count_keys = i;
+    server->trigger_keys.keylist = xim_trigger_keys_create(keys, n);
+    server->trigger_keys.count_keys = n;
 }
 
 void
-nabi_server_set_candidate_keys(NabiServer *server, int keys)
+nabi_server_set_candidate_keys(NabiServer *server, char **keys)
 {
-    int i = 0;
-    XIMTriggerKey *keylist;
+    int n;
+
+    if (keys == NULL)
+	return;
 
     if (server->candidate_keys.keylist != NULL)
 	g_free(server->candidate_keys.keylist);
 
-    keylist = g_new(XIMTriggerKey, 4);
-    for (i = 0; i < 4; i++) {
-	keylist[i].keysym = 0;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-    }
+    for (n = 0; keys[n] != NULL; n++)
+	continue;
 
-    i = 0;
-    if (keys & NABI_CANDIDATE_KEY_HANJA) {
-	keylist[i].keysym = XK_Hangul_Hanja;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-	i++;
-    }
-    if (keys & NABI_CANDIDATE_KEY_F9) {
-	keylist[i].keysym = XK_F9;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-	i++;
-    }
-    if (keys & NABI_CANDIDATE_KEY_CTRL_R) {
-	keylist[i].keysym = XK_Control_R;
-	keylist[i].modifier = 0;
-	keylist[i].modifier_mask = 0;
-	i++;
-    }
-
-    server->candidate_keys.keylist = keylist;
-    server->candidate_keys.count_keys = i;
+    server->candidate_keys.keylist = xim_trigger_keys_create(keys, n);
+    server->candidate_keys.count_keys = n;
 }
 
 void
 nabi_server_init(NabiServer *server)
 {
     const char *charset;
+    char *trigger_keys[3] = { "Hangul", "Shift+space", NULL };
+    char *candidate_keys[3] = { "Hangul_Hanja", "F9", NULL };
 
     if (server == NULL)
 	return;
@@ -434,10 +427,8 @@ nabi_server_init(NabiServer *server)
     server->locales = nabi_locales;
     server->filter_mask = KeyPressMask;
 
-    nabi_server_set_trigger_keys(server,
-		    NABI_TRIGGER_KEY_HANGUL | NABI_TRIGGER_KEY_SHIFT_SPACE);
-    nabi_server_set_candidate_keys(server,
-		    NABI_CANDIDATE_KEY_HANJA | NABI_CANDIDATE_KEY_F9);
+    nabi_server_set_trigger_keys(server, trigger_keys);
+    nabi_server_set_candidate_keys(server, candidate_keys);
 
     server->automata = nabi_automata_2;
     server->output_mode = NABI_OUTPUT_SYLLABLE;

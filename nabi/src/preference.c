@@ -30,6 +30,8 @@
 #include "nabi.h"
 #include "server.h"
 
+#include "keycapturedialog.h"
+
 enum {
     THEMES_LIST_PATH = 0,
     THEMES_LIST_NONE,
@@ -170,12 +172,11 @@ on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
     }
 }
 
-GtkWidget*
+static GtkWidget*
 create_theme_page(void)
 {
     GtkWidget *page;
     GtkWidget *label;
-    GtkWidget *hbox;
     GtkWidget *scrolledwindow;
 
     GtkWidget *treeview;
@@ -261,7 +262,7 @@ create_theme_page(void)
     return page;
 }
 
-GtkTreeModel*
+static GtkTreeModel*
 get_keyboard_list(void)
 {
     GList *list;
@@ -302,7 +303,7 @@ on_dvorak_button_toggled(GtkToggleButton *button, gpointer data)
     nabi_app_set_dvorak(state);
 }
 
-GtkWidget*
+static GtkWidget*
 create_keyboard_page(void)
 {
     GtkWidget *page;
@@ -399,6 +400,7 @@ create_keyboard_page(void)
     g_signal_connect(G_OBJECT(radio_button), "toggled",
 		     G_CALLBACK(on_dvorak_button_toggled), NULL);
 
+    /* hilight current selected keyboard table */
     path = search_text_in_model(model, 0, nabi->keyboard_table_name);
     if (path) {
 	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
@@ -466,32 +468,195 @@ create_candidate_page(void)
     return page;
 }
 
-static void
-on_trigger_key_button_changed(GtkToggleButton *button, gpointer data)
+static GtkTreeModel*
+get_key_list_store(const char *key_list)
 {
-    gboolean state;
-    int key = GPOINTER_TO_INT(data);
+    int i;
+    GtkListStore *store;
+    GtkTreeIter iter;
+    gchar **keys;
 
-    state = gtk_toggle_button_get_active(button);
-    if (!state && key == nabi->trigger_keys) {
-	/* there is only one trigger key, so dont apply this option */
-	gtk_toggle_button_set_active(button, TRUE);
-    } else {
-	nabi_app_set_trigger_keys(key, state);
+    store = gtk_list_store_new(1, G_TYPE_STRING);
+
+    keys = g_strsplit(key_list, ",", 0);
+    for (i = 0; keys[i] != NULL; i++) {
+	gtk_list_store_append(store, &iter);
+	gtk_list_store_set (store, &iter, 0, keys[i], -1);
+    }
+    g_strfreev(keys);
+
+    return GTK_TREE_MODEL(store);
+}
+
+static void
+update_trigger_keys_setting(GtkTreeModel *model)
+{
+    GtkTreeIter iter;
+    gboolean ret;
+    int n;
+    char **keys;
+
+    n = 0;
+    ret = gtk_tree_model_get_iter_first(model, &iter);
+    while (ret) {
+	n++;
+	ret = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    keys = g_new(char*, n + 1);
+    n = 0;
+    ret = gtk_tree_model_get_iter_first(model, &iter);
+    while (ret) {
+	char *key = NULL;
+	gtk_tree_model_get(model, &iter, 0, &key, -1);
+	keys[n++] = g_strdup(key);
+	ret = gtk_tree_model_iter_next(model, &iter);
+    }
+    keys[n] = NULL;
+
+    nabi_app_set_trigger_keys(keys);
+    g_strfreev(keys);
+}
+
+static void
+on_trigger_key_add_button_clicked(GtkWidget *widget,
+				  gpointer data)
+{
+    GtkWidget *dialog;
+    gint result;
+
+    dialog = key_capture_dialog_new("Select trigger key",
+		NULL,
+		"",
+		_("<span weight=\"bold\">"
+		"Press any key which you want to use as trigger key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\" or click \"Cancel\""
+		"</span>"));
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (result == GTK_RESPONSE_OK) {
+	const gchar *key = key_capture_dialog_get_key_text(dialog);
+	if (strlen(key) > 0) {
+	    GtkTreeModel *model;
+	    GtkTreeIter iter;
+	    GtkWidget *remove_button;
+
+	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
+	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
+	    update_trigger_keys_setting(model);
+
+	    /* Maybe remove button can be insensitive,
+	     * so we set it sensitive */
+	    remove_button = g_object_get_data(G_OBJECT(data),
+					      "remove-button");
+	    if (remove_button != NULL)
+		gtk_widget_set_sensitive(remove_button, TRUE);
+	}
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static void
+on_trigger_key_remove_button_clicked(GtkWidget *widget,
+				     gpointer data)
+{
+    GtkTreeSelection *selection;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+	update_trigger_keys_setting(GTK_TREE_MODEL(model));
+
+	/* there is only one entry in trigger key list.
+	 * nabi need at least on trigger key.
+	 * So we disable remove the button, here */
+	gtk_tree_model_get_iter_first(model, &iter);
+	if (!gtk_tree_model_iter_next(model, &iter)) {
+	    gtk_widget_set_sensitive(widget, FALSE);
+	}
     }
 }
 
 static void
-on_candidate_key_button_changed(GtkToggleButton *button, gpointer data)
+update_candidate_keys_setting(GtkTreeModel *model)
 {
-    gboolean state;
-    int key = GPOINTER_TO_INT(data);
+    GtkTreeIter iter;
+    gboolean ret;
+    int n;
+    char **keys;
 
-    state = gtk_toggle_button_get_active(button);
-    nabi_app_set_candidate_keys(key, state);
+    n = 0;
+    ret = gtk_tree_model_get_iter_first(model, &iter);
+    while (ret) {
+	n++;
+	ret = gtk_tree_model_iter_next(model, &iter);
+    }
+
+    keys = g_new(char*, n + 1);
+    n = 0;
+    ret = gtk_tree_model_get_iter_first(model, &iter);
+    while (ret) {
+	char *key = NULL;
+	gtk_tree_model_get(model, &iter, 0, &key, -1);
+	keys[n++] = g_strdup(key);
+	ret = gtk_tree_model_iter_next(model, &iter);
+    }
+    keys[n] = NULL;
+
+    nabi_app_set_candidate_keys(keys);
+    g_strfreev(keys);
 }
 
-GtkWidget*
+static void
+on_candidate_key_add_button_clicked(GtkWidget *widget,
+				    gpointer data)
+{
+    GtkWidget *dialog;
+    gint result;
+
+    dialog = key_capture_dialog_new("Select candidate key",
+		NULL,
+		"",
+		_("<span weight=\"bold\">"
+		"Press any key which you want to use as candidate key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\" or click \"Cancel\""
+		"</span>"));
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (result == GTK_RESPONSE_OK) {
+	const gchar *key = key_capture_dialog_get_key_text(dialog);
+	if (strlen(key) > 0) {
+	    GtkTreeModel *model;
+	    GtkTreeIter iter;
+
+	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
+	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
+	    update_candidate_keys_setting(model);
+	}
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static void
+on_candidate_key_remove_button_clicked(GtkWidget *widget,
+				       gpointer data)
+{
+    GtkTreeSelection *selection;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+	update_candidate_keys_setting(GTK_TREE_MODEL(model));
+    }
+}
+
+static GtkWidget*
 create_key_page(void)
 {
     GtkWidget *page;
@@ -499,7 +664,14 @@ create_key_page(void)
     GtkWidget *hbox;
     GtkWidget *vbox2;
     GtkWidget *label;
-    GtkWidget *check_button;
+    GtkWidget *button;
+    GtkWidget *scrolledwindow;
+    GtkWidget *treeview;
+    GtkTreeViewColumn *column;
+    GtkTreeSelection *selection;
+    GtkCellRenderer *renderer;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
 
     page = gtk_vbox_new(FALSE, 12);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -522,31 +694,54 @@ create_key_page(void)
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    check_button = gtk_check_button_new_with_label(_("Hangul"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->trigger_keys & NABI_TRIGGER_KEY_HANGUL);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_trigger_key_button_changed),
-		     GINT_TO_POINTER(NABI_TRIGGER_KEY_HANGUL));
+    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
+					GTK_SHADOW_IN);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
 
-    check_button = gtk_check_button_new_with_label(_("Shift-Space"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->trigger_keys & NABI_TRIGGER_KEY_SHIFT_SPACE);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_trigger_key_button_changed),
-		     GINT_TO_POINTER(NABI_TRIGGER_KEY_SHIFT_SPACE));
+    model = get_key_list_store(nabi->trigger_keys);
+    treeview = gtk_tree_view_new_with_model(model);
+    g_object_unref(G_OBJECT(model));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
-    check_button = gtk_check_button_new_with_label(_("Right Alt"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->trigger_keys & NABI_TRIGGER_KEY_ALT_R);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_trigger_key_button_changed),
-		     GINT_TO_POINTER(NABI_TRIGGER_KEY_ALT_R));
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("Trigger Keys"));
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    gtk_tree_selection_unselect_all(selection);
+
+    vbox2 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_object_set_data(G_OBJECT(treeview), "add-button", button);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_trigger_key_add_button_clicked), treeview);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_object_set_data(G_OBJECT(treeview), "remove-button", button);
+    gtk_tree_model_get_iter_first(model, &iter);
+    if (!gtk_tree_model_iter_next(model, &iter)) {
+	/* there is only one entry in trigger key list.
+	 * nabi need at least on trigger key.
+	 * So we disable remove the button, here */
+	gtk_widget_set_sensitive(button, FALSE);
+    }
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_trigger_key_remove_button_clicked),treeview);
 
     label = gtk_label_new(_("(You should restart nabi to apply this option)"));
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
@@ -570,36 +765,50 @@ create_key_page(void)
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    check_button = gtk_check_button_new_with_label(_("Hanja"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->candidate_keys & NABI_CANDIDATE_KEY_HANJA);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_candidate_key_button_changed),
-		     GINT_TO_POINTER(NABI_CANDIDATE_KEY_HANJA));
+    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
+					GTK_SHADOW_IN);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
 
-    check_button = gtk_check_button_new_with_label(_("F9"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->candidate_keys & NABI_CANDIDATE_KEY_F9);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_candidate_key_button_changed),
-		     GINT_TO_POINTER(NABI_CANDIDATE_KEY_F9));
+    model = get_key_list_store(nabi->candidate_keys);
+    treeview = gtk_tree_view_new_with_model(model);
+    g_object_unref(G_OBJECT(model));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
-    check_button = gtk_check_button_new_with_label(_("Right Control"));
-    gtk_box_pack_start(GTK_BOX(vbox2), check_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(check_button),
-		    nabi->candidate_keys & NABI_CANDIDATE_KEY_CTRL_R);
-    g_signal_connect(G_OBJECT(check_button), "toggled",
-		     G_CALLBACK(on_candidate_key_button_changed),
-		     GINT_TO_POINTER(NABI_CANDIDATE_KEY_CTRL_R));
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("Candidate Keys"));
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    gtk_tree_selection_unselect_all(selection);
+
+    vbox2 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_candidate_key_add_button_clicked), treeview);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		 G_CALLBACK(on_candidate_key_remove_button_clicked),treeview);
 
     return page;
 }
 
-GtkWidget*
+static GtkWidget*
 create_advanced_page(void)
 {
     GtkWidget *page;
@@ -608,7 +817,7 @@ create_advanced_page(void)
     return page;
 }
 
-void
+static void
 on_preference_destroy(GtkWidget *dialog, gpointer data)
 {
     keyboard_list_treeview = NULL;

@@ -23,6 +23,8 @@ nabi_SOURCES = \
 	automata.c \
 	ui.c \
 	preference.c \
+	keycapturedialog.h \
+	keycapturedialog.c \
 	main.c
 
 nabi_LDFLAGS = @X_LIBS@ @X_PRE_LIBS@ -lX11 @GTK_LIBS@ 

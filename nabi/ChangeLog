@@ -1,3 +1,6 @@
+2004-11-21  Choe Hwanjin <krisna@kldp.org>
+	* 한영 전환키와 한자 키 설정을 보강
+
 2004-11-09  Choe Hwanjin <krisna@kldp.org>
 	* tray의 크기에 맞춰 size-allocate 시그널에서 자동으로 크기를 수정함
 	* 아이콘 크기 설정 옵션을 없앰
