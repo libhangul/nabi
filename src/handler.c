@@ -308,6 +308,8 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 
 	if (ic->mode == NABI_INPUT_MODE_DIRECT) {
 		/* direct mode */
+		if (ic->preedit.start)
+		    nabi_ic_preedit_done(ic);
 		if (nabi_server_is_trigger(server, keysym, kevent->state)) {
 			/* change input mode to compose mode */
 			nabi_ic_set_mode(ic, NABI_INPUT_MODE_COMPOSE);
@@ -323,6 +325,8 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 		}
 
 		/* compose mode */
+		if (!ic->preedit.start)
+		    nabi_ic_preedit_start(ic);
 		if (!nabi_filter_keyevent(ic, keysym, kevent))
 			IMForwardEvent(ims, (XPointer)data);
 	}
@@ -341,16 +345,6 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 	if (ic->connect != NULL)
 	    nabi_ic_set_mode(ic, ic->connect->mode);
 
-	switch (ic->mode) {
-	case NABI_INPUT_MODE_DIRECT:
-	    break;
-	case NABI_INPUT_MODE_COMPOSE:
-	    nabi_ic_preedit_start(ic);
-	    break;
-	default:
-	    break;
-	}
-
 	return True;
 }
 
@@ -361,17 +355,6 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 
 	if (ic == NULL)
 		return True;
-
-	switch (ic->mode) {
-	case NABI_INPUT_MODE_DIRECT:
-	    break;
-	case NABI_INPUT_MODE_COMPOSE:
-	    //nabi_ic_commit(ic);
-	    nabi_ic_preedit_done(ic);
-	    break;
-	default:
-	    break;
-	}
 
 	if (server->mode_info_cb)
 	    server->mode_info_cb(NABI_MODE_INFO_NONE);
@@ -409,13 +392,21 @@ nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 {
-    return True;
+    NabiIC* ic = nabi_server_get_ic(server, call_data->preedit_callback.icid);
+
+    if (ic != NULL)
+	    return True;
+    return False;
 }
 
 static Bool
 nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 {
-    return True;
+    NabiIC* ic = nabi_server_get_ic(server, call_data->preedit_callback.icid);
+
+    if (ic != NULL)
+	    return True;
+    return False;
 }
 
 Bool
