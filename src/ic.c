@@ -29,8 +29,6 @@
 #include <glib.h>
 
 #include "gettext.h"
-#include "../IMdkit/IMdkit.h"
-#include "../IMdkit/Xi18n.h"
 #include "hangul.h"
 #include "ic.h"
 #include "server.h"
