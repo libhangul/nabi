@@ -228,7 +228,6 @@ nabi_server_init(NabiServer *server)
 
     server->automata = nabi_automata_2;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
-//  server->output_mode = NABI_OUTPUT_JAMO;
 
     /* check korean locale encoding */
     server->check_charset = True;
@@ -287,6 +286,8 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
     XIMStyles input_styles_ret;
     XIMEncodings encodings_ret;
 
+    XGCValues gc_values;
+
     if (server == NULL)
 	return 0;
 
@@ -336,6 +337,12 @@ nabi_server_start(NabiServer *server, Display *display, Window window)
 		  IMInputStyles, &input_styles_ret,
 		  IMEncodingList, &encodings_ret,
 		  NULL);
+
+    gc_values.foreground = server->preedit_fg;
+    gc_values.background = server->preedit_bg;
+    server->gc = XCreateGC(display, window,
+			   GCForeground | GCBackground,
+			   &gc_values);
 
     server->xims = xims;
     server->display = display;

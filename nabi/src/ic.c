@@ -348,14 +348,17 @@ nabi_ic_real_destroy(NabiIC *ic)
 static void
 nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 {
+    GC gc;
     int width;
 
     if (ic->preedit.window == 0)
 	return;
     if (ic->preedit.font_set == 0)
 	return;
-    if (ic->preedit.gc == 0)
-	return;
+    if (ic->preedit.gc != 0)
+	gc = ic->preedit.gc;
+    else 
+	gc = nabi_server->gc;
 
     width = Xutf8TextEscapement(ic->preedit.font_set, str, size);
     if (ic->preedit.width != width) {
@@ -378,7 +381,7 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
     Xutf8DrawImageString(nabi_server->display,
 		         ic->preedit.window,
 		         ic->preedit.font_set,
-		         ic->preedit.gc,
+		         gc,
 		         0,
 		         ic->preedit.ascent,
 		         str, size);
@@ -470,9 +473,17 @@ gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 }
 
 static void
-nabi_ic_preedit_window_new(NabiIC *ic, Window parent)
+nabi_ic_preedit_window_new(NabiIC *ic)
 {
+    Window parent;
     GdkWindow *gdk_window;
+
+    if (ic->focus_window != 0)
+	parent = ic->focus_window;
+    else if (ic->client_window != 0)
+	parent = ic->client_window;
+    else
+	return;
 
     ic->preedit.window = XCreateSimpleWindow(nabi_server->display,
 					     parent,
@@ -503,21 +514,9 @@ nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
     if (!(ic->input_style & XIMPreeditPosition))
 	return;
 
-    if (ic->preedit.gc == 0) {
-	XGCValues values;
-
-	values.foreground = nabi_server->preedit_fg;
-	values.background = nabi_server->preedit_bg;
-	ic->preedit.gc = XCreateGC(nabi_server->display,
-				   nabi_server->window,
-				   GCForeground | GCBackground,
-				   &values);
-    }
-
     /* For Preedit Position aka Over the Spot */
-    if (ic->preedit.window == 0) {
-	nabi_ic_preedit_window_new(ic, focus_window);
-    }
+    if (ic->preedit.window == 0)
+	nabi_ic_preedit_window_new(ic);
 }
 
 static void
@@ -930,7 +929,8 @@ nabi_ic_preedit_start(NabiIC *ic)
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
-	;
+	if (ic->preedit.window == 0)
+	    nabi_ic_preedit_window_new(ic);
     }
     ic->preedit.start = True;
 }
@@ -951,7 +951,7 @@ nabi_ic_preedit_done(NabiIC *ic)
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
     } else if (ic->input_style & XIMPreeditPosition) {
-	; /* do nothing */
+	nabi_ic_preedit_hide(ic);
     }
 
     if (nabi_server->dynamic_event_flow) {

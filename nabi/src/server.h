@@ -73,6 +73,7 @@ struct _NabiServer {
     Window                  window;
     long                    filter_mask;
     XIMTriggerKey*          trigger_keys;
+    GC			    gc;
 
     /* xim connect list */
     int			    n_connected;
