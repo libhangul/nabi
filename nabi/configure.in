@@ -1,6 +1,6 @@
 AC_INIT(src/nabi.h)
 
-AM_INIT_AUTOMAKE(nabi, 0.0.1)
+AM_INIT_AUTOMAKE(nabi, 0.1)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -16,10 +16,19 @@ PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.0,,
 		  AC_MSG_ERROR([ximhangul needs GTK+ 2.0.0 or higher]))
 
 dnl Checks for header files.
+AC_PATH_X
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([langinfo.h libintl.h locale.h malloc.h stddef.h stdint.h stdlib.h string.h sys/param.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
 
 dnl Checks for library functions.
+AC_FUNC_MALLOC
+AC_FUNC_REALLOC
+AC_FUNC_VPRINTF
+AC_CHECK_FUNCS([gethostname memmove memset mkdir nl_langinfo setlocale strcasecmp strtol])
 
 dnl gettext stuff
 AM_GNU_GETTEXT([external])
