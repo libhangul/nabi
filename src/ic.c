@@ -311,6 +311,7 @@ gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 	break;
     default:
 	//g_print("event type: %d\n", event->type);
+	break;
     }
 
     return GDK_FILTER_CONTINUE;
@@ -753,11 +754,16 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_commit(ic);
 	nabi_ic_preedit_done(ic);
+	if (server->mode_info_cb)
+	    server->mode_info_cb(NABI_MODE_INFO_ENGLISH);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
 	nabi_ic_preedit_start(ic);
+	if (server->mode_info_cb)
+	    server->mode_info_cb(NABI_MODE_INFO_HANGUL);
 	break;
     default:
+	break;
     }
 }
 

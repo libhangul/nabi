@@ -155,10 +155,16 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 	if (server->global_input_mode)
 		nabi_ic_set_mode(ic, server->input_mode);
 
-	if (ic->mode == NABI_INPUT_MODE_DIRECT) {
-	} else {
-		nabi_ic_preedit_start(ic);
+	switch (ic->mode) {
+	case NABI_INPUT_MODE_DIRECT:
+	    break;
+	case NABI_INPUT_MODE_COMPOSE:
+	    nabi_ic_preedit_start(ic);
+	    break;
+	default:
+	    break;
 	}
+
 	return True;
 }
 
@@ -170,11 +176,20 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 	if (ic == NULL)
 		return True;
 
-	if (ic->mode == NABI_INPUT_MODE_DIRECT) {
-	} else {
-		//nabi_ic_commit(ic);
-		nabi_ic_preedit_done(ic);
-	}	
+	switch (ic->mode) {
+	case NABI_INPUT_MODE_DIRECT:
+	    break;
+	case NABI_INPUT_MODE_COMPOSE:
+	    //nabi_ic_commit(ic);
+	    nabi_ic_preedit_done(ic);
+	    break;
+	default:
+	    break;
+	}
+
+	if (server->mode_info_cb)
+	    server->mode_info_cb(NABI_MODE_INFO_NONE);
+
 	return True;
 }
 

@@ -76,6 +76,9 @@ nabi_server_new(void)
     _server->preedit_fg = 1;
     _server->preedit_bg = 0;
 
+    /* mode info */
+    _server->mode_info_cb = NULL;
+
     return _server;
 }
 
@@ -97,6 +100,12 @@ nabi_server_set_automata(NabiServer *_server, NabiKeyboardType type)
 	_server->automata = nabi_automata_2;
     else
 	_server->automata = nabi_automata_3;
+}
+
+void
+nabi_server_set_mode_info_cb(NabiServer *_server, NabiModeInfoCallback func)
+{
+    _server->mode_info_cb = func;
 }
 
 void

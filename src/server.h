@@ -20,6 +20,14 @@ typedef enum {
     NABI_KEYBOARD_3SET
 } NabiKeyboardType;
 
+enum {
+    NABI_MODE_INFO_NONE,
+    NABI_MODE_INFO_ENGLISH,
+    NABI_MODE_INFO_HANGUL
+};
+
+typedef void (*NabiModeInfoCallback)(int);
+
 struct _NabiServer {
     /* XIMS */
     XIMS                    xims;
@@ -49,6 +57,9 @@ struct _NabiServer {
     NabiInputMode           input_mode;
     unsigned long           preedit_fg;
     unsigned long           preedit_bg;
+
+    /* mode information */
+    NabiModeInfoCallback     mode_info_cb;
 };
 
 extern NabiServer* server;
@@ -65,6 +76,8 @@ Bool        nabi_server_is_trigger      (NabiServer*  _server,
                                          unsigned int state);
 void        nabi_server_set_automata    (NabiServer *_server,
                                          NabiKeyboardType type);
+void        nabi_server_set_mode_info_cb(NabiServer *_server,
+					 NabiModeInfoCallback func);
 void        nabi_server_ic_table_expand (NabiServer* _server);
 NabiIC*     nabi_server_get_ic          (NabiServer *_server,
                                          CARD16 icid);
