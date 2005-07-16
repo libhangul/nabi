@@ -1,3 +1,6 @@
+2005-07-17  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* test 디렉토리 추가 - 여러가지 toolkit을 위한 테스트 코드
+
 2005-01-13  Choe Hwanjin <choe.hwanjin@gmail.com>
 	* src/ic.c: PreeditArea에서 preedit window의 위치를 제대로 잡음
 
