@@ -531,7 +531,11 @@ void TextView::onKeyPress(XKeyPressedEvent *event)
 	} else if (keysym == XK_End) {
 	    onKeyEnd();
 	} else {
-	    insert(wbuf);
+	    if ((status == XLookupChars || status == XLookupBoth) &&
+		((event->state & ControlMask) != ControlMask) &&
+		((event->state & Mod1Mask) != Mod1Mask)
+		)
+		insert(wbuf);
 	}
 	updateSpotLocation();
 	draw();
