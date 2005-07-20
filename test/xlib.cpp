@@ -533,8 +533,7 @@ void TextView::onKeyPress(XKeyPressedEvent *event)
 	} else {
 	    if ((status == XLookupChars || status == XLookupBoth) &&
 		((event->state & ControlMask) != ControlMask) &&
-		((event->state & Mod1Mask) != Mod1Mask)
-		)
+		((event->state & Mod1Mask) != Mod1Mask))
 		insert(wbuf);
 	}
 	updateSpotLocation();
