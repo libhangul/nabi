@@ -1,3 +1,6 @@
+2006-04-23  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ui.c: 키입력 통계창 출력 루틴 개선
+
 2005-07-17  Choe Hwanjin <choe.hwanjin@gmail.com>
 	* test 디렉토리 추가 - 여러가지 toolkit을 위한 테스트 코드
 

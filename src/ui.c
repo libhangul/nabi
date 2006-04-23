@@ -823,186 +823,81 @@ on_tray_icon_size_allocate (GtkWidget *widget,
     }
 }
 
-static void get_statistic_string(char *buf, size_t bufsize)
+static void get_statistic_string(GString *str)
 {
     if (nabi_server == NULL) {
-	snprintf(buf, bufsize, _("XIM Server is not running"));
+	g_string_assign(str, _("XIM Server is not running"));
     } else {
-	char general[256];
-	char choseong[256];
-	char jungseong[256];
-	char jongseong[256];
+	int i;
+	int sum;
 
-	snprintf(general, sizeof(general), 
+	g_string_append_printf(str, 
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "%s: %3d\n"
 		 "\n",
-		 _("Total"),
-		 nabi_server->statistics.total,
-		 _("Space"),
-		 nabi_server->statistics.space,
-		 _("BackSpace"),
-		 nabi_server->statistics.backspace,
-		 _("Shift"),
-		 nabi_server->statistics.shift);
+		 _("Total"), nabi_server->statistics.total,
+		 _("Space"), nabi_server->statistics.space,
+		 _("BackSpace"), nabi_server->statistics.backspace,
+		 _("Shift"), nabi_server->statistics.shift);
 
-	snprintf(choseong, sizeof(choseong),
-                 "%s\n"
-                 "\341\204\200: %-3d "
-                 "\341\204\201: %-3d "
-                 "\341\204\202: %-3d "
-                 "\341\204\203: %-3d "
-                 "\341\204\204: %-3d "
-                 "\341\204\205: %-3d "
-                 "\341\204\206: %-3d "
-                 "\341\204\207: %-3d "
-                 "\341\204\210: %-3d "
-                 "\341\204\211: %-3d\n"
-                 "\341\204\212: %-3d "
-                 "\341\204\213: %-3d "
-                 "\341\204\214: %-3d "
-                 "\341\204\215: %-3d "
-                 "\341\204\216: %-3d "
-                 "\341\204\217: %-3d "
-                 "\341\204\220: %-3d "
-                 "\341\204\221: %-3d "
-                 "\341\204\222: %-3d",
-		 _("Choseong"),                     
-                 nabi_server->statistics.jamo[0x00],
-                 nabi_server->statistics.jamo[0x01],
-                 nabi_server->statistics.jamo[0x02],
-                 nabi_server->statistics.jamo[0x03],
-                 nabi_server->statistics.jamo[0x04],
-                 nabi_server->statistics.jamo[0x05],
-                 nabi_server->statistics.jamo[0x06],
-                 nabi_server->statistics.jamo[0x07],
-                 nabi_server->statistics.jamo[0x08],
-                 nabi_server->statistics.jamo[0x09],
-                 nabi_server->statistics.jamo[0x0a],
-                 nabi_server->statistics.jamo[0x0b],
-                 nabi_server->statistics.jamo[0x0c],
-                 nabi_server->statistics.jamo[0x0d],
-                 nabi_server->statistics.jamo[0x0e],
-                 nabi_server->statistics.jamo[0x0f],
-                 nabi_server->statistics.jamo[0x10],
-                 nabi_server->statistics.jamo[0x11],
-                 nabi_server->statistics.jamo[0x12]);
-	
-	snprintf(jungseong, sizeof(jungseong),
-		 "%s\n"
-		 "\341\205\241: %-3d "
-		 "\341\205\242: %-3d "
-		 "\341\205\243: %-3d "
-		 "\341\205\244: %-3d "
-		 "\341\205\245: %-3d "
-		 "\341\205\246: %-3d "
-		 "\341\205\247: %-3d "
-		 "\341\205\250: %-3d "
-		 "\341\205\251: %-3d "
-		 "\341\205\252: %-3d\n"
-		 "\341\205\253: %-3d "
-		 "\341\205\254: %-3d "
-		 "\341\205\255: %-3d "
-		 "\341\205\256: %-3d "
-		 "\341\205\257: %-3d "
-		 "\341\205\260: %-3d "
-		 "\341\205\261: %-3d "
-		 "\341\205\262: %-3d "
-		 "\341\205\263: %-3d "
-		 "\341\205\264: %-3d "
-		 "\341\205\265: %-3d",
-		 _("Jungseong"),                    
-                 nabi_server->statistics.jamo[0x61],
-                 nabi_server->statistics.jamo[0x62],
-                 nabi_server->statistics.jamo[0x63],
-                 nabi_server->statistics.jamo[0x64],
-                 nabi_server->statistics.jamo[0x65],
-                 nabi_server->statistics.jamo[0x66],
-                 nabi_server->statistics.jamo[0x67],
-                 nabi_server->statistics.jamo[0x68],
-                 nabi_server->statistics.jamo[0x69],
-                 nabi_server->statistics.jamo[0x6a],
-                 nabi_server->statistics.jamo[0x6b],
-                 nabi_server->statistics.jamo[0x6c],
-                 nabi_server->statistics.jamo[0x6d],
-                 nabi_server->statistics.jamo[0x6e],
-                 nabi_server->statistics.jamo[0x6f],
-                 nabi_server->statistics.jamo[0x70],
-                 nabi_server->statistics.jamo[0x71],
-                 nabi_server->statistics.jamo[0x72],
-                 nabi_server->statistics.jamo[0x73],
-                 nabi_server->statistics.jamo[0x74],
-		 nabi_server->statistics.jamo[0x75]);
+	/* choseong */
+	g_string_append(str, _("Choseong"));
+	g_string_append_c(str, '\n');
+	for (i = 0x00; i <= 0x12; i++) {
+	    char label[8] = { '\0', };
+	    int len = g_unichar_to_utf8(0x1100 + i, label);
+	    label[len] = '\0';
+	    g_string_append_printf(str, "%s: %-3d ",
+				   label, nabi_server->statistics.jamo[i]);
+	    if ((i + 1) % 10 == 0)
+		g_string_append_c(str, '\n');
+	}
+	g_string_append(str, "\n\n");
 
-	snprintf(jongseong, sizeof(jongseong),
-		 "%s\n"
-                 "\341\206\250: %-3d "
-                 "\341\206\251: %-3d "
-                 "\341\206\252: %-3d "
-                 "\341\206\253: %-3d "
-                 "\341\206\254: %-3d "
-                 "\341\206\255: %-3d "
-                 "\341\206\256: %-3d "
-                 "\341\206\257: %-3d "
-                 "\341\206\260: %-3d "
-                 "\341\206\261: %-3d\n"
-                 "\341\206\262: %-3d "
-                 "\341\206\263: %-3d "
-                 "\341\206\264: %-3d "
-                 "\341\206\265: %-3d "
-                 "\341\206\266: %-3d "
-                 "\341\206\267: %-3d "
-                 "\341\206\270: %-3d "
-                 "\341\206\271: %-3d "
-                 "\341\206\272: %-3d "
-                 "\341\206\273: %-3d\n"
-                 "\341\206\274: %-3d "
-                 "\341\206\275: %-3d "
-                 "\341\206\276: %-3d "
-                 "\341\206\277: %-3d "
-                 "\341\207\200: %-3d "
-                 "\341\207\201: %-3d "
-                 "\341\207\202: %-3d",
-		 _("Jongseong"),
-		 nabi_server->statistics.jamo[0xa8],
-		 nabi_server->statistics.jamo[0xa9],
-		 nabi_server->statistics.jamo[0xaa],
-		 nabi_server->statistics.jamo[0xab],
-		 nabi_server->statistics.jamo[0xac],
-		 nabi_server->statistics.jamo[0xad],
-		 nabi_server->statistics.jamo[0xae],
-		 nabi_server->statistics.jamo[0xaf],
-		 nabi_server->statistics.jamo[0xb0],
-		 nabi_server->statistics.jamo[0xb1],
-		 nabi_server->statistics.jamo[0xb2],
-		 nabi_server->statistics.jamo[0xb3],
-		 nabi_server->statistics.jamo[0xb4],
-		 nabi_server->statistics.jamo[0xb5],
-		 nabi_server->statistics.jamo[0xb6],
-		 nabi_server->statistics.jamo[0xb7],
-		 nabi_server->statistics.jamo[0xb8],
-		 nabi_server->statistics.jamo[0xb9],
-		 nabi_server->statistics.jamo[0xba],
-		 nabi_server->statistics.jamo[0xbb],
-		 nabi_server->statistics.jamo[0xbc],
-                 nabi_server->statistics.jamo[0xbd],
-                 nabi_server->statistics.jamo[0xbe],
-                 nabi_server->statistics.jamo[0xbf],
-                 nabi_server->statistics.jamo[0xc0],
-                 nabi_server->statistics.jamo[0xc1],
-                 nabi_server->statistics.jamo[0xc2]);
+	/* jungseong */
+	g_string_append(str, _("Jungseong"));
+	g_string_append_c(str, '\n');
+	for (i = 0x61; i <= 0x75; i++) {
+	    char label[8] = { '\0', };
+	    int len = g_unichar_to_utf8(0x1100 + i, label);
+	    label[len] = '\0';
+	    g_string_append_printf(str, "%s: %-3d ",
+				   label, nabi_server->statistics.jamo[i]);
+	    if ((i - 0x60) % 10 == 0)
+		g_string_append_c(str, '\n');
+	}
+	g_string_append(str, "\n\n");
 
-	snprintf(buf, bufsize,
-		 "%s%s\n\n%s\n\n%s\n", general, choseong, jungseong, jongseong);
+	/* print only when a user have pressed any jonseong keys */
+	sum = 0;
+	for (i = 0xa8; i <= 0xc2; i++) {
+	    sum += nabi_server->statistics.jamo[i];
+	}
+
+	if (sum > 0) {
+	    /* jongseong */
+	    g_string_append(str, _("Jongseong"));
+	    g_string_append_c(str, '\n');
+	    for (i = 0xa8; i <= 0xc2; i++) {
+		char label[8] = { '\0', };
+		int len = g_unichar_to_utf8(0x1100 + i, label);
+		label[len] = '\0';
+		g_string_append_printf(str, "%s: %-3d ",
+				       label, nabi_server->statistics.jamo[i]);
+		if ((i - 0xa7) % 10 == 0)
+		    g_string_append_c(str, '\n');
+	    }
+	    g_string_append(str, "\n");
+	}
     }
 }
 
 static void
 on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
 {
-    gchar stat_str[1536];
+    GString *str;
     GtkWidget *hbox;
     GtkWidget *stat_label = NULL;
     GtkWidget *dialog = NULL;
@@ -1018,14 +913,17 @@ on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
     gtk_container_set_border_width(GTK_CONTAINER(hbox), 6);
     gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox), hbox, TRUE, TRUE, 0);
 
-    get_statistic_string(stat_str, sizeof(stat_str));
-    stat_label = gtk_label_new(stat_str);
+    str = g_string_new(NULL);
+    get_statistic_string(str);
+    stat_label = gtk_label_new(str->str);
     gtk_label_set_selectable(GTK_LABEL(stat_label), TRUE);
     gtk_box_pack_start(GTK_BOX(hbox), stat_label, TRUE, TRUE, 6);
 
     gtk_widget_show_all(dialog);
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
+
+    g_string_free(str, TRUE);
 }
 
 static void
