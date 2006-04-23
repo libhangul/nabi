@@ -388,8 +388,6 @@ nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
 static Bool
 nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 {
-    int len;
-    char buf[64];
     NabiIC* ic;
     KeySym keysym;
     XKeyEvent *kevent;
@@ -401,8 +399,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	return True;
 
     kevent = (XKeyEvent*)&data->event;
-    len = XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);
-    buf[len] = '\0';
+    keysym = XLookupKeysym(kevent, 0);
 
     ic = nabi_server_get_ic(nabi_server, data->icid);
     if (ic == NULL)

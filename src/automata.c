@@ -188,15 +188,14 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	ch = keyval & 0x00ffffff;
     else if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	/* treat capslock, as capslock is not on */
-	if (state & LockMask) {
-	    if (state & ShiftMask) {
-		if (keyval >= XK_a && keyval <= XK_z)
-		    keyval -= (XK_a - XK_A);
-	    } else {
-		if (keyval >= XK_A && keyval <= XK_Z)
-		    keyval += (XK_a - XK_A);
-	    }
+	if (state & ShiftMask) {
+	    if (keyval >= XK_a && keyval <= XK_z)
+		keyval -= (XK_a - XK_A);
+	} else {
+	    if (keyval >= XK_A && keyval <= XK_Z)
+		keyval += (XK_a - XK_A);
 	}
+
 	ch = nabi_server->keyboard_table->table[keyval - XK_exclam];
     }
 
