@@ -27,8 +27,10 @@
 #include <dirent.h>
 #include <locale.h>
 #include <time.h>
+
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
@@ -361,7 +363,7 @@ xim_trigger_keys_create(char **keys, int n)
 	    if (strcmp("Shift", list[j]) == 0) {
 		keylist[i].modifier |= ShiftMask;
 		keylist[i].modifier_mask |= ShiftMask;
-	    } else if (strcmp("Ctrl", list[j]) == 0) {
+	    } else if (strcmp("Control", list[j]) == 0) {
 		keylist[i].modifier |= ControlMask;
 		keylist[i].modifier_mask |= ControlMask;
 	    } else if (strcmp("Alt", list[j]) == 0) {
