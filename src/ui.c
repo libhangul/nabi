@@ -555,6 +555,11 @@ nabi_app_init(int *argc, char ***argv)
     /* default icon */
     icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.svg", NULL);
     default_icon = gdk_pixbuf_new_from_file(icon_filename, NULL);
+    if (default_icon == NULL) {
+	g_free(icon_filename);
+	icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.png", NULL);
+	default_icon = gdk_pixbuf_new_from_file(icon_filename, NULL);
+    }
     g_free(icon_filename);
 }
 
@@ -1469,7 +1474,6 @@ nabi_app_create_main_widget(void)
     GtkWidget *window;
     GtkWidget *frame;
     GtkWidget *ebox;
-    GList *list = NULL;
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(window), _("Nabi: None"));
@@ -1503,9 +1507,11 @@ nabi_app_create_main_widget(void)
 
     g_idle_add(create_tray_icon, NULL);
 
-    list = g_list_prepend(list, default_icon);
-    gtk_window_set_default_icon_list(list);
-    g_list_free(list);
+    if (default_icon != NULL) {
+	GList *list = g_list_prepend(NULL, default_icon);
+	gtk_window_set_default_icon_list(list);
+	g_list_free(list);
+    }
 
     return window;
 }

@@ -1,3 +1,7 @@
+2006-05-11  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* nabi.png: 새로운 아이콘에 맞게 수정
+	* src/ui.c: nabi.svg 로딩에 실패할경우 nabi.png를 아이콘으로 사용
+
 2006-04-23  Choe Hwanjin <choe.hwanjin@gmail.com>
 	* src/ui.c: 키입력 통계창 출력 루틴 개선
 
