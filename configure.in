@@ -89,5 +89,6 @@ themes/KingSejong/Makefile
 themes/keyboard/Makefile
 themes/MSWindowsXP/Makefile
 themes/Tux/Makefile
+themes/Jini/Makefile
 po/Makefile.in 
 ])

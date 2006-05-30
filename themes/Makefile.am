@@ -6,4 +6,5 @@ SUBDIRS = \
 	Onion \
 	keyboard \
 	KingSejong \
-	Tux
+	Tux \
+	Jini
