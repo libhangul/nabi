@@ -795,6 +795,14 @@ create_compose_table_from_list(const char *name, GSList *list)
     return table;
 }
 
+static gint
+nabi_server_keyboard_name_cmp(gconstpointer a, gconstpointer b)
+{
+    const NabiKeyboardTable* first = (const NabiKeyboardTable*)a;
+    const NabiKeyboardTable* second = (const NabiKeyboardTable*)b;
+    return strcmp(first->name, second->name);
+}
+
 Bool 
 nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
 {
@@ -887,8 +895,9 @@ nabi_server_load_keyboard_table(NabiServer *server, const char *filename)
     if (table->name == NULL)
 	table->name = g_path_get_basename(table->filename);
 
-    server->keyboard_tables = g_list_append(server->keyboard_tables,
-					    table);
+    server->keyboard_tables = g_list_insert_sorted(server->keyboard_tables,
+					    table,
+					    nabi_server_keyboard_name_cmp);
     return True;
 }
 

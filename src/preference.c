@@ -281,13 +281,14 @@ get_keyboard_list(void)
     GtkListStore *store;
     GtkTreeIter iter;
 
-    store = gtk_list_store_new(1, G_TYPE_STRING);
+    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
     list = nabi_server->keyboard_tables;
     while (list != NULL) {
 	NabiKeyboardTable *table = (NabiKeyboardTable*)list->data;
 	gtk_list_store_append(store, &iter);
 	gtk_list_store_set (store, &iter, 0, table->name, -1);
+	gtk_list_store_set (store, &iter, 1, _(table->name), -1);
 	list = g_list_next(list);
     }
 
@@ -373,7 +374,7 @@ create_keyboard_page(void)
     gtk_tree_view_column_set_title(column, _("Hangul Keyboard"));
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+    gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));

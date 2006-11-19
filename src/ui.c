@@ -73,6 +73,17 @@ static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
 
+/* 아래 배열은 단지 키보드 이름을 번역하게 하기 위한 것이다.
+ * 따라서 사용하지 않는다, 그러나 사용하지 않는 변수를 추가하면 
+ * 컴파일 할때 워닝을 내보기 때문에, 사용하는 척 한다. */
+static const char* keyboard_names[] = {
+    N_("2 set"),
+    N_("3 set with 2 set layout"),
+    N_("3 set final"),
+    N_("3 set 390"),
+    N_("3 set no-shift"),
+    N_("3 set yetguel")
+};
 
 enum {
     CONF_TYPE_BOOL,
@@ -1133,11 +1144,14 @@ create_menu(void)
 
     /* keyboard list */
     if (!nabi->status_only) {
+	/* 아래 변수는 실제로 사용하진 않지만 컴파일 할때 워닝이 나지 
+	 * 않게 하기 위하여 사용하는 척 한다. */
+	(void)keyboard_names;
 	list = nabi_server->keyboard_tables;
 	while (list != NULL) {
 	    table = (NabiKeyboardTable*)list->data;
 	    menu_item = gtk_radio_menu_item_new_with_label(radio_group,
-							   table->name);
+							   _(table->name));
 	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
 	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	    gtk_widget_show(menu_item);
