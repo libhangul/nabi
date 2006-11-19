@@ -13,4 +13,21 @@ export XMODIFIERS="@im=nabi"
 ------------------------
 http://nabi.kldp.net/                            - 홈페이지
 http://kldp.net/projects/nabi/                   - 프로젝트 페이지
-http://chem.skku.ac.kr/~kle/moin/nabi            - 위키위키 페이지
+http://wiki.kldp.org/wiki.php/nabi               - 위키 페이지
+
+For non-korean users.
+
+You should set XMODIFIERS environment variable before launching any XIM-aware
+application.
+
+export XMODIFIERS="@im=nabi"
+
+Put the line above in xinit script file, ie, ~/.xsession.
+See xinit man page.
+
+If you use debian, it is easy to use im-switcher.
+Install im-switch, and run it like below:
+
+im-switch -s nabi
+
+
