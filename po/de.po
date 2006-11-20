@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2006-11-19 21:23+0900\n"
-"PO-Revision-Date: 2006-11-18 19:30+0100\n"
+"PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
 "MIME-Version: 1.0\n"
@@ -49,27 +49,27 @@ msgstr "Nabi: Kann Tastatur datei nicht lesen\n"
 
 #: src/ui.c:80
 msgid "2 set"
-msgstr ""
+msgstr "두벌식/ 2-fach belegt"
 
 #: src/ui.c:81
 msgid "3 set with 2 set layout"
-msgstr ""
+msgstr "세벌식 두벌 자판/ 3-fach belegt  mit 2-fach Anordnung"
 
 #: src/ui.c:82
 msgid "3 set final"
-msgstr ""
+msgstr "세벌식 최종/ 3-fach endgültig"
 
 #: src/ui.c:83
 msgid "3 set 390"
-msgstr ""
+msgstr "세벌식 390/ 3-fach 390"
 
 #: src/ui.c:84
 msgid "3 set no-shift"
-msgstr ""
+msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
 
 #: src/ui.c:85
 msgid "3 set yetguel"
-msgstr ""
+msgstr "세벌식 옛글/ 3-fach alte Schrift"
 
 #: src/ui.c:253
 #, c-format
@@ -171,10 +171,11 @@ msgid ""
 msgstr ""
 "<span size=\"large\">Eine einfache Eingabemethode für koreanische Zeichen</"
 "span>\n"
+"Nabi ist das koreanische Wort für Schmetterling.\n"
 "Version %s\n"
 "\n"
 "Copyright © 2003-2006 최환진/Choe Hwanjin\n"
-"Deutsche Übesetzung: © 2006 Niklaus Giger"
+"Deutsche Übersetzung: © 2006 Niklaus Giger"
 
 #: src/ui.c:994
 msgid "<span weight=\"bold\">XIM name</span>: "
@@ -198,7 +199,7 @@ msgstr "Tastaturstatistik"
 
 #: src/ui.c:1118
 msgid "_About..."
-msgstr "Über..."
+msgstr "Über nabi..."
 
 #: src/ui.c:1133
 msgid "_Preferences..."
