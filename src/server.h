@@ -37,6 +37,7 @@
 typedef struct _NabiKeyboardTable NabiKeyboardTable;
 typedef struct _NabiComposeItem NabiComposeItem;
 typedef struct _NabiComposeTable NabiComposeTable;
+typedef struct _NabiKeyboardLayout NabiKeyboardLayout;
 typedef struct _NabiServer NabiServer;
 
 #define KEYBOARD_TABLE_SIZE 94
@@ -58,6 +59,11 @@ struct _NabiComposeTable {
     gchar           *name;
     NabiComposeItem *items;
     gint            size;
+};
+
+struct _NabiKeyboardLayout {
+    char*  name;
+    GArray* table;
 };
 
 enum {
@@ -120,6 +126,10 @@ struct _NabiServer {
     NabiIC**                ic_table;
     int                     ic_table_size;
     NabiIC*                 ic_freed;
+
+    /* keyboard translate */
+    GList*                  layouts;
+    NabiKeyboardLayout*     layout;
 
     /* hangul automata */
     GList*		    keyboard_tables;

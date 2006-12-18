@@ -44,6 +44,11 @@
 
 #define DEFAULT_IC_TABLE_SIZE	512
 
+struct KeySymPair {
+    KeySym key;
+    KeySym value;
+};
+
 /* from automata.c */
 Bool nabi_automata_2(NabiIC* ic, KeySym keyval, unsigned int state);
 Bool nabi_automata_3(NabiIC* ic, KeySym keyval, unsigned int state);
@@ -110,6 +115,8 @@ nabi_server_new(const char *name)
     server->ic_freed = NULL;
 
     /* hangul data */
+    server->layouts = NULL;
+    server->layout = NULL;
     server->keyboard_tables = NULL;
     server->keyboard_table = NULL;
     server->compose_tables = NULL;
@@ -1075,6 +1082,125 @@ nabi_server_load_candidate_table(NabiServer *server,
     g_list_free(table);
 
     return TRUE;
+}
+
+static NabiKeyboardLayout*
+nabi_keyboard_layout_new(const char* name)
+{
+    NabiKeyboardLayout* layout = g_new(NabiKeyboardLayout, 1);
+    layout->name = g_strdup(name);
+    layout->table = g_array_new(FALSE, FALSE, sizeof(struct KeySymPair));
+    return layout;
+}
+
+static int
+nabi_keyboard_layout_cmp(const void* a, const void* b)
+{
+    const struct KeySymPair* pair1 = a;
+    const struct KeySymPair* pair2 = b;
+    return pair1->key - pair2->key;
+}
+
+void
+nabi_keyboard_layout_append(NabiKeyboardLayout* layout,
+			    KeySym key, KeySym value)
+{
+    struct KeySymPair item = { key, value };
+    g_array_append_vals(layout->table, &item, 1);
+}
+
+KeySym
+nabi_keyboard_layout_get_key(NabiKeyboardLayout* layout, KeySym keysym)
+{
+    struct KeySymPair key = { keysym, 0 };
+    struct KeySymPair* ret;
+    ret = bsearch(&key, layout->table->data, layout->table->len,
+		  sizeof(key), nabi_keyboard_layout_cmp);
+    if (ret) {
+	return ret->value;
+    }
+
+    return keysym;
+}
+
+static void
+nabi_keyboard_layout_free(gpointer data, gpointer user_data)
+{
+    NabiKeyboardLayout *layout = data;
+    g_free(layout->name);
+    g_array_free(layout->table, TRUE);
+    g_free(layout);
+}
+
+void
+nabi_server_load_keyboard_layout(NabiServer *server, const char *filename)
+{
+    FILE *file;
+    char *p, *line;
+    char *saved_position = NULL;
+    char buf[256];
+    GList *list = NULL;
+    NabiKeyboardLayout *layout = NULL;
+
+    file = fopen(filename, "r");
+    if (file == NULL) {
+	fprintf(stderr, "Nabi: Failed to open keyboard layout file: %s\n", filename);
+	return;
+    }
+
+    for (line = fgets(buf, sizeof(buf), file);
+	 line != NULL;
+	 line = fgets(buf, sizeof(buf), file)) {
+	p = skip_space(buf);
+
+	/* skip comments */
+	if (*p == '\0' || *p == ';' || *p == '#')
+	    continue;
+
+	if (p[0] == '[') {
+	    p = strtok_r(p + 1, "]", &saved_position);
+	    if (p != NULL) {
+		if (layout != NULL)
+		    list = g_list_append(list, layout);
+
+		layout = nabi_keyboard_layout_new(p);
+	    }
+	} else if (layout != NULL) {
+	    KeySym key, value;
+
+	    p = strtok_r(p, " \t", &saved_position);
+	    if (p == NULL)
+		continue;
+
+	    key = strtol(p, NULL, 16);
+	    if (key == 0)
+		continue;
+
+	    p = strtok_r(NULL, "\r\n\t ", &saved_position);
+	    if (p == NULL)
+		continue;
+
+	    value = strtol(p, NULL, 16);
+	    if (value == 0)
+		continue;
+
+	    nabi_keyboard_layout_append(layout, key, value);
+	}
+    }
+
+    if (layout != NULL)
+	list = g_list_append(list, layout);
+
+    fclose(file);
+
+    if (server->layouts != NULL) {
+	g_list_foreach(server->layouts, nabi_keyboard_layout_free, NULL);
+	g_list_free(server->layouts);
+	server->layouts = NULL;
+    }
+
+    server->layouts = list;
+    server->layout = layout;
 }
 
 void

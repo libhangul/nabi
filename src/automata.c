@@ -172,21 +172,14 @@ hangul_dvorak_to_qwerty (KeySym key)
     return table[key - XK_exclam];
 }
 
-static wchar_t
-nabi_keyboard_mapping(KeySym keyval, unsigned int state)
+static KeySym
+nabi_keyboard_normalize(KeySym keyval, unsigned int state)
 {
-    wchar_t ch = 0;
+    if (nabi_server->layout) {
+	keyval = nabi_keyboard_layout_get_key(nabi_server->layout, keyval);
+    }
 
-    if (nabi_server->keyboard_table == NULL)
-	return keyval;
-
-    if (nabi_server->dvorak)
-	keyval = hangul_dvorak_to_qwerty(keyval);
-
-    /* Support for unicode keysym */
-    if ((keyval & 0xff000000) == 0x01000000)
-	ch = keyval & 0x00ffffff;
-    else if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
+    if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	/* treat capslock, as capslock is not on */
 	if (state & ShiftMask) {
 	    if (keyval >= XK_a && keyval <= XK_z)
@@ -195,7 +188,25 @@ nabi_keyboard_mapping(KeySym keyval, unsigned int state)
 	    if (keyval >= XK_A && keyval <= XK_Z)
 		keyval += (XK_a - XK_A);
 	}
+    }
 
+    return keyval;
+}
+
+static wchar_t
+nabi_keyboard_mapping(KeySym keyval, unsigned int state)
+{
+    wchar_t ch = 0;
+
+    if (nabi_server->keyboard_table == NULL)
+	return keyval;
+
+    /* Support for unicode keysym */
+    if ((keyval & 0xff000000) == 0x01000000)
+	keyval = keyval & 0x00ffffff;
+
+    keyval = nabi_keyboard_normalize(keyval, state);
+    if (keyval >= XK_exclam  && keyval <= XK_asciitilde) {
 	ch = nabi_server->keyboard_table->table[keyval - XK_exclam];
     }
 
