@@ -54,6 +54,11 @@ NABI_THEMES_DIR="${NABI_DATA_DIR}/themes"
 AC_SUBST(NABI_DATA_DIR)
 AC_SUBST(NABI_THEMES_DIR)
 
+# configure options
+AC_ARG_ENABLE(debug,
+	      [  --enable-debug          include debug code],
+              enable_debug=yes, enable_debug=no)
+
 dnl default keyboard
 AC_ARG_WITH(default-keyboard, [  --with-default-keyboard=2/39/3f   default hangul keyboard])
 case "$with_default_keyboard" in
@@ -74,6 +79,12 @@ case "$with_default_keyboard" in
 			   [Define default hangul keyboard])
 	;;
 esac
+
+if test "$enable_debug" = "yes"; then
+    AC_DEFINE(NABI_DEBUG, 1, [Define to 1 if you want to use debug code])
+    CFLAGS="$CFLAGS -g"
+    CXXFLAGS="$CXXFLAGS -g"
+fi
 
 AC_OUTPUT([
 Makefile

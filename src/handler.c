@@ -33,7 +33,7 @@
 #include "server.h"
 #include "candidate.h"
 
-#ifdef DEBUG
+#ifdef NABI_DEBUG
 #define dmesg debug_msg
 
 static const char *
