@@ -1446,12 +1446,16 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
     }
 
     keysym = nabi_server_normalize_keysym(nabi_server, keysym, state);
-    ret = hangul_ic_process(ic->hic, keysym);
+    if (keysym >= XK_exclam && keysym <= XK_asciitilde) {
+	ret = hangul_ic_process(ic->hic, keysym);
 
-    nabi_ic_commit(ic);
-    nabi_ic_preedit_update(ic);
+	nabi_ic_commit(ic);
+	nabi_ic_preedit_update(ic);
+	return ret;
+    }
 
-    return ret;
+    nabi_ic_flush(ic);
+    return False;
 }
 
 static void

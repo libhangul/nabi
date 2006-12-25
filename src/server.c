@@ -760,8 +760,19 @@ KeySym
 nabi_server_normalize_keysym(NabiServer *server,
 			     KeySym keysym, unsigned int state)
 {
-    KeySym upper = keysym;
-    KeySym lower = keysym;
+    KeySym upper, lower;
+
+    /* unicode keysym */
+    if ((keysym & 0xff000000) == 0x01000000)
+	keysym &= 0x00ffffff;
+
+    /* european mapping */
+    if (server->layout != NULL) {
+	keysym = nabi_keyboard_layout_get_key(server->layout, keysym);
+    }
+
+    upper = keysym;
+    lower = keysym;
     XConvertCase(keysym, &lower, &upper);
 
     if (state & ShiftMask)
