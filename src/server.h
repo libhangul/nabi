@@ -36,9 +36,6 @@
 #include "ic.h"
 
 typedef struct _NabiHangulKeyboard NabiHangulKeyboard;
-typedef struct _NabiKeyboardTable NabiKeyboardTable;
-typedef struct _NabiComposeItem NabiComposeItem;
-typedef struct _NabiComposeTable NabiComposeTable;
 typedef struct _NabiKeyboardLayout NabiKeyboardLayout;
 typedef struct _NabiServer NabiServer;
 
@@ -46,26 +43,6 @@ typedef struct _NabiServer NabiServer;
 struct _NabiHangulKeyboard {
     const gchar* id;
     const gchar* name;
-};
-
-struct _NabiKeyboardTable {
-    gchar*            filename;
-    gchar*            name;
-    gint              type;
-    int		      output_mode;
-    NabiComposeTable* compose_table;
-    wchar_t           table[KEYBOARD_TABLE_SIZE];
-};
-
-struct _NabiComposeItem {
-    uint32_t key;
-    wchar_t code;
-};
-
-struct _NabiComposeTable {
-    gchar           *name;
-    NabiComposeItem *items;
-    gint            size;
 };
 
 struct _NabiKeyboardLayout {
