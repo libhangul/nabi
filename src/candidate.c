@@ -85,7 +85,7 @@ nabi_candidate_on_key_press(GtkWidget *widget,
 			    GdkEventKey *event,
 			    NabiCandidate *candidate)
 {
-    wchar_t ch = 0;
+    const char* str = NULL;
 
     if (candidate == NULL)
 	return FALSE;
@@ -120,10 +120,10 @@ nabi_candidate_on_key_press(GtkWidget *widget,
 	break;
     case GDK_Return:
     case GDK_KP_Enter:
-	ch = nabi_candidate_get_current(candidate);
+	str = nabi_candidate_get_current(candidate);
 	break;
     case GDK_0:
-	ch = nabi_candidate_get_nth(candidate, 9);
+	str = nabi_candidate_get_nth(candidate, 9);
 	break;
     case GDK_1:
     case GDK_2:
@@ -134,10 +134,10 @@ nabi_candidate_on_key_press(GtkWidget *widget,
     case GDK_7:
     case GDK_8:
     case GDK_9:
-	ch = nabi_candidate_get_nth(candidate, event->keyval - GDK_1);
+	str = nabi_candidate_get_nth(candidate, event->keyval - GDK_1);
 	break;
     case GDK_KP_0:
-	ch = nabi_candidate_get_nth(candidate, 9);
+	str = nabi_candidate_get_nth(candidate, 9);
 	break;
     case GDK_KP_1:
     case GDK_KP_2:
@@ -148,43 +148,43 @@ nabi_candidate_on_key_press(GtkWidget *widget,
     case GDK_KP_7:
     case GDK_KP_8:
     case GDK_KP_9:
-	ch = nabi_candidate_get_nth(candidate, event->keyval - GDK_KP_1);
+	str = nabi_candidate_get_nth(candidate, event->keyval - GDK_KP_1);
 	break;
     case GDK_KP_End:
-	ch = nabi_candidate_get_nth(candidate, 0);
+	str = nabi_candidate_get_nth(candidate, 0);
 	break;
     case GDK_KP_Down:
-	ch = nabi_candidate_get_nth(candidate, 1);
+	str = nabi_candidate_get_nth(candidate, 1);
 	break;
     case GDK_KP_Next:
-	ch = nabi_candidate_get_nth(candidate, 2);
+	str = nabi_candidate_get_nth(candidate, 2);
 	break;
     case GDK_KP_Left:
-	ch = nabi_candidate_get_nth(candidate, 3);
+	str = nabi_candidate_get_nth(candidate, 3);
 	break;
     case GDK_KP_Begin:
-	ch = nabi_candidate_get_nth(candidate, 4);
+	str = nabi_candidate_get_nth(candidate, 4);
 	break;
     case GDK_KP_Right:
-	ch = nabi_candidate_get_nth(candidate, 5);
+	str = nabi_candidate_get_nth(candidate, 5);
 	break;
     case GDK_KP_Home:
-	ch = nabi_candidate_get_nth(candidate, 6);
+	str = nabi_candidate_get_nth(candidate, 6);
 	break;
     case GDK_KP_Up:
-	ch = nabi_candidate_get_nth(candidate, 7);
+	str = nabi_candidate_get_nth(candidate, 7);
 	break;
     case GDK_KP_Prior:
-	ch = nabi_candidate_get_nth(candidate, 8);
+	str = nabi_candidate_get_nth(candidate, 8);
 	break;
     case GDK_KP_Insert:
-	ch = nabi_candidate_get_nth(candidate, 9);
+	str = nabi_candidate_get_nth(candidate, 9);
 	break;
     default:
 	return FALSE;
     }
 
-    if (ch != 0) {
+    if (str != NULL) {
 	if (candidate->commit != NULL)
 	    candidate->commit(candidate, candidate->commit_data);
     }
@@ -273,22 +273,21 @@ static void
 nabi_candidate_update_list(NabiCandidate *candidate)
 {
     int i;
-    int len;
-    gchar buf[16];
     GtkTreeIter iter;
 
     gtk_list_store_clear(candidate->store);
     for (i = 0;
 	 i < candidate->n_per_page && candidate->first + i < candidate->n;
 	 i++) {
-	len = g_unichar_to_utf8(candidate->data[candidate->first + i]->ch,
-				buf);
-	buf[len] = '\0';
+	const Hanja* hanja = candidate->data[candidate->first + i];
+	const char* value = hanja_get_value(hanja);
+	const char* comment = hanja_get_comment(hanja);
+
 	gtk_list_store_append(candidate->store, &iter);
 	gtk_list_store_set(candidate->store, &iter,
 			   COLUMN_INDEX, (i + 1) % 10,
-			   COLUMN_CHARACTER, buf,
-			   COLUMN_COMMENT, candidate->data[candidate->first + i]->comment,
+			   COLUMN_CHARACTER, value,
+			   COLUMN_COMMENT, comment,
 			   -1);
     }
     nabi_candidate_set_window_position(candidate);
@@ -366,14 +365,14 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 NabiCandidate*
 nabi_candidate_new(char *label_str,
 		   int n_per_page,
-		   const NabiCandidateItem **data,
+		   HanjaList *list,
 		   Window parent,
 		   NabiCandidateCommitFunc commit,
 		   gpointer commit_data)
 {
     int i, k, n;
     NabiCandidate *candidate;
-    const NabiCandidateItem **table;
+    const Hanja **table;
 
     candidate = (NabiCandidate*)g_malloc(sizeof(NabiCandidate));
     candidate->first = 0;
@@ -387,19 +386,21 @@ nabi_candidate_new(char *label_str,
     candidate->treeview = NULL;
     candidate->commit = commit;
     candidate->commit_data = commit_data;
+    candidate->hanja_list = list;
 
-    for (n = 0; data[n] != 0; n++)
-	continue;
+    n = hanja_list_get_size(list);
 
-    table = g_malloc(sizeof(NabiCandidateItem*) * n);
+    table = g_new(const Hanja*, n);
     for (i = 0, k = 0; i < n; i++) {
 	if (nabi_server->check_charset) {
-	    if (nabi_server_is_valid_char(nabi_server, data[i]->ch)) {
-		table[k] = data[i];
+	    const Hanja* hanja = hanja_list_get_nth(list, i);
+	    const char* value = hanja_get_value(hanja);
+	    if (nabi_server_is_valid_str(nabi_server, value)) {
+		table[k] = hanja;
 		k++;
 	    }
 	} else {
-	    table[k] = data[i];
+	    table[k] = hanja_list_get_nth(list, i);
 	    k++;
 	}
     }
@@ -481,16 +482,16 @@ nabi_candidate_next_page(NabiCandidate *candidate)
     nabi_candidate_update_cursor(candidate);
 }
 
-unsigned short int
+const char*
 nabi_candidate_get_current(NabiCandidate *candidate)
 {
     if (candidate == NULL)
 	return 0;
 
-    return candidate->data[candidate->current]->ch;
+    return hanja_get_value(candidate->data[candidate->current]);
 }
 
-unsigned short int
+const char*
 nabi_candidate_get_nth(NabiCandidate *candidate, int n)
 {
     if (candidate == NULL)
@@ -501,7 +502,7 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
 	return 0;
 
     candidate->current = n;
-    return candidate->data[n]->ch;
+    return hanja_get_value(candidate->data[n]);
 }
 
 void
@@ -510,29 +511,10 @@ nabi_candidate_delete(NabiCandidate *candidate)
     if (candidate == NULL)
 	return;
 
+    hanja_list_delete(candidate->hanja_list);
     gtk_grab_remove(candidate->window);
     gtk_widget_destroy(candidate->window);
     g_free(candidate->label);
     g_free(candidate->data);
     g_free(candidate);
-}
-
-NabiCandidateItem*
-nabi_candidate_item_new(unsigned short int ch, const gchar *comment)
-{
-    NabiCandidateItem *item;
-
-    item = g_new(NabiCandidateItem, 1);
-    item->ch = ch;
-    item->comment = g_strdup(comment);
-    return item;
-}
-
-void
-nabi_candidate_item_delete(NabiCandidateItem *item)
-{
-    if (item) {
-	g_free(item->comment);
-	g_free(item);
-    }
 }

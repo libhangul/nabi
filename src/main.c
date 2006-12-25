@@ -74,7 +74,7 @@ main(int argc, char *argv[])
     nabi_app_init(&argc, &argv);
 
 #ifdef HAVE_LIBSM
-    nabi_session_open(nabi->session_id);
+//    nabi_session_open(nabi->session_id);
 #endif
 
     if (!nabi->status_only) {
@@ -108,7 +108,7 @@ main(int argc, char *argv[])
     }
     
 #ifdef HAVE_LIBSM
-    nabi_session_close();
+//    nabi_session_close();
 #endif
 
     nabi_app_free();

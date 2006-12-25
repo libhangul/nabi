@@ -28,12 +28,14 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
+#include <hangul.h>
+
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 
 #include "ic.h"
-#include "candidate.h"
 
+typedef struct _NabiHangulKeyboard NabiHangulKeyboard;
 typedef struct _NabiKeyboardTable NabiKeyboardTable;
 typedef struct _NabiComposeItem NabiComposeItem;
 typedef struct _NabiComposeTable NabiComposeTable;
@@ -41,6 +43,11 @@ typedef struct _NabiKeyboardLayout NabiKeyboardLayout;
 typedef struct _NabiServer NabiServer;
 
 #define KEYBOARD_TABLE_SIZE 94
+struct _NabiHangulKeyboard {
+    const gchar* id;
+    const gchar* name;
+};
+
 struct _NabiKeyboardTable {
     gchar*            filename;
     gchar*            name;
@@ -132,17 +139,14 @@ struct _NabiServer {
     NabiKeyboardLayout*     layout;
 
     /* hangul automata */
-    GList*		    keyboard_tables;
-    GList*		    compose_tables;
-    NabiKeyboardTable*	    keyboard_table;
-    NabiComposeTable*	    compose_table;
-    Bool                    (*automata)(NabiIC*,
-                                        KeySym,
-                                        unsigned int state);
+    char*                   hangul_keyboard;
+    const NabiHangulKeyboard* hangul_keyboard_list;
+
     Bool                    dvorak;
     NabiOutputMode          output_mode;
-    int			    candidate_table_size;
-    NabiCandidateItem***    candidate_table;
+
+    /* hanja */
+    HanjaTable*             hanja_table;
 
     /* hangul converter */
     Bool                    check_charset;
@@ -184,7 +188,7 @@ void        nabi_server_set_trigger_keys(NabiServer *server,
 void        nabi_server_set_candidate_keys(NabiServer *server, char **keys);
 void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
-void        nabi_server_set_keyboard_table(NabiServer *server,
+void        nabi_server_set_hangul_keyboard(NabiServer *server,
 					 const char *name);
 void        nabi_server_set_compose_table(NabiServer *server,
 					 const char *name);
@@ -207,7 +211,9 @@ NabiConnect* nabi_server_get_connect_by_id(NabiServer *server,
                                            CARD16 connect_id);
 Bool        nabi_server_is_locale_supported(NabiServer *server,
 					    const char *locale);
-Bool        nabi_server_is_valid_char   (NabiServer *server, wchar_t ch);
+Bool        nabi_server_is_valid_str    (NabiServer *server, const char* str);
+KeySym      nabi_server_normalize_keysym(NabiServer *server,
+					 KeySym keysym, unsigned int state);
 void        nabi_server_on_keypress     (NabiServer *server,
 					 KeySym keyval,
 					 unsigned int state,
@@ -218,8 +224,6 @@ Bool	    nabi_server_load_keyboard_table(NabiServer *server,
 					    const char *filename);
 Bool	    nabi_server_load_compose_table(NabiServer *server,
 					   const char *filename);
-Bool        nabi_server_load_candidate_table(NabiServer *server,
-				             const char *filename);
 
 #endif  /* __SERVER_H_ */
 

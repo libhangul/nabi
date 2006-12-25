@@ -277,19 +277,20 @@ create_theme_page(void)
 static GtkTreeModel*
 get_keyboard_list(void)
 {
-    GList *list;
+    int i;
+    const NabiHangulKeyboard* keyboard;
     GtkListStore *store;
     GtkTreeIter iter;
 
     store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
 
-    list = nabi_server->keyboard_tables;
-    while (list != NULL) {
-	NabiKeyboardTable *table = (NabiKeyboardTable*)list->data;
+    i = 0;
+    while (nabi_server->hangul_keyboard_list[i].id != NULL) {
+	keyboard = &(nabi_server->hangul_keyboard_list[i]);
 	gtk_list_store_append(store, &iter);
-	gtk_list_store_set (store, &iter, 0, table->name, -1);
-	gtk_list_store_set (store, &iter, 1, _(table->name), -1);
-	list = g_list_next(list);
+	gtk_list_store_set (store, &iter, 0, keyboard->id, -1);
+	gtk_list_store_set (store, &iter, 1, _(keyboard->name), -1);
+	i++;
     }
 
     return GTK_TREE_MODEL(store);
@@ -415,7 +416,7 @@ create_keyboard_page(void)
 		     G_CALLBACK(on_dvorak_button_toggled), NULL);
 
     /* hilight current selected keyboard table */
-    path = search_text_in_model(model, 0, nabi->keyboard_table_name);
+    path = search_text_in_model(model, 0, nabi->hangul_keyboard);
     if (path) {
 	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview),
@@ -939,7 +940,7 @@ preference_window_update(void)
 	GtkTreePath *path;
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(keyboard_list_treeview));
 	if (model != NULL) {
-	    path = search_text_in_model(model, 0, nabi->keyboard_table_name);
+	    path = search_text_in_model(model, 0, nabi->hangul_keyboard);
 	    if (path) {
 		gtk_tree_view_set_cursor (GTK_TREE_VIEW(keyboard_list_treeview),
 					  path, NULL, FALSE);

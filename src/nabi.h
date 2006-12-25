@@ -37,14 +37,12 @@ struct _NabiApplication {
     gchar*          theme;
     int             icon_size;
 
-    gchar*          keyboard_table_name;
-    gchar*          keyboard_table_dir;
-    gchar*          compose_table_name;
-    gchar*          compose_table_dir;
-    gchar*	    candidate_table_filename;
-
     gchar*          trigger_keys;
     gchar*          candidate_keys;
+
+    /* keyboard option */
+    gchar*          hangul_keyboard;
+    gchar*          latin_keyboard;
 
     /* xim server option */
     gboolean        dvorak;

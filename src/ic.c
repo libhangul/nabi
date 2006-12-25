@@ -23,22 +23,23 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include <glib.h>
 
 #include "gettext.h"
-#include "hangul.h"
 #include "ic.h"
 #include "server.h"
 #include "fontset.h"
 
-static void nabi_ic_buf_clear(NabiIC *ic);
 static void nabi_ic_preedit_configure(NabiIC *ic);
-static void nabi_ic_get_preedit_string(NabiIC *ic, char *buf, int buflen,
-				       int *len, int *size);
+static char* nabi_ic_get_preedit_string(NabiIC *ic);
+static char* nabi_ic_get_commit_string(NabiIC *ic);
+static char* nabi_ic_get_flush_string(NabiIC *ic);
 
 static inline void *
 nabi_malloc(size_t size)
@@ -173,7 +174,9 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->candidate = NULL;
 
-    nabi_ic_buf_clear(ic);
+    if (ic->hic == NULL)
+	ic->hic = hangul_ic_new(NULL);
+    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
 }
 
 NabiIC*
@@ -195,6 +198,7 @@ nabi_ic_create(IMChangeICStruct *data)
 
 	ic = g_new(NabiIC, 1);
 	ic->id = id;
+	ic->hic = NULL;
 	nabi_server->ic_table[id] = ic;
     } else {
 	/* pick from ic_freed */ 
@@ -315,9 +319,7 @@ nabi_ic_destroy(NabiIC *ic)
 	ic->candidate = NULL;
     }
 
-    /* clear hangul buffer */
-    ic->mode = NABI_INPUT_MODE_DIRECT;
-    nabi_ic_buf_clear(ic);
+    hangul_ic_reset(ic->hic);
 }
 
 void
@@ -342,7 +344,28 @@ nabi_ic_real_destroy(NabiIC *ic)
     if (ic->preedit.gc != NULL)
 	g_object_unref(G_OBJECT(ic->preedit.gc));
 
+    if (ic->hic != NULL)
+	hangul_ic_delete(ic->hic);
+
     g_free(ic);
+}
+
+Bool
+nabi_ic_is_empty(NabiIC *ic)
+{
+    if (ic == NULL || ic->hic == NULL)
+	return True;
+
+    return hangul_ic_is_empty(ic->hic);
+}
+
+void
+nabi_ic_set_hangul_keyboard(NabiIC *ic, const char* hangul_keyboard)
+{
+    if (ic == NULL || ic->hic == NULL)
+	return;
+
+    hangul_ic_select_keyboard(ic->hic, hangul_keyboard);
 }
 
 static void
@@ -415,19 +438,17 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 static void
 nabi_ic_preedit_draw(NabiIC *ic)
 {
-    int len, size;
-    char buf[48] = { 0, };
+    int size;
+    char* preedit;
 
-    if (nabi_ic_is_empty(ic))
-	return;
-
-    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
+    preedit = nabi_ic_get_preedit_string(ic);
+    size = strlen(preedit);
     if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_draw_string(ic, buf, size);
+	nabi_ic_preedit_draw_string(ic, preedit, size);
     } else if (ic->input_style & XIMPreeditArea) {
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	nabi_ic_preedit_gdk_draw_string(ic, preedit, size);
     } else if (ic->input_style & XIMPreeditNothing) {
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	nabi_ic_preedit_gdk_draw_string(ic, preedit, size);
     }
 }
 
@@ -858,49 +879,13 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
     }
 }
 
-void
-nabi_ic_buf_clear (NabiIC *ic)
-{
-    ic->index = -1;
-    ic->stack[0] = 0;
-    ic->stack[1] = 0;
-    ic->stack[2] = 0;
-    ic->stack[3] = 0;
-    ic->stack[4] = 0;
-    ic->stack[5] = 0;
-    ic->stack[6] = 0;
-    ic->stack[7] = 0;
-    ic->stack[8] = 0;
-    ic->stack[9] = 0;
-    ic->stack[10] = 0;
-    ic->stack[11] = 0;
-
-    ic->lindex = 0;
-    ic->choseong[0] = 0;
-    ic->choseong[1] = 0;
-    ic->choseong[2] = 0;
-    ic->choseong[3] = 0;
-
-    ic->vindex = 0;
-    ic->jungseong[0] = 0;
-    ic->jungseong[1] = 0;
-    ic->jungseong[2] = 0;
-    ic->jungseong[3] = 0;
-
-    ic->tindex = 0;
-    ic->jongseong[0] = 0;
-    ic->jongseong[1] = 0;
-    ic->jongseong[2] = 0;
-    ic->jongseong[3] = 0;
-}
-
-static char *utf8_to_compound_text(char *utf8)
+static char *utf8_to_compound_text(const char *utf8)
 {
     char *list[2];
     XTextProperty tp;
     int ret;
 
-    list[0] = utf8;
+    list[0] = (char*)utf8;
     list[1] = 0;
     ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
 				      XCompoundTextStyle,
@@ -913,21 +898,16 @@ static char *utf8_to_compound_text(char *utf8)
 void
 nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
 {
-    int len, size;
-    char buf[48];
-    char *compound_text;
-
-    if (nabi_ic_is_empty(ic)) {
-	nabi_ic_preedit_clear(ic);
-	data->commit_string = NULL;
-	data->length = 0;
-    } else {
-	nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-	compound_text = utf8_to_compound_text(buf);
+    char* preedit = nabi_ic_get_flush_string(ic);
+    if (preedit != NULL && strlen(preedit) > 0) {
+	char* compound_text = utf8_to_compound_text(preedit);
 	data->commit_string = compound_text;
 	data->length = strlen(compound_text);
-	nabi_ic_buf_clear(ic);
+    } else {
+	data->commit_string = NULL;
+	data->length = 0;
     }
+    g_free(preedit);
 
     if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_hide(ic);
@@ -936,28 +916,6 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
     } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_hide(ic);
     }
-}
-
-void
-nabi_ic_push(NabiIC *ic, wchar_t ch)
-{
-    ic->stack[++ic->index] = ch;
-}
-
-wchar_t
-nabi_ic_peek(NabiIC *ic)
-{
-    if (ic->index < 0)
-	return 0;
-    return ic->stack[ic->index];
-}
-
-wchar_t
-nabi_ic_pop(NabiIC *ic)
-{
-    if (ic->index < 0)
-	return 0;
-    return ic->stack[ic->index--];
 }
 
 void
@@ -1068,100 +1026,25 @@ nabi_ic_preedit_done(NabiIC *ic)
     ic->preedit.start = False;
 }
 
-void
-nabi_ic_get_preedit_string(NabiIC *ic, char *utf8, int buflen,
-			   int *len, int *size)
+static char*
+nabi_ic_get_preedit_string(NabiIC *ic)
 {
-    int i, n;
-    int output_mode = nabi_server->output_mode;
-    wchar_t ch;
-    wchar_t buf[16];
+    const ucschar *str = hangul_ic_get_preedit_string(ic->hic);
+    return g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
+}
 
-    if (nabi_server->keyboard_table->output_mode >= 0) {
-	output_mode = nabi_server->keyboard_table->output_mode;
-    }
+static char*
+nabi_ic_get_commit_string(NabiIC *ic)
+{
+    const ucschar *str = hangul_ic_get_commit_string(ic->hic);
+    return g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
+}
 
-    n = 0;
-    if (output_mode == NABI_OUTPUT_MANUAL) {
-	/* we use conjoining jamo, U+1100 - U+11FF */
-	if (ic->choseong[0] == 0)
-	    buf[n++] = HCF;
-	else {
-	    for (i = 0; i <= ic->lindex; i++)
-		buf[n++] = ic->choseong[i];
-	}
-	if (ic->jungseong[0] == 0)
-	    buf[n++] = HJF;
-	else {
-	    for (i = 0; i <= ic->vindex; i++)
-		buf[n++] = ic->jungseong[i];
-	}
-	if (ic->jongseong[0] != 0) {
-	    for (i = 0; i <= ic->tindex; i++)
-		buf[n++] = ic->jongseong[i];
-	}
-    } else if (output_mode == NABI_OUTPUT_JAMO) {
-	/* we use conjoining jamo, U+1100 - U+11FF */
-	if (ic->choseong[0] == 0)
-	    buf[n++] = HCF;
-	else
-	    buf[n++] = ic->choseong[0];
-	if (ic->jungseong[0] == 0)
-	    buf[n++] = HJF;
-	else
-	    buf[n++] = ic->jungseong[0];
-	if (ic->jongseong[0] != 0)
-	    buf[n++] = ic->jongseong[0];
-    } else {
-	if (ic->choseong[0]) {
-	    if (ic->jungseong[0]) {
-		/* have cho, jung, jong or no jong */
-		ch = hangul_jamo_to_syllable(ic->choseong[0],
-				 ic->jungseong[0],
-				 ic->jongseong[0]);
-		buf[n++] = ch;
-	    } else {
-		if (ic->jongseong[0]) {
-		    /* have cho, jong */
-		    ch = hangul_choseong_to_cjamo(ic->choseong[0]);
-		    buf[n++]  = ch;
-		    ch = hangul_jongseong_to_cjamo(ic->jongseong[0]);
-		    buf[n++] = ch;
-		} else {
-		    /* have cho */
-		    ch = hangul_choseong_to_cjamo(ic->choseong[0]);
-		    buf[n++] = ch;
-		}
-	    }
-	} else {
-	    if (ic->jungseong[0]) {
-		if (ic->jongseong[0]) {
-		    /* have jung, jong */
-		    ch = hangul_jungseong_to_cjamo(ic->jungseong[0]);
-		    buf[n++] = ch;
-		    ch = hangul_jongseong_to_cjamo(ic->jongseong[0]);
-		    buf[n++] = ch;
-		} else {
-		    /* have jung */
-		    ch = hangul_jungseong_to_cjamo(ic->jungseong[0]);
-		    buf[n++] = ch;
-		}
-	    } else {
-		if (ic->jongseong[0]) {
-		    /* have jong */
-		    ch = hangul_jongseong_to_cjamo(ic->jongseong[0]);
-		    buf[n++] = ch;
-		} else {
-		    /* have nothing */
-		    ;
-		}
-	    }
-	}
-    }
-
-    buf[n] = L'\0';
-    *len = n;
-    *size = hangul_wcharstr_to_utf8str(buf, utf8, buflen);
+static char*
+nabi_ic_get_flush_string(NabiIC *ic)
+{
+    const ucschar *str = hangul_ic_flush(ic->hic);
+    return g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
 }
 
 inline XIMFeedback *
@@ -1177,58 +1060,19 @@ nabi_ic_preedit_feedback_new(int len, long style)
 }
 
 void
-nabi_ic_preedit_insert(NabiIC *ic)
-{
-    int len, size;
-    char buf[48] = { 0, };
-
-    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-
-    if (ic->input_style & XIMPreeditCallbacks) {
-	char *compound_text;
-	IMPreeditCBStruct data;
-	XIMText text;
-
-	compound_text = utf8_to_compound_text(buf);
-
-	data.major_code = XIM_PREEDIT_DRAW;
-	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
-	data.icid = ic->id;
-	data.todo.draw.caret = len;
-	data.todo.draw.chg_first = 0;
-	data.todo.draw.chg_length = 0;
-	data.todo.draw.text = &text;
-
-	text.feedback = nabi_ic_preedit_feedback_new(len, XIMReverse);
-	text.encoding_is_wchar = False;
-	text.string.multi_byte = compound_text;
-	text.length = strlen(compound_text);
-
-	IMCallCallback(nabi_server->xims, (XPointer)&data);
-	XFree(compound_text);
-	g_free(text.feedback);
-    } else if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_show(ic);
-	nabi_ic_preedit_draw_string(ic, buf, size);
-    } else if (ic->input_style & XIMPreeditArea) {
-	nabi_ic_preedit_show(ic);
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
-    } else if (ic->input_style & XIMPreeditNothing) {
-	nabi_ic_preedit_show(ic);
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
-    }
-    ic->preedit.prev_length = len;
-}
-
-void
 nabi_ic_preedit_update(NabiIC *ic)
 {
     int len, size;
-    char buf[48] = { 0, };
+    char* preedit;
 
-    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-
+    preedit = nabi_ic_get_preedit_string(ic);
+    if (preedit == NULL) {
+	nabi_ic_preedit_clear(ic);
+	return;
+    }
+	
+    len = g_utf8_strlen(preedit, -1);
+    size = strlen(preedit);
     if (len == 0) {
 	nabi_ic_preedit_clear(ic);
 	return;
@@ -1239,7 +1083,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 	XIMText text;
 	IMPreeditCBStruct data;
 
-	compound_text = utf8_to_compound_text(buf);
+	compound_text = utf8_to_compound_text(preedit);
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
@@ -1259,13 +1103,15 @@ nabi_ic_preedit_update(NabiIC *ic)
 	XFree(compound_text);
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_show(ic);
-	nabi_ic_preedit_draw_string(ic, buf, size);
+	nabi_ic_preedit_draw_string(ic, preedit, size);
     } else if (ic->input_style & XIMPreeditArea) {
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	nabi_ic_preedit_gdk_draw_string(ic, preedit, size);
     } else if (ic->input_style & XIMPreeditNothing) {
-	nabi_ic_preedit_gdk_draw_string(ic, buf, size);
+	nabi_ic_preedit_gdk_draw_string(ic, preedit, size);
     }
     ic->preedit.prev_length = len;
+
+    g_free(preedit);
 }
 
 void
@@ -1302,7 +1148,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 }
 
 static void
-nabi_ic_commit_utf8(NabiIC *ic, char *utf8_str)
+nabi_ic_commit_utf8(NabiIC *ic, const char *utf8_str)
 {
     IMCommitStruct commit_data;
     char *compound_text;
@@ -1337,61 +1183,18 @@ nabi_ic_commit_utf8(NabiIC *ic, char *utf8_str)
 Bool
 nabi_ic_commit(NabiIC *ic)
 {
-    int len, size;
-    char buf[64];
- 
-    if (nabi_ic_is_empty(ic))
-	return False;
-
-    nabi_ic_get_preedit_string(ic, buf, sizeof(buf), &len, &size);
-    nabi_ic_buf_clear(ic);
-
-    nabi_ic_commit_utf8(ic, buf);
+    char* str = nabi_ic_get_commit_string(ic);
+    nabi_ic_commit_utf8(ic, str);
+    g_free(str);
     return True;
 }
 
-static Bool
-nabi_ic_commit_unicode(NabiIC *ic, wchar_t ch)
+void
+nabi_ic_flush(NabiIC *ic)
 {
-    int size = 0;
-    char buf[64];
- 
-    size += hangul_wchar_to_utf8(ch, buf + size, sizeof(buf) - size);
-    buf[size] = '\0';
-
-    nabi_ic_buf_clear(ic);
-
-    nabi_ic_commit_utf8(ic, buf);
-    return True;
-}
-
-Bool
-nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval)
-{
-    /* need for sebeol symbol */
-    if (ch != 0)
-	return nabi_ic_commit_unicode(ic, ch);
-
-    /* we forward all keys which does not accepted by nabi */
-    return False;
-#if 0
-    /* This code was for mozilla bug.
-     * Mozilla crashed when xim forward key event on hangul mode,
-     * so nabi commited the key value instead of forwaring.
-     * But now it seems that this bug is fixed, so every key event
-     * will be forwarded */
-
-    /* ISO10646 charcode keyval */
-    if ((keyval & 0xff000000) == 0x01000000)
-	return nabi_ic_commit_unicode(ic, keyval & 0x00ffffff);
-
-    if ((keyval >= 0x0020 && keyval <= 0x007e) ||
-	(keyval >= 0x00a0 && keyval <= 0x00ff))
-	return nabi_ic_commit_unicode(ic, keyval);
-
-    /* Forward all other keys */
-    return False;
-#endif
+    char* str = nabi_ic_get_flush_string(ic);
+    nabi_ic_commit_utf8(ic, str);
+    g_free(str);
 }
 
 void
@@ -1499,42 +1302,170 @@ nabi_ic_status_update(NabiIC *ic)
     g_print("Status draw\n");
 }
 
-static int
-get_index_of_candidate_table (unsigned short int key,
-			      const NabiCandidateItem ***table,
-			      int size)
+static Bool
+nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
 {
-    int first, last, mid;
+    const char* str = 0;
 
-    /* binary search */
-    first = 0;
-    last = size - 1;
-    while (first <= last) {
-	mid = (first + last) / 2;
-
-	if (key == table[mid][0]->ch)
-	    return mid;
-
-	if (key < table[mid][0]->ch)
-	    last = mid - 1;
-	else
-	    first = mid + 1;
+    switch (keyval) {
+    case XK_Up:
+    case XK_k:
+	nabi_candidate_prev(ic->candidate);
+	break;
+    case XK_Down:
+    case XK_j:
+	nabi_candidate_next(ic->candidate);
+	break;
+    case XK_Left:
+    case XK_h:
+    case XK_Page_Up:
+    case XK_BackSpace:
+    case XK_KP_Subtract:
+	nabi_candidate_prev_page(ic->candidate);
+	break;
+    case XK_Right:
+    case XK_l:
+    case XK_space:
+    case XK_Page_Down:
+    case XK_KP_Add:
+    case XK_Tab:
+	nabi_candidate_next_page(ic->candidate);
+	break;
+    case XK_Escape:
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
+	break;
+    case XK_Return:
+    case XK_KP_Enter:
+	str = nabi_candidate_get_current(ic->candidate);
+	break;
+    case XK_1:
+    case XK_2:
+    case XK_3:
+    case XK_4:
+    case XK_5:
+    case XK_6:
+    case XK_7:
+    case XK_8:
+    case XK_9:
+	str = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
+	break;
+    case XK_KP_1:
+    case XK_KP_2:
+    case XK_KP_3:
+    case XK_KP_4:
+    case XK_KP_5:
+    case XK_KP_6:
+    case XK_KP_7:
+    case XK_KP_8:
+    case XK_KP_9:
+	str = nabi_candidate_get_nth(ic->candidate, keyval - XK_KP_1);
+	break;
+    case XK_KP_End:
+	str = nabi_candidate_get_nth(ic->candidate, 0);
+	break;
+    case XK_KP_Down:
+	str = nabi_candidate_get_nth(ic->candidate, 1);
+	break;
+    case XK_KP_Next:
+	str = nabi_candidate_get_nth(ic->candidate, 2);
+	break;
+    case XK_KP_Left:
+	str = nabi_candidate_get_nth(ic->candidate, 3);
+	break;
+    case XK_KP_Begin:
+	str = nabi_candidate_get_nth(ic->candidate, 4);
+	break;
+    case XK_KP_Right:
+	str = nabi_candidate_get_nth(ic->candidate, 5);
+	break;
+    case XK_KP_Home:
+	str = nabi_candidate_get_nth(ic->candidate, 6);
+	break;
+    case XK_KP_Up:
+	str = nabi_candidate_get_nth(ic->candidate, 7);
+	break;
+    case XK_KP_Prior:
+	str = nabi_candidate_get_nth(ic->candidate, 8);
+	break;
+    default:
+	return False;
     }
-    return -1;
+
+    if (str != 0) {
+	nabi_ic_insert_candidate(ic, str);
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
+    }
+
+    return True;
+}
+
+Bool
+nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
+{
+    Bool ret;
+
+    if (ic->candidate) {
+	return nabi_ic_candidate_process(ic, keysym);
+    }
+
+    /* if shift is pressed, we dont commit current string 
+     * and silently ignore it */
+    if (keysym == XK_Shift_L || keysym == XK_Shift_R)
+	return False;
+
+    /* for vi user: on Esc we change state to direct mode */
+    if (keysym == XK_Escape) {
+	nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
+	return False;
+    }
+
+    /* candiate */
+    if (nabi_server_is_candidate_key(nabi_server, keysym, state)) {
+	return nabi_ic_popup_candidate_window(ic);
+    }
+
+    /* forward key event and commit current string if any state is on */
+    if (state & 
+	(ControlMask |		/* Ctl */
+	 Mod1Mask |		/* Alt */
+	 Mod3Mask |
+	 Mod4Mask |		/* Windows */
+	 Mod5Mask)) {
+	if (!nabi_ic_is_empty(ic))
+	    nabi_ic_flush(ic);
+	return False;
+    }
+
+    if (keysym == XK_BackSpace) {
+	ret = hangul_ic_backspace(ic->hic);
+	if (ret)
+	    nabi_ic_preedit_update(ic);
+	return ret;
+    }
+
+    keysym = nabi_server_normalize_keysym(nabi_server, keysym, state);
+    ret = hangul_ic_process(ic->hic, keysym);
+
+    nabi_ic_commit(ic);
+    nabi_ic_preedit_update(ic);
+
+    return ret;
 }
 
 static void
 nabi_ic_candidate_commit_cb(NabiCandidate *candidate, gpointer data)
 {
-    wchar_t ch = 0;
+    const char* str = 0;
     NabiIC *ic;
 
     if (candidate == NULL || data == NULL)
 	return;
 
     ic = (NabiIC*)data;
-    ch = nabi_candidate_get_current(candidate);
-    nabi_ic_insert_candidate(ic, ch);
+    str = nabi_candidate_get_current(candidate);
+    nabi_ic_insert_candidate(ic, str);
     nabi_candidate_delete(candidate);
     ic->candidate = NULL;
 }
@@ -1543,8 +1474,8 @@ Bool
 nabi_ic_popup_candidate_window (NabiIC *ic)
 {
     Window parent = 0;
-    unsigned short int key = 0;
-    const NabiCandidateItem **ptr;
+    char* preedit;
+    HanjaList* list;
 
     if (ic->focus_window != 0)
 	parent = ic->focus_window;
@@ -1554,46 +1485,30 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     if (ic->candidate != NULL)
 	nabi_candidate_delete(ic->candidate);
 
-    if ((ic->choseong[0] != 0 &&
-	 ic->jungseong[0] == 0 &&
-	 ic->jongseong[0] == 0)) {
-	key = hangul_choseong_to_cjamo(ic->choseong[0]);
-    } else if (ic->choseong[0] != 0 && ic->jungseong[0] != 0) {
-	key = hangul_jamo_to_syllable (ic->choseong[0],
-				       ic->jungseong[0],
-				       ic->jongseong[0]);
-    }
+    preedit = nabi_ic_get_preedit_string(ic);
+    list = hanja_table_match_prefix(nabi_server->hanja_table, preedit);
 
-    if (key > 0) {
-	int index;
-	index = get_index_of_candidate_table(key,
-		 (const NabiCandidateItem ***)nabi_server->candidate_table, 
-		 nabi_server->candidate_table_size);
-
-	if (index >= 0) {
-	    ptr = (const NabiCandidateItem **)
-		    nabi_server->candidate_table[index] + 1;
-	    ic->candidate = nabi_candidate_new(NULL, 9, ptr, parent,
+    if (list != NULL) {
+	ic->candidate = nabi_candidate_new(NULL, 9, list, parent,
 				    &nabi_ic_candidate_commit_cb, ic);
 	    return True;
-	}
     }
 
     return False;
 }
 
 void
-nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch)
+nabi_ic_insert_candidate(NabiIC *ic, const char* str)
 {
     if (nabi_ic_is_destroyed(ic))
 	return;
 
-    if (ch == 0)
+    if (str == NULL)
 	return;
 
-    nabi_ic_buf_clear(ic);
+    hangul_ic_reset(ic->hic);
     nabi_ic_preedit_update(ic);
-    nabi_ic_commit_unicode(ic, ch);
+    nabi_ic_commit_utf8(ic, str);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */

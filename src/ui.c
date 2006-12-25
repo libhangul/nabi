@@ -73,18 +73,6 @@ static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
 
-/* 아래 배열은 단지 키보드 이름을 번역하게 하기 위한 것이다.
- * 따라서 사용하지 않는다, 그러나 사용하지 않는 변수를 추가하면 
- * 컴파일 할때 워닝을 내보기 때문에, 사용하는 척 한다. */
-static const char* keyboard_names[] = {
-    N_("2 set"),
-    N_("3 set with 2 set layout"),
-    N_("3 set final"),
-    N_("3 set 390"),
-    N_("3 set no-shift"),
-    N_("3 set yetguel")
-};
-
 enum {
     CONF_TYPE_BOOL,
     CONF_TYPE_INT,
@@ -110,11 +98,7 @@ const static struct config_item config_items[] = {
     { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
     { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
-    { "keyboard_table_name",CONF_TYPE_STR,  OFFSET(keyboard_table_name)      },
-    { "keyboard_table_dir", CONF_TYPE_STR,  OFFSET(keyboard_table_dir)       },
-    { "compose_table_name", CONF_TYPE_STR,  OFFSET(compose_table_name)       },
-    { "compose_table_dir",  CONF_TYPE_STR,  OFFSET(compose_table_dir)        },
-    { "candidate_table",    CONF_TYPE_STR,  OFFSET(candidate_table_filename) },
+    { "hangul_keyboard",    CONF_TYPE_STR,  OFFSET(hangul_keyboard)          },
     { "triggerkeys",        CONF_TYPE_STR,  OFFSET(trigger_keys)             },
     { "candidatekeys",      CONF_TYPE_STR,  OFFSET(candidate_keys)           },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
@@ -225,18 +209,10 @@ load_config_file(void)
     nabi->xim_name = g_strdup(PACKAGE);
     nabi->theme = g_strdup("SimplyRed");
     nabi->icon_size = 24;
-    nabi->keyboard_table_name = g_strdup(DEFAULT_KEYBOARD);
-    nabi->keyboard_table_dir = g_build_filename(NABI_DATA_DIR,
-						"keyboard",
-						NULL);
-    nabi->compose_table_name = g_strdup("default");
-    nabi->compose_table_dir = g_build_filename(NABI_DATA_DIR,
-					       "compose",
-					       NULL);
-    nabi->candidate_table_filename = g_build_filename(NABI_DATA_DIR,
-						      "candidate",
-						      "nabi.txt",
-						      NULL);
+
+    nabi->hangul_keyboard = g_strdup("2");
+    nabi->latin_keyboard = g_strdup("none");
+
     nabi->trigger_keys = g_strdup("Hangul,Shift+space");
     nabi->candidate_keys = g_strdup("Hangul_Hanja,F9");
 
@@ -321,58 +297,6 @@ nabi_save_config_file(void)
 }
 
 static void
-load_compose_table(void)
-{
-    Bool ret;
-    const char *path;
-    gchar *filename;
-    DIR *dir;
-    struct dirent *dent;
-    gboolean flag = FALSE;
-
-    path = nabi->compose_table_dir;
-    dir = opendir(path);
-    if (dir == NULL) {
-	fprintf(stderr,
-		_("Nabi: Can't open compose table dir: %s (%s)\n"),
-		path, strerror(errno));
-	return;
-    }
-
-    for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
-	if (dent->d_name[0] == '.')
-	    continue;
-
-	filename = g_build_filename(path, dent->d_name, NULL);
-	ret = nabi_server_load_compose_table(nabi_server, filename);
-	if (ret) {
-	    flag = TRUE;
-	} else {
-	    fprintf(stderr, _("Nabi: Can't load compose table: %s\n"),filename);
-	}
-	g_free(filename);
-    }
-    closedir(dir);
-
-    if (!flag) {
-	/* we have no valid compose table */
-	fprintf(stderr, _("Nabi: Can't load any compose table\n"));
-    }
-    nabi_server_set_compose_table(nabi_server, nabi->compose_table_name);
-}
-
-static void
-load_candidate_table(void)
-{
-    Bool ret;
-    ret = nabi_server_load_candidate_table(nabi_server,
-					   nabi->candidate_table_filename);
-    if (!ret) {
-	fprintf(stderr, _("Nabi: Can't load candidate table\n"));
-    }
-}
-
-static void
 load_colors(void)
 {
     gboolean ret;
@@ -413,47 +337,11 @@ load_colors(void)
 static void
 set_up_keyboard(void)
 {
-    Bool ret;
-    const char *path;
-    gchar *filename;
-    DIR *dir;
-    struct dirent *dent;
-    gboolean flag = FALSE;
-
     /* dvorak set */
     nabi_server_set_dvorak(nabi_server, nabi->dvorak);
 
-    /* load keyboard tables from keyboard table dir */
-    path = nabi->keyboard_table_dir;
-    dir = opendir(path);
-    if (dir == NULL) {
-	fprintf(stderr, _("Nabi: Can't open keyboard table dir: %s\n"), path);
-	return;
-    }
-
-    for (dent = readdir(dir); dent != NULL; dent = readdir(dir)) {
-	if (dent->d_name[0] == '.')
-	    continue;
-
-	filename = g_build_filename(path, dent->d_name, NULL);
-	ret = nabi_server_load_keyboard_table(nabi_server, filename);
-	if (ret) {
-	    flag = TRUE;
-	} else {
-	    fprintf(stderr,
-		    _("Nabi: Can't load keyboard table: %s\n"), filename);
-	}
-	g_free(filename);
-    }
-    closedir(dir);
-
-    if (!flag) {
-	/* we have no valid keyboard table */
-	fprintf(stderr, _("Nabi: Can't load any keyboard table\n"));
-    }
-
     /* set keyboard */
-    nabi_server_set_keyboard_table(nabi_server, nabi->keyboard_table_name);
+    nabi_server_set_hangul_keyboard(nabi_server, nabi->hangul_keyboard);
 }
 
 void
@@ -470,11 +358,9 @@ nabi_app_new(void)
     nabi->session_id = NULL;
 
     nabi->theme = NULL;
-    nabi->keyboard_table_name = NULL;
-    nabi->keyboard_table_dir = NULL;
-    nabi->compose_table_name = NULL;
-    nabi->compose_table_dir = NULL;
-    nabi->candidate_table_filename = NULL;
+
+    nabi->hangul_keyboard = NULL;
+    nabi->latin_keyboard = NULL;
 
     nabi->trigger_keys = NULL;
     nabi->candidate_keys = NULL;
@@ -621,8 +507,6 @@ nabi_app_setup_server(void)
 	gtk_widget_destroy(message);
     }
 
-    load_compose_table();
-    load_candidate_table();
     set_up_keyboard();
     load_colors();
     set_up_output_mode();
@@ -675,13 +559,8 @@ nabi_app_free(void)
 
     g_free(nabi->theme);
 
-    /* keyboard map */
-    g_free(nabi->keyboard_table_name);
-    g_free(nabi->keyboard_table_dir);
-
-    /* compose_table */
-    g_free(nabi->compose_table_name);
-    g_free(nabi->compose_table_dir);
+    g_free(nabi->hangul_keyboard);
+    g_free(nabi->latin_keyboard);
 
     g_free(nabi->output_mode);
 
@@ -1103,8 +982,6 @@ create_menu(void)
     GtkWidget* menu_item;
     GtkWidget* image;
     GtkAccelGroup *accel_group;
-    NabiKeyboardTable *table;
-    GList *list;
     GSList *radio_group = NULL;
 
     accel_group = gtk_accel_group_new();
@@ -1144,23 +1021,21 @@ create_menu(void)
 
     /* keyboard list */
     if (!nabi->status_only) {
-	/* 아래 변수는 실제로 사용하진 않지만 컴파일 할때 워닝이 나지 
-	 * 않게 하기 위하여 사용하는 척 한다. */
-	(void)keyboard_names;
-	list = nabi_server->keyboard_tables;
-	while (list != NULL) {
-	    table = (NabiKeyboardTable*)list->data;
+	int i = 0;
+	while (nabi_server->hangul_keyboard_list[i].id != NULL) {
+	    const char* id = nabi_server->hangul_keyboard_list[i].id;
+	    const char* name = nabi_server->hangul_keyboard_list[i].name;
 	    menu_item = gtk_radio_menu_item_new_with_label(radio_group,
-							   _(table->name));
+							   _(name));
 	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
 	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
 	    gtk_widget_show(menu_item);
 	    g_signal_connect(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_keyboard), table->name);
-	    if (strcmp(table->name, nabi->keyboard_table_name) == 0)
+			     G_CALLBACK(on_menu_keyboard), (gpointer)id);
+	    if (strcmp(id, nabi->hangul_keyboard) == 0)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
 					       TRUE);
-	    list = list->next;
+	    i++;
 	}
 	/* do not add dvorak option to menu
 	menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
@@ -1553,9 +1428,9 @@ void
 nabi_app_set_keyboard(const char *name)
 {
     if (name != NULL) {
-	nabi_server_set_keyboard_table(nabi_server, name);
-	g_free(nabi->keyboard_table_name);
-	nabi->keyboard_table_name = g_strdup(name);
+	nabi_server_set_hangul_keyboard(nabi_server, name);
+	g_free(nabi->hangul_keyboard);
+	nabi->hangul_keyboard = g_strdup(name);
 	nabi_save_config_file();
     }
 }

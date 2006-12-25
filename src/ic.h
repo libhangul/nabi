@@ -24,6 +24,8 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 
+#include <hangul.h>
+
 #include "../IMdkit/IMdkit.h"
 #include "../IMdkit/Xi18n.h"
 
@@ -101,15 +103,7 @@ struct _NabiIC {
 
     /* hangul data */
     NabiInputMode       mode;
-    int                 index;            /* stack index */
-    wchar_t             stack[12];
-
-    int                 lindex;           /* choseong  index */
-    int                 vindex;           /* jungsoeng index */
-    int                 tindex;           /* jongseong index */
-    wchar_t             choseong[4];
-    wchar_t             jungseong[4];
-    wchar_t             jongseong[4];
+    HangulInputContext* hic;
 
     /* hanja or symbol select window */
     NabiCandidate*	candidate;
@@ -129,14 +123,7 @@ void    nabi_ic_real_destroy(NabiIC *ic);
 void    nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data);
 void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 
-void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
-
-#define nabi_ic_is_empty(ic)        ((ic)->choseong[0]  == 0 &&     \
-                                     (ic)->jungseong[0] == 0 &&     \
-                                     (ic)->jongseong[0] == 0 )
-void    nabi_ic_push(NabiIC *ic, wchar_t ch);
-wchar_t nabi_ic_peek(NabiIC *ic);
-wchar_t nabi_ic_pop(NabiIC *ic);
+Bool    nabi_ic_is_empty(NabiIC *ic);
 
 void    nabi_ic_mode_direct(NabiIC *ic);
 void    nabi_ic_mode_compose(NabiIC *ic);
@@ -144,7 +131,6 @@ void    nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode);
 
 void    nabi_ic_preedit_start(NabiIC *ic);
 void    nabi_ic_preedit_done(NabiIC *ic);
-void    nabi_ic_preedit_insert(NabiIC *ic);
 void    nabi_ic_preedit_update(NabiIC *ic);
 void    nabi_ic_preedit_clear(NabiIC *ic);
 
@@ -155,8 +141,11 @@ void    nabi_ic_status_update(NabiIC *ic);
 Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 
+Bool    nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state);
+void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
+
 Bool    nabi_ic_popup_candidate_window(NabiIC *ic);
-void    nabi_ic_insert_candidate(NabiIC *ic, wchar_t ch);
+void    nabi_ic_insert_candidate(NabiIC *ic, const char* str);
 
 #endif /* _NABIIC_H_ */
 /* vim: set ts=8 sw=4 sts=4 : */

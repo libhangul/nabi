@@ -243,153 +243,11 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_filter_candidate(NabiIC* ic, KeySym keyval)
-{
-    wchar_t ch = 0;
-
-    switch (keyval) {
-    case XK_Up:
-    case XK_k:
-	nabi_candidate_prev(ic->candidate);
-	break;
-    case XK_Down:
-    case XK_j:
-	nabi_candidate_next(ic->candidate);
-	break;
-    case XK_Left:
-    case XK_h:
-    case XK_Page_Up:
-    case XK_BackSpace:
-    case XK_KP_Subtract:
-	nabi_candidate_prev_page(ic->candidate);
-	break;
-    case XK_Right:
-    case XK_l:
-    case XK_space:
-    case XK_Page_Down:
-    case XK_KP_Add:
-    case XK_Tab:
-	nabi_candidate_next_page(ic->candidate);
-	break;
-    case XK_Escape:
-	nabi_candidate_delete(ic->candidate);
-	ic->candidate = NULL;
-	break;
-    case XK_Return:
-    case XK_KP_Enter:
-	ch = nabi_candidate_get_current(ic->candidate);
-	break;
-    case XK_1:
-    case XK_2:
-    case XK_3:
-    case XK_4:
-    case XK_5:
-    case XK_6:
-    case XK_7:
-    case XK_8:
-    case XK_9:
-	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_1);
-	break;
-    case XK_KP_1:
-    case XK_KP_2:
-    case XK_KP_3:
-    case XK_KP_4:
-    case XK_KP_5:
-    case XK_KP_6:
-    case XK_KP_7:
-    case XK_KP_8:
-    case XK_KP_9:
-	ch = nabi_candidate_get_nth(ic->candidate, keyval - XK_KP_1);
-	break;
-    case XK_KP_End:
-	ch = nabi_candidate_get_nth(ic->candidate, 0);
-	break;
-    case XK_KP_Down:
-	ch = nabi_candidate_get_nth(ic->candidate, 1);
-	break;
-    case XK_KP_Next:
-	ch = nabi_candidate_get_nth(ic->candidate, 2);
-	break;
-    case XK_KP_Left:
-	ch = nabi_candidate_get_nth(ic->candidate, 3);
-	break;
-    case XK_KP_Begin:
-	ch = nabi_candidate_get_nth(ic->candidate, 4);
-	break;
-    case XK_KP_Right:
-	ch = nabi_candidate_get_nth(ic->candidate, 5);
-	break;
-    case XK_KP_Home:
-	ch = nabi_candidate_get_nth(ic->candidate, 6);
-	break;
-    case XK_KP_Up:
-	ch = nabi_candidate_get_nth(ic->candidate, 7);
-	break;
-    case XK_KP_Prior:
-	ch = nabi_candidate_get_nth(ic->candidate, 8);
-	break;
-    default:
-	return False;
-    }
-
-    if (ch != 0) {
-	nabi_ic_insert_candidate(ic, ch);
-	nabi_candidate_delete(ic->candidate);
-	ic->candidate = NULL;
-    }
-
-    return True;
-}
-
-/* return true if we treat this key event */
-static Bool
-nabi_filter_keyevent(NabiIC* ic, KeySym keyval, XKeyEvent* kevent)
-{
-    /*
-    g_print("IC ID: %d\n", ic->id);
-    g_print("KEY:   0x%x\n", keyval);
-    g_print("STATE: 0x%x\n", kevent->state);
-    */
-    if (ic->candidate) {
-	return nabi_filter_candidate(ic, keyval);
-    }
-
-    /* if shift is pressed, we dont commit current string 
-     * and silently ignore it */
-    if (keyval == XK_Shift_L || keyval == XK_Shift_R)
-	return False;
-
-    /* for vi user: on Esc we change state to direct mode */
-    if (keyval == XK_Escape) {
-	nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
-	return False;
-    }
-
-    /* candiate */
-    if (nabi_server_is_candidate_key(nabi_server, keyval, kevent->state)) {
-	return nabi_ic_popup_candidate_window(ic);
-    }
-
-    /* forward key event and commit current string if any state is on */
-    if (kevent->state & 
-	(ControlMask |		/* Ctl */
-	 Mod1Mask |		/* Alt */
-	 Mod3Mask |
-	 Mod4Mask |		/* Windows */
-	 Mod5Mask)) {
-	if (!nabi_ic_is_empty(ic))
-	    nabi_ic_commit(ic);
-	return False;
-    }
-
-    return nabi_server->automata(ic, keyval, kevent->state);
-}
-
-static Bool
 nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 {
     NabiIC* ic;
     KeySym keysym;
+    int index;
     XKeyEvent *kevent;
     IMForwardEventStruct *data;
     
@@ -399,7 +257,8 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	return True;
 
     kevent = (XKeyEvent*)&data->event;
-    keysym = XLookupKeysym(kevent, 0);
+    index = (kevent->state & ShiftMask) ? 1 : 0;
+    keysym = XLookupKeysym(kevent, index);
 
     ic = nabi_server_get_ic(nabi_server, data->icid);
     if (ic == NULL)
@@ -430,7 +289,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 	    nabi_ic_preedit_start(ic);
 	    nabi_ic_status_start(ic);
 	}
-	if (!nabi_filter_keyevent(ic, keysym, kevent))
+	if (!nabi_ic_process_keyevent(ic, keysym, kevent->state))
 	    IMForwardEvent(ims, (XPointer)data);
     }
 
@@ -447,6 +306,8 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 
     if (ic->connect != NULL)
 	nabi_ic_set_mode(ic, ic->connect->mode);
+
+    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
 
     return True;
 }

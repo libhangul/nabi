@@ -22,14 +22,10 @@
 #include <X11/Xlib.h>
 #include <gtk/gtk.h>
 
-typedef struct _NabiCandidate     NabiCandidate;
-typedef struct _NabiCandidateItem NabiCandidateItem;
-typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
+#include <hangul.h>
 
-struct _NabiCandidateItem {
-    unsigned short int ch;
-    gchar *comment;
-};
+typedef struct _NabiCandidate     NabiCandidate;
+typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
 
 struct _NabiCandidate {
     GtkWidget *window;
@@ -37,18 +33,19 @@ struct _NabiCandidate {
     gchar *label;
     GtkListStore *store;
     GtkWidget *treeview;
-    const NabiCandidateItem **data;
+    const Hanja **data;
     NabiCandidateCommitFunc commit;
     gpointer commit_data;
     int first;
     int n;
     int n_per_page;
     int current;
+    HanjaList *hanja_list;
 };
 
 NabiCandidate*     nabi_candidate_new(char *label_str,
 		   	              int n_per_page,
-			              const NabiCandidateItem **data,
+			              HanjaList* list,
 			              Window parent,
 				      NabiCandidateCommitFunc commit,
 				      gpointer commit_data);
@@ -58,12 +55,8 @@ void               nabi_candidate_prev_row(NabiCandidate *candidate);
 void               nabi_candidate_next_row(NabiCandidate *candidate);
 void               nabi_candidate_prev_page(NabiCandidate *candidate);
 void               nabi_candidate_next_page(NabiCandidate *candidate);
-unsigned short int nabi_candidate_get_current(NabiCandidate *candidate);
-unsigned short int nabi_candidate_get_nth(NabiCandidate *candidate, int n);
+const char*        nabi_candidate_get_current(NabiCandidate *candidate);
+const char*        nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void               nabi_candidate_delete(NabiCandidate *candidate);
-
-NabiCandidateItem* nabi_candidate_item_new(unsigned short int ch,
-					   const gchar *comment);
-void               nabi_candidate_item_delete(NabiCandidateItem *item);
 
 #endif /* _NABICANDIDATE_H_ */
