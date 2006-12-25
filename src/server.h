@@ -189,7 +189,7 @@ void        nabi_server_set_candidate_keys(NabiServer *server, char **keys);
 void        nabi_server_set_dvorak      (NabiServer *server,
                                          Bool flag);
 void        nabi_server_set_hangul_keyboard(NabiServer *server,
-					 const char *name);
+					 const char *id);
 void        nabi_server_set_compose_table(NabiServer *server,
 					 const char *name);
 void        nabi_server_set_mode_info_cb(NabiServer *server,

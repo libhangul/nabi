@@ -203,12 +203,12 @@ nabi_server_destroy(NabiServer *server)
 }
 
 void
-nabi_server_set_hangul_keyboard(NabiServer *server, const char *name)
+nabi_server_set_hangul_keyboard(NabiServer *server, const char *id)
 {
     if (server->hangul_keyboard != NULL)
 	g_free(server->hangul_keyboard);
 
-    server->hangul_keyboard = g_strdup(name);
+    server->hangul_keyboard = g_strdup(id);
 }
 
 void
