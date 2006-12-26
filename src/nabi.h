@@ -43,6 +43,7 @@ struct _NabiApplication {
     /* keyboard option */
     gchar*          hangul_keyboard;
     gchar*          latin_keyboard;
+    gchar*          keyboard_layouts_file;
 
     /* xim server option */
     gboolean        dvorak;
@@ -71,8 +72,8 @@ void nabi_app_quit(void);
 void nabi_app_free(void);
 void nabi_save_config_file(void);
 void nabi_app_set_theme(const char *name);
-void nabi_app_set_dvorak(gboolean state);
-void nabi_app_set_keyboard(const char *name);
+void nabi_app_set_hangul_keyboard(const char *id);
+void nabi_app_set_latin_keyboard(const char *name);
 void nabi_app_set_candidate_font(const char *font);
 void nabi_app_set_trigger_keys(char **keys);
 void nabi_app_set_candidate_keys(char **keys);

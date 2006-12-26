@@ -41,7 +41,7 @@ enum {
     N_COLS
 };
 
-static GtkWidget *keyboard_list_treeview = NULL;
+static GtkWidget *hangul_keyboard_list_combo = NULL;
 
 static GdkPixbuf *
 load_resized_icons_from_file(const gchar *filename, int size)
@@ -274,48 +274,24 @@ create_theme_page(void)
     return page;
 }
 
-static GtkTreeModel*
-get_keyboard_list(void)
-{
-    int i;
-    const NabiHangulKeyboard* keyboard;
-    GtkListStore *store;
-    GtkTreeIter iter;
-
-    store = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-
-    i = 0;
-    while (nabi_server->hangul_keyboard_list[i].id != NULL) {
-	keyboard = &(nabi_server->hangul_keyboard_list[i]);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set (store, &iter, 0, keyboard->id, -1);
-	gtk_list_store_set (store, &iter, 1, _(keyboard->name), -1);
-	i++;
-    }
-
-    return GTK_TREE_MODEL(store);
-}
-
 static void
-on_keyboard_list_selection_changed(GtkTreeSelection *selection, gpointer data)
+on_hangul_keyboard_changed(GtkComboBox *widget, gpointer data)
 {
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-    gchar *name = NULL;
-
-    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
-	gtk_tree_model_get(model, &iter, 0, &name, -1);
-	nabi_app_set_keyboard(name);
-	g_free(name);
+    int i = gtk_combo_box_get_active(widget);
+    const char* id = nabi_server->hangul_keyboard_list[i].id;
+    if (id != NULL) {
+	nabi_app_set_hangul_keyboard(id);
     }
 }
 
 static void
-on_dvorak_button_toggled(GtkToggleButton *button, gpointer data)
+on_latin_keyboard_changed(GtkComboBox *widget, gpointer data)
 {
-    gboolean state;
-    state = gtk_toggle_button_get_active(button);
-    nabi_app_set_dvorak(state);
+    int i = gtk_combo_box_get_active(widget);
+    NabiKeyboardLayout* item = g_list_nth_data(nabi_server->layouts, i);
+    if (item != NULL) {
+	nabi_app_set_latin_keyboard(item->name);
+    }
 }
 
 static GtkWidget*
@@ -326,14 +302,9 @@ create_keyboard_page(void)
     GtkWidget *vbox1;
     GtkWidget *vbox2;
     GtkWidget *label;
-    GtkWidget *scrolledwindow;
-    GtkWidget *treeview;
-    GtkTreeViewColumn *column;
-    GtkTreeSelection *selection;
-    GtkCellRenderer *renderer;
-    GtkTreeModel *model;
-    GtkTreePath *path;
-    GtkWidget *radio_button;
+    GtkWidget *combo_box;
+    GList* list;
+    int i;
 
     page = gtk_vbox_new(FALSE, 12);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -357,32 +328,18 @@ create_keyboard_page(void)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
-					GTK_SHADOW_IN);
-    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
-
-    model = get_keyboard_list();
-    treeview = gtk_tree_view_new_with_model(model);
-    g_object_unref(G_OBJECT(model));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Hangul Keyboard"));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer, "text", 1);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-
-    g_signal_connect(G_OBJECT(selection), "changed",
-		     G_CALLBACK(on_keyboard_list_selection_changed), NULL);
+    combo_box = gtk_combo_box_new_text();
+    for (i = 0; nabi_server->hangul_keyboard_list[i].name != NULL; i++) {
+	gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),
+			      _(nabi_server->hangul_keyboard_list[i].name));
+	if (strcmp(nabi->hangul_keyboard, nabi_server->hangul_keyboard_list[i].id) == 0) {
+	    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
+	}
+    }
+    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, TRUE, 0);
+    g_signal_connect(G_OBJECT(combo_box), "changed",
+		     G_CALLBACK(on_hangul_keyboard_changed), NULL);
+    hangul_keyboard_list_combo = combo_box;
 
     vbox1 = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
@@ -403,28 +360,25 @@ create_keyboard_page(void)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
 
-    radio_button = gtk_radio_button_new_with_label(NULL,
-					_("Querty keyboard"));
-    gtk_box_pack_start(GTK_BOX(vbox2), radio_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button),!nabi->dvorak);
-
-    radio_button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(radio_button),
-							_("Dvorak keyboard"));
-    gtk_box_pack_start(GTK_BOX(vbox2), radio_button, FALSE, TRUE, 0);
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), nabi->dvorak);
-    g_signal_connect(G_OBJECT(radio_button), "toggled",
-		     G_CALLBACK(on_dvorak_button_toggled), NULL);
-
-    /* hilight current selected keyboard table */
-    path = search_text_in_model(model, 0, nabi->hangul_keyboard);
-    if (path) {
-	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
-	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview),
-				    path, NULL, TRUE, 0.5, 0.0);
-	gtk_tree_path_free(path);
+    /* latin keyboard */
+    combo_box = gtk_combo_box_new_text();
+    i = 0;
+    list = nabi_server->layouts;
+    while (list != NULL) {
+	NabiKeyboardLayout* layout = list->data;
+	if (layout != NULL) {
+	    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), layout->name);
+	    if (strcmp(nabi->latin_keyboard, layout->name) == 0) {
+		gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
+	    }
+	}
+	list = g_list_next(list);
+	i++;
     }
+    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, TRUE, 0);
+    g_signal_connect(G_OBJECT(combo_box), "changed",
+		     G_CALLBACK(on_latin_keyboard_changed), NULL);
 
-    keyboard_list_treeview = treeview;
 
     return page;
 }
@@ -859,7 +813,7 @@ create_advanced_page(void)
 static void
 on_preference_destroy(GtkWidget *dialog, gpointer data)
 {
-    keyboard_list_treeview = NULL;
+    hangul_keyboard_list_combo = NULL;
 }
 
 GtkWidget*
@@ -934,17 +888,12 @@ preference_window_create(void)
 void
 preference_window_update(void)
 {
-    /* keyboard list update */
-    if (keyboard_list_treeview != NULL) {
-	GtkTreeModel *model;
-	GtkTreePath *path;
-	model = gtk_tree_view_get_model(GTK_TREE_VIEW(keyboard_list_treeview));
-	if (model != NULL) {
-	    path = search_text_in_model(model, 0, nabi->hangul_keyboard);
-	    if (path) {
-		gtk_tree_view_set_cursor (GTK_TREE_VIEW(keyboard_list_treeview),
-					  path, NULL, FALSE);
-		gtk_tree_path_free(path);
+    /* hangul keyboard list update */
+    if (hangul_keyboard_list_combo != NULL) {
+	int i;
+	for (i = 0; nabi_server->hangul_keyboard_list[i].name != NULL; i++) {
+	    if (strcmp(nabi->hangul_keyboard, nabi_server->hangul_keyboard_list[i].id) == 0) {
+		gtk_combo_box_set_active(GTK_COMBO_BOX(hangul_keyboard_list_combo), i);
 	    }
 	}
     }

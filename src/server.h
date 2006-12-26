@@ -163,12 +163,14 @@ Bool        nabi_server_is_candidate_key(NabiServer*  server,
 void        nabi_server_set_trigger_keys(NabiServer *server,
 					 char **keys);
 void        nabi_server_set_candidate_keys(NabiServer *server, char **keys);
-void        nabi_server_set_dvorak      (NabiServer *server,
-                                         Bool flag);
+
+void        nabi_server_load_keyboard_layout(NabiServer *server,
+					     const char *filename);
+void        nabi_server_set_keyboard_layout(NabiServer *server,
+					    const char* name);
 void        nabi_server_set_hangul_keyboard(NabiServer *server,
 					 const char *id);
-void        nabi_server_set_compose_table(NabiServer *server,
-					 const char *name);
+
 void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
 void        nabi_server_set_output_mode (NabiServer *server,

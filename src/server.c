@@ -642,7 +642,7 @@ nabi_keyboard_layout_new(const char* name)
 {
     NabiKeyboardLayout* layout = g_new(NabiKeyboardLayout, 1);
     layout->name = g_strdup(name);
-    layout->table = g_array_new(FALSE, FALSE, sizeof(struct KeySymPair));
+    layout->table = NULL;
     return layout;
 }
 
@@ -659,18 +659,22 @@ nabi_keyboard_layout_append(NabiKeyboardLayout* layout,
 			    KeySym key, KeySym value)
 {
     struct KeySymPair item = { key, value };
+    if (layout->table == NULL)
+	layout->table = g_array_new(FALSE, FALSE, sizeof(struct KeySymPair));
     g_array_append_vals(layout->table, &item, 1);
 }
 
 KeySym
 nabi_keyboard_layout_get_key(NabiKeyboardLayout* layout, KeySym keysym)
 {
-    struct KeySymPair key = { keysym, 0 };
-    struct KeySymPair* ret;
-    ret = bsearch(&key, layout->table->data, layout->table->len,
-		  sizeof(key), nabi_keyboard_layout_cmp);
-    if (ret) {
-	return ret->value;
+    if (layout->table != NULL) {
+	struct KeySymPair key = { keysym, 0 };
+	struct KeySymPair* ret;
+	ret = bsearch(&key, layout->table->data, layout->table->len,
+		      sizeof(key), nabi_keyboard_layout_cmp);
+	if (ret) {
+	    return ret->value;
+	}
     }
 
     return keysym;
@@ -700,6 +704,10 @@ nabi_server_load_keyboard_layout(NabiServer *server, const char *filename)
 	fprintf(stderr, "Nabi: Failed to open keyboard layout file: %s\n", filename);
 	return;
     }
+
+    layout = nabi_keyboard_layout_new("none");
+    list = g_list_append(list, layout);
+    layout = NULL;
 
     for (line = fgets(buf, sizeof(buf), file);
 	 line != NULL;
@@ -753,7 +761,26 @@ nabi_server_load_keyboard_layout(NabiServer *server, const char *filename)
     }
 
     server->layouts = list;
-    server->layout = layout;
+}
+
+void
+nabi_server_set_keyboard_layout(NabiServer *server, const char* name)
+{
+    GList* list;
+
+    if (strcmp(name, "none") == 0) {
+	server->layout = NULL;
+	return;
+    }
+
+    list = server->layouts;
+    while (list != NULL) {
+	NabiKeyboardLayout* layout = list->data;
+	if (strcmp(layout->name, name) == 0) {
+	    server->layout = layout;
+	}
+	list = g_list_next(list);
+    }
 }
 
 KeySym

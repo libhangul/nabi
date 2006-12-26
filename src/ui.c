@@ -99,6 +99,8 @@ const static struct config_item config_items[] = {
     { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
     { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
     { "hangul_keyboard",    CONF_TYPE_STR,  OFFSET(hangul_keyboard)          },
+    { "latin_keyboard",     CONF_TYPE_STR,  OFFSET(latin_keyboard)           },
+    { "keyboard_layouts",   CONF_TYPE_STR,  OFFSET(keyboard_layouts_file)    },
     { "triggerkeys",        CONF_TYPE_STR,  OFFSET(trigger_keys)             },
     { "candidatekeys",      CONF_TYPE_STR,  OFFSET(candidate_keys)           },
     { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
@@ -212,6 +214,7 @@ load_config_file(void)
 
     nabi->hangul_keyboard = g_strdup("2");
     nabi->latin_keyboard = g_strdup("none");
+    nabi->keyboard_layouts_file = g_strdup("keyboard_layouts");
 
     nabi->trigger_keys = g_strdup("Hangul,Shift+space");
     nabi->candidate_keys = g_strdup("Hangul_Hanja,F9");
@@ -337,8 +340,18 @@ load_colors(void)
 static void
 set_up_keyboard(void)
 {
-    /* dvorak set */
-    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
+    /* keyboard layout */
+    if (g_path_is_absolute(nabi->keyboard_layouts_file)) {
+	nabi_server_load_keyboard_layout(nabi_server,
+					 nabi->keyboard_layouts_file);
+    } else {
+	char* filename = g_build_filename(NABI_DATA_DIR,
+					  nabi->keyboard_layouts_file, NULL);
+	nabi_server_load_keyboard_layout(nabi_server,
+					 filename);
+	g_free(filename);
+    }
+    nabi_server_set_keyboard_layout(nabi_server, nabi->latin_keyboard);
 
     /* set keyboard */
     nabi_server_set_hangul_keyboard(nabi_server, nabi->hangul_keyboard);
@@ -361,6 +374,7 @@ nabi_app_new(void)
 
     nabi->hangul_keyboard = NULL;
     nabi->latin_keyboard = NULL;
+    nabi->keyboard_layouts_file = NULL;
 
     nabi->trigger_keys = NULL;
     nabi->candidate_keys = NULL;
@@ -965,7 +979,7 @@ on_menu_preference(GtkWidget *widget)
 static void
 on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
-    nabi_app_set_keyboard((const char*)data);
+    nabi_app_set_hangul_keyboard((const char*)data);
     preference_window_update();
 }
 
@@ -1417,22 +1431,24 @@ nabi_app_set_theme(const gchar *name)
 }
 
 void
-nabi_app_set_dvorak(gboolean state)
+nabi_app_set_latin_keyboard(const char* name)
 {
-    nabi->dvorak = state;
-    nabi_server_set_dvorak(nabi_server, nabi->dvorak);
+    g_free(nabi->latin_keyboard);
+    nabi->latin_keyboard = g_strdup(name);
+    nabi_server_set_keyboard_layout(nabi_server, name);
     nabi_save_config_file();
 }
 
 void
-nabi_app_set_keyboard(const char *name)
+nabi_app_set_hangul_keyboard(const char *id)
 {
-    if (name != NULL) {
-	nabi_server_set_hangul_keyboard(nabi_server, name);
-	g_free(nabi->hangul_keyboard);
-	nabi->hangul_keyboard = g_strdup(name);
-	nabi_save_config_file();
-    }
+    nabi_server_set_hangul_keyboard(nabi_server, id);
+    g_free(nabi->hangul_keyboard);
+    if (id == NULL)
+	nabi->hangul_keyboard = NULL;
+    else
+	nabi->hangul_keyboard = g_strdup(id);
+    nabi_save_config_file();
 }
 
 void
