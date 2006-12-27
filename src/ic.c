@@ -40,6 +40,9 @@ static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_commit_string(NabiIC *ic);
 static char* nabi_ic_get_flush_string(NabiIC *ic);
+static bool  nabi_ic_hic_filter(ucschar* str,
+				ucschar cho, ucschar jung, ucschar jong,
+				void* data);
 
 static inline void *
 nabi_malloc(size_t size)
@@ -176,6 +179,7 @@ nabi_ic_init_values(NabiIC *ic)
 
     if (ic->hic == NULL)
 	ic->hic = hangul_ic_new(NULL);
+    hangul_ic_set_filter(ic->hic, nabi_ic_hic_filter, ic);
     hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
 }
 
@@ -366,6 +370,16 @@ nabi_ic_set_hangul_keyboard(NabiIC *ic, const char* hangul_keyboard)
 	return;
 
     hangul_ic_select_keyboard(ic->hic, hangul_keyboard);
+}
+
+static bool
+nabi_ic_hic_filter(ucschar* str, ucschar cho, ucschar jung, ucschar jong,
+	           void* data)
+{
+    char* utf8 = g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
+    bool ret = nabi_server_is_valid_str(nabi_server, utf8);
+    g_free(utf8);
+    return ret;
 }
 
 static void
