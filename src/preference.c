@@ -391,6 +391,7 @@ create_keyboard_page(void)
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_latin_keyboard_changed), NULL);
 
+    g_object_unref(G_OBJECT(size_group));
 
     return page;
 }
