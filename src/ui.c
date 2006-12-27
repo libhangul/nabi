@@ -1036,9 +1036,11 @@ create_menu(void)
     /* keyboard list */
     if (!nabi->status_only) {
 	int i = 0;
-	while (nabi_server->hangul_keyboard_list[i].id != NULL) {
-	    const char* id = nabi_server->hangul_keyboard_list[i].id;
-	    const char* name = nabi_server->hangul_keyboard_list[i].name;
+	const NabiHangulKeyboard* keyboards;
+	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
+	while (keyboards[i].id != NULL) {
+	    const char* id = keyboards[i].id;
+	    const char* name = keyboards[i].name;
 	    menu_item = gtk_radio_menu_item_new_with_label(radio_group,
 							   _(name));
 	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));

@@ -60,6 +60,8 @@ static NabiHangulKeyboard hangul_keyboard_list[] = {
 /* from handler.c */
 Bool nabi_handler(XIMS ims, IMProtocol *call_data);
 
+static void nabi_server_delete_layouts(NabiServer* server);
+
 long nabi_filter_mask = KeyPressMask;
 
 /* Supported Inputstyles */
@@ -187,7 +189,9 @@ nabi_server_destroy(NabiServer *server)
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
 
-    /* delete keyboard table */
+    /* keyboard */
+    nabi_server_delete_layouts(server);
+
     if (server->hangul_keyboard != NULL)
 	g_free(server->hangul_keyboard);
 
@@ -685,8 +689,19 @@ nabi_keyboard_layout_free(gpointer data, gpointer user_data)
 {
     NabiKeyboardLayout *layout = data;
     g_free(layout->name);
-    g_array_free(layout->table, TRUE);
+    if (layout->table != NULL)
+	g_array_free(layout->table, TRUE);
     g_free(layout);
+}
+
+static void
+nabi_server_delete_layouts(NabiServer* server)
+{
+    if (server->layouts != NULL) {
+	g_list_foreach(server->layouts, nabi_keyboard_layout_free, NULL);
+	g_list_free(server->layouts);
+	server->layouts = NULL;
+    }
 }
 
 void
@@ -754,12 +769,7 @@ nabi_server_load_keyboard_layout(NabiServer *server, const char *filename)
 
     fclose(file);
 
-    if (server->layouts != NULL) {
-	g_list_foreach(server->layouts, nabi_keyboard_layout_free, NULL);
-	g_list_free(server->layouts);
-	server->layouts = NULL;
-    }
-
+    nabi_server_delete_layouts(server);
     server->layouts = list;
 }
 
@@ -781,6 +791,12 @@ nabi_server_set_keyboard_layout(NabiServer *server, const char* name)
 	}
 	list = g_list_next(list);
     }
+}
+
+const NabiHangulKeyboard*
+nabi_server_get_hangul_keyboard_list(NabiServer* server)
+{
+    return server->hangul_keyboard_list;
 }
 
 KeySym

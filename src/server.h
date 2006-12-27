@@ -204,6 +204,9 @@ Bool	    nabi_server_load_keyboard_table(NabiServer *server,
 Bool	    nabi_server_load_compose_table(NabiServer *server,
 					   const char *filename);
 
+const NabiHangulKeyboard*
+nabi_server_get_hangul_keyboard_list(NabiServer* server);
+
 #endif  /* __SERVER_H_ */
 
 /* vim: set ts=8 sw=4 sts=4 : */

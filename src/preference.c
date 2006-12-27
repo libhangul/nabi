@@ -277,8 +277,13 @@ create_theme_page(void)
 static void
 on_hangul_keyboard_changed(GtkComboBox *widget, gpointer data)
 {
-    int i = gtk_combo_box_get_active(widget);
-    const char* id = nabi_server->hangul_keyboard_list[i].id;
+    int i;
+    const NabiHangulKeyboard* keyboards;
+
+    i = gtk_combo_box_get_active(widget);
+    keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
+
+    const char* id = keyboards[i].id;
     if (id != NULL) {
 	nabi_app_set_hangul_keyboard(id);
     }
@@ -303,14 +308,16 @@ create_keyboard_page(void)
     GtkWidget *vbox2;
     GtkWidget *label;
     GtkWidget *combo_box;
+    GtkSizeGroup* size_group;
     GList* list;
     int i;
+    const NabiHangulKeyboard* keyboards;
 
     page = gtk_vbox_new(FALSE, 12);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
     vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
 
     label = gtk_label_new("");
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
@@ -326,17 +333,21 @@ create_keyboard_page(void)
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, FALSE, 0);
+
+    size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
     combo_box = gtk_combo_box_new_text();
-    for (i = 0; nabi_server->hangul_keyboard_list[i].name != NULL; i++) {
+    keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
+    for (i = 0; keyboards[i].name != NULL; i++) {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),
-			      _(nabi_server->hangul_keyboard_list[i].name));
-	if (strcmp(nabi->hangul_keyboard, nabi_server->hangul_keyboard_list[i].id) == 0) {
+				  _(keyboards[i].name));
+	if (strcmp(nabi->hangul_keyboard, keyboards[i].id) == 0) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	}
     }
-    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, FALSE, 0);
+    gtk_size_group_add_widget(size_group, combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_hangul_keyboard_changed), NULL);
     hangul_keyboard_list_combo = combo_box;
@@ -375,7 +386,8 @@ create_keyboard_page(void)
 	list = g_list_next(list);
 	i++;
     }
-    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, FALSE, 0);
+    gtk_size_group_add_widget(size_group, combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_latin_keyboard_changed), NULL);
 
@@ -891,8 +903,10 @@ preference_window_update(void)
     /* hangul keyboard list update */
     if (hangul_keyboard_list_combo != NULL) {
 	int i;
-	for (i = 0; nabi_server->hangul_keyboard_list[i].name != NULL; i++) {
-	    if (strcmp(nabi->hangul_keyboard, nabi_server->hangul_keyboard_list[i].id) == 0) {
+	const NabiHangulKeyboard* keyboards;
+	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
+	for (i = 0; keyboards[i].name != NULL; i++) {
+	    if (strcmp(nabi->hangul_keyboard, keyboards[i].id) == 0) {
 		gtk_combo_box_set_active(GTK_COMBO_BOX(hangul_keyboard_list_combo), i);
 	    }
 	}
