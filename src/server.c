@@ -80,6 +80,14 @@ static XIMEncoding nabi_encodings[] = {
 };
 
 static char *nabi_locales[] = {
+    "ko_KR.UTF-8",
+    "ko_KR.utf8",
+    "ko_KR.eucKR",
+    "ko_KR.euckr",
+    "ko.UTF-8",
+    "ko.utf8",
+    "ko.eucKR",
+    "ko.euckr",
     "ko",
     NULL,
     NULL
