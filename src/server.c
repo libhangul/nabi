@@ -40,7 +40,7 @@
 #include "fontset.h"
 #include "hangul.h"
 
-#define DEFAULT_IC_TABLE_SIZE	512
+#define DEFAULT_IC_TABLE_SIZE	64
 
 struct KeySymPair {
     KeySym key;
@@ -117,16 +117,16 @@ nabi_server_new(const char *name)
     server->candidate_keys.count_keys = 0;
     server->candidate_keys.keylist = NULL;
 
-    /* connect list */
-    server->n_connected = 0;
-    server->connect_list = NULL;
+    /* connection list */
+    server->connections = NULL;
 
     /* init IC table */
+    server->last_icid = 0;
+    server->freed_icid = NULL;
     server->ic_table = g_new(NabiIC*, DEFAULT_IC_TABLE_SIZE);
     server->ic_table_size = DEFAULT_IC_TABLE_SIZE;
     for (i = 0; i < server->ic_table_size; i++)
 	server->ic_table[i] = NULL;
-    server->ic_freed = NULL;
 
     /* hangul data */
     server->layouts = NULL;
@@ -171,7 +171,7 @@ void
 nabi_server_destroy(NabiServer *server)
 {
     int i;
-    NabiConnect *connect;
+    GSList *item;
 
     if (server == NULL)
 	return;
@@ -179,17 +179,21 @@ nabi_server_destroy(NabiServer *server)
     if (server->gc != NULL)
 	g_object_unref(G_OBJECT(server->gc));
 
-    /* destroy remaining connect */
-    while (server->connect_list != NULL) {
-	connect = server->connect_list;
-	server->connect_list = server->connect_list->next;
-	printf("remove connect id: 0x%x\n", connect->id);
-	nabi_connect_destroy(connect);
+    /* destroy remaining connections */
+    item = server->connections;
+    while (item != NULL) {
+	if (item->data != NULL) {
+	    NabiConnection* conn = (NabiConnection*)item->data;
+	    printf("remove connect id: 0x%x\n", conn->id);
+	    nabi_connection_destroy(conn);
+	}
+	item = g_slist_next(item);
     }
 
     /* destroy remaining input contexts */
     for (i = 0; i < server->ic_table_size; i++) {
-	nabi_ic_real_destroy(server->ic_table[i]);
+	if (server->ic_table[i] != NULL)
+	    nabi_ic_destroy(server->ic_table[i]);
 	server->ic_table[i] = NULL;
     }
     g_free(server->ic_table);
@@ -385,20 +389,69 @@ nabi_server_init(NabiServer *server)
     server->hanja_table = hanja_table_load(NULL);
 }
 
+NabiIC*
+nabi_server_alloc_ic(NabiServer* server)
+{
+    CARD16 icid = 0;
+    NabiIC* ic;
+
+    if (server->freed_icid == NULL) {
+	server->last_icid++;
+	if (server->last_icid == 0)
+	    server->last_icid++;  /* icid에 0은 사용하지 않는다 */
+
+	if (server->last_icid >= server->ic_table_size) {
+	    gint new_size = server->ic_table_size;
+	    while (new_size <= server->last_icid) {
+		new_size += DEFAULT_IC_TABLE_SIZE / 2;
+	    }
+	    server->ic_table = g_renew(NabiIC*, server->ic_table, new_size);
+	}
+
+	icid = server->last_icid;
+    } else {
+	/* pick from ic_freed */
+	icid = (CARD16)GPOINTER_TO_UINT(server->freed_icid->data);
+	server->freed_icid = g_slist_remove(server->freed_icid, 
+					    GUINT_TO_POINTER((guint)icid));
+    }
+
+    ic = g_new(NabiIC, 1);
+    ic->id = icid;
+
+    server->ic_table[ic->id] = ic;
+
+    return ic;
+}
+
 void
-nabi_server_ic_table_expand(NabiServer *server)
+nabi_server_dealloc_ic(NabiServer* server, NabiIC* ic)
+{
+    server->freed_icid = g_slist_append(server->freed_icid,
+					GUINT_TO_POINTER((guint)ic->id));
+    server->ic_table[ic->id] = NULL;
+
+    g_free(ic);
+}
+
+gboolean
+nabi_server_is_valid_ic(NabiServer* server, NabiIC* ic)
 {
     int i;
-    int old_size;
+    for (i = 0; i < server->ic_table_size; i++) {
+	if (server->ic_table[i] == ic)
+	    return TRUE;
+    }
+    return FALSE;
+}
 
-    if (server == NULL)
-	return;
-
-    old_size = server->ic_table_size;
-    server->ic_table_size = server->ic_table_size * 2;
-    server->ic_table = g_renew(NabiIC*, server->ic_table,server->ic_table_size);
-    for (i = old_size; i < server->ic_table_size; i++)
-	server->ic_table[i] = NULL;
+NabiIC*
+nabi_server_get_ic(NabiServer *server, CARD16 icid)
+{
+    if (icid > 0 && icid < server->ic_table_size)
+	return server->ic_table[icid];
+    else
+	return NULL;
 }
 
 static Bool
@@ -520,66 +573,50 @@ nabi_server_stop(NabiServer *server)
     return 0;
 }
 
-NabiIC*
-nabi_server_get_ic(NabiServer *server, CARD16 icid)
+NabiConnection*
+nabi_server_create_connection(NabiServer *server,
+			      CARD16 connect_id, const char* locale)
 {
-    if (icid > 0 && icid < server->ic_table_size)
-	return server->ic_table[icid];
-    else
+    NabiConnection* conn;
+    const char* encoding = NULL;
+
+    if (server == NULL)
 	return NULL;
-}
 
-void
-nabi_server_add_connect(NabiServer *server, NabiConnect *connect)
-{
-    NabiConnect *list;
-
-    if (server == NULL || connect == NULL)
-	return;
-
-    list = server->connect_list;
-    connect->next = list;
-    server->connect_list = connect;
-    server->n_connected++;
-}
-
-NabiConnect*
-nabi_server_get_connect_by_id(NabiServer *server, CARD16 connect_id)
-{
-    NabiConnect *connect;
-
-    connect = server->connect_list;
-    while (connect != NULL) {
-	if (connect->id == connect_id)
-	    return connect;
-	connect = connect->next;
+    if (locale != NULL) {
+	encoding = strchr(locale, '.');
+	if (encoding != NULL)
+	    encoding++; // skip '.'
     }
+
+    conn = nabi_connection_create(connect_id, encoding);
+    server->connections = g_slist_prepend(server->connections, conn);
+    return conn;
+}
+
+NabiConnection*
+nabi_server_get_connection(NabiServer *server, CARD16 connect_id)
+{
+    GSList* item;
+
+    item = server->connections;
+    while (item != NULL) {
+	NabiConnection* conn = (NabiConnection*)item->data;
+	if (conn != NULL && conn->id == connect_id)
+	    return conn;
+	item = g_slist_next(item);
+    }
+
     return NULL;
 }
 
 void
-nabi_server_remove_connect(NabiServer *server, NabiConnect *connect)
+nabi_server_destroy_connection(NabiServer *server, CARD16 connect_id)
 {
-    NabiConnect *prev;
-    NabiConnect *list;
+    NabiConnection* conn = nabi_server_get_connection(server, connect_id);
 
-    if (connect == NULL)
-	return;
-
-    prev = NULL;
-    list = server->connect_list;
-    while (list != NULL) {
-	if (list->id == connect->id) {
-	    if (prev == NULL)
-		server->connect_list = list->next;
-	    else
-		prev->next = list->next;
-	    list->next = NULL;
-	}
-	prev = list;
-	list = list->next;
-    }
-    server->n_connected--;
+    server->connections = g_slist_remove(server->connections, conn);
+    nabi_connection_destroy(conn);
 }
 
 Bool

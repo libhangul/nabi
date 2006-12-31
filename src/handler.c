@@ -174,12 +174,11 @@ static Bool
 nabi_handler_open(XIMS ims, IMProtocol *call_data)
 {
     IMOpenStruct *data = (IMOpenStruct *)call_data;
-    NabiConnect *connect;
 
-    connect = nabi_connect_create(data->connect_id);
-    nabi_server_add_connect(nabi_server, connect);
-
-    dmesg("open connect_id = 0x%x\n", (int)data->connect_id);
+    nabi_server_create_connection(nabi_server, 
+				  data->connect_id, data->lang.name);
+    dmesg("open connect_id = 0x%x (lang = %s)\n",
+	  (int)data->connect_id, data->lang.name);
     return True;
 }
 
@@ -187,11 +186,8 @@ static Bool
 nabi_handler_close(XIMS ims, IMProtocol *call_data)
 {
     IMCloseStruct *data = (IMCloseStruct *)call_data;
-    NabiConnect *connect;
 
-    connect = nabi_server_get_connect_by_id(nabi_server, data->connect_id);
-    nabi_server_remove_connect(nabi_server, connect);
-    nabi_connect_destroy(connect);
+    nabi_server_destroy_connection(nabi_server, data->connect_id);
 
     dmesg("closing connect_id 0x%x\n", (int)data->connect_id);
     return True;
@@ -201,21 +197,28 @@ static Bool
 nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 {
     IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-    NabiIC *ic;
+    NabiConnection* conn;
 
-    ic = nabi_ic_create(data);
-    nabi_connect_add_ic(ic->connect, ic);
+    conn = nabi_server_get_connection(nabi_server, data->connect_id);
+    if (conn != NULL) {
+	NabiIC *ic = nabi_connection_create_ic(conn, data);
+	data->icid = nabi_ic_get_id(ic);
+    }
     return True;
 }
 
 static Bool
 nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC *ic = nabi_server_get_ic(nabi_server, call_data->changeic.icid);
+    IMChangeICStruct *data = (IMChangeICStruct *)call_data;
+    NabiConnection* conn;
 
-    if (ic != NULL) {
-	nabi_connect_remove_ic(ic->connect, ic);
-	nabi_ic_destroy(ic);
+    conn = nabi_server_get_connection(nabi_server, data->connect_id);
+    if (conn != NULL) {
+	NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+	if (ic != NULL) {
+	    nabi_connection_destroy_ic(conn, ic);
+	}
     }
     return True;
 }
@@ -304,8 +307,8 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
     if (ic == NULL)
 	    return True;
 
-    if (ic->connect != NULL)
-	nabi_ic_set_mode(ic, ic->connect->mode);
+    if (ic->connection != NULL)
+	nabi_ic_set_mode(ic, ic->connection->mode);
 
     hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
 

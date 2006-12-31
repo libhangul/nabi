@@ -366,13 +366,13 @@ NabiCandidate*
 nabi_candidate_new(char *label_str,
 		   int n_per_page,
 		   HanjaList *list,
+		   const Hanja **valid_list,
+		   int valid_list_length,
 		   Window parent,
 		   NabiCandidateCommitFunc commit,
 		   gpointer commit_data)
 {
-    int i, k, n;
     NabiCandidate *candidate;
-    const Hanja **table;
 
     candidate = (NabiCandidate*)g_malloc(sizeof(NabiCandidate));
     candidate->first = 0;
@@ -388,24 +388,8 @@ nabi_candidate_new(char *label_str,
     candidate->commit_data = commit_data;
     candidate->hanja_list = list;
 
-    n = hanja_list_get_size(list);
-
-    table = g_new(const Hanja*, n);
-    for (i = 0, k = 0; i < n; i++) {
-	if (nabi_server->check_charset) {
-	    const Hanja* hanja = hanja_list_get_nth(list, i);
-	    const char* value = hanja_get_value(hanja);
-	    if (nabi_server_is_valid_str(nabi_server, value)) {
-		table[k] = hanja;
-		k++;
-	    }
-	} else {
-	    table[k] = hanja_list_get_nth(list, i);
-	    k++;
-	}
-    }
-    candidate->data = table;
-    candidate->n = k;
+    candidate->data = valid_list;
+    candidate->n = valid_list_length;
 
     candidate->store = gtk_list_store_new(NO_OF_COLUMNS,
 				    G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING);

@@ -33,19 +33,19 @@
 
 typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
-typedef struct _NabiIC NabiIC;
-typedef struct _NabiConnect NabiConnect;
+typedef struct _NabiIC         NabiIC;
+typedef struct _NabiConnection NabiConnection;
 
 typedef enum {
     NABI_INPUT_MODE_DIRECT,
     NABI_INPUT_MODE_COMPOSE
 } NabiInputMode;
 
-struct _NabiConnect {
-    CARD16               id;
-    NabiInputMode        mode;
-    GSList              *ic_list;
-    struct _NabiConnect *next;
+struct _NabiConnection {
+    CARD16         id;
+    NabiInputMode  mode;
+    GIConv         cd;
+    GSList*        ic_list;
 };
 
 struct _PreeditAttributes {
@@ -90,7 +90,6 @@ struct _StatusAttributes {
 
 struct _NabiIC {
     CARD16              id;               /* ic id */
-    CARD16              connect_id;       /* connect id */
     INT32               input_style;      /* input style */
     Window              client_window;    /* client window */
     Window              focus_window;     /* focus window */
@@ -99,7 +98,7 @@ struct _NabiIC {
     StatusAttributes    status_attr;      /* status attributes */
     PreeditAttributes   preedit;          /* preedit attributes */
 
-    NabiConnect*        connect;
+    NabiConnection*     connection;
 
     /* hangul data */
     NabiInputMode       mode;
@@ -107,16 +106,16 @@ struct _NabiIC {
 
     /* hanja or symbol select window */
     NabiCandidate*	candidate;
-
-    struct _NabiIC*     next;
 };
 
-NabiConnect* nabi_connect_create(CARD16 id);
-void         nabi_connect_destroy(NabiConnect* connect);
-void         nabi_connect_add_ic(NabiConnect* connect, NabiIC *ic);
-void         nabi_connect_remove_ic(NabiConnect* connect, NabiIC *ic);
+NabiConnection* nabi_connection_create(CARD16 id, const char* encoding);
+void         nabi_connection_destroy(NabiConnection* conn);
+NabiIC*      nabi_connection_create_ic(NabiConnection* conn,
+				       IMChangeICStruct* data);
+void         nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic);
 
-NabiIC* nabi_ic_create(IMChangeICStruct *data);
+
+NabiIC* nabi_ic_create(NabiConnection* conn, IMChangeICStruct *data);
 void    nabi_ic_destroy(NabiIC *ic);
 void    nabi_ic_real_destroy(NabiIC *ic);
 
@@ -124,6 +123,7 @@ void    nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data);
 void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 
 Bool    nabi_ic_is_empty(NabiIC *ic);
+CARD16  nabi_ic_get_id(NabiIC* ic);
 
 void    nabi_ic_mode_direct(NabiIC *ic);
 void    nabi_ic_mode_compose(NabiIC *ic);

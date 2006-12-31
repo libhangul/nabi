@@ -103,13 +103,13 @@ struct _NabiServer {
     GdkGC*		    gc;
 
     /* xim connect list */
-    int			    n_connected;
-    NabiConnect*            connect_list;
+    GSList*                 connections;
 
     /* Input Context list */
+    CARD16                  last_icid;
+    GSList*                 freed_icid;
     NabiIC**                ic_table;
     int                     ic_table_size;
-    NabiIC*                 ic_freed;
 
     /* keyboard translate */
     GList*                  layouts;
@@ -178,16 +178,19 @@ void        nabi_server_set_output_mode (NabiServer *server,
 void	    nabi_server_set_candidate_font(NabiServer *server,
 					   const gchar *font_name);
 
-void        nabi_server_ic_table_expand (NabiServer* server);
-NabiIC*     nabi_server_get_ic          (NabiServer *server,
-                                         CARD16 icid);
+NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
+void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);
+NabiIC*     nabi_server_get_ic          (NabiServer *server, CARD16 icid);
+gboolean    nabi_server_is_valid_ic     (NabiServer* server, NabiIC* ic);
 
-void        nabi_server_add_connect     (NabiServer *server,
-	                                 NabiConnect *connect);
-void        nabi_server_remove_connect  (NabiServer *server,
-                                         NabiConnect *connect);
-NabiConnect* nabi_server_get_connect_by_id(NabiServer *server,
-                                           CARD16 connect_id);
+NabiConnection* nabi_server_create_connection (NabiServer *server,
+					       CARD16 connect_id,
+					       const char* locale);
+NabiConnection* nabi_server_get_connection    (NabiServer *server,
+					       CARD16 connect_id);
+void            nabi_server_destroy_connection(NabiServer *server,
+					       CARD16 connect_id);
+
 Bool        nabi_server_is_locale_supported(NabiServer *server,
 					    const char *locale);
 Bool        nabi_server_is_valid_str    (NabiServer *server, const char* str);

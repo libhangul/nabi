@@ -25,7 +25,7 @@
 #include <hangul.h>
 
 typedef struct _NabiCandidate     NabiCandidate;
-typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
+typedef void     (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
 
 struct _NabiCandidate {
     GtkWidget *window;
@@ -46,6 +46,8 @@ struct _NabiCandidate {
 NabiCandidate*     nabi_candidate_new(char *label_str,
 		   	              int n_per_page,
 			              HanjaList* list,
+			              const Hanja** valid_list,
+			              int valid_list_length,
 			              Window parent,
 				      NabiCandidateCommitFunc commit,
 				      gpointer commit_data);

@@ -62,55 +62,101 @@ nabi_free(void *ptr)
 	free(ptr);
 }
 
-NabiConnect*
-nabi_connect_create(CARD16 id)
+static inline gboolean
+strniequal(const char* a, const char* b, gsize n)
 {
-    NabiConnect* connect;
-
-    connect = g_new(NabiConnect, 1);
-    connect->id = id;
-    connect->mode = NABI_INPUT_MODE_DIRECT;
-    connect->ic_list = NULL;
-    connect->next = NULL;
-    
-    return connect;
+    return g_ascii_strncasecmp(a, b, n) == 0;
 }
 
-void
-nabi_connect_destroy(NabiConnect* connect)
+NabiConnection*
+nabi_connection_create(CARD16 id, const char* encoding)
 {
-    NabiIC *ic;
-    GSList *list;
+    NabiConnection* conn;
 
-    /* remove all input contexts */
-    list = connect->ic_list;
-    while (list != NULL) {
-	ic = (NabiIC*)(list->data);
-	if (ic != NULL)
-	    nabi_ic_destroy(ic);
-	list = list->next;
+    conn = g_new(NabiConnection, 1);
+    conn->id = id;
+    conn->mode = NABI_INPUT_MODE_DIRECT;
+    conn->cd = (GIConv)-1;
+    if (encoding != NULL) {
+	if (!strniequal(encoding, "UTF-8", 5) ||
+	    !strniequal(encoding, "UTF8", 4)) {
+	    conn->cd = g_iconv_open(encoding, "UTF-8");
+	}
     }
-
-    g_slist_free(connect->ic_list);
-    g_free(connect);
+    conn->ic_list = NULL;
+    
+    return conn;
 }
 
 void
-nabi_connect_add_ic(NabiConnect* connect, NabiIC *ic)
+nabi_connection_destroy(NabiConnection* conn)
 {
-    if (connect == NULL || ic == NULL)
-	return;
+    GSList* item;
+    
+    if (conn->cd != (GIConv)-1)
+	g_iconv_close(conn->cd);
 
-    connect->ic_list = g_slist_prepend(connect->ic_list, ic);
+    item = conn->ic_list;
+    while (item != NULL) {
+	if (item->data != NULL)
+	    nabi_ic_destroy((NabiIC*)item->data);
+	item = g_slist_next(item);
+    }
+    g_slist_free(conn->ic_list);
+
+    g_free(conn);
+}
+
+NabiIC*
+nabi_connection_create_ic(NabiConnection* conn, IMChangeICStruct* data)
+{
+    NabiIC* ic; 
+
+    if (conn == NULL)
+	return NULL;
+
+    ic = nabi_ic_create(conn, data);
+    conn->ic_list = g_slist_prepend(conn->ic_list, ic);
+    return ic;
 }
 
 void
-nabi_connect_remove_ic(NabiConnect* connect, NabiIC *ic)
+nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic)
 {
-    if (connect == NULL || ic == NULL)
+    if (conn == NULL || ic == NULL)
 	return;
 
-    connect->ic_list = g_slist_remove(connect->ic_list, ic);
+    conn->ic_list = g_slist_remove(conn->ic_list, ic);
+    nabi_ic_destroy(ic);
+}
+
+gboolean
+nabi_connection_need_check_charset(NabiConnection* conn)
+{
+    if (conn == NULL)
+	return FALSE;
+    return conn->cd != (GIConv)-1;
+}
+
+gboolean
+nabi_connection_is_valid_str(NabiConnection* conn, const char* str)
+{
+    size_t ret;
+    gchar buf[32];
+    gsize inbytesleft, outbytesleft;
+    gchar *inbuf, *outbuf;
+
+    if (!nabi_connection_need_check_charset(conn))
+	return TRUE;
+
+    inbuf = (char*)str;
+    outbuf = buf;
+    inbytesleft = strlen(str);
+    outbytesleft = sizeof(buf);
+    ret = g_iconv(conn->cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    if (ret == -1)
+	return False;
+    return True;
 }
 
 static void
@@ -121,9 +167,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->focus_window = 0;
     ic->resource_name = NULL;
     ic->resource_class = NULL;
-    ic->next = NULL;
 
-    ic->connect = nabi_server_get_connect_by_id(nabi_server, ic->connect_id);
     ic->mode = NABI_INPUT_MODE_DIRECT;
 
     /* preedit attr */
@@ -177,43 +221,16 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->candidate = NULL;
 
-    if (ic->hic == NULL)
-	ic->hic = hangul_ic_new(NULL);
+    ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
     hangul_ic_set_filter(ic->hic, nabi_ic_hic_filter, ic);
-    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
 }
 
 NabiIC*
-nabi_ic_create(IMChangeICStruct *data)
+nabi_ic_create(NabiConnection* conn, IMChangeICStruct *data)
 {
-    static CARD16 id = 0;
-    NabiIC *ic;
+    NabiIC *ic = nabi_server_alloc_ic(nabi_server); 
 
-    if (nabi_server->ic_freed == NULL) {
-	/* really make ic */
-	id++;
-
-	/* we do not use ic id 0 */
-	if (id == 0)
-	    id++;
-
-	if (id >= nabi_server->ic_table_size)
-	    nabi_server_ic_table_expand(nabi_server);
-
-	ic = g_new(NabiIC, 1);
-	ic->id = id;
-	ic->hic = NULL;
-	nabi_server->ic_table[id] = ic;
-    } else {
-	/* pick from ic_freed */ 
-	ic = nabi_server->ic_freed;
-	nabi_server->ic_freed = nabi_server->ic_freed->next;
-	nabi_server->ic_table[ic->id] = ic;
-    }
-    
-    /* store ic id */
-    data->icid = ic->id;
-    ic->connect_id = data->connect_id;
+    ic->connection = conn;
 
     nabi_ic_init_values(ic);
     nabi_ic_set_values(ic, data);
@@ -221,113 +238,8 @@ nabi_ic_create(IMChangeICStruct *data)
     return ic;
 }
 
-static Bool
-nabi_ic_is_destroyed(NabiIC *ic)
-{
-    if (ic->id > 0 && ic->id < nabi_server->ic_table_size)
-	return nabi_server->ic_table[ic->id] == NULL;
-    else
-	return True;
-}
-
 void
 nabi_ic_destroy(NabiIC *ic)
-{
-    if (nabi_ic_is_destroyed(ic))
-	return;
-
-    if (nabi_server->mode_info_cb != NULL)
-	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
-
-    /* we do not delete, just save it in ic_freed */
-    if (nabi_server->ic_freed == NULL) {
-	nabi_server->ic_freed = ic;
-	nabi_server->ic_freed->next = NULL;
-    } else {
-	ic->next = nabi_server->ic_freed;
-	nabi_server->ic_freed = ic;
-    }
-
-    nabi_server->ic_table[ic->id] = NULL;
-
-    ic->connect_id = 0;
-    ic->client_window = 0;
-    ic->focus_window = 0;
-    nabi_free(ic->resource_name);
-    ic->resource_name = NULL;
-    nabi_free(ic->resource_class);
-    ic->resource_class = NULL;
-
-    ic->connect = NULL;
-
-    ic->preedit.area.x = 0;
-    ic->preedit.area.y = 0;
-    ic->preedit.area.width = 0;
-    ic->preedit.area.height = 0;
-    ic->preedit.area_needed.x = 0;
-    ic->preedit.area_needed.y = 0;
-    ic->preedit.area_needed.width = 0;
-    ic->preedit.area_needed.height = 0;
-    ic->preedit.spot.x = 0;
-    ic->preedit.spot.y = 0;
-    ic->preedit.cmap = 0;
-
-    ic->preedit.width = 1;
-    ic->preedit.height = 1;
-    ic->preedit.ascent = 0;
-    ic->preedit.descent = 0;
-    ic->preedit.line_space = 0;
-    ic->preedit.cursor = 0;
-
-    ic->preedit.state = XIMPreeditEnable;
-    ic->preedit.start = False;
-
-    /* destroy preedit window */
-    if (ic->preedit.window != NULL) {
-	gdk_window_destroy(ic->preedit.window);
-	ic->preedit.window = NULL;
-    }
-
-    /* destroy fontset data */
-    if (ic->preedit.font_set) {
-	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
-	nabi_free(ic->preedit.base_font);
-	ic->preedit.font_set = NULL;
-	ic->preedit.base_font = NULL;
-    }
-
-    /* we do not free gc */
-
-    /* status attributes */
-    ic->status_attr.area.x = 0;
-    ic->status_attr.area.y = 0;
-    ic->status_attr.area.width = 0;
-    ic->status_attr.area.height = 0;
-
-    ic->status_attr.area_needed.x = 0;
-    ic->status_attr.area_needed.y = 0;
-    ic->status_attr.area_needed.width = 0;
-    ic->status_attr.area_needed.height = 0;
-
-    ic->status_attr.cmap = 0;
-    ic->status_attr.foreground = 0;
-    ic->status_attr.background = 0;
-    ic->status_attr.background = 0;
-    ic->status_attr.bg_pixmap = 0;
-    ic->status_attr.line_space = 0;
-    ic->status_attr.cursor = 0;
-    ic->status_attr.base_font = NULL;
-
-    if (ic->candidate != NULL) {
-	nabi_candidate_delete(ic->candidate);
-	ic->candidate = NULL;
-    }
-
-    hangul_ic_reset(ic->hic);
-}
-
-void
-nabi_ic_real_destroy(NabiIC *ic)
 {
     if (ic == NULL)
 	return;
@@ -339,19 +251,43 @@ nabi_ic_real_destroy(NabiIC *ic)
     nabi_free(ic->preedit.base_font);
     nabi_free(ic->status_attr.base_font);
 
+    /* destroy preedit window */
     if (ic->preedit.window != NULL)
 	gdk_window_destroy(ic->preedit.window);
 
+    /* destroy fontset */
     if (ic->preedit.font_set)
 	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
 
     if (ic->preedit.gc != NULL)
 	g_object_unref(G_OBJECT(ic->preedit.gc));
 
+    if (ic->candidate != NULL) {
+	nabi_candidate_delete(ic->candidate);
+	ic->candidate = NULL;
+    }
+
+    /* destroy fontset data */
+    if (ic->preedit.font_set) {
+	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
+	nabi_free(ic->preedit.base_font);
+	ic->preedit.font_set = NULL;
+	ic->preedit.base_font = NULL;
+    }
+
     if (ic->hic != NULL)
 	hangul_ic_delete(ic->hic);
 
-    g_free(ic);
+    nabi_server_dealloc_ic(nabi_server, ic);
+}
+
+CARD16
+nabi_ic_get_id(NabiIC* ic)
+{
+    if (ic == NULL)
+	return 0;
+
+    return ic->id;
 }
 
 Bool
@@ -376,9 +312,14 @@ static bool
 nabi_ic_hic_filter(ucschar* str, ucschar cho, ucschar jung, ucschar jong,
 	           void* data)
 {
-    char* utf8 = g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
-    bool ret = nabi_server_is_valid_str(nabi_server, utf8);
-    g_free(utf8);
+    bool ret = true;
+    NabiIC* ic = (NabiIC*)data;
+
+    if (ic != NULL) {
+	char* utf8 = g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
+	ret = nabi_connection_is_valid_str(ic->connection, utf8);
+	g_free(utf8);
+    }
     return ret;
 }
 
@@ -521,8 +462,8 @@ nabi_ic_preedit_configure(NabiIC *ic)
 static GdkFilterReturn
 gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 {
-    NabiIC *ic = (NabiIC *)data;
     XEvent *event = (XEvent*)xevent;
+    NabiIC *ic = nabi_server_get_ic(nabi_server, GPOINTER_TO_UINT(data));
 
     if (ic == NULL)
 	return GDK_FILTER_REMOVE;
@@ -535,11 +476,8 @@ gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 
     switch (event->type) {
     case DestroyNotify:
-	if (!nabi_ic_is_destroyed(ic)) {
-	    /* preedit window is destroyed, so we set it 0 */
-	    ic->preedit.window = NULL;
-	    //nabi_ic_destroy(ic);
-	}
+	/* preedit window is destroyed, so we set it 0 */
+	ic->preedit.window = NULL;
 	return GDK_FILTER_REMOVE;
 	break;
     case Expose:
@@ -590,7 +528,8 @@ nabi_ic_preedit_window_new(NabiIC *ic)
     }
 
     /* install our preedit window event filter */
-    gdk_window_add_filter(ic->preedit.window, gdk_event_filter, (gpointer)ic);
+    gdk_window_add_filter(ic->preedit.window,
+			  gdk_event_filter, GUINT_TO_POINTER((guint)ic->id));
     g_object_unref(G_OBJECT(parent));
 }
 
@@ -923,6 +862,8 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
     }
     g_free(preedit);
 
+    ic->preedit.prev_length = 0;
+
     if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditArea) {
@@ -948,8 +889,8 @@ void
 nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 {
     ic->mode = mode;
-    if (ic->connect != NULL)
-	ic->connect->mode = mode;
+    if (ic->connection != NULL)
+	ic->connection->mode = mode;
 
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:
@@ -979,7 +920,7 @@ nabi_ic_preedit_start(NabiIC *ic)
     if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
 
-	preedit_state.connect_id = ic->connect_id;
+	preedit_state.connect_id = ic->connection->id;
 	preedit_state.icid = ic->id;
 	IMPreeditStart(nabi_server->xims, (XPointer)&preedit_state);
     }
@@ -989,7 +930,7 @@ nabi_ic_preedit_start(NabiIC *ic)
 
 	preedit_data.major_code = XIM_PREEDIT_START;
 	preedit_data.minor_code = 0;
-	preedit_data.connect_id = ic->connect_id;
+	preedit_data.connect_id = ic->connection->id;
 	preedit_data.icid = ic->id;
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
@@ -1017,7 +958,7 @@ nabi_ic_preedit_done(NabiIC *ic)
 
 	preedit_data.major_code = XIM_PREEDIT_DONE;
 	preedit_data.minor_code = 0;
-	preedit_data.connect_id = ic->connect_id;
+	preedit_data.connect_id = ic->connection->id;
 	preedit_data.icid = ic->id;
 	preedit_data.todo.return_value = 0;
 	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
@@ -1032,7 +973,7 @@ nabi_ic_preedit_done(NabiIC *ic)
     if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
 
-	preedit_state.connect_id = ic->connect_id;
+	preedit_state.connect_id = ic->connection->id;
 	preedit_state.icid = ic->id;
 	IMPreeditEnd(nabi_server->xims, (XPointer)&preedit_state);
     }
@@ -1101,7 +1042,7 @@ nabi_ic_preedit_update(NabiIC *ic)
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
+	data.connect_id = ic->connection->id;
 	data.icid = ic->id;
 	data.todo.draw.caret = len;
 	data.todo.draw.chg_first = 0;
@@ -1138,7 +1079,7 @@ nabi_ic_preedit_clear(NabiIC *ic)
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
+	data.connect_id = ic->connection->id;
 	data.icid = ic->id;
 	data.todo.draw.caret = 0;
 	data.todo.draw.chg_first = 0;
@@ -1181,7 +1122,7 @@ nabi_ic_commit_utf8(NabiIC *ic, const char *utf8_str)
 
     commit_data.major_code = XIM_COMMIT;
     commit_data.minor_code = 0;
-    commit_data.connect_id = ic->connect_id;
+    commit_data.connect_id = ic->connection->id;
     commit_data.icid = ic->id;
     commit_data.flag = XimLookupChars;
     commit_data.commit_string = compound_text;
@@ -1227,7 +1168,7 @@ nabi_ic_status_start(NabiIC *ic)
 
 	data.major_code = XIM_STATUS_START;
 	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
+	data.connect_id = ic->connection->id;
 	data.icid = ic->id;
 	data.todo.draw.data.text = &text;
 	data.todo.draw.type = XIMTextType;
@@ -1258,7 +1199,7 @@ nabi_ic_status_done(NabiIC *ic)
 
 	data.major_code = XIM_STATUS_DONE;
 	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
+	data.connect_id = ic->connection->id;
 	data.icid = ic->id;
 	data.todo.draw.data.text = &text;
 	data.todo.draw.type = XIMTextType;
@@ -1301,7 +1242,7 @@ nabi_ic_status_update(NabiIC *ic)
 
 	data.major_code = XIM_STATUS_DRAW;
 	data.minor_code = 0;
-	data.connect_id = ic->connect_id;
+	data.connect_id = ic->connection->id;
 	data.icid = ic->id;
 	data.todo.draw.data.text = &text;
 	data.todo.draw.type = XIMTextType;
@@ -1507,9 +1448,36 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     list = hanja_table_match_prefix(nabi_server->hanja_table, preedit);
 
     if (list != NULL) {
-	ic->candidate = nabi_candidate_new(NULL, 9, list, parent,
-				    &nabi_ic_candidate_commit_cb, ic);
+	int i, valid_list_length = 0;
+	int n = hanja_list_get_size(list);
+	const Hanja **valid_list = g_new(const Hanja*, n);
+
+	if (nabi_connection_need_check_charset(ic->connection)) {
+	    int j;
+	    for (i = 0, j = 0; i < n; i++) {
+		const Hanja* hanja = hanja_list_get_nth(list, i);
+		const char* value = hanja_get_value(hanja);
+		if (nabi_connection_is_valid_str(ic->connection, value)) {
+		    valid_list[j] = hanja;
+		    j++;
+		}
+	    }
+	    valid_list_length = j;
+	} else {
+	    for (i = 0; i < n; i++) {
+		valid_list[i] = hanja_list_get_nth(list, i);
+	    }
+	    valid_list_length = n;
+	}
+
+	if (valid_list_length > 0) {
+	    ic->candidate = nabi_candidate_new(NULL, 9,
+				    list, valid_list, valid_list_length,
+				    parent, &nabi_ic_candidate_commit_cb, ic);
 	    return True;
+	} else {
+	    hanja_list_delete(list);
+	}
     }
 
     return False;
@@ -1518,7 +1486,7 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 void
 nabi_ic_insert_candidate(NabiIC *ic, const char* str)
 {
-    if (nabi_ic_is_destroyed(ic))
+    if (!nabi_server_is_valid_ic(nabi_server, ic))
 	return;
 
     if (str == NULL)

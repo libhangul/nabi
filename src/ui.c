@@ -919,7 +919,7 @@ on_menu_about(GtkWidget *widget)
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 2, 3);
 
-    snprintf(buf, sizeof(buf), "%d", nabi_server->n_connected);
+    snprintf(buf, sizeof(buf), "%d", g_slist_length(nabi_server->connections));
     label = gtk_label_new(buf);
     gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
     gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 3, 4);
