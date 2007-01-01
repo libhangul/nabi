@@ -38,6 +38,7 @@
 #include "ic.h"
 #include "server.h"
 #include "nabi.h"
+#include "debug.h"
 
 #include "default-icons.h"
 
@@ -438,6 +439,13 @@ nabi_app_init(int *argc, char ***argv)
 		(*argv)[i] = NULL;
 
 		nabi->optional_xim_name = g_strdup(xim_name);
+	    } else if (strcmp("-d", (*argv)[i]) == 0) {
+		gchar* log_level = "0";
+		(*argv)[i] = NULL;
+		i++;
+		log_level = (*argv)[i];
+
+		nabi_log_set_level(strtol(log_level, NULL, 10));
 	    }
 	    i++;
 	}

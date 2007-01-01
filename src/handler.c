@@ -32,143 +32,18 @@
 #include "ic.h"
 #include "server.h"
 #include "candidate.h"
+#include "debug.h"
 
-#ifdef NABI_DEBUG
-#define dmesg debug_msg
+#include "xim_protocol.h"
 
-static const char *
-xim_protocol_name(int major_code)
+static const char*
+get_xim_protocol_name(int code)
 {
-    switch (major_code) {
-    case XIM_CONNECT:
-	return "XIM_CONNECT";
-    case XIM_CONNECT_REPLY:
-	return "XIM_CONNECT_REPLY";
-    case XIM_DISCONNECT:
-	return "XIM_DISCONNECT";
-    case XIM_DISCONNECT_REPLY:
-	return "XIM_DISCONNECT_REPLY";
-    case XIM_AUTH_REQUIRED:
-	return "XIM_AUTH_REQUIRED";
-    case XIM_AUTH_REPLY:
-	return "XIM_AUTH_REPLY";
-    case XIM_AUTH_NEXT:
-	return "XIM_AUTH_NEXT";
-    case XIM_AUTH_SETUP:
-	return "XIM_AUTH_SETUP";
-    case XIM_AUTH_NG:
-	return "XIM_AUTH_NG";
-    case XIM_ERROR:
-	return "XIM_ERROR";
-    case XIM_OPEN:
-	return "XIM_OPEN";
-    case XIM_OPEN_REPLY:
-	return "XIM_OPEN_REPLY";
-    case XIM_CLOSE:
-	return "XIM_CLOSE";
-    case XIM_CLOSE_REPLY:
-	return "XIM_CLOSE_REPLY";
-    case XIM_REGISTER_TRIGGERKEYS:
-	return "XIM_REGISTER_TRIGGERKEYS";
-    case XIM_TRIGGER_NOTIFY:
-	return "XIM_TRIGGER_NOTIFY";
-    case XIM_TRIGGER_NOTIFY_REPLY:
-	return "XIM_TRIGGER_NOTIFY_REPLY";
-    case XIM_SET_EVENT_MASK:
-	return "XIM_SET_EVENT_MASK";
-    case XIM_ENCODING_NEGOTIATION:
-	return "XIM_ENCODING_NEGOTIATION";
-    case XIM_ENCODING_NEGOTIATION_REPLY:
-	return "XIM_ENCODING_NEGOTIATION_REPLY";
-    case XIM_QUERY_EXTENSION:
-	return "XIM_QUERY_EXTENSION";
-    case XIM_QUERY_EXTENSION_REPLY:
-	return "XIM_QUERY_EXTENSION_REPLY";
-    case XIM_SET_IM_VALUES:
-	return "XIM_SET_IM_VALUES";
-    case XIM_SET_IM_VALUES_REPLY:
-	return "XIM_SET_IM_VALUES_REPLY";
-    case XIM_GET_IM_VALUES:
-	return "XIM_GET_IM_VALUES";
-    case XIM_GET_IM_VALUES_REPLY:
-	return "XIM_GET_IM_VALUES_REPLY";
-    case XIM_CREATE_IC:
-	return "XIM_CREATE_IC";
-    case XIM_CREATE_IC_REPLY:
-	return "XIM_CREATE_IC_REPLY";
-    case XIM_DESTROY_IC:
-	return "XIM_DESTROY_IC";
-    case XIM_DESTROY_IC_REPLY:
-	return "XIM_DESTROY_IC_REPLY";
-    case XIM_SET_IC_VALUES:
-	return "XIM_SET_IC_VALUES";
-    case XIM_SET_IC_VALUES_REPLY:
-	return "XIM_SET_IC_VALUES_REPLY";
-    case XIM_GET_IC_VALUES:
-	return "XIM_GET_IC_VALUES";
-    case XIM_GET_IC_VALUES_REPLY:
-	return "XIM_GET_IC_VALUES_REPLY";
-    case XIM_SET_IC_FOCUS:
-	return "XIM_SET_IC_FOCUS";
-    case XIM_UNSET_IC_FOCUS:
-	return "XIM_UNSET_IC_FOCUS";
-    case XIM_FORWARD_EVENT:
-	return "XIM_FORWARD_EVENT";
-    case XIM_SYNC:
-	return "XIM_SYNC";
-    case XIM_SYNC_REPLY:
-	return "XIM_SYNC_REPLY";
-    case XIM_COMMIT:
-	return "XIM_COMMIT";
-    case XIM_RESET_IC:
-	return "XIM_RESET_IC";
-    case XIM_RESET_IC_REPLY:
-	return "XIM_RESET_IC_REPLY";
-    case XIM_GEOMETRY:
-	return "XIM_GEOMETRY";
-    case XIM_STR_CONVERSION:
-	return "XIM_STR_CONVERSION";
-    case XIM_STR_CONVERSION_REPLY:
-	return "XIM_STR_CONVERSION_REPLY";
-    case XIM_PREEDIT_START:
-	return "XIM_PREEDIT_START";
-    case XIM_PREEDIT_START_REPLY:
-	return "XIM_PREEDIT_START_REPLY";
-    case XIM_PREEDIT_DRAW:
-	return "XIM_PREEDIT_DRAW";
-    case XIM_PREEDIT_CARET:
-	return "XIM_PREEDIT_CARET";
-    case XIM_PREEDIT_CARET_REPLY:
-	return "XIM_PREEDIT_CARET_REPLY";
-    case XIM_PREEDIT_DONE:
-	return "XIM_PREEDIT_DONE";
-    case XIM_STATUS_START:
-	return "XIM_STATUS_START";
-    case XIM_STATUS_DRAW:
-	return "XIM_STATUS_DRAW";
-    case XIM_STATUS_DONE:
-	return "XIM_STATUS_DONE";
-    default:
-	break;
-    }
+    if (code > 0 && code < G_N_ELEMENTS(xim_protocol_name))
+	return xim_protocol_name[code];
 
     return "XIM_UNKNOWN";
 }
-
-static void
-debug_msg(const char *fmt, ...)
-{
-    va_list args;
-
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    fputc('\n', stderr);
-}
-
-#else
-#define dmesg(...)  ;
-#endif
 
 static Bool
 nabi_handler_open(XIMS ims, IMProtocol *call_data)
@@ -177,8 +52,8 @@ nabi_handler_open(XIMS ims, IMProtocol *call_data)
 
     nabi_server_create_connection(nabi_server, 
 				  data->connect_id, data->lang.name);
-    dmesg("open connect_id = 0x%x (lang = %s)\n",
-	  (int)data->connect_id, data->lang.name);
+    nabi_log(1, "open connection: id = %d, lang = %s\n",
+	     (int)data->connect_id, data->lang.name);
     return True;
 }
 
@@ -189,20 +64,22 @@ nabi_handler_close(XIMS ims, IMProtocol *call_data)
 
     nabi_server_destroy_connection(nabi_server, data->connect_id);
 
-    dmesg("closing connect_id 0x%x\n", (int)data->connect_id);
+    nabi_log(1, "close connection: id = %d\n", (int)data->connect_id);
     return True;
 }
 
 static Bool
 nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 {
-    IMChangeICStruct *data = (IMChangeICStruct *)call_data;
+    IMChangeICStruct *data = &call_data->changeic;
     NabiConnection* conn;
 
     conn = nabi_server_get_connection(nabi_server, data->connect_id);
     if (conn != NULL) {
 	NabiIC *ic = nabi_connection_create_ic(conn, data);
 	data->icid = nabi_ic_get_id(ic);
+	nabi_log(1, "create ic: id = %d-%d\n",
+		 (int)data->connect_id, (int)data->icid);
     }
     return True;
 }
@@ -210,13 +87,15 @@ nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 {
-    IMChangeICStruct *data = (IMChangeICStruct *)call_data;
+    IMChangeICStruct *data = &call_data->changeic;
     NabiConnection* conn;
 
     conn = nabi_server_get_connection(nabi_server, data->connect_id);
     if (conn != NULL) {
 	NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 	if (ic != NULL) {
+	    nabi_log(1, "destroy ic: id = %d-%d\n",
+		     (int)data->connect_id, (int)data->icid);
 	    nabi_connection_destroy_ic(conn, ic);
 	}
     }
@@ -226,23 +105,27 @@ nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_set_ic_values(XIMS ims, IMProtocol *call_data)
 {
-	IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-	NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
-			 
-	if (ic != NULL)
-		nabi_ic_set_values(ic, data);
-	return True;
+    IMChangeICStruct *data = &call_data->changeic;
+    NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "set values: id = %d-%d\n",
+	     (int)data->connect_id, (int)data->icid);
+    if (ic != NULL)
+	nabi_ic_set_values(ic, data);
+    return True;
 }
 
 static Bool
 nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 {
-	IMChangeICStruct *data = (IMChangeICStruct *)call_data;
-	NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
-			 
-	if (ic != NULL)
-		nabi_ic_get_values(ic, data);
-	return True;
+    IMChangeICStruct *data = &call_data->changeic;
+    NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "get values: id = %d-%d\n",
+	     (int)data->connect_id, (int)data->icid);
+    if (ic != NULL)
+	nabi_ic_get_values(ic, data);
+    return True;
 }
 
 static Bool
@@ -254,7 +137,7 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
     XKeyEvent *kevent;
     IMForwardEventStruct *data;
     
-    data = (IMForwardEventStruct *)call_data;
+    data = &call_data->forwardevent;
 
     if (data->event.type != KeyPress)
 	return True;
@@ -262,6 +145,10 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
     kevent = (XKeyEvent*)&data->event;
     index = (kevent->state & ShiftMask) ? 1 : 0;
     keysym = XLookupKeysym(kevent, index);
+
+    nabi_log(3, "forward event: id = %d-%d, keysym = 0x%x('%c')\n",
+	     (int)data->connect_id, (int)data->icid,
+	     keysym, (keysym < 0x80) ? keysym : ' ');
 
     ic = nabi_server_get_ic(nabi_server, data->icid);
     if (ic == NULL)
@@ -302,7 +189,11 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
+    IMChangeFocusStruct* data = &call_data->changefocus;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "set focus: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic == NULL)
 	    return True;
@@ -318,7 +209,11 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->changefocus.icid);
+    IMChangeFocusStruct* data = &call_data->changefocus;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "unset focus: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic == NULL)
 	    return True;
@@ -337,8 +232,11 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 {
-    IMResetICStruct *data = (IMResetICStruct*)call_data;
-    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->resetic.icid);
+    IMResetICStruct *data = &call_data->resetic;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "reset: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic == NULL)
 	    return True;
@@ -350,8 +248,11 @@ nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 {
-    IMTriggerNotifyStruct *data = (IMTriggerNotifyStruct *)call_data;
+    IMTriggerNotifyStruct *data = &call_data->triggernotify;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "trigger notify: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic == NULL)
 	return True;
@@ -365,61 +266,65 @@ nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 static Bool
 nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->preedit_callback.icid);
+    IMPreeditCBStruct* data = &call_data->preedit_callback;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "preedit start reply: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic != NULL)
-	    return True;
+	return True;
     return False;
 }
 
 static Bool
 nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, call_data->preedit_callback.icid);
+    IMPreeditCBStruct* data = &call_data->preedit_callback;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+
+    nabi_log(1, "preedit caret replay: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
 
     if (ic != NULL)
-	    return True;
+	return True;
     return False;
 }
 
 Bool
 nabi_handler(XIMS ims, IMProtocol *call_data)
 {
-    dmesg("%s\t 0x%x 0x%x",
-    	      xim_protocol_name(call_data->major_code),
-	      call_data->any.connect_id,
-	      call_data->changeic.icid);
-
     switch (call_data->major_code) {
     case XIM_OPEN:
-	    return nabi_handler_open(ims, call_data);
+	return nabi_handler_open(ims, call_data);
     case XIM_CLOSE:
-	    return nabi_handler_close(ims, call_data);
+	return nabi_handler_close(ims, call_data);
     case XIM_CREATE_IC:
-	    return nabi_handler_create_ic(ims, call_data);
+	return nabi_handler_create_ic(ims, call_data);
     case XIM_DESTROY_IC:
-	    return nabi_handler_destroy_ic(ims, call_data);
+	return nabi_handler_destroy_ic(ims, call_data);
     case XIM_SET_IC_VALUES:
-	    return nabi_handler_set_ic_values(ims, call_data);
+	return nabi_handler_set_ic_values(ims, call_data);
     case XIM_GET_IC_VALUES:
-	    return nabi_handler_get_ic_values(ims, call_data);
+	return nabi_handler_get_ic_values(ims, call_data);
     case XIM_FORWARD_EVENT:
-	    return nabi_handler_forward_event(ims, call_data);
+	return nabi_handler_forward_event(ims, call_data);
     case XIM_SET_IC_FOCUS:
-	    return nabi_handler_set_ic_focus(ims, call_data);
+	return nabi_handler_set_ic_focus(ims, call_data);
     case XIM_UNSET_IC_FOCUS:
-	    return nabi_handler_unset_ic_focus(ims, call_data);
+	return nabi_handler_unset_ic_focus(ims, call_data);
     case XIM_RESET_IC:
-	    return nabi_handler_reset_ic(ims, call_data);
+	return nabi_handler_reset_ic(ims, call_data);
     case XIM_TRIGGER_NOTIFY:
-	    return nabi_handler_trigger_notify(ims, call_data);
+	return nabi_handler_trigger_notify(ims, call_data);
     case XIM_PREEDIT_START_REPLY:
-	    return nabi_handler_preedit_start_reply(ims, call_data);
+	return nabi_handler_preedit_start_reply(ims, call_data);
     case XIM_PREEDIT_CARET_REPLY:
-	    return nabi_handler_preedit_caret_reply(ims, call_data);
+	return nabi_handler_preedit_caret_reply(ims, call_data);
     default:
-	    fprintf(stderr, "Unknown IMDKit Protocol message type\n");
-	    break;
+	nabi_log(1, "Unhandled XIM Protocol: %s\n",
+		 get_xim_protocol_name(call_data->major_code));
+	break;
     }
     return True;
 }

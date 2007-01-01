@@ -13,6 +13,7 @@ nabi_SOURCES = \
 	gettext.h \
 	default-icons.h \
 	keyboard.h \
+	debug.c \
 	server.h server.c \
 	ic.h ic.c \
 	fontset.h fontset.c \
