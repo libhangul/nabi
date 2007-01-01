@@ -46,10 +46,8 @@ get_xim_protocol_name(int code)
 }
 
 static Bool
-nabi_handler_open(XIMS ims, IMProtocol *call_data)
+nabi_handler_open(XIMS ims, IMOpenStruct *data)
 {
-    IMOpenStruct *data = (IMOpenStruct *)call_data;
-
     nabi_server_create_connection(nabi_server, 
 				  data->connect_id, data->lang.name);
     nabi_log(1, "open connection: id = %d, lang = %s\n",
@@ -58,10 +56,8 @@ nabi_handler_open(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_close(XIMS ims, IMProtocol *call_data)
+nabi_handler_close(XIMS ims, IMCloseStruct *data)
 {
-    IMCloseStruct *data = (IMCloseStruct *)call_data;
-
     nabi_server_destroy_connection(nabi_server, data->connect_id);
 
     nabi_log(1, "close connection: id = %d\n", (int)data->connect_id);
@@ -69,9 +65,8 @@ nabi_handler_close(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
+nabi_handler_create_ic(XIMS ims, IMChangeICStruct *data)
 {
-    IMChangeICStruct *data = &call_data->changeic;
     NabiConnection* conn;
 
     conn = nabi_server_get_connection(nabi_server, data->connect_id);
@@ -85,9 +80,8 @@ nabi_handler_create_ic(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
+nabi_handler_destroy_ic(XIMS ims, IMChangeICStruct *data)
 {
-    IMChangeICStruct *data = &call_data->changeic;
     NabiConnection* conn;
 
     conn = nabi_server_get_connection(nabi_server, data->connect_id);
@@ -103,9 +97,8 @@ nabi_handler_destroy_ic(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_set_ic_values(XIMS ims, IMProtocol *call_data)
+nabi_handler_set_ic_values(XIMS ims, IMChangeICStruct *data)
 {
-    IMChangeICStruct *data = &call_data->changeic;
     NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "set values: id = %d-%d\n",
@@ -116,9 +109,8 @@ nabi_handler_set_ic_values(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
+nabi_handler_get_ic_values(XIMS ims, IMChangeICStruct *data)
 {
-    IMChangeICStruct *data = &call_data->changeic;
     NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "get values: id = %d-%d\n",
@@ -129,16 +121,13 @@ nabi_handler_get_ic_values(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
+nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
 {
     NabiIC* ic;
     KeySym keysym;
     int index;
     XKeyEvent *kevent;
-    IMForwardEventStruct *data;
     
-    data = &call_data->forwardevent;
-
     if (data->event.type != KeyPress)
 	return True;
 
@@ -187,9 +176,8 @@ nabi_handler_forward_event(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
+nabi_handler_set_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 {
-    IMChangeFocusStruct* data = &call_data->changefocus;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "set focus: id = %d-%d\n",
@@ -207,9 +195,8 @@ nabi_handler_set_ic_focus(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
+nabi_handler_unset_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 {
-    IMChangeFocusStruct* data = &call_data->changefocus;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "unset focus: id = %d-%d\n",
@@ -230,9 +217,8 @@ nabi_handler_unset_ic_focus(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
+nabi_handler_reset_ic(XIMS ims, IMResetICStruct *data)
 {
-    IMResetICStruct *data = &call_data->resetic;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "reset: id = %d-%d\n",
@@ -246,9 +232,8 @@ nabi_handler_reset_ic(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
+nabi_handler_trigger_notify(XIMS ims, IMTriggerNotifyStruct *data)
 {
-    IMTriggerNotifyStruct *data = &call_data->triggernotify;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "trigger notify: id = %d-%d\n",
@@ -264,9 +249,8 @@ nabi_handler_trigger_notify(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
+nabi_handler_preedit_start_reply(XIMS ims, IMPreeditCBStruct *data)
 {
-    IMPreeditCBStruct* data = &call_data->preedit_callback;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "preedit start reply: id = %d-%d\n",
@@ -278,9 +262,8 @@ nabi_handler_preedit_start_reply(XIMS ims, IMProtocol *call_data)
 }
 
 static Bool
-nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
+nabi_handler_preedit_caret_reply(XIMS ims, IMPreeditCBStruct *data)
 {
-    IMPreeditCBStruct* data = &call_data->preedit_callback;
     NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
 
     nabi_log(1, "preedit caret replay: id = %d-%d\n",
@@ -292,38 +275,38 @@ nabi_handler_preedit_caret_reply(XIMS ims, IMProtocol *call_data)
 }
 
 Bool
-nabi_handler(XIMS ims, IMProtocol *call_data)
+nabi_handler(XIMS ims, IMProtocol *data)
 {
-    switch (call_data->major_code) {
+    switch (data->major_code) {
     case XIM_OPEN:
-	return nabi_handler_open(ims, call_data);
+	return nabi_handler_open(ims, &data->imopen);
     case XIM_CLOSE:
-	return nabi_handler_close(ims, call_data);
+	return nabi_handler_close(ims, &data->imclose);
     case XIM_CREATE_IC:
-	return nabi_handler_create_ic(ims, call_data);
+	return nabi_handler_create_ic(ims, &data->changeic);
     case XIM_DESTROY_IC:
-	return nabi_handler_destroy_ic(ims, call_data);
+	return nabi_handler_destroy_ic(ims, &data->changeic);
     case XIM_SET_IC_VALUES:
-	return nabi_handler_set_ic_values(ims, call_data);
+	return nabi_handler_set_ic_values(ims, &data->changeic);
     case XIM_GET_IC_VALUES:
-	return nabi_handler_get_ic_values(ims, call_data);
+	return nabi_handler_get_ic_values(ims, &data->changeic);
     case XIM_FORWARD_EVENT:
-	return nabi_handler_forward_event(ims, call_data);
+	return nabi_handler_forward_event(ims, &data->forwardevent);
     case XIM_SET_IC_FOCUS:
-	return nabi_handler_set_ic_focus(ims, call_data);
+	return nabi_handler_set_ic_focus(ims, &data->changefocus);
     case XIM_UNSET_IC_FOCUS:
-	return nabi_handler_unset_ic_focus(ims, call_data);
+	return nabi_handler_unset_ic_focus(ims, &data->changefocus);
     case XIM_RESET_IC:
-	return nabi_handler_reset_ic(ims, call_data);
+	return nabi_handler_reset_ic(ims, &data->resetic);
     case XIM_TRIGGER_NOTIFY:
-	return nabi_handler_trigger_notify(ims, call_data);
+	return nabi_handler_trigger_notify(ims, &data->triggernotify);
     case XIM_PREEDIT_START_REPLY:
-	return nabi_handler_preedit_start_reply(ims, call_data);
+	return nabi_handler_preedit_start_reply(ims, &data->preedit_callback);
     case XIM_PREEDIT_CARET_REPLY:
-	return nabi_handler_preedit_caret_reply(ims, call_data);
+	return nabi_handler_preedit_caret_reply(ims, &data->preedit_callback);
     default:
 	nabi_log(1, "Unhandled XIM Protocol: %s\n",
-		 get_xim_protocol_name(call_data->major_code));
+		 get_xim_protocol_name(data->major_code));
 	break;
     }
     return True;
