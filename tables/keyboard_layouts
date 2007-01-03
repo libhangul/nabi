@@ -66,6 +66,57 @@
 0x007b 0x005f   # XK_braceleft          -> XK_underscore
 0x007d 0x002b   # XK_braceright         -> XK_plus
 
+[French]
+0x0021 0x002f   # XK_exclam             -> XK_slash
+0x0022 0x0033   # XK_quotedbl           -> XK_3
+0x0024 0x005d   # XK_dollar             -> XK_bracketright
+0x0025 0x0022   # XK_percent            -> XK_quotedbl
+0x0026 0x0031   # XK_ampersand          -> XK_1
+0x0027 0x0034   # XK_apostrophe         -> XK_4
+0x0028 0x0035   # XK_parenleft          -> XK_5
+0x0029 0x002d   # XK_parenright         -> XK_minus
+0x002a 0x005c   # XK_asterisk           -> XK_backslash
+0x002c 0x006d   # XK_comma              -> XK_m
+0x002d 0x0036   # XK_minus              -> XK_6
+0x002e 0x003c   # XK_period             -> XK_less
+0x002f 0x003e   # XK_slash              -> XK_greater
+0x0030 0x0029   # XK_0                  -> XK_parenright
+0x0031 0x0021   # XK_1                  -> XK_exclam
+0x0032 0x0040   # XK_2                  -> XK_at
+0x0033 0x0023   # XK_3                  -> XK_numbersign
+0x0034 0x0024   # XK_4                  -> XK_dollar
+0x0035 0x0025   # XK_5                  -> XK_percent
+0x0036 0x005e   # XK_6                  -> XK_asciicircum
+0x0037 0x0026   # XK_7                  -> XK_ampersand
+0x0038 0x002a   # XK_8                  -> XK_asterisk
+0x0039 0x0028   # XK_9                  -> XK_parenleft
+0x003a 0x002e   # XK_colon              -> XK_period
+0x003b 0x002c   # XK_semicolon          -> XK_comma
+0x003f 0x004d   # XK_question           -> XK_M
+0x0041 0x0051   # XK_A                  -> XK_Q
+0x004d 0x003a   # XK_M                  -> XK_colon
+0x0051 0x0041   # XK_Q                  -> XK_A
+0x0057 0x005a   # XK_W                  -> XK_Z
+0x005a 0x0057   # XK_Z                  -> XK_W
+0x005f 0x0038   # XK_underscore         -> XK_8
+0x0061 0x0071   # XK_a                  -> XK_q
+0x006d 0x003b   # XK_m                  -> XK_semicolon
+0x0071 0x0061   # XK_q                  -> XK_a
+0x0077 0x007a   # XK_w                  -> XK_z
+0x007a 0x0077   # XK_z                  -> XK_w
+0x00a3 0x007d   # XK_sterling           -> XK_braceright
+0x00a7 0x003f   # XK_section            -> XK_question
+0x00b0 0x005f   # XK_degree             -> XK_underscore
+0x00b2 0x0060   # XK_twosuperior        -> XK_grave
+0x00b5 0x007c   # XK_mu                 -> XK_bar
+0x00e0 0x0030   # XK_agrave             -> XK_0
+0x00e7 0x0039   # XK_ccedilla           -> XK_9
+0x00e8 0x0037   # XK_egrave             -> XK_7
+0x00e9 0x0032   # XK_eacute             -> XK_2
+0x00f9 0x002c   # XK_ugrave             -> XK_comma
+0xfe52 0x005b   # XK_dead_circumflex    -> XK_bracketleft
+0xfe57 0x007b   # XK_dead_diaeresis     -> XK_braceleft
+
 [Germany]
 0x0022 0x0040   # XK_quotedbl           -> XK_at
 0x0023 0x005c   # XK_numbersign         -> XK_backslash
