@@ -1,4 +1,4 @@
-[dvorak]
+[Dvorak]
 0x0022 0x0051   # XK_quotedbl           -> XK_Q
 0x0027 0x0071   # XK_apostrophe         -> XK_q
 0x002b 0x007d   # XK_plus               -> XK_braceright
