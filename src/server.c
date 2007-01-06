@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003,2004 Choe Hwanjin
+ * Copyright (C) 2003,2004,2007 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -515,7 +515,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     xims = IMOpenIM(display,
 		   IMModifiers, "Xi18n",
 		   IMServerWindow, window,
-		   IMServerName, "test", //server->name,
+		   IMServerName, server->name,
 		   IMLocale, locales,
 		   IMServerTransport, "X/",
 		   IMInputStyles, &input_styles,

@@ -1,4 +1,86 @@
 ------------------------------------------------------------------------
+r574 | krisna | 2007-01-06 22:46:30 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+
+session code 활성화
+
+------------------------------------------------------------------------
+r573 | krisna | 2007-01-06 22:45:00 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/candidate.h
+   M /nabi/trunk/src/debug.c
+   M /nabi/trunk/src/debug.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+copyright 문구 업데이트
+
+------------------------------------------------------------------------
+r572 | krisna | 2007-01-06 22:39:00 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+
+테스트하기 위해서 xim name을 "test"로 설정하던 코드를 제거
+
+------------------------------------------------------------------------
+r570 | krisna | 2007-01-06 16:43:40 +0900 (Sat, 06 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/Makefile.am
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+ChangeLog 자동 생성룰 추가
+
+------------------------------------------------------------------------
+r569 | krisna | 2007-01-06 16:11:39 +0900 (Sat, 06 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+   M /nabi/trunk/src/Makefile.am
+
+* 0.16 릴리스 준비
+* 빠진 파일들 소스리스트에 추가
+
+------------------------------------------------------------------------
+r568 | krisna | 2007-01-06 16:09:42 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+update po files
+
+------------------------------------------------------------------------
+r567 | krisna | 2007-01-06 16:07:14 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+기본 테마 아이콘을 Jini로 변경
+
+------------------------------------------------------------------------
+r566 | krisna | 2007-01-06 15:54:31 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/preference.c
+
+gcc 2.9 버젼에서 빌드가능하도록 변수 선언 위치 조정
+
+------------------------------------------------------------------------
+r565 | krisna | 2007-01-03 23:25:13 +0900 (Wed, 03 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/tables/keyboard_layouts
+
+dvorak -> Dvorak 이름 변경
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
 r569 | krisna | 2007-01-06 16:11:39 +0900 (Sat, 06 Jan 2007) | 3 lines
 Changed paths:
    M /nabi/trunk/configure.ac
