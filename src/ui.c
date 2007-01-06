@@ -210,7 +210,7 @@ load_config_file(void)
 
     /* set default values */
     nabi->xim_name = g_strdup(PACKAGE);
-    nabi->theme = g_strdup("SimplyRed");
+    nabi->theme = g_strdup("Jini");
     nabi->icon_size = 24;
 
     nabi->hangul_keyboard = g_strdup("2");
@@ -1300,7 +1300,7 @@ load_base_icons(const gchar *theme)
     GError *gerror = NULL;
 
     if (theme == NULL)
-    	theme = "SimplyRed";
+    	theme = "Jini";
 
     path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
     none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
