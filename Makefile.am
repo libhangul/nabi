@@ -13,7 +13,7 @@ testclients = \
 EXTRA_DIST = config.rpath $(nabilogo_DATA) $(testclients)
 
 log:
-	lastdate=`head -n 1 ChangeLog | grep -oe '[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}'` ; \
+	lastdate=`head -n 2 ChangeLog | grep -oe '[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}'` ; \
 	unset LC_ALL; \
 	export LANG=C ; \
 	export LC_CTYPE=ko_KR.UTF-8 ; \
