@@ -21,8 +21,11 @@
 #endif
 
 #include <stdio.h>
-#include <X11/Xlib.h>
+#include <stdlib.h>
 #include <langinfo.h>
+#include <signal.h>
+
+#include <X11/Xlib.h>
 #include <gdk/gdkx.h>
 #include <gtk/gtk.h>
 
@@ -34,6 +37,8 @@
 
 NabiApplication* nabi = NULL;
 NabiServer* nabi_server = NULL;
+
+static void (*default_sigterm_handler)(int) = NULL;
 
 static void
 on_realize(GtkWidget *widget, gpointer data)
@@ -58,6 +63,16 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
     return 0;
 }
 
+static void
+nabi_sigterm_handler(int no)
+{
+    nabi_save_config_file();
+    if (default_sigterm_handler != NULL)
+	default_sigterm_handler(no);
+    else
+	exit(0);
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -79,6 +94,8 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBSM
     nabi_session_open(nabi->session_id);
 #endif
+
+    default_sigterm_handler = signal(SIGTERM, nabi_sigterm_handler);
 
     if (!nabi->status_only) {
 	char *xim_name;
