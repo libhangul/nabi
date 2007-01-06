@@ -38,6 +38,7 @@
 #include "ic.h"
 #include "server.h"
 #include "nabi.h"
+#include "debug.h"
 
 #include "default-icons.h"
 
@@ -209,7 +210,7 @@ load_config_file(void)
 
     /* set default values */
     nabi->xim_name = g_strdup(PACKAGE);
-    nabi->theme = g_strdup("SimplyRed");
+    nabi->theme = g_strdup("Jini");
     nabi->icon_size = 24;
 
     nabi->hangul_keyboard = g_strdup("2");
@@ -438,6 +439,13 @@ nabi_app_init(int *argc, char ***argv)
 		(*argv)[i] = NULL;
 
 		nabi->optional_xim_name = g_strdup(xim_name);
+	    } else if (strcmp("-d", (*argv)[i]) == 0) {
+		gchar* log_level = "0";
+		(*argv)[i] = NULL;
+		i++;
+		log_level = (*argv)[i];
+
+		nabi_log_set_level(strtol(log_level, NULL, 10));
 	    }
 	    i++;
 	}
@@ -1292,7 +1300,7 @@ load_base_icons(const gchar *theme)
     GError *gerror = NULL;
 
     if (theme == NULL)
-    	theme = "SimplyRed";
+    	theme = "Jini";
 
     path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
     none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);

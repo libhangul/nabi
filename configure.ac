@@ -1,6 +1,6 @@
-AC_INIT(nabi, 0.15, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
+AC_INIT(nabi, 0.16, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
 
-AM_INIT_AUTOMAKE(nabi, 0.15)
+AM_INIT_AUTOMAKE(nabi, 0.16)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -41,8 +41,8 @@ PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
 		  AC_MSG_ERROR([nabi needs GTK+ 2.2.0 or higher]))
 
 # checks for libhangul
-PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.0.3,,
-		  AC_MSG_ERROR([nabi needs libhangul 0.0.3 or higher]))
+PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.0.4,,
+		  AC_MSG_ERROR([nabi needs libhangul 0.0.4 or higher]))
 
 dnl gettext stuff
 ALL_LINGUAS="ko de"

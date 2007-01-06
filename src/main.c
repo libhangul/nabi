@@ -30,6 +30,7 @@
 #include "server.h"
 #include "session.h"
 #include "nabi.h"
+#include "debug.h"
 
 NabiApplication* nabi = NULL;
 NabiServer* nabi_server = NULL;
@@ -69,6 +70,8 @@ main(int argc, char *argv[])
 #endif
 
     gtk_init(&argc, &argv);
+
+    nabi_log_set_device("stdout");
 
     nabi_app_new();
     nabi_app_init(&argc, &argv);

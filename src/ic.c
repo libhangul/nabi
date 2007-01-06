@@ -35,6 +35,7 @@
 #include "ic.h"
 #include "server.h"
 #include "fontset.h"
+#include "debug.h"
 
 static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_preedit_string(NabiIC *ic);
@@ -247,8 +248,11 @@ nabi_ic_destroy(NabiIC *ic)
     nabi_ic_preedit_done(ic);
 
     nabi_free(ic->resource_name);
+    ic->resource_name = NULL;
     nabi_free(ic->resource_class);
+    ic->resource_class = NULL;
     nabi_free(ic->preedit.base_font);
+    ic->preedit.base_font = NULL;
     nabi_free(ic->status_attr.base_font);
 
     /* destroy preedit window */
@@ -256,27 +260,25 @@ nabi_ic_destroy(NabiIC *ic)
 	gdk_window_destroy(ic->preedit.window);
 
     /* destroy fontset */
-    if (ic->preedit.font_set)
+    if (ic->preedit.font_set != NULL) {
 	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
+	ic->preedit.font_set = NULL;
+    }
 
-    if (ic->preedit.gc != NULL)
+    if (ic->preedit.gc != NULL) {
 	g_object_unref(G_OBJECT(ic->preedit.gc));
+	ic->preedit.gc = NULL;
+    }
 
     if (ic->candidate != NULL) {
 	nabi_candidate_delete(ic->candidate);
 	ic->candidate = NULL;
     }
 
-    /* destroy fontset data */
-    if (ic->preedit.font_set) {
-	nabi_fontset_free(nabi_server->display, ic->preedit.font_set);
-	nabi_free(ic->preedit.base_font);
-	ic->preedit.font_set = NULL;
-	ic->preedit.base_font = NULL;
-    }
-
-    if (ic->hic != NULL)
+    if (ic->hic != NULL) {
 	hangul_ic_delete(ic->hic);
+	ic->hic = NULL;
+    }
 
     nabi_server_dealloc_ic(nabi_server, ic);
 }
@@ -414,6 +416,9 @@ nabi_ic_preedit_show(NabiIC *ic)
     if (ic->preedit.window == NULL)
 	return;
 
+    nabi_log(4, "show preedit window: id = %d-%d\n",
+	     ic->connection->id, ic->id);
+
     nabi_ic_preedit_configure(ic);
 
     /* draw preedit only when ic have any hangul data */
@@ -427,6 +432,9 @@ nabi_ic_preedit_hide(NabiIC *ic)
 {
     if (ic->preedit.window == NULL)
 	return;
+
+    nabi_log(4, "hide preedit window: id = %d-%d\n",
+	     ic->connection->id, ic->id);
 
     gdk_window_hide(ic->preedit.window);
 }
@@ -1033,6 +1041,9 @@ nabi_ic_preedit_update(NabiIC *ic)
 	return;
     }
 
+    nabi_log(3, "update preedit: id = %d-%d, preedit = '%s'\n",
+	     ic->connection->id, ic->id, preedit);
+
     if (ic->input_style & XIMPreeditCallbacks) {
 	char *compound_text;
 	XIMText text;
@@ -1072,10 +1083,16 @@ nabi_ic_preedit_update(NabiIC *ic)
 void
 nabi_ic_preedit_clear(NabiIC *ic)
 {
+    if (ic->preedit.prev_length == 0)
+	return;
+
     if (ic->input_style & XIMPreeditCallbacks) {
 	XIMText text;
 	XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 	IMPreeditCBStruct data;
+
+	nabi_log(3, "clear preedit: id = %d-%d\n",
+		 ic->connection->id, ic->id);
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;
@@ -1118,6 +1135,8 @@ nabi_ic_commit_utf8(NabiIC *ic, const char *utf8_str)
     if (ic->input_style & XIMPreeditCallbacks)
 	nabi_ic_preedit_clear(ic);
 
+    nabi_log(1, "commit: id = %d-%d, str = '%s'\n",
+	     ic->connection->id, ic->id, utf8_str);
     compound_text = utf8_to_compound_text(utf8_str);
 
     commit_data.major_code = XIM_COMMIT;
@@ -1139,7 +1158,8 @@ Bool
 nabi_ic_commit(NabiIC *ic)
 {
     char* str = nabi_ic_get_commit_string(ic);
-    nabi_ic_commit_utf8(ic, str);
+    if (strlen(str) > 0)
+	nabi_ic_commit_utf8(ic, str);
     g_free(str);
     return True;
 }
@@ -1148,7 +1168,8 @@ void
 nabi_ic_flush(NabiIC *ic)
 {
     char* str = nabi_ic_get_flush_string(ic);
-    nabi_ic_commit_utf8(ic, str);
+    if (strlen(str) > 0)
+	nabi_ic_commit_utf8(ic, str);
     g_free(str);
 }
 
@@ -1494,7 +1515,8 @@ nabi_ic_insert_candidate(NabiIC *ic, const char* str)
 
     hangul_ic_reset(ic->hic);
     nabi_ic_preedit_update(ic);
-    nabi_ic_commit_utf8(ic, str);
+    if (strlen(str) > 0)
+	nabi_ic_commit_utf8(ic, str);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */

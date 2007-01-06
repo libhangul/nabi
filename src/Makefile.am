@@ -11,19 +11,19 @@ nabi_CFLAGS = \
 nabi_SOURCES = \
 	nabi.h \
 	gettext.h \
+	xim_protocol.h \
 	default-icons.h \
-	keyboard.h \
+	debug.h debug.c \
 	server.h server.c \
 	ic.h ic.c \
 	fontset.h fontset.c \
 	eggtrayicon.h eggtrayicon.c \
 	session.h session.c \
 	candidate.h candidate.c \
+	keycapturedialog.h keycapturedialog.c \
 	handler.c \
 	ui.c \
 	preference.c \
-	keycapturedialog.h \
-	keycapturedialog.c \
 	main.c
 
 nabi_LDFLAGS = @LIBHANGUL_LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lX11 @GTK_LIBS@ 

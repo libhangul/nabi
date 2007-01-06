@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2006-11-19 21:23+0900\n"
+"POT-Creation-Date: 2007-01-06 16:08+0900\n"
 "PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -37,131 +37,89 @@ msgstr "Nami: Zeichensatz fehlt\n"
 msgid "Nabi: font: %s\n"
 msgstr "Nabi: Zeichensatz: %s\n"
 
-#: src/ic.c:771
+#: src/ic.c:753
 #, c-format
 msgid "Nabi: get unknown ic attributes: %s\n"
 msgstr "Nabi: erhielt unbekannte ic Attribute: %s\n"
 
-#: src/server.c:818
-#, c-format
-msgid "Nabi: Can't read keyboard map file\n"
-msgstr "Nabi: Kann Tastatur datei nicht lesen\n"
-
-#: src/ui.c:80
+#: src/server.c:51
 msgid "2 set"
 msgstr "두벌식/ 2-fach belegt"
 
-#: src/ui.c:81
+#: src/server.c:52
 msgid "3 set with 2 set layout"
 msgstr "세벌식 두벌 자판/ 3-fach belegt  mit 2-fach Anordnung"
 
-#: src/ui.c:82
+#: src/server.c:53
 msgid "3 set final"
 msgstr "세벌식 최종/ 3-fach endgültig"
 
-#: src/ui.c:83
+#: src/server.c:54
 msgid "3 set 390"
 msgstr "세벌식 390/ 3-fach 390"
 
-#: src/ui.c:84
+#: src/server.c:55
 msgid "3 set no-shift"
 msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
 
-#: src/ui.c:85
+#: src/server.c:56
 msgid "3 set yetguel"
 msgstr "세벌식 옛글/ 3-fach alte Schrift"
 
-#: src/ui.c:253
+#: src/ui.c:233
 #, c-format
 msgid "Nabi: Can't load config file\n"
 msgstr "Nabi: Kann Konfigurationsdatei nicht lesen\n"
 
-#: src/ui.c:295
+#: src/ui.c:275
 #, c-format
 msgid "Nabi: Can't write config file\n"
 msgstr "Nabi: Kann Konfigurationsdatei nicht schreiben\n"
 
-#: src/ui.c:337
-#, c-format
-msgid "Nabi: Can't open compose table dir: %s (%s)\n"
-msgstr "Nabi: Kann Umsetzungstabelle %s (%s) nicht öffnen\n"
-
-#: src/ui.c:351
-#, c-format
-msgid "Nabi: Can't load compose table: %s\n"
-msgstr "Nabi: Kann Umsetzungstabelle %s nicht laden\n"
-
-#. we have no valid compose table
-#: src/ui.c:359
-#, c-format
-msgid "Nabi: Can't load any compose table\n"
-msgstr "Nabi: Kann keine einzige Umsetzungstabelle laden\n"
-
-#: src/ui.c:371
-#, c-format
-msgid "Nabi: Can't load candidate table\n"
-msgstr "Nabi: Kann geeignete Umsetzungstabelle nicht laden\n"
-
-#: src/ui.c:430
-#, c-format
-msgid "Nabi: Can't open keyboard table dir: %s\n"
-msgstr "Nabi: Kann Verzeichnis %s für Tastaturtabelle nicht öffnen\n"
-
-#: src/ui.c:444
-#, c-format
-msgid "Nabi: Can't load keyboard table: %s\n"
-msgstr "Nabi: Kann Tastatustabelle %s nicht laden\n"
-
-#. we have no valid keyboard table
-#: src/ui.c:452
-#, c-format
-msgid "Nabi: Can't load any keyboard table\n"
-msgstr "Nabi: Kann keine einzige Tastaturtabelle laden\n"
-
-#: src/ui.c:845
+#: src/ui.c:746
 msgid "XIM Server is not running"
 msgstr "XIM Server (Dienst für Eingabe-Methode) läuft nicht"
 
-#: src/ui.c:856
+#: src/ui.c:757
 msgid "Total"
 msgstr "Total"
 
-#: src/ui.c:857
+#: src/ui.c:758
 msgid "Space"
 msgstr "Grösse"
 
-#: src/ui.c:858
+#: src/ui.c:759
 msgid "BackSpace"
 msgstr "Zurücktaste"
 
-#: src/ui.c:859
+#: src/ui.c:760
 msgid "Shift"
 msgstr "Grosstelltaste"
 
 #. choseong
-#: src/ui.c:862
+#: src/ui.c:763
 msgid "Choseong"
 msgstr "초성/Choseong"
 
 #. jungseong
-#: src/ui.c:876
+#: src/ui.c:777
 msgid "Jungseong"
 msgstr "중성/Jungseong"
 
 #. jongseong
-#: src/ui.c:897
+#: src/ui.c:798
 msgid "Jongseong"
 msgstr "종성/Jongseong"
 
-#: src/ui.c:921
+#: src/ui.c:822
 msgid "Nabi keypress statistics"
 msgstr "Tastenstatistik von Nabi"
 
-#: src/ui.c:965
+#: src/ui.c:866
 msgid "About Nabi"
 msgstr "Über Nabi"
 
-#: src/ui.c:983
+#: src/ui.c:884
 #, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
@@ -177,52 +135,52 @@ msgstr ""
 "Copyright © 2003-2006 최환진/Choe Hwanjin\n"
 "Deutsche Übersetzung: © 2006 Niklaus Giger"
 
-#: src/ui.c:994
+#: src/ui.c:895
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM Name</span>: "
 
-#: src/ui.c:1000
+#: src/ui.c:901
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">Locale (Ländereinstellung)</span>: "
 
-#: src/ui.c:1006
+#: src/ui.c:907
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">Encoding (Eingabe-Kodierung)</span>: "
 
-#: src/ui.c:1012
+#: src/ui.c:913
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">Verbunden</span>: "
 
-#: src/ui.c:1046
+#: src/ui.c:947
 msgid "Keypress Statistics"
 msgstr "Tastaturstatistik"
 
-#: src/ui.c:1118
+#: src/ui.c:1017
 msgid "_About..."
 msgstr "Über nabi..."
 
-#: src/ui.c:1133
+#: src/ui.c:1032
 msgid "_Preferences..."
 msgstr "Einstellungen..."
 
-#: src/ui.c:1248 src/ui.c:1250 src/ui.c:1284 src/ui.c:1286 src/ui.c:1493
-#: src/ui.c:1515
+#: src/ui.c:1147 src/ui.c:1149 src/ui.c:1183 src/ui.c:1185 src/ui.c:1392
+#: src/ui.c:1414
 msgid "Nabi: None"
 msgstr "Nabi: Keine"
 
-#: src/ui.c:1260 src/ui.c:1262
+#: src/ui.c:1159 src/ui.c:1161
 msgid "Nabi: English"
 msgstr "Nabi: Englisch"
 
-#: src/ui.c:1272 src/ui.c:1274
+#: src/ui.c:1171 src/ui.c:1173
 msgid "Nabi: Hangul"
 msgstr "Nabi: Hangul/Koreanisch"
 
-#: src/ui.c:1457
+#: src/ui.c:1356
 msgid "Hangul input method: Nabi"
 msgstr "Hangul Eingabehilfe: Nabi"
 
-#: src/ui.c:1458
+#: src/ui.c:1357
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
@@ -231,27 +189,15 @@ msgstr ""
 msgid "<span weight=\"bold\">Tray icons</span>"
 msgstr "<span weight=\"bold\">Ablage Icons</span>"
 
-#: src/preference.c:347
+#: src/preference.c:325
 msgid "<span weight=\"bold\">Hangul keyboard</span>"
 msgstr "<span weight=\"bold\">Hangul/koreanische Tastatur</span>"
 
-#: src/preference.c:374
-msgid "Hangul Keyboard"
-msgstr "Hangul/koreanische Tastatur"
-
-#: src/preference.c:393
+#: src/preference.c:361
 msgid "<span weight=\"bold\">English keyboard</span>"
 msgstr "<span weight=\"bold\">Englische Tastatur</span>"
 
-#: src/preference.c:406
-msgid "Querty keyboard"
-msgstr "Querty Tastatur"
-
-#: src/preference.c:411
-msgid "Dvorak keyboard"
-msgstr "Dvorak Tastatur"
-
-#: src/preference.c:491
+#: src/preference.c:458
 msgid ""
 "<span weight=\"bold\">Press any key which you want to use as trigger key. "
 "The key you pressed is displayed below.\n"
@@ -262,7 +208,7 @@ msgstr ""
 "dargestelltFalls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
 "\"</span>"
 
-#: src/preference.c:583
+#: src/preference.c:550
 msgid ""
 "<span weight=\"bold\">Press any key which you want to use as candidate key. "
 "The key you pressed is displayed below.\n"
@@ -272,59 +218,92 @@ msgstr ""
 "verwenden möchten. Die gedrückte Taste wird unten dargestelltFalls Sie sie "
 "benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\"</span>"
 
-#: src/preference.c:647
+#: src/preference.c:614
 msgid "<span weight=\"bold\">Trigger keys</span>"
 msgstr "<span weight=\"bold\">한영 전환키</span>"
 
-#: src/preference.c:674
+#: src/preference.c:641
 msgid "Trigger Keys"
 msgstr "Umschalttasten"
 
-#: src/preference.c:706
+#: src/preference.c:673
 msgid "* You should restart nabi to apply this option"
 msgstr "* Sie müssen Nabi neu starten, um diese Option zu aktivieren."
 
-#: src/preference.c:719
+#: src/preference.c:686
 msgid "Select hanja font"
 msgstr "Wahl 한자/Hanja Zeichensatz"
 
-#: src/preference.c:768
+#: src/preference.c:735
 msgid "<span weight=\"bold\">Hanja Font</span>"
 msgstr "<span weight=\"bold\">한자/Hanja Zeichensatz</span>"
 
-#: src/preference.c:796
+#: src/preference.c:763
 msgid "<span weight=\"bold\">Hanja keys</span>"
 msgstr "<span weight=\"bold\">한자/Hanja Tasten</span>"
 
-#: src/preference.c:823
+#: src/preference.c:790
 msgid "Hanja Keys"
 msgstr "한자/Hanja Tasten"
 
-#: src/preference.c:874
+#: src/preference.c:841
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
 #. icons
-#: src/preference.c:886
+#: src/preference.c:853
 msgid "Tray"
 msgstr "Ablage"
 
 #. keyboard
-#: src/preference.c:891
+#: src/preference.c:858
 msgid "Keyboard"
 msgstr "Tastatur"
 
 #. key
-#: src/preference.c:896
+#: src/preference.c:863
 msgid "Hangul"
 msgstr "한글/Hangul"
 
 #. candidate
-#: src/preference.c:901
+#: src/preference.c:868
 msgid "Hanja"
 msgstr "한자/Hanja"
 
 #. advanced
-#: src/preference.c:906
+#: src/preference.c:873
 msgid "Advanced"
 msgstr "Feinheiten"
+
+#~ msgid "Hangul Keyboard"
+#~ msgstr "Hangul/koreanische Tastatur"
+
+#~ msgid "Querty keyboard"
+#~ msgstr "Querty Tastatur"
+
+#~ msgid "Dvorak keyboard"
+#~ msgstr "Dvorak Tastatur"
+
+#~ msgid "Nabi: Can't read keyboard map file\n"
+#~ msgstr "Nabi: Kann Tastatur datei nicht lesen\n"
+
+#~ msgid "Nabi: Can't open compose table dir: %s (%s)\n"
+#~ msgstr "Nabi: Kann Umsetzungstabelle %s (%s) nicht öffnen\n"
+
+#~ msgid "Nabi: Can't load compose table: %s\n"
+#~ msgstr "Nabi: Kann Umsetzungstabelle %s nicht laden\n"
+
+#~ msgid "Nabi: Can't load any compose table\n"
+#~ msgstr "Nabi: Kann keine einzige Umsetzungstabelle laden\n"
+
+#~ msgid "Nabi: Can't load candidate table\n"
+#~ msgstr "Nabi: Kann geeignete Umsetzungstabelle nicht laden\n"
+
+#~ msgid "Nabi: Can't open keyboard table dir: %s\n"
+#~ msgstr "Nabi: Kann Verzeichnis %s für Tastaturtabelle nicht öffnen\n"
+
+#~ msgid "Nabi: Can't load keyboard table: %s\n"
+#~ msgstr "Nabi: Kann Tastatustabelle %s nicht laden\n"
+
+#~ msgid "Nabi: Can't load any keyboard table\n"
+#~ msgstr "Nabi: Kann keine einzige Tastaturtabelle laden\n"
