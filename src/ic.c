@@ -1087,12 +1087,12 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	return;
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	nabi_log(3, "clear preedit: id = %d-%d\n",
-		 ic->connection->id, ic->id);
-
 	XIMText text;
 	XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
 	IMPreeditCBStruct data;
+
+	nabi_log(3, "clear preedit: id = %d-%d\n",
+		 ic->connection->id, ic->id);
 
 	data.major_code = XIM_PREEDIT_DRAW;
 	data.minor_code = 0;

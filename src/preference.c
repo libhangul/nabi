@@ -283,9 +283,8 @@ on_hangul_keyboard_changed(GtkComboBox *widget, gpointer data)
     i = gtk_combo_box_get_active(widget);
     keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
 
-    const char* id = keyboards[i].id;
-    if (id != NULL) {
-	nabi_app_set_hangul_keyboard(id);
+    if (keyboards[i].id != NULL) {
+	nabi_app_set_hangul_keyboard(keyboards[i].id);
     }
 }
 
