@@ -902,7 +902,7 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:
-	nabi_ic_commit(ic);
+	nabi_ic_flush(ic);
 	nabi_ic_preedit_done(ic);
 	if (nabi_server->mode_info_cb != NULL)
 	    nabi_server->mode_info_cb(NABI_MODE_INFO_ENGLISH);

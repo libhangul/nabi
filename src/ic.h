@@ -142,6 +142,7 @@ Bool    nabi_ic_commit(NabiIC *ic);
 Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 
 Bool    nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state);
+void    nabi_ic_flush(NabiIC *ic);
 void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
 
 Bool    nabi_ic_popup_candidate_window(NabiIC *ic);
