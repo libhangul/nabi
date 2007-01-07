@@ -358,7 +358,7 @@ static void
 nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 {
     GC gc;
-    int width;
+    XRectangle rect = { 0, };
 
     if (ic->preedit.window == NULL)
 	return;
@@ -374,13 +374,12 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
     str = g_locale_from_utf8(str, size, NULL, NULL, NULL);
     size = strlen(str);
 
-    width = XmbTextEscapement(ic->preedit.font_set, str, size);
-    if (ic->preedit.width != width) {
-	ic->preedit.width = width;
-	ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
-	gdk_window_resize(ic->preedit.window,
-		          ic->preedit.width, ic->preedit.height);
-    }
+    XmbTextExtents(ic->preedit.font_set, str, size, NULL, &rect);
+
+    ic->preedit.ascent = ABS(rect.y);
+    ic->preedit.descent = rect.height - ABS(rect.y);
+    ic->preedit.width = rect.width;
+    ic->preedit.height = rect.height;
 
     /* if preedit window is out of focus window 
      * we force to put it in focus window (preedit.area) */
@@ -455,28 +454,30 @@ nabi_ic_preedit_hide(NabiIC *ic)
 static void
 nabi_ic_preedit_configure(NabiIC *ic)
 {
+    int x = 0, y = 0, w = 1, h = 1;
+
     if (ic->preedit.window == NULL)
 	return;
 
     if (ic->input_style & XIMPreeditPosition) {
-	gdk_window_move_resize(ic->preedit.window,
-			       ic->preedit.spot.x + 1, 
-			       ic->preedit.spot.y - ic->preedit.ascent, 
-			       ic->preedit.width,
-			       ic->preedit.height);
+	x = ic->preedit.spot.x;
+	y = ic->preedit.spot.y - ic->preedit.ascent;
+	w = ic->preedit.width;
+	h = ic->preedit.height;
     } else if (ic->input_style & XIMPreeditArea) {
-	gdk_window_move_resize(ic->preedit.window,
-			       ic->preedit.area.x + 1, 
-			       ic->preedit.area.y, 
-			       ic->preedit.area.width,
-			       ic->preedit.area.height);
+	x = ic->preedit.area.x + 1;
+	y = ic->preedit.area.y;
+	w = ic->preedit.area.width;
+	h = ic->preedit.area.height;
     } else if (ic->input_style & XIMPreeditNothing) {
-	gdk_window_move_resize(ic->preedit.window,
-			       ic->preedit.spot.x + 1, 
-			       ic->preedit.spot.y - ic->preedit.ascent, 
-			       ic->preedit.width,
-			       ic->preedit.height);
+	x = ic->preedit.spot.x + 1;
+	y = ic->preedit.spot.y - ic->preedit.ascent;
+	w = ic->preedit.width;
+	h = ic->preedit.height;
     }
+
+    nabi_log(5, "configure preedit window: %d,%d %dx%d\n", x, y, w, h);
+    gdk_window_move_resize(ic->preedit.window, x, y, w, h);
 }
 
 static GdkFilterReturn

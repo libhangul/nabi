@@ -37,7 +37,7 @@ static NabiFontSet*
 nabi_fontset_new(const char *name)
 {
     XFontSet xfontset;
-    XFontStruct **font_structs;
+    XFontSetExtents* ext;
     int i, nfonts, ascent, descent;
     char **font_names;
     NabiFontSet *fontset;
@@ -71,22 +71,14 @@ nabi_fontset_new(const char *name)
 	}
     }
 
-    /* get acsent and descent */
-    nfonts = XFontsOfFontSet(xfontset, &font_structs, &font_names);
-    /* find width, height */
-    for (i = 0, ascent = 1, descent = 0; i < nfonts; i++) {
-        if (ascent < font_structs[i]->ascent)
-            ascent = font_structs[i]->ascent;
-        if (descent < font_structs[i]->descent)
-            descent = font_structs[i]->descent;
-    }
+    ext = XExtentsOfFontSet(xfontset);
 
     fontset = g_malloc(sizeof(NabiFontSet));
     fontset->name = g_strdup(name);
     fontset->ref = 1;
     fontset->xfontset = xfontset;
-    fontset->ascent = ascent;
-    fontset->descent = descent;
+    fontset->ascent = ABS(ext->max_logical_extent.y);
+    fontset->descent = ext->max_logical_extent.height - fontset->ascent;
 
     g_hash_table_insert(fontset_hash, fontset->name, fontset);
     fontset_list = g_slist_prepend(fontset_list, fontset);
