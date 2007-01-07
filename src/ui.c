@@ -104,11 +104,11 @@ const static struct config_item config_items[] = {
     { "keyboard_layouts",   CONF_TYPE_STR,  OFFSET(keyboard_layouts_file)    },
     { "triggerkeys",        CONF_TYPE_STR,  OFFSET(trigger_keys)             },
     { "candidatekeys",      CONF_TYPE_STR,  OFFSET(candidate_keys)           },
-    { "dvorak",             CONF_TYPE_BOOL, OFFSET(dvorak)                   },
     { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)              },
     { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)               },
     { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)               },
     { "candidate_font",	    CONF_TYPE_STR,  OFFSET(candidate_font)           },
+    { "dynamic_event_flow", CONF_TYPE_BOOL, OFFSET(use_dynamic_event_flow)   },
     { NULL,                 0,              0                                }
 };
 
@@ -224,6 +224,8 @@ load_config_file(void)
     nabi->output_mode = g_strdup("syllable");
     nabi->preedit_fg = g_strdup("#FFFFFF");
     nabi->preedit_bg = g_strdup("#000000");
+
+    nabi->use_dynamic_event_flow = TRUE;
 
     /* load conf file */
     homedir = g_get_home_dir();
@@ -380,8 +382,8 @@ nabi_app_new(void)
     nabi->trigger_keys = NULL;
     nabi->candidate_keys = NULL;
 
-    nabi->dvorak = FALSE;
     nabi->output_mode = NULL;
+    nabi->use_dynamic_event_flow = TRUE;
 
     nabi->preedit_fg = NULL;
     nabi->preedit_bg = NULL;
@@ -539,6 +541,8 @@ nabi_app_setup_server(void)
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
     nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
+    nabi_server_set_dynamic_event_flow(nabi_server,
+				       nabi->use_dynamic_event_flow);
 }
 
 void
@@ -1061,15 +1065,6 @@ create_menu(void)
 					       TRUE);
 	    i++;
 	}
-	/* do not add dvorak option to menu
-	menu_item = gtk_check_menu_item_new_with_label(_("Dvorak layout"));
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
-				       nabi->dvorak);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	gtk_widget_show(menu_item);
-	g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-				 G_CALLBACK(on_menu_dvorak), menu_item);
-				 */
 
 	/* separator */
 	menu_item = gtk_separator_menu_item_new();
@@ -1499,6 +1494,23 @@ nabi_app_set_candidate_keys(char **keys)
     g_free(nabi->candidate_keys);
     nabi->candidate_keys = g_strjoinv(",", keys);
     nabi_server_set_candidate_keys(nabi_server, keys);
+    nabi_save_config_file();
+}
+
+void
+nabi_app_set_dynamic_event_flow(gboolean flag)
+{
+    nabi->use_dynamic_event_flow = flag;
+    nabi_server_set_dynamic_event_flow(nabi_server, flag);
+    nabi_save_config_file();
+}
+
+void
+nabi_app_set_xim_name(const char* name)
+{
+    g_free(nabi->xim_name);
+    nabi->xim_name = g_strdup(name);
+    nabi_server_set_xim_name(nabi_server, name);
     nabi_save_config_file();
 }
 

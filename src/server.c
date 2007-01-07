@@ -818,6 +818,19 @@ nabi_server_normalize_keysym(NabiServer *server,
 }
 
 void
+nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag)
+{
+    server->dynamic_event_flow = flag;
+}
+
+void
+nabi_server_set_xim_name(NabiServer* server, const char* name)
+{
+    g_free(server->name);
+    server->name = g_strdup(name);
+}
+
+void
 nabi_server_write_log(NabiServer *server)
 {
     const gchar *homedir;

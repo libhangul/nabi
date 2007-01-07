@@ -46,8 +46,8 @@ struct _NabiApplication {
     gchar*          keyboard_layouts_file;
 
     /* xim server option */
-    gboolean        dvorak;
     gchar           *output_mode;
+    gboolean        use_dynamic_event_flow;
 
     /* candidate options */
     gchar*	    candidate_font;
@@ -77,6 +77,8 @@ void nabi_app_set_latin_keyboard(const char *name);
 void nabi_app_set_candidate_font(const char *font);
 void nabi_app_set_trigger_keys(char **keys);
 void nabi_app_set_candidate_keys(char **keys);
+void nabi_app_set_dynamic_event_flow(gboolean flag);
+void nabi_app_set_xim_name(const char* name);
 
 GtkWidget* nabi_app_create_main_widget(void);
 

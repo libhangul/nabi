@@ -172,6 +172,8 @@ void        nabi_server_set_output_mode (NabiServer *server,
 					 NabiOutputMode mode);
 void	    nabi_server_set_candidate_font(NabiServer *server,
 					   const gchar *font_name);
+void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
+void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 
 NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
 void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);

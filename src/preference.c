@@ -813,12 +813,80 @@ create_candidate_page(void)
     return page;
 }
 
+static void
+on_xim_name_changed(GtkEntry* entry, gpointer data)
+{
+    const char* name = gtk_entry_get_text(GTK_ENTRY(entry));
+    nabi_app_set_xim_name(name);
+}
+
+static void
+on_event_flow_button_toggled(GtkToggleButton *button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+    nabi_app_set_dynamic_event_flow(flag);
+}
+
 static GtkWidget*
 create_advanced_page(void)
 {
     GtkWidget *page;
+    GtkWidget *vbox1;
+    GtkWidget *vbox2;
+    GtkWidget *hbox;
+    GtkWidget *hbox2;
+    GtkWidget *label;
+    GtkWidget *button;
+    GtkWidget *entry;
 
-    page = gtk_label_new("Advanced");
+    page = gtk_vbox_new(FALSE, 12);
+    gtk_container_set_border_width(GTK_CONTAINER(page), 12);
+
+    vbox1 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">XIM</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+
+    hbox2 = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+
+    label = gtk_label_new(_("XIM name:"));
+    gtk_box_pack_start(GTK_BOX(hbox2), label, FALSE, FALSE, 0);
+
+    entry = gtk_entry_new();
+    gtk_entry_set_width_chars(GTK_ENTRY(entry), 16);
+    gtk_entry_set_text(GTK_ENTRY(entry), nabi->xim_name);
+    gtk_box_pack_start(GTK_BOX(hbox2), entry, FALSE, FALSE, 6);
+    g_signal_connect(G_OBJECT(entry), "changed",
+		     G_CALLBACK(on_xim_name_changed), NULL);
+
+    hbox2 = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
+
+    button = gtk_check_button_new_with_label(_("Use dynamic event flow"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         nabi->use_dynamic_event_flow);
+    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_event_flow_button_toggled), NULL);
+
     return page;
 }
 
@@ -872,7 +940,7 @@ preference_window_create(void)
     /* advanced */
     label = gtk_label_new(_("Advanced"));
     child = create_advanced_page();
-    //gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
     vbox = GTK_DIALOG(dialog)->vbox;
     gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
