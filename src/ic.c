@@ -371,7 +371,10 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
     else 
 	gc = gdk_x11_gc_get_xgc(nabi_server->gc);
 
-    width = Xutf8TextEscapement(ic->preedit.font_set, str, size);
+    str = g_locale_from_utf8(str, size, NULL, NULL, NULL);
+    size = strlen(str);
+
+    width = XmbTextEscapement(ic->preedit.font_set, str, size);
     if (ic->preedit.width != width) {
 	ic->preedit.width = width;
 	ic->preedit.height = ic->preedit.ascent + ic->preedit.descent;
@@ -389,13 +392,16 @@ nabi_ic_preedit_draw_string(NabiIC *ic, char *str, int size)
 			    ic->preedit.spot.y - ic->preedit.ascent);
 	}
     }
-    Xutf8DrawImageString(nabi_server->display,
-		         GDK_WINDOW_XWINDOW(ic->preedit.window),
-		         ic->preedit.font_set,
-		         gc,
-		         0,
-		         ic->preedit.ascent,
-		         str, size);
+
+    XmbDrawImageString(nabi_server->display,
+		       GDK_WINDOW_XWINDOW(ic->preedit.window),
+		       ic->preedit.font_set,
+		       gc,
+		       0,
+		       ic->preedit.ascent,
+		       str, size);
+
+    g_free(str);
 }
 
 static void
@@ -852,13 +858,15 @@ static char *utf8_to_compound_text(const char *utf8)
     XTextProperty tp;
     int ret;
 
-    list[0] = (char*)utf8;
+    list[0] = g_locale_from_utf8(utf8, -1, NULL, NULL, NULL);
     list[1] = 0;
-    ret = Xutf8TextListToTextProperty(nabi_server->display, list, 1,
-				      XCompoundTextStyle,
-				      &tp);
+    ret = XmbTextListToTextProperty(nabi_server->display, list, 1,
+				    XCompoundTextStyle,
+				    &tp);
+    g_free(list[0]);
+
     if (ret > 0)
-	fprintf(stdout, "Nabi: conversion failure: %d\n", ret);
+	nabi_log(1, "conversion failure: %d\n", ret);
     return (char*)tp.value;
 }
 
