@@ -136,12 +136,7 @@ nabi_server_new(const char *name)
 
     server->dynamic_event_flow = True;
     server->global_input_mode = True;
-    server->dvorak = False;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
-
-    /* hangul converter */
-    server->check_charset = False;
-    server->converter = (GIConv)(-1);
 
     /* hanja */
     server->hanja_table = NULL;
@@ -237,25 +232,15 @@ nabi_server_set_mode_info_cb(NabiServer *server, NabiModeInfoCallback func)
 }
 
 void
-nabi_server_set_dvorak(NabiServer *server, Bool flag)
-{
-    if (server == NULL)
-	return;
-
-    server->dvorak = flag;
-}
-
-void
 nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
 {
     if (server == NULL)
 	return;
 
-    if (mode == NABI_OUTPUT_SYLLABLE)
+    if (mode == NABI_OUTPUT_SYLLABLE) {
 	server->output_mode = mode;
-    else  {
-	if (!server->check_charset)
-	    server->output_mode = mode;
+    } else  {
+	server->output_mode = mode;
     }
 }
 
@@ -364,18 +349,7 @@ nabi_server_init(NabiServer *server)
     server->output_mode = NABI_OUTPUT_SYLLABLE;
 
     /* check locale encoding */
-    server->check_charset = !g_get_charset(&charset);
-    if (server->check_charset) {
-	/* not utf8 encoding */
-	fprintf(stderr, "Nabi: Using charset: %s\n", charset);
-	server->converter = g_iconv_open(charset, "UTF-8");
-	if ((GIConv)server->converter == (GIConv)(-1)) {
-	    server->check_charset = False;
-	    fprintf(stderr,
-		    "Nabi: g_iconv_open error: %s\n"
-		    "We does not check charset\n", charset);
-	}
-    } else {
+    if (g_get_charset(&charset)) {
 	/* utf8 encoding */
 	/* We add current locale to nabi support  locales array,
 	 * so whatever the locale string is, if its encoding is utf8,
@@ -559,11 +533,6 @@ nabi_server_stop(NabiServer *server)
     if (server == NULL)
 	return 0;
 
-    if ((GIConv)(server->converter) != (GIConv)(-1)) {
-	g_iconv_close(server->converter);
-	server->converter = (GIConv)(-1);
-    }
-
     if (server->xims != NULL) {
 	IMCloseIM(server->xims);
 	server->xims = NULL;
@@ -632,29 +601,6 @@ nabi_server_is_locale_supported(NabiServer *server, const char *locale)
     }
 
     return False;
-}
-
-Bool
-nabi_server_is_valid_str(NabiServer *server, const char* str)
-{
-    size_t ret;
-    gchar buf[16];
-    gsize inbytesleft, outbytesleft;
-    gchar *inbuf;
-    gchar *outbuf;
-
-    if ((GIConv)server->converter == (GIConv)(-1))
-	return True;
-
-    inbuf = (char*)str;
-    outbuf = buf;
-    inbytesleft = strlen(str);
-    outbytesleft = sizeof(buf);
-    ret = g_iconv(server->converter,
-	    	  &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    if ((GIConv)ret == (GIConv)(-1))
-	return False;
-    return True;
 }
 
 void

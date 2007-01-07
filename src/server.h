@@ -119,15 +119,10 @@ struct _NabiServer {
     char*                   hangul_keyboard;
     const NabiHangulKeyboard* hangul_keyboard_list;
 
-    Bool                    dvorak;
     NabiOutputMode          output_mode;
 
     /* hanja */
     HanjaTable*             hanja_table;
-
-    /* hangul converter */
-    Bool                    check_charset;
-    GIConv                  converter;
 
     /* options */
     Bool                    dynamic_event_flow;
