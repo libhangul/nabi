@@ -22,45 +22,27 @@
 #include <gtk/gtk.h>
 #include <X11/Xlib.h>
 
+#include "conf.h"
+
 typedef struct _NabiApplication NabiApplication;
 
 struct _NabiApplication {
-    gchar*	    xim_name;		/* xim server name from config file */
-    gchar*	    optional_xim_name;	/* xim server name from command line */
+    gchar*	    xim_name;
 
-    gint            x;
-    gint            y;
     GtkWidget*      main_window;
     gboolean	    status_only;
     gchar*	    session_id;
 
-    gchar*          theme;
     int             icon_size;
-
-    gchar*          trigger_keys;
-    gchar*          candidate_keys;
-
-    /* keyboard option */
-    gchar*          hangul_keyboard;
-    gchar*          latin_keyboard;
-    gchar*          keyboard_layouts_file;
-
-    /* xim server option */
-    gchar           *output_mode;
-    gboolean        use_dynamic_event_flow;
-
-    /* candidate options */
-    gchar*	    candidate_font;
-
-    /* preedit attribute */
-    gchar           *preedit_fg;
-    gchar           *preedit_bg;
 
     /* hangul status data */
     GdkWindow       *root_window;
     GdkAtom         mode_info_atom;
     GdkAtom         mode_info_type;
     Atom            mode_info_xatom;
+
+    /* config data */
+    NabiConfig*     config;
 };
 
 extern NabiApplication* nabi;
@@ -70,15 +52,9 @@ void nabi_app_init(int *argc, char ***argv);
 void nabi_app_setup_server(void);
 void nabi_app_quit(void);
 void nabi_app_free(void);
-void nabi_save_config_file(void);
+void nabi_app_save_config(void);
 void nabi_app_set_theme(const char *name);
 void nabi_app_set_hangul_keyboard(const char *id);
-void nabi_app_set_latin_keyboard(const char *name);
-void nabi_app_set_candidate_font(const char *font);
-void nabi_app_set_trigger_keys(char **keys);
-void nabi_app_set_candidate_keys(char **keys);
-void nabi_app_set_dynamic_event_flow(gboolean flag);
-void nabi_app_set_xim_name(const char* name);
 
 GtkWidget* nabi_app_create_main_widget(void);
 

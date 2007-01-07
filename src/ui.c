@@ -34,11 +34,12 @@
 
 #include "eggtrayicon.h"
 
+#include "debug.h"
 #include "gettext.h"
+#include "nabi.h"
 #include "ic.h"
 #include "server.h"
-#include "nabi.h"
-#include "debug.h"
+#include "conf.h"
 
 #include "default-icons.h"
 
@@ -74,234 +75,6 @@ static GtkWidget *none_image = NULL;
 static GtkWidget *hangul_image = NULL;
 static GtkWidget *english_image = NULL;
 
-enum {
-    CONF_TYPE_BOOL,
-    CONF_TYPE_INT,
-    CONF_TYPE_STR
-};
-
-struct config_item {
-    gchar* key;
-    gint   type;
-    guint  offset;
-};
-
-#define BASE           ((void*)((NabiApplication*)NULL))
-#define MEMBER(member) ((void*)(&(((NabiApplication*)NULL)->member)))
-#define OFFSET(member) ((guint)(MEMBER(member) - BASE))
-
-#define BOOL_BY_OFFSET(offset) (gboolean*)((void*)(nabi) + offset)
-#define INT_BY_OFFSET(offset)      (gint*)((void*)(nabi) + offset)
-#define CHAR_BY_OFFSET(offset)   (gchar**)((void*)(nabi) + offset)
-
-const static struct config_item config_items[] = {
-    { "xim_name",           CONF_TYPE_STR,  OFFSET(xim_name)                 },
-    { "x",                  CONF_TYPE_INT,  OFFSET(x)                        },
-    { "y",                  CONF_TYPE_INT,  OFFSET(y)                        },
-    { "theme",              CONF_TYPE_STR,  OFFSET(theme)                    },
-    { "hangul_keyboard",    CONF_TYPE_STR,  OFFSET(hangul_keyboard)          },
-    { "latin_keyboard",     CONF_TYPE_STR,  OFFSET(latin_keyboard)           },
-    { "keyboard_layouts",   CONF_TYPE_STR,  OFFSET(keyboard_layouts_file)    },
-    { "triggerkeys",        CONF_TYPE_STR,  OFFSET(trigger_keys)             },
-    { "candidatekeys",      CONF_TYPE_STR,  OFFSET(candidate_keys)           },
-    { "output_mode",        CONF_TYPE_STR,  OFFSET(output_mode)              },
-    { "preedit_foreground", CONF_TYPE_STR,  OFFSET(preedit_fg)               },
-    { "preedit_background", CONF_TYPE_STR,  OFFSET(preedit_bg)               },
-    { "candidate_font",	    CONF_TYPE_STR,  OFFSET(candidate_font)           },
-    { "dynamic_event_flow", CONF_TYPE_BOOL, OFFSET(use_dynamic_event_flow)   },
-    { NULL,                 0,              0                                }
-};
-
-static void
-set_value_bool(guint offset, gchar* value)
-{
-    gboolean *member = BOOL_BY_OFFSET(offset);
-
-    if (g_ascii_strcasecmp(value, "true") == 0) {
-	*member = TRUE;
-    } else {
-	*member = FALSE;
-    }
-}
-
-static void
-set_value_int(guint offset, gchar* value)
-{
-    int *member = INT_BY_OFFSET(offset);
-
-    *member = strtol(value, NULL, 10);
-}
-
-static void
-set_value_str(guint offset, gchar* value)
-{
-    char **member = CHAR_BY_OFFSET(offset);
-
-    g_free(*member);
-    if (value == NULL)
-	*member = g_strdup("");
-    else
-	*member = g_strdup(value);
-}
-
-static void
-write_value_bool(FILE* file, gchar* key, guint offset)
-{
-    gboolean *member = BOOL_BY_OFFSET(offset);
-
-    if (*member)
-	fprintf(file, "%s=%s\n", key, "true");
-    else
-	fprintf(file, "%s=%s\n", key, "false");
-}
-
-static void
-write_value_int(FILE* file, gchar* key, guint offset)
-{
-    int *member = INT_BY_OFFSET(offset);
-
-    fprintf(file, "%s=%d\n", key, *member);
-}
-
-static void
-write_value_str(FILE* file, gchar* key, guint offset)
-{
-    char **member = CHAR_BY_OFFSET(offset);
-
-    if (*member != NULL)
-	fprintf(file, "%s=%s\n", key, *member);
-}
-
-static void
-load_config_item(gchar* key, gchar* value)
-{
-    gint i;
-
-    for (i = 0; config_items[i].key != NULL; i++) {
-	if (strcmp(key, config_items[i].key) == 0) {
-	    switch (config_items[i].type) {
-	    case CONF_TYPE_BOOL:
-		if (value != NULL)
-		    set_value_bool(config_items[i].offset, value);
-		break;
-	    case CONF_TYPE_INT:
-		if (value != NULL)
-		    set_value_int(config_items[i].offset, value);
-		break;
-	    case CONF_TYPE_STR:
-		set_value_str(config_items[i].offset, value);
-		break;
-	    default:
-		break;
-	    }
-	}
-    }
-}
-
-static void
-load_config_file(void)
-{
-    gchar *line, *saved_position;
-    gchar *key, *value;
-    const gchar* homedir;
-    gchar* config_filename;
-    gchar buf[256];
-    FILE *file;
-
-    /* set default values */
-    nabi->xim_name = g_strdup(PACKAGE);
-    nabi->theme = g_strdup("Jini");
-    nabi->icon_size = 24;
-
-    nabi->hangul_keyboard = g_strdup("2");
-    nabi->latin_keyboard = g_strdup("none");
-    nabi->keyboard_layouts_file = g_strdup("keyboard_layouts");
-
-    nabi->trigger_keys = g_strdup("Hangul,Shift+space");
-    nabi->candidate_keys = g_strdup("Hangul_Hanja,F9");
-
-    nabi->candidate_font = g_strdup("Sans 14");
-    nabi->output_mode = g_strdup("syllable");
-    nabi->preedit_fg = g_strdup("#FFFFFF");
-    nabi->preedit_bg = g_strdup("#000000");
-
-    nabi->use_dynamic_event_flow = TRUE;
-
-    /* load conf file */
-    homedir = g_get_home_dir();
-    config_filename = g_build_filename(homedir, ".nabi", "config", NULL);
-    file = fopen(config_filename, "r");
-    if (file == NULL) {
-	fprintf(stderr, _("Nabi: Can't load config file\n"));
-	return;
-    }
-
-    for (line = fgets(buf, sizeof(buf), file);
-	 line != NULL;
-	 line = fgets(buf, sizeof(buf), file)) {
-	key = strtok_r(line, " =\t\n", &saved_position);
-	value = strtok_r(NULL, "\r\n", &saved_position);
-	if (key == NULL)
-	    continue;
-	load_config_item(key, value);
-    }
-    fclose(file);
-    g_free(config_filename);
-}
-
-void
-nabi_save_config_file(void)
-{
-    gint i;
-    const gchar* homedir;
-    gchar* config_dir;
-    gchar* config_filename;
-    FILE *file;
-
-    homedir = g_get_home_dir();
-    config_dir = g_build_filename(homedir, ".nabi", NULL);
-
-    /* chech for nabi conf dir */
-    if (!g_file_test(config_dir, G_FILE_TEST_EXISTS)) {
-	int ret;
-	/* we make conf dir */
-	ret = mkdir(config_dir, S_IRUSR | S_IWUSR | S_IXUSR);
-	if (ret != 0) {
-	    perror("nabi");
-	}
-    }
-
-    config_filename = g_build_filename(config_dir, "config", NULL);
-    file = fopen(config_filename, "w");
-    if (file == NULL) {
-	fprintf(stderr, _("Nabi: Can't write config file\n"));
-	return;
-    }
-
-    for (i = 0; config_items[i].key != NULL; i++) {
-	switch (config_items[i].type) {
-	case CONF_TYPE_BOOL:
-	    write_value_bool(file, config_items[i].key,
-			   config_items[i].offset);
-	    break;
-	case CONF_TYPE_INT:
-	    write_value_int(file, config_items[i].key,
-			  config_items[i].offset);
-	    break;
-	case CONF_TYPE_STR:
-	    write_value_str(file, config_items[i].key,
-			  config_items[i].offset);
-	    break;
-	default:
-	    break;
-	}
-    }
-    fclose(file);
-
-    g_free(config_dir);
-    g_free(config_filename);
-}
-
 static void
 load_colors(void)
 {
@@ -312,7 +85,7 @@ load_colors(void)
     colormap = gdk_colormap_get_system();
 
     /* preedit foreground */
-    gdk_color_parse(nabi->preedit_fg, &color);
+    gdk_color_parse(nabi->config->preedit_fg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
 	nabi_server->preedit_fg = color;
@@ -326,7 +99,7 @@ load_colors(void)
     }
 
     /* preedit background */
-    gdk_color_parse(nabi->preedit_bg, &color);
+    gdk_color_parse(nabi->config->preedit_bg, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
 	nabi_server->preedit_bg = color;
@@ -344,56 +117,40 @@ static void
 set_up_keyboard(void)
 {
     /* keyboard layout */
-    if (g_path_is_absolute(nabi->keyboard_layouts_file)) {
+    if (g_path_is_absolute(nabi->config->keyboard_layouts_file)) {
 	nabi_server_load_keyboard_layout(nabi_server,
-					 nabi->keyboard_layouts_file);
+					 nabi->config->keyboard_layouts_file);
     } else {
 	char* filename = g_build_filename(NABI_DATA_DIR,
-					  nabi->keyboard_layouts_file, NULL);
+				  nabi->config->keyboard_layouts_file, NULL);
 	nabi_server_load_keyboard_layout(nabi_server,
 					 filename);
 	g_free(filename);
     }
-    nabi_server_set_keyboard_layout(nabi_server, nabi->latin_keyboard);
+    nabi_server_set_keyboard_layout(nabi_server, nabi->config->latin_keyboard);
 
     /* set keyboard */
-    nabi_server_set_hangul_keyboard(nabi_server, nabi->hangul_keyboard);
+    nabi_server_set_hangul_keyboard(nabi_server, nabi->config->hangul_keyboard);
 }
 
 void
 nabi_app_new(void)
 {
-    nabi = g_malloc(sizeof(NabiApplication));
+    nabi = g_new(NabiApplication, 1);
 
     nabi->xim_name = NULL;
-    nabi->optional_xim_name = NULL;
-    nabi->x = 0;
-    nabi->y = 0;
     nabi->main_window = NULL;
     nabi->status_only = FALSE;
     nabi->session_id = NULL;
-
-    nabi->theme = NULL;
-
-    nabi->hangul_keyboard = NULL;
-    nabi->latin_keyboard = NULL;
-    nabi->keyboard_layouts_file = NULL;
-
-    nabi->trigger_keys = NULL;
-    nabi->candidate_keys = NULL;
-
-    nabi->output_mode = NULL;
-    nabi->use_dynamic_event_flow = TRUE;
-
-    nabi->preedit_fg = NULL;
-    nabi->preedit_bg = NULL;
-    nabi->candidate_font = NULL;
+    nabi->icon_size = 0;
 
     nabi->root_window = NULL;
 
     nabi->mode_info_atom = 0;
     nabi->mode_info_type = 0;
     nabi->mode_info_xatom = 0;
+
+    nabi->config = NULL;
 }
 
 void
@@ -440,7 +197,7 @@ nabi_app_init(int *argc, char ***argv)
 		}
 		(*argv)[i] = NULL;
 
-		nabi->optional_xim_name = g_strdup(xim_name);
+		nabi->xim_name = g_strdup(xim_name);
 	    } else if (strcmp("-d", (*argv)[i]) == 0) {
 		gchar* log_level = "0";
 		(*argv)[i] = NULL;
@@ -466,7 +223,8 @@ nabi_app_init(int *argc, char ***argv)
 	}
     }
 
-    load_config_file();
+    nabi->config = nabi_config_new();
+    nabi_config_load(nabi->config);
 
     /* set atoms for hangul status */
     nabi->mode_info_atom = gdk_atom_intern("_HANGUL_INPUT_MODE", TRUE);
@@ -474,6 +232,7 @@ nabi_app_init(int *argc, char ***argv)
     nabi->mode_info_xatom = gdk_x11_atom_to_xatom(nabi->mode_info_atom);
 
     /* default icon */
+    nabi->icon_size = 24;
     icon_filename = g_build_filename(NABI_DATA_DIR, "nabi.svg", NULL);
     default_icon = gdk_pixbuf_new_from_file(icon_filename, NULL);
     if (default_icon == NULL) {
@@ -490,10 +249,10 @@ set_up_output_mode(void)
     NabiOutputMode mode;
 
     mode = NABI_OUTPUT_SYLLABLE;
-    if (nabi->output_mode != NULL) {
-	if (g_ascii_strcasecmp(nabi->output_mode, "jamo") == 0) {
+    if (nabi->config->output_mode != NULL) {
+	if (g_ascii_strcasecmp(nabi->config->output_mode, "jamo") == 0) {
 	    mode = NABI_OUTPUT_JAMO;
-	} else if (g_ascii_strcasecmp(nabi->output_mode, "manual") == 0) {
+	} else if (g_ascii_strcasecmp(nabi->config->output_mode, "manual") == 0) {
 	    mode = NABI_OUTPUT_MANUAL;
 	}
     }
@@ -534,15 +293,15 @@ nabi_app_setup_server(void)
     set_up_keyboard();
     load_colors();
     set_up_output_mode();
-    keys = g_strsplit(nabi->trigger_keys, ",", 0);
+    keys = g_strsplit(nabi->config->trigger_keys, ",", 0);
     nabi_server_set_trigger_keys(nabi_server, keys);
     g_strfreev(keys);
-    keys = g_strsplit(nabi->candidate_keys, ",", 0);
+    keys = g_strsplit(nabi->config->candidate_keys, ",", 0);
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
-    nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
+    nabi_server_set_candidate_font(nabi_server, nabi->config->candidate_font);
     nabi_server_set_dynamic_event_flow(nabi_server,
-				       nabi->use_dynamic_event_flow);
+				       nabi->config->use_dynamic_event_flow);
 }
 
 void
@@ -558,7 +317,7 @@ nabi_app_quit(void)
 
     if (nabi != NULL && nabi->main_window != NULL) {
 	gtk_window_get_position(GTK_WINDOW(nabi->main_window),
-				&nabi->x, &nabi->y);
+				&nabi->config->x, &nabi->config->y);
 	gtk_widget_destroy(nabi->main_window);
 	nabi->main_window = NULL;
     }
@@ -576,25 +335,16 @@ nabi_app_free(void)
     if (nabi == NULL)
 	return;
 
-    nabi_save_config_file();
+    nabi_app_save_config();
+    nabi_config_delete(nabi->config);
+    nabi->config = NULL;
 
     if (nabi->main_window != NULL) {
 	gtk_widget_destroy(nabi->main_window);
 	nabi->main_window = NULL;
     }
 
-    g_free(nabi->theme);
-
-    g_free(nabi->hangul_keyboard);
-    g_free(nabi->latin_keyboard);
-
-    g_free(nabi->output_mode);
-
-    g_free(nabi->preedit_fg);
-    g_free(nabi->preedit_bg);
-
     g_free(nabi->xim_name);
-    g_free(nabi->optional_xim_name);
 
     g_free(nabi);
     nabi = NULL;
@@ -607,7 +357,7 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 	nabi->main_window != NULL &&
 	GTK_WIDGET_VISIBLE(nabi->main_window)) {
 	gtk_window_get_position(GTK_WINDOW(nabi->main_window),
-				&nabi->x, &nabi->y);
+				&nabi->config->x, &nabi->config->y);
 	gtk_widget_hide(GTK_WIDGET(nabi->main_window));
     }
 }
@@ -634,7 +384,8 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
     if (nabi != NULL &&
 	nabi->main_window != NULL &&
 	!GTK_WIDGET_VISIBLE(nabi->main_window)) {
-	gtk_window_move(GTK_WINDOW(nabi->main_window), nabi->x, nabi->y);
+	gtk_window_move(GTK_WINDOW(nabi->main_window),
+			nabi->config->x, nabi->config->y);
 	gtk_widget_show(GTK_WIDGET(nabi->main_window));
     }
 }
@@ -703,10 +454,11 @@ on_tray_icon_button_press(GtkWidget *widget,
     case 2:
 	if (GTK_WIDGET_VISIBLE(nabi->main_window)) {
 	    gtk_window_get_position(GTK_WINDOW(nabi->main_window),
-			    &nabi->x, &nabi->y);
+			    &nabi->config->x, &nabi->config->y);
 	    gtk_widget_hide(GTK_WIDGET(nabi->main_window));
 	} else {
-	    gtk_window_move(GTK_WINDOW(nabi->main_window), nabi->x, nabi->y);
+	    gtk_window_move(GTK_WINDOW(nabi->main_window),
+			    nabi->config->x, nabi->config->y);
 	    gtk_widget_show(GTK_WIDGET(nabi->main_window));
 	}
 	return TRUE;
@@ -1060,7 +812,7 @@ create_menu(void)
 	    gtk_widget_show(menu_item);
 	    g_signal_connect(G_OBJECT(menu_item), "activate",
 			     G_CALLBACK(on_menu_keyboard), (gpointer)id);
-	    if (strcmp(id, nabi->hangul_keyboard) == 0)
+	    if (strcmp(id, nabi->config->hangul_keyboard) == 0)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
 					       TRUE);
 	    i++;
@@ -1364,7 +1116,7 @@ create_tray_icon(gpointer data)
 			 _("Hangul input method: Nabi"
 			   " - You can input hangul using this program"));
 
-    load_base_icons(nabi->theme);
+    load_base_icons(nabi->config->theme);
     create_resized_icons(nabi->icon_size);
 
     hbox = gtk_hbox_new(TRUE, 0);
@@ -1401,7 +1153,7 @@ nabi_app_create_main_widget(void)
     gtk_window_set_skip_pager_hint(GTK_WINDOW(window), TRUE);
     gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
     gtk_window_stick(GTK_WINDOW(window));
-    gtk_window_move(GTK_WINDOW(window), nabi->x, nabi->y);
+    gtk_window_move(GTK_WINDOW(window), nabi->config->x, nabi->config->y);
     g_signal_connect_after(G_OBJECT(window), "realize",
 	    		   G_CALLBACK(on_main_window_realized), NULL);
     g_signal_connect(G_OBJECT(window), "destroy",
@@ -1442,76 +1194,26 @@ nabi_app_set_theme(const gchar *name)
     load_base_icons(name);
     create_resized_icons(nabi->icon_size);
 
-    g_free(nabi->theme);
-    nabi->theme = g_strdup(name);
-    nabi_save_config_file();
-}
-
-void
-nabi_app_set_latin_keyboard(const char* name)
-{
-    g_free(nabi->latin_keyboard);
-    nabi->latin_keyboard = g_strdup(name);
-    nabi_server_set_keyboard_layout(nabi_server, name);
-    nabi_save_config_file();
+    g_free(nabi->config->theme);
+    nabi->config->theme = g_strdup(name);
 }
 
 void
 nabi_app_set_hangul_keyboard(const char *id)
 {
     nabi_server_set_hangul_keyboard(nabi_server, id);
-    g_free(nabi->hangul_keyboard);
+    g_free(nabi->config->hangul_keyboard);
     if (id == NULL)
-	nabi->hangul_keyboard = NULL;
+	nabi->config->hangul_keyboard = NULL;
     else
-	nabi->hangul_keyboard = g_strdup(id);
-    nabi_save_config_file();
+	nabi->config->hangul_keyboard = g_strdup(id);
 }
 
 void
-nabi_app_set_candidate_font(const char *font)
+nabi_app_save_config()
 {
-    if (font != NULL) {
-	g_free(nabi->candidate_font);
-	nabi->candidate_font = g_strdup(font);
-	nabi_server_set_candidate_font(nabi_server, nabi->candidate_font);
-	nabi_save_config_file();
-    }
-}
-
-void
-nabi_app_set_trigger_keys(char **keys)
-{
-    g_free(nabi->trigger_keys);
-    nabi->trigger_keys = g_strjoinv(",", keys);
-    nabi_server_set_trigger_keys(nabi_server, keys);
-    nabi_save_config_file();
-}
-
-void
-nabi_app_set_candidate_keys(char **keys)
-{
-    g_free(nabi->candidate_keys);
-    nabi->candidate_keys = g_strjoinv(",", keys);
-    nabi_server_set_candidate_keys(nabi_server, keys);
-    nabi_save_config_file();
-}
-
-void
-nabi_app_set_dynamic_event_flow(gboolean flag)
-{
-    nabi->use_dynamic_event_flow = flag;
-    nabi_server_set_dynamic_event_flow(nabi_server, flag);
-    nabi_save_config_file();
-}
-
-void
-nabi_app_set_xim_name(const char* name)
-{
-    g_free(nabi->xim_name);
-    nabi->xim_name = g_strdup(name);
-    nabi_server_set_xim_name(nabi_server, name);
-    nabi_save_config_file();
+    if (nabi != NULL && nabi->config != NULL)
+	nabi_config_save(nabi->config);
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */

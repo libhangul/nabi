@@ -77,7 +77,7 @@ static void
 save_yourself_proc(SmcConn smc_conn, SmPointer client_data, int save_type,
 		   Bool shutdown, int interact_style, Bool fast)
 {
-    nabi_save_config_file();
+    nabi_app_save_config();
     SmcSaveYourselfDone(smc_conn, True);
 }
 

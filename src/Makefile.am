@@ -21,6 +21,7 @@ nabi_SOURCES = \
 	session.h session.c \
 	candidate.h candidate.c \
 	keycapturedialog.h keycapturedialog.c \
+	conf.h conf.c \
 	handler.c \
 	ui.c \
 	preference.c \

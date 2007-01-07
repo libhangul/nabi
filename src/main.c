@@ -66,7 +66,7 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
 static void
 nabi_sigterm_handler(int no)
 {
-    nabi_save_config_file();
+    nabi_app_save_config();
     if (default_sigterm_handler != NULL)
 	default_sigterm_handler(no);
     else
@@ -100,10 +100,10 @@ main(int argc, char *argv[])
     if (!nabi->status_only) {
 	char *xim_name;
 	/* we prefer command line option as default xim name */
-	if (nabi->optional_xim_name != NULL)
-	    xim_name = nabi->optional_xim_name;
-	else
+	if (nabi->xim_name != NULL)
 	    xim_name = nabi->xim_name;
+	else
+	    xim_name = nabi->config->xim_name;
 	nabi_server = nabi_server_new(xim_name);
 	nabi_server_init(nabi_server);
     }

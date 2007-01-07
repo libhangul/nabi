@@ -41,6 +41,7 @@ enum {
     N_COLS
 };
 
+static NabiConfig* config = NULL;
 static GtkWidget *hangul_keyboard_list_combo = NULL;
 
 static GdkPixbuf *
@@ -263,7 +264,7 @@ create_theme_page(void)
     g_signal_connect(G_OBJECT(selection), "changed",
 		     G_CALLBACK(on_icon_list_selection_changed), NULL);
 
-    path = search_text_in_model(model, THEMES_LIST_NAME, nabi->theme);
+    path = search_text_in_model(model, THEMES_LIST_NAME, config->theme);
     if (path) {
 	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview),
@@ -294,7 +295,9 @@ on_latin_keyboard_changed(GtkComboBox *widget, gpointer data)
     int i = gtk_combo_box_get_active(widget);
     NabiKeyboardLayout* item = g_list_nth_data(nabi_server->layouts, i);
     if (item != NULL) {
-	nabi_app_set_latin_keyboard(item->name);
+	g_free(config->latin_keyboard);
+	config->latin_keyboard = g_strdup(item->name);
+	nabi_server_set_keyboard_layout(nabi_server, item->name);
     }
 }
 
@@ -341,7 +344,7 @@ create_keyboard_page(void)
     for (i = 0; keyboards[i].name != NULL; i++) {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),
 				  _(keyboards[i].name));
-	if (strcmp(nabi->hangul_keyboard, keyboards[i].id) == 0) {
+	if (strcmp(config->hangul_keyboard, keyboards[i].id) == 0) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	}
     }
@@ -378,7 +381,7 @@ create_keyboard_page(void)
 	NabiKeyboardLayout* layout = list->data;
 	if (layout != NULL) {
 	    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), layout->name);
-	    if (strcmp(nabi->latin_keyboard, layout->name) == 0) {
+	    if (strcmp(config->latin_keyboard, layout->name) == 0) {
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	    }
 	}
@@ -436,12 +439,16 @@ update_trigger_keys_setting(GtkTreeModel *model)
     while (ret) {
 	char *key = NULL;
 	gtk_tree_model_get(model, &iter, 0, &key, -1);
-	keys[n++] = key;
+	if (key != NULL)
+	    keys[n++] = key;
 	ret = gtk_tree_model_iter_next(model, &iter);
     }
     keys[n] = NULL;
 
-    nabi_app_set_trigger_keys(keys);
+    g_free(config->trigger_keys);
+    config->trigger_keys = g_strjoinv(",", keys);
+    nabi_server_set_trigger_keys(nabi_server, keys);
+
     g_strfreev(keys);
 }
 
@@ -528,12 +535,15 @@ update_candidate_keys_setting(GtkTreeModel *model)
     while (ret) {
 	char *key = NULL;
 	gtk_tree_model_get(model, &iter, 0, &key, -1);
-	keys[n++] = key;
+	if (key != NULL)
+	    keys[n++] = key;
 	ret = gtk_tree_model_iter_next(model, &iter);
     }
     keys[n] = NULL;
 
-    nabi_app_set_candidate_keys(keys);
+    g_free(config->candidate_keys);
+    config->candidate_keys = g_strjoinv(",", keys);
+    nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
 }
 
@@ -631,7 +641,7 @@ create_hangul_page(void)
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
     gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
 
-    model = get_key_list_store(nabi->trigger_keys);
+    model = get_key_list_store(config->trigger_keys);
     treeview = gtk_tree_view_new_with_model(model);
     g_object_unref(G_OBJECT(model));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
@@ -685,7 +695,7 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 
     dialog = gtk_font_selection_dialog_new(_("Select hanja font"));
     gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dialog),
-					    nabi->candidate_font);
+					    config->candidate_font);
     gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dialog),
 					       "訓民正音 훈민정음");
     gtk_widget_show_all(dialog);
@@ -695,7 +705,9 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 
     if (result == GTK_RESPONSE_OK) {
 	char *font = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dialog));
-	nabi_app_set_candidate_font(font);
+	g_free(config->candidate_font);
+	config->candidate_font = g_strdup(font);
+	nabi_server_set_candidate_font(nabi_server, font);
 	gtk_button_set_label(GTK_BUTTON(button), font);
     }
     gtk_widget_destroy(dialog);
@@ -747,7 +759,7 @@ create_candidate_page(void)
     hbox2 = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
 
-    button = gtk_button_new_with_label(nabi->candidate_font);
+    button = gtk_button_new_with_label(config->candidate_font);
     gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
@@ -780,7 +792,7 @@ create_candidate_page(void)
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
     gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
 
-    model = get_key_list_store(nabi->candidate_keys);
+    model = get_key_list_store(config->candidate_keys);
     treeview = gtk_tree_view_new_with_model(model);
     g_object_unref(G_OBJECT(model));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
@@ -817,14 +829,19 @@ static void
 on_xim_name_changed(GtkEntry* entry, gpointer data)
 {
     const char* name = gtk_entry_get_text(GTK_ENTRY(entry));
-    nabi_app_set_xim_name(name);
+
+    g_free(config->xim_name);
+    config->xim_name = g_strdup(name);
+    nabi_server_set_xim_name(nabi_server, name);
 }
 
 static void
 on_event_flow_button_toggled(GtkToggleButton *button, gpointer data)
 {
     gboolean flag = gtk_toggle_button_get_active(button);
-    nabi_app_set_dynamic_event_flow(flag);
+
+    config->use_dynamic_event_flow = flag;
+    nabi_server_set_dynamic_event_flow(nabi_server, flag);
 }
 
 static GtkWidget*
@@ -872,7 +889,7 @@ create_advanced_page(void)
 
     entry = gtk_entry_new();
     gtk_entry_set_width_chars(GTK_ENTRY(entry), 16);
-    gtk_entry_set_text(GTK_ENTRY(entry), nabi->xim_name);
+    gtk_entry_set_text(GTK_ENTRY(entry), config->xim_name);
     gtk_box_pack_start(GTK_BOX(hbox2), entry, FALSE, FALSE, 6);
     g_signal_connect(G_OBJECT(entry), "changed",
 		     G_CALLBACK(on_xim_name_changed), NULL);
@@ -882,7 +899,7 @@ create_advanced_page(void)
 
     button = gtk_check_button_new_with_label(_("Use dynamic event flow"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
-			         nabi->use_dynamic_event_flow);
+			         config->use_dynamic_event_flow);
     gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_event_flow_button_toggled), NULL);
@@ -893,6 +910,8 @@ create_advanced_page(void)
 static void
 on_preference_destroy(GtkWidget *dialog, gpointer data)
 {
+    nabi_app_save_config();
+
     hangul_keyboard_list_combo = NULL;
 }
 
@@ -905,6 +924,8 @@ preference_window_create(void)
     GtkWidget *label;
     GtkWidget *child;
     GList *list;
+
+    config = nabi->config;
 
     dialog = gtk_dialog_new_with_buttons(_("Nabi Preferences"),
 					 NULL,
@@ -974,7 +995,7 @@ preference_window_update(void)
 	const NabiHangulKeyboard* keyboards;
 	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
 	for (i = 0; keyboards[i].name != NULL; i++) {
-	    if (strcmp(nabi->hangul_keyboard, keyboards[i].id) == 0) {
+	    if (strcmp(config->hangul_keyboard, keyboards[i].id) == 0) {
 		gtk_combo_box_set_active(GTK_COMBO_BOX(hangul_keyboard_list_combo), i);
 	    }
 	}
