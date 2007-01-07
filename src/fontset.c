@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include "gettext.h"
+#include "debug.h"
 #include "fontset.h"
 
 static GHashTable *fontset_hash = NULL;
@@ -44,6 +45,7 @@ nabi_fontset_new(const char *name)
     int    missing_list_count;
     char  *error_message;
 
+    nabi_log(4, "create fontset: %s\n", name);
     xfontset = XCreateFontSet(_display,
                               name,
                               &missing_list,
@@ -112,6 +114,7 @@ nabi_fontset_unref(NabiFontSet *fontset)
 	g_hash_table_remove(fontset_hash, fontset->name);
 	fontset_list = g_slist_remove(fontset_list, fontset);
 
+	nabi_log(4, "delete fontset: %s\n", fontset->name);
 	XFreeFontSet(_display, fontset->xfontset);
 	g_free(fontset->name);
 	g_free(fontset);
