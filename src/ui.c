@@ -1293,44 +1293,56 @@ on_main_window_realized(GtkWidget *widget, gpointer data)
 	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 
+static GdkPixbuf*
+load_icon(const char* theme, const char* name, const char** default_xpm)
+{
+    char* path;
+    char* filename;
+    GError *error = NULL;
+    GdkPixbuf *pixbuf;
+
+    filename = g_strconcat(name, ".svg", NULL);
+    path = g_build_filename(NABI_THEMES_DIR, theme, filename, NULL);
+    pixbuf = gdk_pixbuf_new_from_file(path, &error);
+    if (pixbuf != NULL)
+	goto done;
+
+    g_free(filename);
+    g_free(path);
+    if (error != NULL) {
+	g_error_free(error);
+	error = NULL;
+    }
+
+    filename = g_strconcat(name, ".png", NULL);
+    path = g_build_filename(NABI_THEMES_DIR, theme, filename, NULL);
+    pixbuf = gdk_pixbuf_new_from_file(path, &error);
+    if (pixbuf == NULL) {
+	if (error != NULL) {
+	    g_print("Error on reading image file: %s\n", error->message);
+	    g_error_free(error);
+	}
+	pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
+    }
+
+done:
+    g_free(filename);
+    g_free(path);
+    if (error != NULL)
+	g_error_free(error);
+
+    return pixbuf;
+}
+
 static void
 load_base_icons(const gchar *theme)
 {
-    gchar *path;
-    GError *gerror = NULL;
-
     if (theme == NULL)
     	theme = "Jini";
 
-    path = g_build_filename(NABI_THEMES_DIR, theme, "none.png", NULL);
-    none_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	none_pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
-    }
-
-    path = g_build_filename(NABI_THEMES_DIR, theme, "hangul.png", NULL);
-    hangul_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	hangul_pixbuf = gdk_pixbuf_new_from_xpm_data(hangul_default_xpm);
-    }
-
-    path = g_build_filename(NABI_THEMES_DIR, theme, "english.png", NULL);
-    english_pixbuf = gdk_pixbuf_new_from_file(path, &gerror);
-    g_free(path);
-    if (gerror != NULL) {
-	g_print("Error on reading image file: %s\n", gerror->message);
-	g_error_free(gerror);
-	gerror = NULL;
-	english_pixbuf = gdk_pixbuf_new_from_xpm_data(english_default_xpm);
-    }
+    none_pixbuf = load_icon(theme, "none", none_default_xpm);
+    english_pixbuf = load_icon(theme, "english", english_default_xpm);
+    hangul_pixbuf = load_icon(theme, "hangul", hangul_default_xpm);
 }
 
 static gboolean
