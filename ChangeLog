@@ -80,46 +80,6 @@ Changed paths:
 dvorak -> Dvorak 이름 변경
 
 ------------------------------------------------------------------------
-------------------------------------------------------------------------
-r569 | krisna | 2007-01-06 16:11:39 +0900 (Sat, 06 Jan 2007) | 3 lines
-Changed paths:
-   M /nabi/trunk/configure.ac
-   M /nabi/trunk/src/Makefile.am
-
-* 0.16 릴리스 준비
-* 빠진 파일들 소스리스트에 추가
-
-------------------------------------------------------------------------
-r568 | krisna | 2007-01-06 16:09:42 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/po/de.po
-   M /nabi/trunk/po/ko.po
-
-update po files
-
-------------------------------------------------------------------------
-r567 | krisna | 2007-01-06 16:07:14 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/ui.c
-
-기본 테마 아이콘을 Jini로 변경
-
-------------------------------------------------------------------------
-r566 | krisna | 2007-01-06 15:54:31 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/ic.c
-   M /nabi/trunk/src/preference.c
-
-gcc 2.9 버젼에서 빌드가능하도록 변수 선언 위치 조정
-
-------------------------------------------------------------------------
-r565 | krisna | 2007-01-03 23:25:13 +0900 (Wed, 03 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/tables/keyboard_layouts
-
-dvorak -> Dvorak 이름 변경
-
-------------------------------------------------------------------------
 r564 | krisna | 2007-01-03 23:24:15 +0900 (Wed, 03 Jan 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/tables/keyboard_layouts
