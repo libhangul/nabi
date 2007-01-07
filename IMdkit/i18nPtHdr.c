@@ -1040,6 +1040,10 @@ static void ResetICMessageProc (XIMS ims,
                        reply,
                        total_size);
     FrameMgrFree (fm);
+
+    if (resetic->commit_string)
+	XFree(resetic->commit_string);
+
     XFree(reply);
 }
 
