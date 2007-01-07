@@ -1043,7 +1043,7 @@ static inline XIMFeedback *
 nabi_ic_preedit_feedback_new(int underline_len, int reverse_len)
 {
     int i, len = underline_len + reverse_len;
-    XIMFeedback *feedback = g_new(XIMFeedback, len);
+    XIMFeedback *feedback = g_new(XIMFeedback, len + 1);
 
     if (feedback != NULL) {
 	for (i = 0; i < underline_len; ++i)
@@ -1051,6 +1051,8 @@ nabi_ic_preedit_feedback_new(int underline_len, int reverse_len)
 
 	for (i = underline_len; i < len; ++i)
 	    feedback[i] = XIMReverse;
+
+	feedback[len] = 0;
     }
 
     return feedback;
