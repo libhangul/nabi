@@ -59,6 +59,7 @@ const static struct config_item config_items[] = {
     { "preedit_background", CONFIG_STR,  OFFSET(preedit_bg)               },
     { "candidate_font",	    CONFIG_STR,  OFFSET(candidate_font)           },
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
+    { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { NULL,                 0,           0                                }
 };
 
@@ -189,6 +190,7 @@ nabi_config_new()
     config->preedit_bg = g_strdup("#000000");
 
     config->use_dynamic_event_flow = TRUE;
+    config->commit_by_word = FALSE;
 
     return config;
 }

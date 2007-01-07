@@ -136,7 +136,7 @@ nabi_server_new(const char *name)
 
     server->dynamic_event_flow = True;
     server->global_input_mode = True;
-    server->commit_by_word = True;
+    server->commit_by_word = False;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* hanja */
@@ -829,6 +829,12 @@ nabi_server_set_xim_name(NabiServer* server, const char* name)
 {
     g_free(server->name);
     server->name = g_strdup(name);
+}
+
+void
+nabi_server_set_commit_by_word(NabiServer* server, Bool flag)
+{
+    server->commit_by_word = flag;
 }
 
 void

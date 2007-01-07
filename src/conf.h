@@ -41,6 +41,7 @@ struct _NabiConfig {
     gchar*	    xim_name;
     gchar*          output_mode;
     gboolean        use_dynamic_event_flow;
+    gboolean        commit_by_word;
 
     /* candidate options */
     gchar*	    candidate_font;
