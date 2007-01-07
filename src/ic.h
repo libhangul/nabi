@@ -49,6 +49,7 @@ struct _NabiConnection {
 };
 
 struct _PreeditAttributes {
+    GString*        str;
     GdkWindow*      window;         /* where to draw the preedit string */
     int             width;          /* preedit area width */
     int             height;         /* preedit area height */
@@ -146,7 +147,7 @@ void    nabi_ic_flush(NabiIC *ic);
 void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
 
 Bool    nabi_ic_popup_candidate_window(NabiIC *ic);
-void    nabi_ic_insert_candidate(NabiIC *ic, const char* str);
+void    nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja);
 
 #endif /* _NABIIC_H_ */
 /* vim: set ts=8 sw=4 sts=4 : */

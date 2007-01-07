@@ -25,7 +25,7 @@
 #include <hangul.h>
 
 typedef struct _NabiCandidate     NabiCandidate;
-typedef void     (*NabiCandidateCommitFunc)(NabiCandidate*, gpointer);
+typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, const Hanja*, gpointer);
 
 struct _NabiCandidate {
     GtkWidget *window;
@@ -57,8 +57,8 @@ void               nabi_candidate_prev_row(NabiCandidate *candidate);
 void               nabi_candidate_next_row(NabiCandidate *candidate);
 void               nabi_candidate_prev_page(NabiCandidate *candidate);
 void               nabi_candidate_next_page(NabiCandidate *candidate);
-const char*        nabi_candidate_get_current(NabiCandidate *candidate);
-const char*        nabi_candidate_get_nth(NabiCandidate *candidate, int n);
+const Hanja*       nabi_candidate_get_current(NabiCandidate *candidate);
+const Hanja*       nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void               nabi_candidate_delete(NabiCandidate *candidate);
 
 #endif /* _NABICANDIDATE_H_ */

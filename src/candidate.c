@@ -41,13 +41,17 @@ nabi_candidate_on_row_activated(GtkWidget *widget,
 				GtkTreeViewColumn *column,
 				NabiCandidate *candidate)
 {
+    const Hanja* hanja;
     if (path != NULL) {
 	int *indices;
 	indices = gtk_tree_path_get_indices(path);
 	candidate->current = candidate->first + indices[0];
     }
-    if (candidate->commit != NULL && candidate->commit_data != NULL)
-	candidate->commit(candidate, candidate->commit_data);
+
+    hanja = nabi_candidate_get_current(candidate);
+    if (hanja != NULL &&
+	candidate->commit != NULL && candidate->commit_data != NULL)
+	candidate->commit(candidate, hanja, candidate->commit_data);
 }
 
 static void
@@ -85,7 +89,7 @@ nabi_candidate_on_key_press(GtkWidget *widget,
 			    GdkEventKey *event,
 			    NabiCandidate *candidate)
 {
-    const char* str = NULL;
+    const Hanja* hanja = NULL;
 
     if (candidate == NULL)
 	return FALSE;
@@ -120,10 +124,10 @@ nabi_candidate_on_key_press(GtkWidget *widget,
 	break;
     case GDK_Return:
     case GDK_KP_Enter:
-	str = nabi_candidate_get_current(candidate);
+	hanja = nabi_candidate_get_current(candidate);
 	break;
     case GDK_0:
-	str = nabi_candidate_get_nth(candidate, 9);
+	hanja = nabi_candidate_get_nth(candidate, 9);
 	break;
     case GDK_1:
     case GDK_2:
@@ -134,10 +138,10 @@ nabi_candidate_on_key_press(GtkWidget *widget,
     case GDK_7:
     case GDK_8:
     case GDK_9:
-	str = nabi_candidate_get_nth(candidate, event->keyval - GDK_1);
+	hanja = nabi_candidate_get_nth(candidate, event->keyval - GDK_1);
 	break;
     case GDK_KP_0:
-	str = nabi_candidate_get_nth(candidate, 9);
+	hanja = nabi_candidate_get_nth(candidate, 9);
 	break;
     case GDK_KP_1:
     case GDK_KP_2:
@@ -148,45 +152,45 @@ nabi_candidate_on_key_press(GtkWidget *widget,
     case GDK_KP_7:
     case GDK_KP_8:
     case GDK_KP_9:
-	str = nabi_candidate_get_nth(candidate, event->keyval - GDK_KP_1);
+	hanja = nabi_candidate_get_nth(candidate, event->keyval - GDK_KP_1);
 	break;
     case GDK_KP_End:
-	str = nabi_candidate_get_nth(candidate, 0);
+	hanja = nabi_candidate_get_nth(candidate, 0);
 	break;
     case GDK_KP_Down:
-	str = nabi_candidate_get_nth(candidate, 1);
+	hanja = nabi_candidate_get_nth(candidate, 1);
 	break;
     case GDK_KP_Next:
-	str = nabi_candidate_get_nth(candidate, 2);
+	hanja = nabi_candidate_get_nth(candidate, 2);
 	break;
     case GDK_KP_Left:
-	str = nabi_candidate_get_nth(candidate, 3);
+	hanja = nabi_candidate_get_nth(candidate, 3);
 	break;
     case GDK_KP_Begin:
-	str = nabi_candidate_get_nth(candidate, 4);
+	hanja = nabi_candidate_get_nth(candidate, 4);
 	break;
     case GDK_KP_Right:
-	str = nabi_candidate_get_nth(candidate, 5);
+	hanja = nabi_candidate_get_nth(candidate, 5);
 	break;
     case GDK_KP_Home:
-	str = nabi_candidate_get_nth(candidate, 6);
+	hanja = nabi_candidate_get_nth(candidate, 6);
 	break;
     case GDK_KP_Up:
-	str = nabi_candidate_get_nth(candidate, 7);
+	hanja = nabi_candidate_get_nth(candidate, 7);
 	break;
     case GDK_KP_Prior:
-	str = nabi_candidate_get_nth(candidate, 8);
+	hanja = nabi_candidate_get_nth(candidate, 8);
 	break;
     case GDK_KP_Insert:
-	str = nabi_candidate_get_nth(candidate, 9);
+	hanja = nabi_candidate_get_nth(candidate, 9);
 	break;
     default:
 	return FALSE;
     }
 
-    if (str != NULL) {
+    if (hanja != NULL) {
 	if (candidate->commit != NULL)
-	    candidate->commit(candidate, candidate->commit_data);
+	    candidate->commit(candidate, hanja, candidate->commit_data);
     }
     return TRUE;
 }
@@ -466,16 +470,16 @@ nabi_candidate_next_page(NabiCandidate *candidate)
     nabi_candidate_update_cursor(candidate);
 }
 
-const char*
+const Hanja*
 nabi_candidate_get_current(NabiCandidate *candidate)
 {
     if (candidate == NULL)
 	return 0;
 
-    return hanja_get_value(candidate->data[candidate->current]);
+    return candidate->data[candidate->current];
 }
 
-const char*
+const Hanja*
 nabi_candidate_get_nth(NabiCandidate *candidate, int n)
 {
     if (candidate == NULL)
@@ -486,7 +490,7 @@ nabi_candidate_get_nth(NabiCandidate *candidate, int n)
 	return 0;
 
     candidate->current = n;
-    return hanja_get_value(candidate->data[n]);
+    return candidate->data[n];
 }
 
 void

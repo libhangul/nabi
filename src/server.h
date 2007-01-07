@@ -127,6 +127,7 @@ struct _NabiServer {
     /* options */
     Bool                    dynamic_event_flow;
     Bool                    global_input_mode;
+    Bool                    commit_by_word;
     Bool                    show_status;
     NabiInputMode           input_mode;
     GdkColor                preedit_fg;

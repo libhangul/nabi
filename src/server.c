@@ -136,6 +136,7 @@ nabi_server_new(const char *name)
 
     server->dynamic_event_flow = True;
     server->global_input_mode = True;
+    server->commit_by_word = True;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* hanja */
