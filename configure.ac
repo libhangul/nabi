@@ -18,6 +18,7 @@ AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h strin
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
+
 AC_TYPE_SIZE_T
 
 dnl Checks for library functions.
@@ -67,19 +68,19 @@ dnl default keyboard
 AC_ARG_WITH(default-keyboard, [  --with-default-keyboard=2/39/3f   default hangul keyboard])
 case "$with_default_keyboard" in
     2)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "두벌식",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "2",
 			   [Define default hangul keyboard])
 	;;
     39)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "세벌식 390",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "39",
 			   [Define default hangul keyboard])
 	;;
     3f)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "세벌식 최종",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "3f",
 			   [Define default hangul keyboard])
 	;;
     *)
-	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "두벌식",
+	AC_DEFINE_UNQUOTED(DEFAULT_KEYBOARD, "2",
 			   [Define default hangul keyboard])
 	;;
 esac

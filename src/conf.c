@@ -177,7 +177,7 @@ nabi_config_new()
     config->xim_name = g_strdup(PACKAGE);
     config->theme = g_strdup("Jini");
 
-    config->hangul_keyboard = g_strdup("2");
+    config->hangul_keyboard = g_strdup(DEFAULT_KEYBOARD);
     config->latin_keyboard = g_strdup("none");
     config->keyboard_layouts_file = g_strdup("keyboard_layouts");
 
