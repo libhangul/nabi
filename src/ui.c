@@ -747,6 +747,7 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
     nabi_app_set_hangul_keyboard((const char*)data);
     preference_window_update();
+    nabi_app_save_config();
 }
 
 static void
