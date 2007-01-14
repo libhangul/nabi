@@ -73,8 +73,8 @@ nabi_handler_create_ic(XIMS ims, IMChangeICStruct *data)
     if (conn != NULL) {
 	NabiIC *ic = nabi_connection_create_ic(conn, data);
 	data->icid = nabi_ic_get_id(ic);
-	nabi_log(1, "create ic: id = %d-%d\n",
-		 (int)data->connect_id, (int)data->icid);
+	nabi_log(1, "create ic: id = %d-%d, style = 0x%x\n",
+		 (int)data->connect_id, (int)data->icid, ic->input_style);
     }
     return True;
 }

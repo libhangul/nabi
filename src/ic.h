@@ -59,7 +59,8 @@ struct _PreeditAttributes {
     XRectangle      area_needed;    /* area needed */
 
     Colormap        cmap;           /* colormap */
-    GdkGC*          gc;             /* gc */
+    GdkGC*          normal_gc;      /* gc */
+    GdkGC*          hilight_gc;     /* gc */
     unsigned long   foreground;     /* foreground */
     unsigned long   background;     /* background */
 
