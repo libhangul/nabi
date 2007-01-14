@@ -25,8 +25,8 @@
 #include <X11/Xlib.h>
 #include <glib.h>
 
-#include "gettext.h"
 #include "debug.h"
+#include "gettext.h"
 #include "fontset.h"
 
 static GHashTable *fontset_hash = NULL;
@@ -38,8 +38,6 @@ nabi_fontset_new(const char *name)
 {
     XFontSet xfontset;
     XFontSetExtents* ext;
-    int i, nfonts, ascent, descent;
-    char **font_names;
     NabiFontSet *fontset;
     char **missing_list;
     int    missing_list_count;
@@ -62,10 +60,11 @@ nabi_fontset_new(const char *name)
 				  &error_message);
 	g_free(name2);
 	if (missing_list_count > 0) {
-	    fprintf(stderr, _("Nabi: missing charset\n"));
-	    fprintf(stderr, _("Nabi: font: %s\n"), name);
+	    int i;
+	    nabi_log(1, "missing charset\n");
+	    nabi_log(1, "font: %s\n", name);
 	    for (i = 0; i < missing_list_count; i++)
-		fprintf(stderr, "  %s\n", missing_list[i]);
+		nabi_log(1, "  %s\n", missing_list[i]);
 	    XFreeStringList(missing_list);
 	    return NULL;
 	}
@@ -168,9 +167,8 @@ nabi_fontset_free_all(Display *display)
     _display = display;
 
     if (fontset_list != NULL) {
-	fprintf(stderr,
-		"Nabi: remaining fontsets will be freed,"
-		"this must be an error\n");
+	nabi_log(1, "remaining fontsets will be freed,"
+		 "this must be an error\n");
 	list = fontset_list;
 	while (list != NULL) {
 	    fontset = (NabiFontSet*)(list->data);

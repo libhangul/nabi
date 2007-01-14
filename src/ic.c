@@ -772,8 +772,8 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
 	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
 	} else {
-	    fprintf(stderr, "Nabi: set unknown ic attribute: %s\n",
-		    ic_attr->name);
+	    nabi_log(1, "set unknown ic attribute: %s\n",
+		     ic_attr->name);
 	}
     }
     
@@ -797,7 +797,7 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    nabi_log(5, "set ic value: id = %d-%d, fontset = %s\n",
 		     ic->id, ic->connection->id, (char*)preedit_attr->value);
 	} else {
-	    fprintf(stderr, "Nabi: set unknown preedit attribute: %s\n",
+	    nabi_log(1, "set unknown preedit attribute: %s\n",
 			    preedit_attr->name);
 	}
     }
@@ -817,8 +817,8 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    nabi_free(ic->status_attr.base_font);
 	    ic->status_attr.base_font = strdup((char*)status_attr->value);
 	} else {
-	    g_print("Nabi: set unknown status attributes: %s\n",
-		status_attr->name);
+	    nabi_log(1, "set unknown status attributes: %s\n",
+		     status_attr->name);
 	}
     }
 }
@@ -854,7 +854,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    *(XIMPreeditState*)ic_attr->value = ic->preedit.state;
 	    ic_attr->value_length = sizeof(XIMPreeditState);
 	} else {
-	    fprintf(stderr, _("Nabi: get unknown ic attributes: %s\n"),
+	    nabi_log(1, "get unknown ic attributes: %s\n",
 		ic_attr->name);
 	}
     }

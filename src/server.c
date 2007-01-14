@@ -35,6 +35,7 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 
+#include "debug.h"
 #include "gettext.h"
 #include "server.h"
 #include "fontset.h"
@@ -523,7 +524,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     gdk_gc_set_foreground(server->gc, &(server->preedit_fg));
     gdk_gc_set_background(server->gc, &(server->preedit_bg));
 
-    fprintf(stderr, "Nabi: xim server started\n");
+    nabi_log(1, "xim server started\n");
 
     return 0;
 }
@@ -538,7 +539,7 @@ nabi_server_stop(NabiServer *server)
 	IMCloseIM(server->xims);
 	server->xims = NULL;
     }
-    fprintf(stderr, "Nabi: xim server stoped\n");
+    nabi_log(1, "xim server stoped\n");
 
     return 0;
 }
