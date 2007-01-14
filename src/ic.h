@@ -105,6 +105,9 @@ struct _NabiIC {
     /* hangul data */
     NabiInputMode       mode;
     HangulInputContext* hic;
+    gboolean            has_cho;
+    gboolean            has_jung;
+    gboolean            has_jong;
 
     /* hanja or symbol select window */
     NabiCandidate*	candidate;

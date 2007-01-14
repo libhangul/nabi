@@ -853,6 +853,15 @@ on_commit_by_word_button_toggled(GtkToggleButton *button, gpointer data)
     nabi_server_set_commit_by_word(nabi_server, flag);
 }
 
+static void
+on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    config->auto_reorder = flag;
+    nabi_server_set_auto_reorder(nabi_server, flag);
+}
+
 static GtkWidget*
 create_advanced_page(void)
 {
@@ -922,6 +931,16 @@ create_advanced_page(void)
     gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_commit_by_word_button_toggled), NULL);
+
+    hbox2 = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+
+    button = gtk_check_button_new_with_label(_("Automatic reordering"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->auto_reorder);
+    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_auto_reorder_button_toggled), NULL);
 
     return page;
 }

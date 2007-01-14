@@ -138,6 +138,7 @@ nabi_server_new(const char *name)
     server->dynamic_event_flow = True;
     server->global_input_mode = True;
     server->commit_by_word = False;
+    server->auto_reorder = TRUE;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
 
     /* hanja */
@@ -836,6 +837,12 @@ void
 nabi_server_set_commit_by_word(NabiServer* server, Bool flag)
 {
     server->commit_by_word = flag;
+}
+
+void
+nabi_server_set_auto_reorder(NabiServer* server, Bool flag)
+{
+    server->auto_reorder = flag;
 }
 
 void

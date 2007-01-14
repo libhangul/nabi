@@ -226,6 +226,9 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
     hangul_ic_set_filter(ic->hic, nabi_ic_hic_filter, ic);
+    ic->has_cho = FALSE;
+    ic->has_jung = FALSE;
+    ic->has_jong = FALSE;
 }
 
 NabiIC*
@@ -330,11 +333,51 @@ nabi_ic_hic_filter(ucschar* str, ucschar cho, ucschar jung, ucschar jong,
     bool ret = true;
     NabiIC* ic = (NabiIC*)data;
 
+    if (!nabi_server->auto_reorder) {
+	if (ic->has_cho && !ic->has_jung && !ic->has_jong) {
+	    if (cho != 0 && jung == 0 && jong != 0) {
+		ret = false;
+		goto done;
+	    }
+	}
+
+	if (!ic->has_cho && ic->has_jung && !ic->has_jong) {
+	    if (cho != 0 && jung != 0 && jong == 0) {
+		ret = false;
+		goto done;
+	    }
+	}
+
+	if (!ic->has_cho && !ic->has_jung && ic->has_jong) {
+	    if (cho != 0 && jung == 0 && jong != 0) {
+		ret = false;
+		goto done;
+	    }
+	    if (cho == 0 && jung != 0 && jong != 0) {
+		ret = false;
+		goto done;
+	    }
+	}
+
+	if (!ic->has_cho && ic->has_jung && ic->has_jong) {
+	    if (cho != 0 && jung != 0 && jong != 0) {
+		ret = false;
+		goto done;
+	    }
+	}
+    }
+
     if (ic != NULL) {
 	char* utf8 = g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
 	ret = nabi_connection_is_valid_str(ic->connection, utf8);
 	g_free(utf8);
     }
+
+done:
+    ic->has_cho = cho != 0;
+    ic->has_jung = jung != 0;
+    ic->has_jong = jong != 0;
+
     return ret;
 }
 
@@ -1324,6 +1367,10 @@ nabi_ic_flush(NabiIC *ic)
     g_free(str);
 
     g_string_erase(ic->preedit.str, 0, -1);
+
+    ic->has_cho = FALSE;
+    ic->has_jung = FALSE;
+    ic->has_jong = FALSE;
 }
 
 void

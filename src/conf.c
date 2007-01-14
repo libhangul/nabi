@@ -60,6 +60,7 @@ const static struct config_item config_items[] = {
     { "candidate_font",	    CONFIG_STR,  OFFSET(candidate_font)           },
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
+    { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
     { NULL,                 0,           0                                }
 };
 
@@ -191,6 +192,7 @@ nabi_config_new()
 
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
+    config->auto_reorder = TRUE;
 
     return config;
 }

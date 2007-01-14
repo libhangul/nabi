@@ -128,6 +128,7 @@ struct _NabiServer {
     Bool                    dynamic_event_flow;
     Bool                    global_input_mode;
     Bool                    commit_by_word;
+    Bool                    auto_reorder;
     Bool                    show_status;
     NabiInputMode           input_mode;
     GdkColor                preedit_fg;
@@ -176,6 +177,7 @@ void	    nabi_server_set_candidate_font(NabiServer *server,
 void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
+void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
 
 NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
 void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);
