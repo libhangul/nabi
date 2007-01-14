@@ -302,6 +302,7 @@ nabi_app_setup_server(void)
     nabi_server_set_candidate_font(nabi_server, nabi->config->candidate_font);
     nabi_server_set_dynamic_event_flow(nabi_server,
 				       nabi->config->use_dynamic_event_flow);
+    nabi_server_set_commit_by_word(nabi_server, nabi->config->commit_by_word);
 }
 
 void
