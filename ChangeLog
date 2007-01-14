@@ -1,4 +1,314 @@
 ------------------------------------------------------------------------
+r598 | krisna | 2007-01-14 23:45:54 +0900 (Sun, 14 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r597 | krisna | 2007-01-14 23:35:39 +0900 (Sun, 14 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+메뉴에서 자판을 변경했을 때는 바로 설정을 저장함
+
+------------------------------------------------------------------------
+r596 | krisna | 2007-01-14 23:25:05 +0900 (Sun, 14 Jan 2007) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+automatic reorder 관련 옵션 추가:
+ * 키의 순서가 뒤바뀌어 와도 자동으로 순서를 맞춰주는 기능을 켜고 끄는 옵션 추가
+ * auto_reorder 설정 키워드 추가
+ * nabi_server_set_auto_reorder() 추가
+ * nabi_ic_hic_filter()에서 순서가 뒤바뀐 경우 처리
+
+------------------------------------------------------------------------
+r595 | krisna | 2007-01-14 17:34:54 +0900 (Sun, 14 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/fontset.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+
+메시지 출력 수정:
+ * fprintf로 직접 출력한던 부분을 nabi_log()함수를 쓰도록 변경
+
+------------------------------------------------------------------------
+r594 | krisna | 2007-01-14 17:22:10 +0900 (Sun, 14 Jan 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/handler.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+
+preedit drawing 개선:
+ * commit by word 옵션에 따라서 preedit 모양 개선
+ * normal text와 hilighted text로 나누어 그림
+ * 밑줄 그리는 루틴 추가
+
+------------------------------------------------------------------------
+r593 | krisna | 2007-01-14 17:19:12 +0900 (Sun, 14 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+commit by word 옵션을 시작할때 server에 적용함
+
+------------------------------------------------------------------------
+r592 | krisna | 2007-01-08 22:33:48 +0900 (Mon, 08 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+   M /nabi/trunk/src/conf.c
+
+--with-default-keyboard configure 옵션 되살림
+ * NabiConfig에서 기본값을 DEFAULT_KEYBOARD를 참조하도록 함
+
+------------------------------------------------------------------------
+r591 | krisna | 2007-01-08 00:35:27 +0900 (Mon, 08 Jan 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/fontset.c
+   M /nabi/trunk/src/ic.c
+
+over the spot의 preedit string drawing 루틴 개선
+ * XmbTextEscapement() 대신 XmbTextExtents() 사용
+ * 매번 text의 extent를 저장해둠
+ * XFontSet에서 XExtentsOfFontSet()로 fontset의 metric 정보를 가져옴
+
+------------------------------------------------------------------------
+r590 | krisna | 2007-01-07 23:04:38 +0900 (Sun, 07 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+
+Xutf8 함수를 사용하지 않음 대신 Xmb 계열 함수를 사용함
+
+------------------------------------------------------------------------
+r589 | krisna | 2007-01-07 22:44:00 +0900 (Sun, 07 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/IMdkit/i18nPtHdr.c
+
+ResetICMessageProc()에서 commit_string을 free 해준다.
+
+------------------------------------------------------------------------
+r588 | krisna | 2007-01-07 22:42:58 +0900 (Sun, 07 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+
+feedback의 마지막에는 0을 채워야 한다.
+
+------------------------------------------------------------------------
+r587 | krisna | 2007-01-07 20:16:52 +0900 (Sun, 07 Jan 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+commit by word 옵션:
+ * ui check 버튼 추가
+ * config에 엔트리 추가
+
+------------------------------------------------------------------------
+r586 | krisna | 2007-01-07 20:04:08 +0900 (Sun, 07 Jan 2007) | 7 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/candidate.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+NabiServer에 commit_by_word 옵션 구현
+ * commit_by_word 옵션 추가
+ * NabiIC에 GString으로 preedit string을 들고 있도록 함
+ * candidate에서 key의 길이 만큼 preedit string을 지워준다.
+ * candidate처리를 Hanja를 이용
+
+
+------------------------------------------------------------------------
+r585 | krisna | 2007-01-07 16:46:32 +0900 (Sun, 07 Jan 2007) | 8 lines
+Changed paths:
+   M /nabi/trunk/src/Makefile.am
+   A /nabi/trunk/src/conf.c
+   A /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/session.c
+   M /nabi/trunk/src/ui.c
+
+NabiConfig 작성:
+ * conf.c conf.h 추가
+ * configuration을 모두 NabiConfig로 관리함
+ * NabiApplication에서 멤버 일부를 NabiConfig로 옮김
+ * config 파일 관련 코드를 conf.c로 옮김
+ * preference에서 nabi_app_set_xxx()함수를 호출하던 것을 직접 NabiConfig
+   스트럭쳐의 내용을 바꾸도록 수정함
+
+------------------------------------------------------------------------
+r584 | krisna | 2007-01-07 14:27:41 +0900 (Sun, 07 Jan 2007) | 8 lines
+Changed paths:
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+advanced option 추가:
+ * event flow 옵션 추가
+ * xim name 옵션 추가
+
+코드 정리:
+ * 사용하지 않는 dvorak 관련 코드 제거
+
+
+------------------------------------------------------------------------
+r583 | krisna | 2007-01-07 11:20:14 +0900 (Sun, 07 Jan 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+server: 사용하지 않는 코드 제거
+ * check_charset 관련 코드 제거
+ * converter 코드 제거
+ * dvorak 관련 코드 제거
+
+------------------------------------------------------------------------
+r582 | krisna | 2007-01-07 11:05:08 +0900 (Sun, 07 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+
+잘못하여 중복되어 들어간 log를 제거함
+
+------------------------------------------------------------------------
+r581 | krisna | 2007-01-07 11:03:39 +0900 (Sun, 07 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+테마:
+ * svg 아이콘을 지원, svg아이콘을 먼저 사용하고 없으면 png 아이콘을 사용
+
+------------------------------------------------------------------------
+r580 | krisna | 2007-01-07 10:40:34 +0900 (Sun, 07 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/fontset.c
+
+fontset:
+ * fontset 생성/삭제할때 debug log 메시지 출력
+
+------------------------------------------------------------------------
+r579 | krisna | 2007-01-07 00:48:39 +0900 (Sun, 07 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+
+SIGTERM에 대한 handler 등록 
+
+------------------------------------------------------------------------
+r578 | krisna | 2007-01-07 00:15:53 +0900 (Sun, 07 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+
+한영 모드 전환시 nabi_ic_flush()를 불러 남은 글자를 출력하도록 함
+
+
+------------------------------------------------------------------------
+r575 | krisna | 2007-01-06 22:51:18 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/Makefile.am
+
+update ChangeLog generating rule
+
+------------------------------------------------------------------------
+r574 | krisna | 2007-01-06 22:46:30 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+
+session code 활성화
+
+------------------------------------------------------------------------
+r573 | krisna | 2007-01-06 22:45:00 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/candidate.h
+   M /nabi/trunk/src/debug.c
+   M /nabi/trunk/src/debug.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+copyright 문구 업데이트
+
+------------------------------------------------------------------------
+r572 | krisna | 2007-01-06 22:39:00 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+
+테스트하기 위해서 xim name을 "test"로 설정하던 코드를 제거
+
+------------------------------------------------------------------------
+r570 | krisna | 2007-01-06 16:43:40 +0900 (Sat, 06 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/Makefile.am
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+ChangeLog 자동 생성룰 추가
+
+------------------------------------------------------------------------
+r569 | krisna | 2007-01-06 16:11:39 +0900 (Sat, 06 Jan 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+   M /nabi/trunk/src/Makefile.am
+
+* 0.16 릴리스 준비
+* 빠진 파일들 소스리스트에 추가
+
+------------------------------------------------------------------------
+r568 | krisna | 2007-01-06 16:09:42 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+update po files
+
+------------------------------------------------------------------------
+r567 | krisna | 2007-01-06 16:07:14 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+기본 테마 아이콘을 Jini로 변경
+
+------------------------------------------------------------------------
+r566 | krisna | 2007-01-06 15:54:31 +0900 (Sat, 06 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/preference.c
+
+gcc 2.9 버젼에서 빌드가능하도록 변수 선언 위치 조정
+
+------------------------------------------------------------------------
+r565 | krisna | 2007-01-03 23:25:13 +0900 (Wed, 03 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/tables/keyboard_layouts
+
+dvorak -> Dvorak 이름 변경
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
 r574 | krisna | 2007-01-06 22:46:30 +0900 (Sat, 06 Jan 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/src/main.c
