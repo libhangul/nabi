@@ -187,8 +187,8 @@ nabi_config_new()
 
     config->candidate_font = g_strdup("Sans 14");
     config->output_mode = g_strdup("syllable");
-    config->preedit_fg = g_strdup("#FFFFFF");
-    config->preedit_bg = g_strdup("#000000");
+    config->preedit_fg = g_strdup("#000000");
+    config->preedit_bg = g_strdup("#FFFFFF");
 
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
