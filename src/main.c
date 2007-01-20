@@ -66,6 +66,7 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
 static void
 nabi_sigterm_handler(int no)
 {
+    nabi_server_write_log(nabi_server);
     nabi_app_save_config();
     if (default_sigterm_handler != NULL)
 	default_sigterm_handler(no);
