@@ -607,22 +607,22 @@ nabi_server_is_locale_supported(NabiServer *server, const char *locale)
 }
 
 void
-nabi_server_on_keypress(NabiServer *server,
-			KeySym keyval,
-			unsigned int state,
-			wchar_t ch)
+nabi_server_log_key(NabiServer *server, ucschar c, unsigned int state)
 {
-    server->statistics.total++;
-
-    if (keyval == XK_BackSpace)
+    if (c == XK_BackSpace) {
 	server->statistics.backspace++;
-    else if (keyval == XK_space)
+	server->statistics.total++;
+    } else if (c == XK_space) {
 	server->statistics.space++;
-    else if (ch >= 0x1100 && ch <= 0x11FF) {
-	int index = (unsigned int)ch & 0xff;
-	if (index >= 0 && index <= 255)
+	server->statistics.total++;
+    } else if (c >= 0x1100 && c <= 0x11FF) {
+	int index = (unsigned int)c & 0xff;
+	if (index >= 0 && index <= 255) {
 	    server->statistics.jamo[index]++;
+	    server->statistics.total++;
+	}
     }
+
     if (state & ShiftMask)
 	server->statistics.shift++;
 }

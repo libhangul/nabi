@@ -41,9 +41,8 @@ static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_flush_string(NabiIC *ic);
-static bool  nabi_ic_hic_filter(ucschar* str,
-				ucschar cho, ucschar jung, ucschar jong,
-				void* data);
+static bool  nabi_ic_hic_filter(HangulInputContext *hic,
+				ucschar c, const ucschar* str, void* data);
 
 static inline void *
 nabi_malloc(size_t size)
@@ -226,9 +225,6 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
     hangul_ic_set_filter(ic->hic, nabi_ic_hic_filter, ic);
-    ic->has_cho = FALSE;
-    ic->has_jung = FALSE;
-    ic->has_jong = FALSE;
 }
 
 NabiIC*
@@ -327,42 +323,24 @@ nabi_ic_set_hangul_keyboard(NabiIC *ic, const char* hangul_keyboard)
 }
 
 static bool
-nabi_ic_hic_filter(ucschar* str, ucschar cho, ucschar jung, ucschar jong,
-	           void* data)
+nabi_ic_hic_filter(HangulInputContext* hic,
+		   ucschar c, const ucschar* str, void* data)
 {
     bool ret = true;
     NabiIC* ic = (NabiIC*)data;
 
+    nabi_server_log_key(nabi_server, c, 0);
+
     if (!nabi_server->auto_reorder) {
-	if (ic->has_cho && !ic->has_jung && !ic->has_jong) {
-	    if (cho != 0 && jung == 0 && jong != 0) {
-		ret = false;
-		goto done;
+	if (hangul_is_choseong(c)) {
+	    if (hangul_ic_has_jungseong(hic) || hangul_ic_has_jongseong(hic)) {
+		return false;
 	    }
 	}
 
-	if (!ic->has_cho && ic->has_jung && !ic->has_jong) {
-	    if (cho != 0 && jung != 0 && jong == 0) {
-		ret = false;
-		goto done;
-	    }
-	}
-
-	if (!ic->has_cho && !ic->has_jung && ic->has_jong) {
-	    if (cho != 0 && jung == 0 && jong != 0) {
-		ret = false;
-		goto done;
-	    }
-	    if (cho == 0 && jung != 0 && jong != 0) {
-		ret = false;
-		goto done;
-	    }
-	}
-
-	if (!ic->has_cho && ic->has_jung && ic->has_jong) {
-	    if (cho != 0 && jung != 0 && jong != 0) {
-		ret = false;
-		goto done;
+	if (hangul_is_jungseong(c)) {
+	    if (hangul_ic_has_jongseong(hic)) {
+		return false;
 	    }
 	}
     }
@@ -372,11 +350,6 @@ nabi_ic_hic_filter(ucschar* str, ucschar cho, ucschar jung, ucschar jong,
 	ret = nabi_connection_is_valid_str(ic->connection, utf8);
 	g_free(utf8);
     }
-
-done:
-    ic->has_cho = cho != 0;
-    ic->has_jung = jung != 0;
-    ic->has_jong = jong != 0;
 
     return ret;
 }
@@ -1367,10 +1340,6 @@ nabi_ic_flush(NabiIC *ic)
     g_free(str);
 
     g_string_erase(ic->preedit.str, 0, -1);
-
-    ic->has_cho = FALSE;
-    ic->has_jung = FALSE;
-    ic->has_jong = FALSE;
 }
 
 void
@@ -1625,6 +1594,9 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 	    nabi_ic_flush(ic);
 	return False;
     }
+
+    /* save key event log */
+    nabi_server_log_key(nabi_server, keysym, state);
 
     if (keysym == XK_BackSpace) {
 	ret = hangul_ic_backspace(ic->hic);
