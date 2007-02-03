@@ -29,7 +29,7 @@ typedef struct _NabiApplication NabiApplication;
 struct _NabiApplication {
     gchar*	    xim_name;
 
-    GtkWidget*      main_window;
+    GtkWidget*      palette;
     gboolean	    status_only;
     gchar*	    session_id;
 
@@ -56,7 +56,7 @@ void nabi_app_save_config(void);
 void nabi_app_set_theme(const char *name);
 void nabi_app_set_hangul_keyboard(const char *id);
 
-GtkWidget* nabi_app_create_main_widget(void);
+GtkWidget* nabi_app_create_palette(void);
 
 #endif /* __NABI_H_ */
 /* vim: set ts=8 sw=4 : */

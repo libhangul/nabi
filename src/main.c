@@ -111,7 +111,7 @@ main(int argc, char *argv[])
 
     nabi_app_setup_server();
 
-    widget = nabi_app_create_main_widget();
+    widget = nabi_app_create_palette();
     g_signal_connect_after(G_OBJECT(widget), "realize",
 	    	           G_CALLBACK(on_realize), nabi_server);
     g_signal_connect_after(G_OBJECT(widget), "destroy",

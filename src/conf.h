@@ -28,6 +28,8 @@ struct _NabiConfig {
     gint            y;
 
     gchar*          theme;
+    gint            palette_height;
+    gboolean        show_palette;
 
     gchar*          trigger_keys;
     gchar*          candidate_keys;

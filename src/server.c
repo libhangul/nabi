@@ -793,6 +793,20 @@ nabi_server_get_hangul_keyboard_list(NabiServer* server)
     return server->hangul_keyboard_list;
 }
 
+const char*
+nabi_server_get_keyboard_name_by_id(NabiServer* server, const char* id)
+{
+    int i;
+
+    for (i = 0; server->hangul_keyboard_list[i].id != NULL; i++) {
+	if (strcmp(id, server->hangul_keyboard_list[i].id) == 0) {
+	    return server->hangul_keyboard_list[i].name;
+	}
+    }
+
+    return NULL;
+}
+
 KeySym
 nabi_server_normalize_keysym(NabiServer *server,
 			     KeySym keysym, unsigned int state)

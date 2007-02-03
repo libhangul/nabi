@@ -48,6 +48,8 @@ const static struct config_item config_items[] = {
     { "xim_name",           CONFIG_STR,  OFFSET(xim_name)                 },
     { "x",                  CONFIG_INT,  OFFSET(x)                        },
     { "y",                  CONFIG_INT,  OFFSET(y)                        },
+    { "show_palette",       CONFIG_BOOL, OFFSET(show_palette)             },
+    { "palette_height",     CONFIG_INT,  OFFSET(palette_height)           },
     { "theme",              CONFIG_STR,  OFFSET(theme)                    },
     { "hangul_keyboard",    CONFIG_STR,  OFFSET(hangul_keyboard)          },
     { "latin_keyboard",     CONFIG_STR,  OFFSET(latin_keyboard)           },
@@ -175,6 +177,10 @@ nabi_config_new()
     NabiConfig* config = g_new(NabiConfig, 1);
 
     /* set default values */
+    config->x = 0;
+    config->y = 0;
+    config->show_palette = FALSE;
+    config->palette_height = 24;
     config->xim_name = g_strdup(PACKAGE);
     config->theme = g_strdup("Jini");
 
