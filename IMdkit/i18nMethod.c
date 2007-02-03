@@ -250,9 +250,9 @@ static char *ParseArgs (Xi18n i18n_core, int mode, XIMArg *args)
             }
             else if (strcmp (p->name, IMOnKeysList) == 0)
             {
-                if (address->imvalue_mask & I18N_ON_KEYS)
-                    return IMOnKeysList;
-                /*endif*/
+		if (address->on_keys.keylist != NULL)
+		    free(address->on_keys.keylist);
+
                 address->on_keys.count_keys =
                     ((XIMTriggerKeys *) p->value)->count_keys;
                 address->on_keys.keylist =

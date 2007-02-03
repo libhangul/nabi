@@ -313,6 +313,12 @@ nabi_server_set_trigger_keys(NabiServer *server, char **keys)
 
     server->trigger_keys.keylist = xim_trigger_keys_create(keys, n);
     server->trigger_keys.count_keys = n;
+
+    if (server->xims != NULL && server->dynamic_event_flow) {
+	IMSetIMValues(server->xims,
+		      IMOnKeysList, &(server->trigger_keys),
+		      NULL);
+    }
 }
 
 void
