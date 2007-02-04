@@ -60,6 +60,7 @@ const static struct config_item config_items[] = {
     { "preedit_foreground", CONFIG_STR,  OFFSET(preedit_fg)               },
     { "preedit_background", CONFIG_STR,  OFFSET(preedit_bg)               },
     { "candidate_font",	    CONFIG_STR,  OFFSET(candidate_font)           },
+    { "candidate_format",   CONFIG_STR,  OFFSET(candidate_format)         },
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
@@ -192,6 +193,8 @@ nabi_config_new()
     config->candidate_keys = g_strdup("Hangul_Hanja,F9");
 
     config->candidate_font = g_strdup("Sans 14");
+    config->candidate_format = g_strdup("hanja");
+
     config->output_mode = g_strdup("syllable");
     config->preedit_fg = g_strdup("#000000");
     config->preedit_bg = g_strdup("#FFFFFF");

@@ -27,6 +27,8 @@
 
 #include "server.h"
 #include "candidate.h"
+#include "gettext.h"
+#include "nabi.h"
 
 enum {
     COLUMN_INDEX,
@@ -34,6 +36,16 @@ enum {
     COLUMN_COMMENT,
     NO_OF_COLUMNS
 };
+
+static void
+nabi_candidate_on_format(GtkWidget* widget, gpointer data)
+{
+    if (data != NULL) {
+	g_free(nabi->config->candidate_format);
+	nabi->config->candidate_format = g_strdup((const char*)data);
+	printf("format: %s\n", (const char*)data);
+    }
+}
 
 static void
 nabi_candidate_on_row_activated(GtkWidget *widget,
@@ -301,6 +313,10 @@ static void
 nabi_candidate_create_window(NabiCandidate *candidate)
 {
     GtkWidget *frame;
+    GtkWidget *vbox;
+    GtkWidget *hbox;
+    GtkWidget *label;
+    GtkWidget *button;
     GtkWidget *treeview;
     GtkTreeViewColumn *column;
     GtkCellRenderer *renderer;
@@ -309,13 +325,42 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
     nabi_candidate_update_list(candidate);
 
-    frame = gtk_frame_new(candidate->label);
+    frame = gtk_frame_new(NULL);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_OUT);
     gtk_container_add(GTK_CONTAINER(candidate->window), frame);
 
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_container_add(GTK_CONTAINER(frame), vbox);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
+
+    label = gtk_label_new(candidate->label);
+    gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 0);
+
+    button = gtk_radio_button_new_with_label(NULL, _("hanja"));
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    if (strcmp(nabi->config->candidate_format, "hanja") == 0)
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(nabi_candidate_on_format), "hanja");
+
+    button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hanja(hangul)"));
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(nabi_candidate_on_format), "hanja(hangul)");
+    button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hangul(hanja)"));
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(nabi_candidate_on_format), "hangul(hanja)");
+
     treeview = gtk_tree_view_new_with_model(GTK_TREE_MODEL(candidate->store));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_container_add(GTK_CONTAINER(frame), treeview);
+    gtk_box_pack_start(GTK_BOX(vbox), treeview, TRUE, TRUE, 0);
     candidate->treeview = treeview;
     g_object_unref(candidate->store);
 

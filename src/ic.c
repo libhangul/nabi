@@ -36,6 +36,7 @@
 #include "server.h"
 #include "fontset.h"
 #include "debug.h"
+#include "nabi.h"
 
 static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
@@ -1682,7 +1683,7 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	}
 
 	if (valid_list_length > 0) {
-	    ic->candidate = nabi_candidate_new(NULL, 9,
+	    ic->candidate = nabi_candidate_new(preedit, 9,
 				    list, valid_list, valid_list_length,
 				    parent, &nabi_ic_candidate_commit_cb, ic);
 	    return True;
@@ -1721,8 +1722,18 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	hangul_ic_reset(ic->hic);
     }
 
-    if (strlen(value) > 0)
-	nabi_ic_commit_utf8(ic, value);
+    if (strlen(value) > 0) {
+	char* candidate;
+	if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
+	    candidate = g_strdup_printf("%s(%s)", value, key);
+	else if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
+	    candidate = g_strdup_printf("%s(%s)", key, value);
+	else
+	    candidate = g_strdup_printf("%s", value);
+
+	nabi_ic_commit_utf8(ic, candidate);
+	g_free(candidate);
+    }
 
     nabi_ic_preedit_update(ic);
 }
