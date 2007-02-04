@@ -182,7 +182,7 @@ nabi_server_destroy(NabiServer *server)
     while (item != NULL) {
 	if (item->data != NULL) {
 	    NabiConnection* conn = (NabiConnection*)item->data;
-	    printf("remove connect id: 0x%x\n", conn->id);
+	    nabi_log(3, "remove remaining connection: 0x%x\n", conn->id);
 	    nabi_connection_destroy(conn);
 	}
 	item = g_slist_next(item);
