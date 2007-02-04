@@ -25,6 +25,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
+#include "debug.h"
 #include "server.h"
 #include "candidate.h"
 #include "gettext.h"
@@ -40,10 +41,14 @@ enum {
 static void
 nabi_candidate_on_format(GtkWidget* widget, gpointer data)
 {
-    if (data != NULL) {
-	g_free(nabi->config->candidate_format);
-	nabi->config->candidate_format = g_strdup((const char*)data);
-	printf("format: %s\n", (const char*)data);
+    if (data != NULL &&
+	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
+	if (strcmp(nabi->config->candidate_format, (const char*)data) != 0) {
+	    g_free(nabi->config->candidate_format);
+	    nabi->config->candidate_format = g_strdup((const char*)data);
+	    nabi_log(4, "candidate_format_changed: %s\n",
+			nabi->config->candidate_format);
+	}
     }
 }
 
@@ -336,23 +341,23 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
 
     label = gtk_label_new(candidate->label);
-    gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 6);
 
     button = gtk_radio_button_new_with_label(NULL, _("hanja"));
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
     if (strcmp(nabi->config->candidate_format, "hanja") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(nabi_candidate_on_format), "hanja");
 
     button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hanja(hangul)"));
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
     if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(nabi_candidate_on_format), "hanja(hangul)");
     button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hangul(hanja)"));
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
     if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
