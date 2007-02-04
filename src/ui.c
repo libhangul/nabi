@@ -63,7 +63,6 @@ typedef struct _NabiStateIcon {
 typedef struct _NabiPalette {
     GtkWidget*     widget;
     NabiStateIcon* state;
-    GtkWidget*     keyboard_menu;
 } NabiPalette;
 
 typedef struct _NabiTrayIcon {
@@ -1244,7 +1243,6 @@ nabi_app_create_palette(void)
     nabi_palette = g_new(NabiPalette, 1);
     nabi_palette->widget = NULL;
     nabi_palette->state = NULL;
-    nabi_palette->keyboard_menu = NULL;
 
     handlebox = nabi_handle_box_new();
     nabi_palette->widget = handlebox;
@@ -1278,7 +1276,6 @@ nabi_app_create_palette(void)
 
 	menuitem = gtk_menu_item_new_with_label(_(current_keyboard_name));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
-	nabi_palette->keyboard_menu = menuitem;
 	title_menuitem = menuitem;
 
 	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
