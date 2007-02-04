@@ -64,6 +64,7 @@ const static struct config_item config_items[] = {
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
+    { "global_input_mode",  CONFIG_BOOL, OFFSET(global_input_mode)        },
     { NULL,                 0,           0                                }
 };
 
@@ -202,6 +203,7 @@ nabi_config_new()
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
     config->auto_reorder = TRUE;
+    config->global_input_mode = TRUE;
 
     return config;
 }

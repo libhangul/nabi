@@ -1004,23 +1004,16 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
 }
 
 void
-nabi_ic_mode_direct(NabiIC *ic)
-{
-    ic->mode = NABI_INPUT_MODE_DIRECT;
-}
-
-void
-nabi_ic_mode_compose(NabiIC *ic)
-{
-    ic->mode = NABI_INPUT_MODE_COMPOSE;
-}
-
-void
 nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 {
     ic->mode = mode;
-    if (ic->connection != NULL)
-	ic->connection->mode = mode;
+
+    if (nabi_server->global_input_mode) {
+	nabi_server->input_mode = mode;
+    } else {
+	if (ic->connection != NULL)
+	    ic->connection->mode = mode;
+    }
 
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:

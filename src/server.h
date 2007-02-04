@@ -178,6 +178,7 @@ void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
 void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
+void        nabi_server_set_global_input_mode(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
 void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);

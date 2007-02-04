@@ -127,8 +127,6 @@ void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 Bool    nabi_ic_is_empty(NabiIC *ic);
 CARD16  nabi_ic_get_id(NabiIC* ic);
 
-void    nabi_ic_mode_direct(NabiIC *ic);
-void    nabi_ic_mode_compose(NabiIC *ic);
 void    nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode);
 
 void    nabi_ic_preedit_start(NabiIC *ic);

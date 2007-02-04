@@ -45,6 +45,7 @@ struct _NabiConfig {
     gboolean        use_dynamic_event_flow;
     gboolean        commit_by_word;
     gboolean        auto_reorder;
+    gboolean        global_input_mode;
 
     /* candidate options */
     gchar*	    candidate_font;

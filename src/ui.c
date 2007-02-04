@@ -332,6 +332,8 @@ nabi_app_setup_server(void)
 				       nabi->config->use_dynamic_event_flow);
     nabi_server_set_commit_by_word(nabi_server, nabi->config->commit_by_word);
     nabi_server_set_auto_reorder(nabi_server, nabi->config->auto_reorder);
+    nabi_server_set_global_input_mode(nabi_server,
+				      nabi->config->global_input_mode);
 }
 
 void
