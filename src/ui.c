@@ -764,9 +764,10 @@ on_menu_about(GtkWidget *widget)
 
     comment = gtk_label_new(NULL);
     comment_str = g_strdup_printf(
-			_("<span size=\"large\">An Easy Hangul XIM</span>\n"
-			  "version %s\n\n"
-			  "Copyright (c) 2003-2004 Choe Hwanjin"), VERSION);
+		    _("<span size=\"large\">An Easy Hangul XIM</span>\n"
+		      "version %s\n\n"
+		      "Copyright (c) 2003-2004,2007 Choe Hwanjin"),
+		    VERSION);
     gtk_label_set_markup(GTK_LABEL(comment), comment_str);
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(vbox), comment, FALSE, TRUE, 0);
