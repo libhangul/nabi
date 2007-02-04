@@ -91,7 +91,7 @@ static gboolean nabi_create_tray_icon(gpointer data);
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
 
 static void remove_event_filter();
-static GtkWidget* create_menu(void);
+static GtkWidget* create_tray_icon_menu(void);
 
 static GdkPixbuf *default_icon = NULL;
 static GdkPixbuf *none_pixbuf = NULL;
@@ -579,7 +579,7 @@ on_tray_icon_button_press(GtkWidget *widget,
     case 3:
 	if (menu != NULL)
 	    gtk_widget_destroy(menu);
-	menu = create_menu();
+	menu = create_tray_icon_menu();
 	gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
 		       nabi_menu_position_func, widget,
 		       event->button, event->time);
@@ -868,11 +868,72 @@ on_menu_preference(GtkWidget *widget)
 }
 
 static void
+on_menu_show_palette(GtkWidget *widget, gpointer data)
+{
+    gboolean state;
+    state = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    nabi_app_show_palette(state);
+}
+
+static void
+on_menu_hide_palette(GtkWidget *widget, gpointer data)
+{
+    nabi_app_show_palette(FALSE);
+}
+
+static void
 on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
-    nabi_app_set_hangul_keyboard((const char*)data);
+    GtkWidget* title_menu;
+    const char* id = (const char*)data;
+
+    nabi_app_set_hangul_keyboard(id);
     preference_window_update();
     nabi_app_save_config();
+
+    title_menu = g_object_get_data(G_OBJECT(widget), "nabi_title_menu");
+    if (title_menu != NULL) {
+	GtkWidget* label;
+	label = gtk_bin_get_child(GTK_BIN(title_menu));
+	if (label != NULL) {
+	    const char* name;
+	    name = nabi_server_get_keyboard_name_by_id(nabi_server, id);
+	    gtk_label_set_text(GTK_LABEL(label), _(name));
+	}
+    }
+}
+
+static void
+nabi_menu_item_set_label_with_menu_item(GtkWidget* dest, GtkWidget* src)
+{
+    const char* str = NULL;
+    GtkWidget* label;
+
+    if (src != NULL)  {
+	label = gtk_bin_get_child(GTK_BIN(src));
+	str = gtk_label_get_label(GTK_LABEL(label));
+    }
+
+    if (str != NULL && dest != NULL) {
+	label = gtk_bin_get_child(GTK_BIN(dest));
+	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label), str);
+    }
+}
+
+static void
+on_menu_word(GtkWidget *widget, gpointer data)
+{
+    nabi->config->commit_by_word = TRUE;
+    nabi_server_set_commit_by_word(nabi_server, TRUE);
+    nabi_menu_item_set_label_with_menu_item((GtkWidget*)data, widget);
+}
+
+static void
+on_menu_character(GtkWidget *widget, gpointer data)
+{
+    nabi->config->commit_by_word = FALSE;
+    nabi_server_set_commit_by_word(nabi_server, FALSE);
+    nabi_menu_item_set_label_with_menu_item((GtkWidget*)data, widget);
 }
 
 static void
@@ -882,48 +943,41 @@ on_menu_quit(GtkWidget *widget)
 }
 
 static GtkWidget*
-create_menu(void)
+create_tray_icon_menu(void)
 {
     GtkWidget* menu;
-    GtkWidget* menu_item;
-    GtkWidget* image;
-    GtkAccelGroup *accel_group;
+    GtkWidget* menuitem;
     GSList *radio_group = NULL;
 
-    accel_group = gtk_accel_group_new();
-
     menu = gtk_menu_new();
-    gtk_widget_show(menu);
 
-    /* menu about */
-    image = gtk_image_new_from_stock(GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_MENU);
-    gtk_widget_show(image);
-    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_About..."));
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_about), menu_item);
+    /* about menu */
+    menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_DIALOG_INFO, NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+			     G_CALLBACK(on_menu_about), menuitem);
 
     /* separator */
-    menu_item = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
+    menuitem = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
-    /* menu preferences */
-    image = gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU);
-    gtk_widget_show(image);
-    menu_item = gtk_image_menu_item_new_with_mnemonic(_("_Preferences..."));
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_preference), menu_item);
+    /* preferences menu */
+    menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES, NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+			     G_CALLBACK(on_menu_preference), menuitem);
+
+    /* palette menu */
+    menuitem = gtk_check_menu_item_new_with_mnemonic(_("_Show palette"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem),
+				   nabi->config->show_palette);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "toggled",
+			     G_CALLBACK(on_menu_show_palette), menuitem);
 
     /* separator */
-    menu_item = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
+    menuitem = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
     /* keyboard list */
     if (!nabi->status_only) {
@@ -933,31 +987,30 @@ create_menu(void)
 	while (keyboards[i].id != NULL) {
 	    const char* id = keyboards[i].id;
 	    const char* name = keyboards[i].name;
-	    menu_item = gtk_radio_menu_item_new_with_label(radio_group,
+	    menuitem = gtk_radio_menu_item_new_with_label(radio_group,
 							   _(name));
-	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
-	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	    gtk_widget_show(menu_item);
-	    g_signal_connect(G_OBJECT(menu_item), "activate",
+	    radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menuitem));
+	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+	    g_signal_connect(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_keyboard), (gpointer)id);
 	    if (strcmp(id, nabi->config->hangul_keyboard) == 0)
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item),
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem),
 					       TRUE);
 	    i++;
 	}
 
 	/* separator */
-	menu_item = gtk_separator_menu_item_new();
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-	gtk_widget_show(menu_item);
+	menuitem = gtk_separator_menu_item_new();
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     }
 
     /* menu quit */
-    menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
-    gtk_widget_show(menu_item);
-    g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
-			     G_CALLBACK(on_menu_quit), menu_item);
+    menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, NULL);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+			     G_CALLBACK(on_menu_quit), menuitem);
+
+    gtk_widget_show_all(menu);
 
     return menu;
 }
@@ -1050,37 +1103,6 @@ static void
 remove_event_filter()
 {
     gdk_window_remove_filter(nabi->root_window, root_window_event_filter, NULL);
-}
-
-static gboolean
-on_main_window_button_pressed(GtkWidget *widget,
-			      GdkEventButton *event,
-			      gpointer data)
-{
-    static GtkWidget *menu = NULL;
-
-    if (event->type != GDK_BUTTON_PRESS)
-	return FALSE;
-
-    switch (event->button) {
-    case 1:
-	gtk_window_begin_move_drag(GTK_WINDOW(data),
-				   event->button,
-				   event->x_root, event->y_root, 
-				   event->time);
-	return TRUE;
-	break;
-    case 3:
-	if (menu != NULL)
-	    gtk_widget_destroy(menu);
-	menu = create_menu();
-	gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL,
-		       event->button, event->time);
-	return TRUE;
-    default:
-	break;
-    }
-    return FALSE;
 }
 
 static void
@@ -1205,36 +1227,16 @@ nabi_create_tray_icon(gpointer data)
     return FALSE;
 }
 
-static void
-on_palette_menu_keyboard(GtkWidget *widget, gpointer data)
-{
-    const char* id = (const char*)data;
-
-    nabi_app_set_hangul_keyboard(id);
-    preference_window_update();
-    nabi_app_save_config();
-    
-    if (nabi_palette->keyboard_menu != NULL) {
-	GtkWidget* label;
-	label = gtk_bin_get_child(GTK_BIN(nabi_palette->keyboard_menu));
-	if (label != NULL) {
-	    const char* name;
-	    name = nabi_server_get_keyboard_name_by_id(nabi_server, id);
-	    gtk_label_set_text(GTK_LABEL(label), _(name));
-	}
-    }
-}
-
 GtkWidget*
 nabi_app_create_palette(void)
 {
     GtkWidget* handlebox;
     GtkWidget* hbox;
     GtkWidget* eventbox;
-    GtkWidget* button;
     GtkWidget* menubar;
     GtkWidget* submenu = NULL;
     GtkWidget* menuitem;
+    GtkWidget* title_menuitem;
     GtkWidget* image;
     const char* current_keyboard_name = NULL;
 
@@ -1276,6 +1278,7 @@ nabi_app_create_palette(void)
 	menuitem = gtk_menu_item_new_with_label(_(current_keyboard_name));
 	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
 	nabi_palette->keyboard_menu = menuitem;
+	title_menuitem = menuitem;
 
 	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
 	if (keyboards != NULL) {
@@ -1286,8 +1289,10 @@ nabi_app_create_palette(void)
 	    for (i = 0; keyboards[i].id != NULL; i++) {
 		menuitem = gtk_menu_item_new_with_label(_(keyboards[i].name));
 		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+		g_object_set_data(G_OBJECT(menuitem),
+				  "nabi_title_menu", title_menuitem);
 		g_signal_connect(G_OBJECT(menuitem), "activate",
-				 G_CALLBACK(on_palette_menu_keyboard),
+				 G_CALLBACK(on_menu_keyboard),
 				 (gpointer)keyboards[i].id);
 	    }
 	}
@@ -1295,15 +1300,20 @@ nabi_app_create_palette(void)
 
     menuitem = gtk_menu_item_new_with_label(_("Word"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
+    title_menuitem = menuitem;
 
     submenu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
 
     menuitem = gtk_menu_item_new_with_label(_("Word"));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    g_signal_connect(G_OBJECT(menuitem), "activate",
+		     G_CALLBACK(on_menu_word), title_menuitem);
 
     menuitem = gtk_menu_item_new_with_label(_("Character"));
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    g_signal_connect(G_OBJECT(menuitem), "activate",
+		     G_CALLBACK(on_menu_character), title_menuitem);
 
     menuitem = gtk_menu_item_new_with_label(_("漢字"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
@@ -1322,7 +1332,7 @@ nabi_app_create_palette(void)
 
     image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
     menuitem = gtk_image_menu_item_new();
-    gtk_image_menu_item_set_image(GTK_MENU_ITEM(menuitem), image);
+    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
 
     submenu = gtk_menu_new();
@@ -1333,10 +1343,18 @@ nabi_app_create_palette(void)
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_about), menuitem);
 
+    menuitem = gtk_separator_menu_item_new();
+    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES, NULL);
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_preference), menuitem);
+
+    menuitem = gtk_menu_item_new_with_mnemonic(_("_Hide palette"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
+			     G_CALLBACK(on_menu_hide_palette), menuitem);
 
     menuitem = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
@@ -1407,6 +1425,16 @@ nabi_app_set_theme(const gchar *name)
 
     nabi_app_load_base_icons();
     nabi_tray_load_icons(nabi_tray, nabi->icon_size);
+}
+
+void
+nabi_app_show_palette(gboolean state)
+{
+    nabi->config->show_palette = state;
+    if (state)
+	nabi_palette_show(nabi_palette);
+    else
+	nabi_palette_hide(nabi_palette);
 }
 
 void
