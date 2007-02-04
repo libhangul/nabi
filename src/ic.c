@@ -247,8 +247,6 @@ nabi_ic_destroy(NabiIC *ic)
     if (ic == NULL)
 	return;
 
-    nabi_ic_preedit_done(ic);
-
     nabi_free(ic->resource_name);
     ic->resource_name = NULL;
     nabi_free(ic->resource_class);
