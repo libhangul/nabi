@@ -763,8 +763,6 @@ static void GetIMValuesMessageProc (XIMS ims,
     }
     getim->number = name_number;
     getim->im_attr_list = name_list;
-    XFree (name_list);
-
 
 #ifdef PROTOCOL_RICH
     if (i18n_core->address.improto) {
@@ -772,6 +770,7 @@ static void GetIMValuesMessageProc (XIMS ims,
             return;
     }
 #endif  /* PROTOCOL_RICH */
+    XFree (name_list);
 
     im_attribute_list = MakeIMAttributeList (i18n_core,
                                              connect_id,
