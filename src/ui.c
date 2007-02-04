@@ -1299,7 +1299,10 @@ nabi_app_create_palette(void)
 	}
     }
 
-    menuitem = gtk_menu_item_new_with_label(_("Word"));
+    if (nabi->config->commit_by_word)
+	menuitem = gtk_menu_item_new_with_label(_("Word"));
+    else
+	menuitem = gtk_menu_item_new_with_label(_("Character"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
     title_menuitem = menuitem;
 
@@ -1315,21 +1318,6 @@ nabi_app_create_palette(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
     g_signal_connect(G_OBJECT(menuitem), "activate",
 		     G_CALLBACK(on_menu_character), title_menuitem);
-
-    menuitem = gtk_menu_item_new_with_label(_("漢字"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
-
-    submenu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
-
-    menuitem = gtk_menu_item_new_with_label(_("漢字"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
-
-    menuitem = gtk_menu_item_new_with_label(_("漢字(한글)"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
-
-    menuitem = gtk_menu_item_new_with_label(_("한글(漢字)"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
 
     image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
     menuitem = gtk_image_menu_item_new();
