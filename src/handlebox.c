@@ -83,6 +83,7 @@ nabi_handle_box_init (NabiHandleBox *handle_box)
     gtk_window_set_skip_taskbar_hint(GTK_WINDOW(handle_box), TRUE);
     gtk_window_set_keep_above(GTK_WINDOW(handle_box), TRUE);
     gtk_window_stick(GTK_WINDOW(handle_box));
+    gtk_window_set_resizable(GTK_WINDOW(handle_box), FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(handle_box), 1);
 
     g_signal_connect(G_OBJECT(handle_box), "realize",
@@ -109,7 +110,7 @@ static void
 nabi_handle_box_size_allocate (GtkWidget     *widget,
 			       GtkAllocation *allocation)
 {
-    GtkBin *bin;
+    GtkBin* bin;
 
     widget->allocation = *allocation;
 
@@ -126,12 +127,19 @@ nabi_handle_box_size_allocate (GtkWidget     *widget,
 	child_allocation.y = border_width;
 	child_allocation.x += HANDLE_SIZE;
 
-	child_allocation.width = MAX (1, (gint)widget->allocation.width - 2 * border_width);
-	child_allocation.height = MAX (1, (gint)widget->allocation.height - 2 * border_width);
+	child_allocation.width = 
+	    MAX (1, (gint)allocation->width - 2 * border_width);
+	child_allocation.height = 
+	    MAX (1, (gint)allocation->height - 2 * border_width);
 
 	child_allocation.width -= HANDLE_SIZE;
 
 	gtk_widget_size_allocate (bin->child, &child_allocation);
+    }
+
+    if (GTK_WIDGET_REALIZED(widget)) {
+	gdk_window_resize (widget->window,
+		allocation->width, allocation->height);
     }
 }
 
@@ -144,7 +152,8 @@ nabi_handle_box_paint (GtkWidget      *widget,
     GdkRectangle rect;
     GdkRectangle dest;
 
-    gdk_drawable_get_size (widget->window, &width, &height);
+    width = widget->allocation.width;
+    height = widget->allocation.height;
 
     rect.x = 0;
     rect.y = 0; 
