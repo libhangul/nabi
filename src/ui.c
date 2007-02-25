@@ -906,39 +906,6 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
 }
 
 static void
-nabi_menu_item_set_label_with_menu_item(GtkWidget* dest, GtkWidget* src)
-{
-    const char* str = NULL;
-    GtkWidget* label;
-
-    if (src != NULL)  {
-	label = gtk_bin_get_child(GTK_BIN(src));
-	str = gtk_label_get_label(GTK_LABEL(label));
-    }
-
-    if (str != NULL && dest != NULL) {
-	label = gtk_bin_get_child(GTK_BIN(dest));
-	gtk_label_set_markup_with_mnemonic(GTK_LABEL(label), str);
-    }
-}
-
-static void
-on_menu_word(GtkWidget *widget, gpointer data)
-{
-    nabi->config->commit_by_word = TRUE;
-    nabi_server_set_commit_by_word(nabi_server, TRUE);
-    nabi_menu_item_set_label_with_menu_item((GtkWidget*)data, widget);
-}
-
-static void
-on_menu_character(GtkWidget *widget, gpointer data)
-{
-    nabi->config->commit_by_word = FALSE;
-    nabi_server_set_commit_by_word(nabi_server, FALSE);
-    nabi_menu_item_set_label_with_menu_item((GtkWidget*)data, widget);
-}
-
-static void
 on_menu_quit(GtkWidget *widget)
 {
     nabi_app_quit();
@@ -1297,26 +1264,6 @@ nabi_app_create_palette(void)
 	    }
 	}
     }
-
-    if (nabi->config->commit_by_word)
-	menuitem = gtk_menu_item_new_with_label(_("Word"));
-    else
-	menuitem = gtk_menu_item_new_with_label(_("Character"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
-    title_menuitem = menuitem;
-
-    submenu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
-
-    menuitem = gtk_menu_item_new_with_label(_("Word"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
-    g_signal_connect(G_OBJECT(menuitem), "activate",
-		     G_CALLBACK(on_menu_word), title_menuitem);
-
-    menuitem = gtk_menu_item_new_with_label(_("Character"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
-    g_signal_connect(G_OBJECT(menuitem), "activate",
-		     G_CALLBACK(on_menu_character), title_menuitem);
 
     image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
     menuitem = gtk_image_menu_item_new();
