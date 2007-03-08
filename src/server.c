@@ -556,18 +556,11 @@ nabi_server_create_connection(NabiServer *server,
 			      CARD16 connect_id, const char* locale)
 {
     NabiConnection* conn;
-    const char* encoding = NULL;
 
     if (server == NULL)
 	return NULL;
 
-    if (locale != NULL) {
-	encoding = strchr(locale, '.');
-	if (encoding != NULL)
-	    encoding++; // skip '.'
-    }
-
-    conn = nabi_connection_create(connect_id, encoding);
+    conn = nabi_connection_create(connect_id, locale);
     server->connections = g_slist_prepend(server->connections, conn);
     return conn;
 }

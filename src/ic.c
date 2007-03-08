@@ -42,8 +42,10 @@ static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_flush_string(NabiIC *ic);
-static bool  nabi_ic_hic_filter(HangulInputContext *hic,
-				ucschar c, const ucschar* str, void* data);
+static void  nabi_ic_hic_on_translate(HangulInputContext* hic,
+                         int ascii, ucschar* c, void* data);
+static bool  nabi_ic_hic_on_transition(HangulInputContext* hic,
+			 ucschar c, const ucschar* preedit, void* data);
 
 static inline void *
 nabi_malloc(size_t size)
@@ -70,7 +72,7 @@ strniequal(const char* a, const char* b, gsize n)
 }
 
 NabiConnection*
-nabi_connection_create(CARD16 id, const char* encoding)
+nabi_connection_create(CARD16 id, const char* locale)
 {
     NabiConnection* conn;
 
@@ -78,13 +80,21 @@ nabi_connection_create(CARD16 id, const char* encoding)
     conn->id = id;
     conn->mode = NABI_INPUT_MODE_DIRECT;
     conn->cd = (GIConv)-1;
-    if (encoding != NULL) {
-	if (!strniequal(encoding, "UTF-8", 5) ||
-	    !strniequal(encoding, "UTF8", 4)) {
-	    conn->cd = g_iconv_open(encoding, "UTF-8");
+    if (locale != NULL) {
+	char* encoding = strchr(locale, '.');
+	if (encoding != NULL) {
+	    encoding++; // skip '.'
+
+	    if (!strniequal(encoding, "UTF-8", 5) ||
+		!strniequal(encoding, "UTF8", 4)) {
+		conn->cd = g_iconv_open(encoding, "UTF-8");
+		nabi_log(3, "connection %d use encoding: %s (%x)\n",
+			    id, encoding, (int)conn->cd);
+	    }
 	}
     }
     conn->ic_list = NULL;
+
     
     return conn;
 }
@@ -225,7 +235,8 @@ nabi_ic_init_values(NabiIC *ic)
     ic->candidate = NULL;
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
-    hangul_ic_set_filter(ic->hic, nabi_ic_hic_filter, ic);
+    hangul_ic_connect_translate(ic->hic, nabi_ic_hic_on_translate, ic);
+    hangul_ic_connect_transition(ic->hic, nabi_ic_hic_on_transition, ic);
 }
 
 NabiIC*
@@ -321,14 +332,19 @@ nabi_ic_set_hangul_keyboard(NabiIC *ic, const char* hangul_keyboard)
     hangul_ic_select_keyboard(ic->hic, hangul_keyboard);
 }
 
+static void
+nabi_ic_hic_on_translate(HangulInputContext* hic,
+                         int ascii, ucschar* c, void* data)
+{
+    nabi_server_log_key(nabi_server, *c, 0);
+}
+
 static bool
-nabi_ic_hic_filter(HangulInputContext* hic,
-		   ucschar c, const ucschar* str, void* data)
+nabi_ic_hic_on_transition(HangulInputContext* hic,
+			  ucschar c, const ucschar* preedit, void* data)
 {
     bool ret = true;
     NabiIC* ic = (NabiIC*)data;
-
-    nabi_server_log_key(nabi_server, c, 0);
 
     if (!nabi_server->auto_reorder) {
 	if (hangul_is_choseong(c)) {
@@ -345,7 +361,7 @@ nabi_ic_hic_filter(HangulInputContext* hic,
     }
 
     if (ic != NULL) {
-	char* utf8 = g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
+	char* utf8 = g_ucs4_to_utf8((const gunichar*)preedit, -1, NULL, NULL, NULL);
 	ret = nabi_connection_is_valid_str(ic->connection, utf8);
 	g_free(utf8);
     }
