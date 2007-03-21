@@ -162,6 +162,9 @@ void TextView::closeIM(void)
 
 void TextView::createIC(void)
 {
+    if (m_im == NULL)
+	return;
+
     if ((m_inputStyle & XIMPreeditCallbacks) == XIMPreeditCallbacks) {
 	XIMCallback preedit_start;
 	XIMCallback preedit_done;
@@ -232,12 +235,16 @@ void TextView::createIC(void)
 			 NULL);
     }
 
-    unsigned long fevent = 0;
-    XGetICValues(m_ic, XNFilterEvents, &fevent, NULL);
-    unsigned long mask = ExposureMask | KeyPressMask | FocusChangeMask;
-    XSelectInput(m_display, m_window, mask | fevent);
+    if (m_ic != NULL) {
+	unsigned long fevent = 0;
+	XGetICValues(m_ic, XNFilterEvents, &fevent, NULL);
+	unsigned long mask = ExposureMask | KeyPressMask | FocusChangeMask;
+	XSelectInput(m_display, m_window, mask | fevent);
 
-    printf("XIC is created\n");
+	printf("XIC is created\n");
+    } else {
+	printf("cannot create XIC\n");
+    }
 }
 
 void TextView::destroyIC()
