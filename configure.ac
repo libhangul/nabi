@@ -1,6 +1,6 @@
-AC_INIT(nabi, 0.17, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
+AC_INIT(nabi, 0.18, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
 
-AM_INIT_AUTOMAKE(nabi, 0.17)
+AM_INIT_AUTOMAKE(nabi, 0.18)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -97,14 +97,5 @@ IMdkit/Makefile
 src/Makefile
 tables/Makefile
 themes/Makefile
-themes/SimplyRed/Makefile
-themes/MSWindows/Makefile
-themes/Mac/Makefile
-themes/Onion/Makefile
-themes/KingSejong/Makefile
-themes/keyboard/Makefile
-themes/MSWindowsXP/Makefile
-themes/Tux/Makefile
-themes/Jini/Makefile
 po/Makefile.in 
 ])
