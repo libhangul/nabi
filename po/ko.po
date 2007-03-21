@@ -5,15 +5,27 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: nabi 0.14\n"
+"Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-01-14 23:30+0900\n"
+"POT-Creation-Date: 2007-03-19 23:01+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: src/candidate.c:346
+msgid "hanja"
+msgstr "漢字"
+
+#: src/candidate.c:353
+msgid "hanja(hangul)"
+msgstr "漢字(한자)"
+
+#: src/candidate.c:359
+msgid "hangul(hanja)"
+msgstr "한자(漢字)"
 
 #: src/eggtrayicon.c:118
 msgid "Orientation"
@@ -47,110 +59,98 @@ msgstr "세벌식 순아래"
 msgid "3 set yetguel"
 msgstr "세벌식 옛글"
 
-#: src/ui.c:504
+#: src/ui.c:630
 msgid "XIM Server is not running"
 msgstr "입력기 서버가 작동하지 않습니다"
 
-#: src/ui.c:515
+#: src/ui.c:641
 msgid "Total"
 msgstr "전체"
 
-#: src/ui.c:516
+#: src/ui.c:642
 msgid "Space"
 msgstr "스페이스"
 
-#: src/ui.c:517
+#: src/ui.c:643
 msgid "BackSpace"
 msgstr "백스페이스"
 
-#: src/ui.c:518
+#: src/ui.c:644
 msgid "Shift"
 msgstr "쉬프트"
 
 #. choseong
-#: src/ui.c:521
+#: src/ui.c:647
 msgid "Choseong"
 msgstr "초성"
 
 #. jungseong
-#: src/ui.c:535
+#: src/ui.c:661
 msgid "Jungseong"
 msgstr "중성"
 
 #. jongseong
-#: src/ui.c:556
+#: src/ui.c:682
 msgid "Jongseong"
 msgstr "종성"
 
-#: src/ui.c:580
+#: src/ui.c:706
 msgid "Nabi keypress statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:624
+#: src/ui.c:750
 msgid "About Nabi"
 msgstr "Nabi에 대해서"
 
-#: src/ui.c:642
+#: src/ui.c:768
 #, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
 "\n"
-"Copyright (c) 2003-2004 Choe Hwanjin"
+"Copyright (c) 2003-2004,2007 Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">쉬운 한글 입력기</span>\n"
 "버젼 %s\n"
 "\n"
-"Copyright © 2003-2004 최환진"
+"Copyright © 2003-2004,2007 최환진"
 
-#: src/ui.c:653
+#: src/ui.c:780
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM 이름</span>: "
 
-#: src/ui.c:659
+#: src/ui.c:786
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">로캘</span>: "
 
-#: src/ui.c:665
+#: src/ui.c:792
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">인코딩</span>: "
 
-#: src/ui.c:671
+#: src/ui.c:798
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">연결된 수</span>: "
 
-#: src/ui.c:705
+#: src/ui.c:832
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:776
-msgid "_About..."
-msgstr "프로그램 정보(_A)..."
+#. palette menu
+#: src/ui.c:940
+msgid "_Show palette"
+msgstr "팔레트 보이기(_S)"
 
-#: src/ui.c:791
-msgid "_Preferences..."
-msgstr "설정(_P)..."
-
-#: src/ui.c:897 src/ui.c:899 src/ui.c:933 src/ui.c:935 src/ui.c:1154
-#: src/ui.c:1176
-msgid "Nabi: None"
-msgstr "나비: 중립"
-
-#: src/ui.c:909 src/ui.c:911
-msgid "Nabi: English"
-msgstr "나비: 영어"
-
-#: src/ui.c:921 src/ui.c:923
-msgid "Nabi: Hangul"
-msgstr "나비: 한글"
-
-#: src/ui.c:1118
+#: src/ui.c:1171
 msgid "Hangul input method: Nabi"
 msgstr "한글 입력기: 나비"
 
-#: src/ui.c:1119
+#: src/ui.c:1172
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
+
+#: src/ui.c:1289
+msgid "_Hide palette"
+msgstr "팔레트 숨기기(_H)"
 
 #: src/preference.c:200
 msgid "<span weight=\"bold\">Tray icons</span>"
@@ -214,60 +214,55 @@ msgstr "<span weight=\"bold\">한자 키</span>"
 msgid "Hanja Keys"
 msgstr "한자 키"
 
-#: src/preference.c:890
+#: src/preference.c:899
 msgid "<span weight=\"bold\">XIM</span>"
 msgstr "<span weight=\"bold\">XIM</span>"
 
-#: src/preference.c:905
+#: src/preference.c:914
 msgid "XIM name:"
 msgstr "XIM 이름:"
 
-#: src/preference.c:918
+#: src/preference.c:927
 msgid "Use dynamic event flow"
 msgstr "다이나믹 이벤트 처리 사용"
 
-#: src/preference.c:928
+#: src/preference.c:937
 msgid "Commit by word"
 msgstr "단어 단위로 입력"
 
-#: src/preference.c:938
+#: src/preference.c:947
 msgid "Automatic reordering"
 msgstr "자동 순서 교정"
 
-#: src/preference.c:968
+#: src/preference.c:957
+msgid "Use global input mode"
+msgstr "단일 입력 상태 사용"
+
+#: src/preference.c:987
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:980
+#: src/preference.c:999
 msgid "Tray"
 msgstr "트레이"
 
 #. keyboard
-#: src/preference.c:985
+#: src/preference.c:1004
 msgid "Keyboard"
 msgstr "자판"
 
 #. key
-#: src/preference.c:990
+#: src/preference.c:1009
 msgid "Hangul"
 msgstr "한글"
 
 #. candidate
-#: src/preference.c:995
+#: src/preference.c:1014
 msgid "Hanja"
 msgstr "한자"
 
 #. advanced
-#: src/preference.c:1000
+#: src/preference.c:1019
 msgid "Advanced"
 msgstr "고급"
-
-#~ msgid "Hangul Keyboard"
-#~ msgstr "한글 자판"
-
-#~ msgid "Querty keyboard"
-#~ msgstr "쿼티 자판"
-
-#~ msgid "Dvorak keyboard"
-#~ msgstr "드보락 자판"
