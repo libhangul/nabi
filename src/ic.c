@@ -235,8 +235,10 @@ nabi_ic_init_values(NabiIC *ic)
     ic->candidate = NULL;
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
-    hangul_ic_connect_translate(ic->hic, nabi_ic_hic_on_translate, ic);
-    hangul_ic_connect_transition(ic->hic, nabi_ic_hic_on_transition, ic);
+    hangul_ic_connect_callback(ic->hic, "translate",
+			       nabi_ic_hic_on_translate, ic);
+    hangul_ic_connect_callback(ic->hic, "transition",
+			       nabi_ic_hic_on_transition, ic);
 }
 
 NabiIC*
