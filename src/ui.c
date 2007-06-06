@@ -63,6 +63,7 @@ typedef struct _NabiStateIcon {
 typedef struct _NabiPalette {
     GtkWidget*     widget;
     NabiStateIcon* state;
+    guint          source_id;
 } NabiPalette;
 
 typedef struct _NabiTrayIcon {
@@ -367,8 +368,10 @@ nabi_app_free(void)
     nabi_config_delete(nabi->config);
     nabi->config = NULL;
 
-    nabi_palette_destroy(nabi_palette);
-    nabi_palette = NULL;
+    if (nabi_palette != NULL) {
+	nabi_palette_destroy(nabi_palette);
+	nabi_palette = NULL;
+    }
 
     g_free(nabi->xim_name);
 
@@ -510,27 +513,25 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 static void
 on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
-    g_free(nabi_tray->state);
+    nabi_state_icon_destroy(nabi_tray->state);
     g_free(nabi_tray);
     nabi_tray = NULL;
-
-    g_idle_add(nabi_create_tray_icon, NULL);
     nabi_log(1, "tray icon is destroyed\n");
 
+    nabi_palette->source_id = g_idle_add(nabi_create_tray_icon, NULL);
     nabi_palette_show(nabi_palette);
 }
 
 static void
 on_palette_destroyed(GtkWidget *widget, gpointer data)
 {
+    gtk_main_quit();
+
     if (nabi_tray != NULL && nabi_tray->widget != NULL) {
 	gtk_widget_destroy(GTK_WIDGET(nabi_tray->widget));
     }
-    g_free(nabi_tray);
-    nabi_tray = NULL;
 
     remove_event_filter();
-    gtk_main_quit();
     nabi_log(1, "palette destroyed\n");
 }
 
@@ -1161,10 +1162,10 @@ nabi_create_tray_icon(gpointer data)
     tray->widget = egg_tray_icon_new("Tray icon");
 
     eventbox = gtk_event_box_new();
-    gtk_widget_show(eventbox);
     gtk_container_add(GTK_CONTAINER(tray->widget), eventbox);
     g_signal_connect(G_OBJECT(eventbox), "button-press-event",
 		     G_CALLBACK(on_tray_icon_button_press), NULL);
+    gtk_widget_show(eventbox);
 
     tooltips = gtk_tooltips_new();
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), eventbox,
@@ -1212,6 +1213,7 @@ nabi_app_create_palette(void)
     nabi_palette = g_new(NabiPalette, 1);
     nabi_palette->widget = NULL;
     nabi_palette->state = NULL;
+    nabi_palette->source_id = 0;
 
     handlebox = nabi_handle_box_new();
     nabi_palette->widget = handlebox;
@@ -1315,7 +1317,8 @@ nabi_app_create_palette(void)
 static void
 nabi_palette_show(NabiPalette* palette)
 {
-    if (palette != NULL && !GTK_WIDGET_VISIBLE(palette->widget)) {
+    if (palette != NULL && palette->widget != NULL &&
+	!GTK_WIDGET_VISIBLE(palette->widget)) {
 	gtk_window_move(GTK_WINDOW(palette->widget),
 			nabi->config->x, nabi->config->y);
 	gtk_widget_show(GTK_WIDGET(palette->widget));
@@ -1343,11 +1346,19 @@ static void
 nabi_palette_destroy(NabiPalette* palette)
 {
     if (palette != NULL) {
-	gtk_window_get_position(GTK_WINDOW(palette->widget),
+	GtkWidget* widget = palette->widget;
+	/* palette의 widget을 destroy할때 "on_destroy" 시그널에
+	 * tray icon을 정리하면서 palette widget을 다시 show()하는 
+	 * 경우가 발생할 수 있다. 이런 문제를 피하기 위해서
+	 * 여기서 palette->widget을 먼저 NULL로 세팅하고 destroy()를
+	 * 호출하도록 한다. */
+	palette->widget = NULL;
+	gtk_window_get_position(GTK_WINDOW(widget),
 				&nabi->config->x, &nabi->config->y);
-
-	gtk_widget_destroy(palette->widget);
+	gtk_widget_destroy(widget);
 	nabi_state_icon_destroy(palette->state);
+	if (palette->source_id > 0)
+	    g_source_remove(palette->source_id);
 	g_free(palette);
     }
 }
