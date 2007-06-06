@@ -54,10 +54,10 @@ enum {
 };
 
 typedef struct _NabiStateIcon {
-    GtkWidget* box;
+    GtkWidget* widget;
     GtkWidget* none;
-    GtkWidget* hangul;
     GtkWidget* english;
+    GtkWidget* hangul;
 } NabiStateIcon;
 
 typedef struct _NabiPalette {
@@ -385,17 +385,19 @@ nabi_state_icon_new(int w, int h)
     NabiStateIcon* state;
     state = g_new(NabiStateIcon, 1);
 
-    state->box     = gtk_hbox_new(FALSE, 0);
-    state->none    = gtk_image_new();
-    state->hangul  = gtk_image_new();
-    state->english = gtk_image_new();
+    state->widget  = gtk_notebook_new();
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(state->widget), FALSE);
+    gtk_notebook_set_show_border(GTK_NOTEBOOK(state->widget), FALSE);
 
-    gtk_box_pack_start(GTK_BOX(state->box), state->none, FALSE, FALSE, 0);
-    gtk_widget_show(state->none);
-    gtk_box_pack_start(GTK_BOX(state->box), state->hangul, FALSE, FALSE, 0);
-    gtk_widget_hide(state->hangul);
-    gtk_box_pack_start(GTK_BOX(state->box), state->english, FALSE, FALSE, 0);
-    gtk_widget_hide(state->english);
+    state->none    = gtk_image_new();
+    state->english = gtk_image_new();
+    state->hangul  = gtk_image_new();
+
+    gtk_notebook_append_page(GTK_NOTEBOOK(state->widget), state->none, NULL);
+    gtk_notebook_append_page(GTK_NOTEBOOK(state->widget), state->english, NULL);
+    gtk_notebook_append_page(GTK_NOTEBOOK(state->widget), state->hangul, NULL);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(state->widget), 0);
+    gtk_widget_show_all(state->widget);
 
     nabi_state_icon_load(state, w, h);
 
@@ -460,40 +462,7 @@ nabi_state_icon_update(NabiStateIcon* state, int flag)
     if (state == NULL)
 	return;
 
-    switch (flag) {
-    case 0:  // none
-	if (state->none != NULL &&
-	    state->hangul != NULL &&
-	    state->english != NULL) {
-	    gtk_widget_show(state->none);
-	    gtk_widget_hide(state->hangul);
-	    gtk_widget_hide(state->english);
-	}
-	break;
-    case 1:  // latin
-	if (state->none != NULL &&
-	    state->hangul != NULL &&
-	    state->english != NULL) {
-	    gtk_widget_hide(state->none);
-	    gtk_widget_hide(state->hangul);
-	    gtk_widget_show(state->english);
-	}
-	break;
-    case 2:  // hangul
-	if (state->none != NULL &&
-	    state->hangul != NULL &&
-	    state->english != NULL) {
-	    gtk_widget_hide(state->none);
-	    gtk_widget_show(state->hangul);
-	    gtk_widget_hide(state->english);
-	}
-	break;
-    default:
-	gtk_widget_show(state->none);
-	gtk_widget_hide(state->hangul);
-	gtk_widget_hide(state->english);
-	break;
-    }
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(state->widget), flag);
 }
 
 static void
@@ -1183,8 +1152,8 @@ nabi_create_tray_icon(gpointer data)
     }
 
     tray->state = nabi_state_icon_new(w, h);
-    gtk_container_add(GTK_CONTAINER(eventbox), tray->state->box);
-    gtk_widget_show(tray->state->box);
+    gtk_container_add(GTK_CONTAINER(eventbox), tray->state->widget);
+    gtk_widget_show(tray->state->widget);
 
     g_signal_connect(G_OBJECT(tray->widget), "size-allocate",
 		     G_CALLBACK(on_tray_icon_size_allocate), tray);
@@ -1234,8 +1203,8 @@ nabi_app_create_palette(void)
     gtk_widget_show(eventbox);
 
     nabi_palette->state = nabi_state_icon_new(-1, nabi->config->palette_height);
-    gtk_container_add(GTK_CONTAINER(eventbox), nabi_palette->state->box);
-    gtk_widget_show(nabi_palette->state->box);
+    gtk_container_add(GTK_CONTAINER(eventbox), nabi_palette->state->widget);
+    gtk_widget_show(nabi_palette->state->widget);
 
     menubar = gtk_menu_bar_new();
     gtk_box_pack_start(GTK_BOX(hbox), menubar, FALSE, FALSE, 0);
