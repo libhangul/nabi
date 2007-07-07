@@ -63,15 +63,15 @@ nabi_x_error_handler(Display *display, XErrorEvent *error)
     return 0;
 }
 
-static void
-nabi_sigterm_handler(int no)
+static int
+nabi_x_io_error_handler(Display* display)
 {
+    nabi_log(1, "x io error: save config\n");
+
     nabi_server_write_log(nabi_server);
     nabi_app_save_config();
-    if (default_sigterm_handler != NULL)
-	default_sigterm_handler(no);
-    else
-	exit(0);
+
+    exit(0);
 }
 
 int
@@ -92,11 +92,12 @@ main(int argc, char *argv[])
     nabi_app_new();
     nabi_app_init(&argc, &argv);
 
+    XSetErrorHandler(nabi_x_error_handler);
+    XSetIOErrorHandler(nabi_x_io_error_handler);
+
 #ifdef HAVE_LIBSM
     nabi_session_open(nabi->session_id);
 #endif
-
-    default_sigterm_handler = signal(SIGTERM, nabi_sigterm_handler);
 
     if (!nabi->status_only) {
 	char *xim_name;
@@ -117,8 +118,6 @@ main(int argc, char *argv[])
     g_signal_connect_after(G_OBJECT(widget), "destroy",
 	    	           G_CALLBACK(on_destroy), nabi_server);
     gtk_widget_show(widget);
-
-    XSetErrorHandler(nabi_x_error_handler);
 
     gtk_main();
 
