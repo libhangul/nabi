@@ -357,7 +357,7 @@ nabi_app_free(void)
 {
     /* remove default icon */
     if (default_icon != NULL) {
-	gdk_pixbuf_unref(default_icon);
+	g_object_unref(default_icon);
 	default_icon = NULL;
     }
 

@@ -130,9 +130,9 @@ get_themes_list(int size)
 	g_free(file_none);
 	g_free(file_hangul);
 	g_free(file_english);
-	gdk_pixbuf_unref(pixbuf_none);
-	gdk_pixbuf_unref(pixbuf_hangul);
-	gdk_pixbuf_unref(pixbuf_english);
+	g_object_unref(pixbuf_none);
+	g_object_unref(pixbuf_hangul);
+	g_object_unref(pixbuf_english);
     }
     closedir(dir);
 
