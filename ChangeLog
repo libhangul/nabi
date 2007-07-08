@@ -1,4 +1,279 @@
 ------------------------------------------------------------------------
+r630 | krisna | 2007-07-08 00:27:04 +0900 (Sun, 08 Jul 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/ui.c
+
+gdk_pixbuf_unref() 대신 g_object_unref() 사용
+
+------------------------------------------------------------------------
+r629 | krisna | 2007-07-08 00:25:38 +0900 (Sun, 08 Jul 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+
+X server가 종료할때 설정 저장하도록 처리
+
+------------------------------------------------------------------------
+r628 | krisna | 2007-06-06 23:19:23 +0900 (Wed, 06 Jun 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+state icon을 GtkBox를 쓰던 코드에서 GtkNotebook으로 바꿈
+
+------------------------------------------------------------------------
+r627 | krisna | 2007-06-06 22:59:04 +0900 (Wed, 06 Jun 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+ * 종료시 발생하는 warning 처리
+   gtk_style_detach: assertion `style->attach_count > 0' failed
+ * 종료시에는 tray icon을 생성하기 위한 idle 함수를 추가하지 않음
+
+------------------------------------------------------------------------
+r626 | krisna | 2007-05-28 22:27:57 +0900 (Mon, 28 May 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+
+libhangul의 바뀐 callback 등록 api에 맞게 수정함
+
+------------------------------------------------------------------------
+r625 | krisna | 2007-03-21 22:53:41 +0900 (Wed, 21 Mar 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+   D /nabi/trunk/themes/Jini/Makefile.am
+   D /nabi/trunk/themes/KingSejong/Makefile.am
+   D /nabi/trunk/themes/MSWindows/Makefile.am
+   D /nabi/trunk/themes/MSWindowsXP/Makefile.am
+   D /nabi/trunk/themes/Mac/Makefile.am
+   M /nabi/trunk/themes/Makefile.am
+   D /nabi/trunk/themes/Onion/Makefile.am
+   D /nabi/trunk/themes/SimplyRed/Makefile.am
+   D /nabi/trunk/themes/Tux/Makefile.am
+   D /nabi/trunk/themes/keyboard/Makefile.am
+
+* themes Makefile을 subdir로 나눠놨던 것을 하나로 합침
+* 0.18 버젼 준비 configure.ac 버젼 업데이트
+
+------------------------------------------------------------------------
+r624 | krisna | 2007-03-21 22:37:32 +0900 (Wed, 21 Mar 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r623 | krisna | 2007-03-21 22:31:47 +0900 (Wed, 21 Mar 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/test/xlib.cpp
+
+* XOpenIM()이 실패했을 경우 처리
+* XCreateIC()가 실패했을 경우 처리
+
+------------------------------------------------------------------------
+r622 | krisna | 2007-03-08 22:45:35 +0900 (Thu, 08 Mar 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+
+* libhangul의 OnTranslate와 OnTransition에 callback 연결
+* nabi_connection_create()에서 encoding대신 locale을 받도록 함
+
+------------------------------------------------------------------------
+r621 | krisna | 2007-02-26 01:14:19 +0900 (Mon, 26 Feb 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+"단어/글자" 옵션을 palette에서 제거
+
+------------------------------------------------------------------------
+r620 | krisna | 2007-02-26 01:12:09 +0900 (Mon, 26 Feb 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/handlebox.c
+
+NabiHandleBox:
+    * child의 크기 변화에 따라서 자동으로 palette 크기가 변하게 함
+
+------------------------------------------------------------------------
+r619 | krisna | 2007-02-05 00:32:45 +0900 (Mon, 05 Feb 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/handler.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+데스크탑에서 단일 한글 모드 사용 옵션 추가:
+ * global_input_mode 옵션 추가
+ * 기본값을 global_input_mode = true로 설정
+ * 설정창에도 옵션 추가
+
+------------------------------------------------------------------------
+r618 | krisna | 2007-02-05 00:00:46 +0900 (Mon, 05 Feb 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+사용하지 않는 변수 제거
+
+------------------------------------------------------------------------
+r617 | krisna | 2007-02-04 17:58:35 +0900 (Sun, 04 Feb 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/IMdkit/i18nPtHdr.c
+
+GetIMValuesMessageProc(): protocol handler를 부르기 전에 free하는 것 순서 조정
+
+------------------------------------------------------------------------
+r616 | krisna | 2007-02-04 17:45:19 +0900 (Sun, 04 Feb 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+
+디버그 메시지 정리
+
+------------------------------------------------------------------------
+r615 | krisna | 2007-02-04 17:40:07 +0900 (Sun, 04 Feb 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+
+한자 입력 포맷 옵션 수정
+ * 한자 입력 포맷 간경 조정
+ * 한자 입력 포맷을 제대로 설정하게 함(내부 설정값에 저장)
+
+------------------------------------------------------------------------
+r614 | krisna | 2007-02-04 17:39:05 +0900 (Sun, 04 Feb 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+
+nabi_ic_destroy()에서 nabi_ic_preedit_done()하지 않음
+프로그램 종료시에 xims 가 유효하지 않은 경우도 불리기 때문에 삭제한다.
+
+------------------------------------------------------------------------
+r613 | krisna | 2007-02-04 17:11:51 +0900 (Sun, 04 Feb 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/ic.c
+
+한자 입력 포맷 옵션 추가
+ * 漢字, 漢字(한자), 한자(漢字)의 입력 형태를 선택할수 있음
+
+------------------------------------------------------------------------
+r612 | krisna | 2007-02-04 16:18:59 +0900 (Sun, 04 Feb 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+ * 한자 메뉴 제거
+ * 단어/글자 단위 입력 메뉴 초기 값 설정
+
+------------------------------------------------------------------------
+r611 | krisna | 2007-02-04 16:08:14 +0900 (Sun, 04 Feb 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+about창의 copyright 연도 수정
+
+------------------------------------------------------------------------
+r610 | krisna | 2007-02-04 16:02:46 +0900 (Sun, 04 Feb 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/ui.c
+
+menu 개선
+ * palette show/hide 메뉴 추가
+ * 단어/글자 단위 입력 메뉴 추가
+ * menu 관련 함수 정리
+
+------------------------------------------------------------------------
+r609 | krisna | 2007-02-03 23:28:05 +0900 (Sat, 03 Feb 2007) | 6 lines
+Changed paths:
+   M /nabi/trunk/IMdkit/i18nMethod.c
+   M /nabi/trunk/src/server.c
+
+trigger key를 실행 중간에 변경할수 있도록 수정
+ * nabi_server_set_trigger_keys()에서 IMSetIMValues()를 이용하여 on key list를 
+   업데이트 함
+ * IMSetIMValues()안에서는 새로 IMOnKeysList 값을 설정했을때에도 다시 값을
+   설정하도록 함
+
+------------------------------------------------------------------------
+r608 | krisna | 2007-02-03 22:27:57 +0900 (Sat, 03 Feb 2007) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/Makefile.am
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+palette 모양 개선:
+ * NabiHandlebox를 이용하여 palette 구현
+ * tray icon 관리 루틴 개선
+ * NabiPalette, NabiTrayIcon으로 관리
+ * palette에 한/영 상태 아이콘 추가, 단어/글자 단위 메뉴 추가, 기본 메뉴 추가
+
+------------------------------------------------------------------------
+r607 | krisna | 2007-01-24 00:39:12 +0900 (Wed, 24 Jan 2007) | 2 lines
+Changed paths:
+   A /nabi/trunk/src/handlebox.c
+   A /nabi/trunk/src/handlebox.h
+
+NabiHandleBox 코드 추가
+
+------------------------------------------------------------------------
+r606 | krisna | 2007-01-20 21:49:58 +0900 (Sat, 20 Jan 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/server.c
+
+* log 함수 개선:
+ - 입력된 개수가 없으면 쓰지 않음
+ - log 출력 루틴을 정리
+
+------------------------------------------------------------------------
+r605 | krisna | 2007-01-20 20:55:07 +0900 (Sat, 20 Jan 2007) | 8 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+* 변경된 HangulICFilter 함수 수정
+* 자동 순서 교정 기능 알고리듬 개선:
+ - libhangul에 추가된 hangul_ic_has_jungseong(), hangul_is_jongseong() 사용
+ - NabiIC에서 사용하지 않는 변수 제거
+* 키 입력 로그 개선:
+ - nabi_server_on_keypress() -> nabi_server_log_key() 로 이름 변경
+ 
+
+------------------------------------------------------------------------
+r602 | krisna | 2007-01-15 00:56:17 +0900 (Mon, 15 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+
+기본 preedit string의 색상을 설정 값을 fg와 bg를 서로 뒤바꿈
+
+------------------------------------------------------------------------
+r600 | krisna | 2007-01-15 00:53:42 +0900 (Mon, 15 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+0.17 준비
+
+------------------------------------------------------------------------
+r599 | krisna | 2007-01-15 00:52:58 +0900 (Mon, 15 Jan 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+
+------------------------------------------------------------------------
 r598 | krisna | 2007-01-14 23:45:54 +0900 (Sun, 14 Jan 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/po/de.po
