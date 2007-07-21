@@ -38,8 +38,6 @@
 NabiApplication* nabi = NULL;
 NabiServer* nabi_server = NULL;
 
-static void (*default_sigterm_handler)(int) = NULL;
-
 static void
 on_realize(GtkWidget *widget, gpointer data)
 {
