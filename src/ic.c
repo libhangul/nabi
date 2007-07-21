@@ -1666,7 +1666,10 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	nabi_candidate_delete(ic->candidate);
 
     preedit = nabi_ic_get_preedit_string(ic);
-    list = hanja_table_match_prefix(nabi_server->hanja_table, preedit);
+    list = hanja_table_match_prefix(nabi_server->symbol_table, preedit);
+
+    if (list == NULL)
+	list = hanja_table_match_prefix(nabi_server->hanja_table, preedit);
 
     if (list != NULL) {
 	int i, valid_list_length = 0;

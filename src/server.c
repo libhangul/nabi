@@ -42,6 +42,7 @@
 #include "hangul.h"
 
 #define DEFAULT_IC_TABLE_SIZE	64
+#define NABI_SYMBOL_TABLE NABI_DATA_DIR G_DIR_SEPARATOR_S "symbol.txt"
 
 struct KeySymPair {
     KeySym key;
@@ -144,6 +145,9 @@ nabi_server_new(const char *name)
     /* hanja */
     server->hanja_table = NULL;
 
+    /* symbol */
+    server->symbol_table = NULL;
+
     /* options */
     server->show_status = False;
     server->preedit_fg.pixel = 0;
@@ -208,6 +212,10 @@ nabi_server_destroy(NabiServer *server)
     /* delete hanja table */
     if (server->hanja_table != NULL)
 	hanja_table_delete(server->hanja_table);
+
+    /* delete symbol table */
+    if (server->symbol_table != NULL)
+	hanja_table_delete(server->symbol_table);
 
     g_free(server->trigger_keys.keylist);
     g_free(server->candidate_keys.keylist);
@@ -370,6 +378,7 @@ nabi_server_init(NabiServer *server)
     }
 
     server->hanja_table = hanja_table_load(NULL);
+    server->symbol_table = hanja_table_load(NABI_SYMBOL_TABLE);
 }
 
 NabiIC*

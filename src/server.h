@@ -124,6 +124,9 @@ struct _NabiServer {
     /* hanja */
     HanjaTable*             hanja_table;
 
+    /* symbol */
+    HanjaTable*             symbol_table;
+
     /* options */
     Bool                    dynamic_event_flow;
     Bool                    global_input_mode;
