@@ -268,6 +268,12 @@ nabi_app_init(int *argc, char ***argv)
     }
     g_free(icon_filename);
 
+    if (default_icon != NULL) {
+	GList *list = g_list_prepend(NULL, default_icon);
+	gtk_window_set_default_icon_list(list);
+	g_list_free(list);
+    }
+
     /* status icons */
     nabi_app_load_base_icons();
 }
@@ -1053,7 +1059,7 @@ on_palette_realized(GtkWidget *widget, gpointer data)
 }
 
 static GdkPixbuf*
-load_icon(const char* theme, const char* name, const char** default_xpm)
+load_icon(const char* theme, const char* name, const char** default_xpm, gboolean* error_on_load)
 {
     char* path;
     char* filename;
@@ -1078,10 +1084,12 @@ load_icon(const char* theme, const char* name, const char** default_xpm)
     pixbuf = gdk_pixbuf_new_from_file(path, &error);
     if (pixbuf == NULL) {
 	if (error != NULL) {
-	    g_print("Error on reading image file: %s\n", error->message);
+	    nabi_log(1, "Error on reading image file: %s\n", error->message);
 	    g_error_free(error);
+	    error = NULL;
 	}
-	pixbuf = gdk_pixbuf_new_from_xpm_data(none_default_xpm);
+	pixbuf = gdk_pixbuf_new_from_xpm_data(default_xpm);
+	*error_on_load = TRUE;
     }
 
 done:
@@ -1096,19 +1104,40 @@ done:
 static void
 nabi_app_load_base_icons()
 {
+    gboolean error = FALSE;
     const char* theme = nabi->config->theme;
 
     if (none_pixbuf != NULL)
 	g_object_unref(G_OBJECT(none_pixbuf));
-    none_pixbuf = load_icon(theme, "none", none_default_xpm);
+    none_pixbuf = load_icon(theme, "none", none_default_xpm, &error);
 
     if (english_pixbuf != NULL)
 	g_object_unref(G_OBJECT(english_pixbuf));
-    english_pixbuf = load_icon(theme, "english", english_default_xpm);
+    english_pixbuf = load_icon(theme, "english", english_default_xpm, &error);
 
     if (hangul_pixbuf != NULL)
 	g_object_unref(G_OBJECT(hangul_pixbuf));
-    hangul_pixbuf = load_icon(theme, "hangul", hangul_default_xpm);
+    hangul_pixbuf = load_icon(theme, "hangul", hangul_default_xpm, &error);
+
+    if (error) {
+	GtkWidget *message;
+	message = gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL,
+					 GTK_MESSAGE_WARNING, GTK_BUTTONS_CLOSE,
+	 _("<span size=\"x-large\" weight=\"bold\">"
+	   "Can't load tray icons</span>\n\n"
+	   "There are some errors on loading tray icons.\n"
+	   "Nabi will use default builtin icons and the theme will be changed to default value.\n"
+	   "Please change the theme settings."));
+	gtk_label_set_use_markup(GTK_LABEL(GTK_MESSAGE_DIALOG(message)->label),
+				 TRUE);
+	gtk_window_set_title(GTK_WINDOW(message), _("Nabi: error message"));
+	gtk_widget_show(message);
+	gtk_dialog_run(GTK_DIALOG(message));
+	gtk_widget_destroy(message);
+
+	g_free(nabi->config->theme);
+	nabi->config->theme = g_strdup("Jini");
+    }
 }
 
 static gboolean
@@ -1273,12 +1302,6 @@ nabi_app_create_palette(void)
     gtk_widget_show_all(menubar);
 
     g_idle_add(nabi_create_tray_icon, NULL);
-
-    if (default_icon != NULL) {
-	GList *list = g_list_prepend(NULL, default_icon);
-	gtk_window_set_default_icon_list(list);
-	g_list_free(list);
-    }
 
     return handlebox;
 }
