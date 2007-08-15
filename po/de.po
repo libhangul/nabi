@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-07-08 22:14+0900\n"
+"POT-Creation-Date: 2007-08-15 16:59+0900\n"
 "PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -40,27 +40,27 @@ msgstr "Ausrichtung"
 msgid "The orientation of the tray."
 msgstr "Ausrichtung. der Ablage."
 
-#: src/server.c:52
+#: src/server.c:53
 msgid "2 set"
 msgstr "두벌식/ 2-fach belegt"
 
-#: src/server.c:53
+#: src/server.c:54
 msgid "3 set with 2 set layout"
 msgstr "세벌식 두벌 자판/ 3-fach belegt  mit 2-fach Anordnung"
 
-#: src/server.c:54
+#: src/server.c:55
 msgid "3 set final"
 msgstr "세벌식 최종/ 3-fach endgültig"
 
-#: src/server.c:55
+#: src/server.c:56
 msgid "3 set 390"
 msgstr "세벌식 390/ 3-fach 390"
 
-#: src/server.c:56
+#: src/server.c:57
 msgid "3 set no-shift"
 msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
 
-#: src/server.c:57
+#: src/server.c:58
 msgid "3 set yetguel"
 msgstr "세벌식 옛글/ 3-fach alte Schrift"
 
@@ -148,16 +148,30 @@ msgstr "Tastaturstatistik"
 msgid "_Show palette"
 msgstr ""
 
-#: src/ui.c:1141
+#: src/ui.c:1120
+msgid ""
+"<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
+"\n"
+"There are some errors on loading tray icons.\n"
+"Nabi will use default builtin icons and the theme will be changed to default "
+"value.\n"
+"Please change the theme settings."
+msgstr ""
+
+#: src/ui.c:1127
+msgid "Nabi: error message"
+msgstr ""
+
+#: src/ui.c:1164
 msgid "Hangul input method: Nabi"
 msgstr "Hangul Eingabehilfe: Nabi"
 
-#: src/ui.c:1142
+#: src/ui.c:1165
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
 
-#: src/ui.c:1260
+#: src/ui.c:1283
 msgid "_Hide palette"
 msgstr ""
 

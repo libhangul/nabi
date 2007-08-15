@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-07-08 22:14+0900\n"
+"POT-Creation-Date: 2007-08-15 16:59+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
@@ -35,27 +35,27 @@ msgstr ""
 msgid "The orientation of the tray."
 msgstr ""
 
-#: src/server.c:52
+#: src/server.c:53
 msgid "2 set"
 msgstr "두벌식"
 
-#: src/server.c:53
+#: src/server.c:54
 msgid "3 set with 2 set layout"
 msgstr "세벌식 두벌 자판"
 
-#: src/server.c:54
+#: src/server.c:55
 msgid "3 set final"
 msgstr "세벌식 최종"
 
-#: src/server.c:55
+#: src/server.c:56
 msgid "3 set 390"
 msgstr "세벌식 390"
 
-#: src/server.c:56
+#: src/server.c:57
 msgid "3 set no-shift"
 msgstr "세벌식 순아래"
 
-#: src/server.c:57
+#: src/server.c:58
 msgid "3 set yetguel"
 msgstr "세벌식 옛글"
 
@@ -140,15 +140,35 @@ msgstr "키입력 통계"
 msgid "_Show palette"
 msgstr "팔레트 보이기(_S)"
 
-#: src/ui.c:1141
+#: src/ui.c:1120
+msgid ""
+"<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
+"\n"
+"There are some errors on loading tray icons.\n"
+"Nabi will use default builtin icons and the theme will be changed to default "
+"value.\n"
+"Please change the theme settings."
+msgstr ""
+"<span size=\"x-large\" weight=\"bold\">상태 아이콘을 로딩할 수 없습니다</"
+"span>\n"
+"\n"
+"상태 아이콘을 로딩하는데 오류가 있습니다.\n"
+"내장 아이콘을 사용하겠습니다. 테마는 기본값으로 바뀌게 됩니다.\n"
+"테마 설정을 바꿔주시기 바랍니다."
+
+#: src/ui.c:1127
+msgid "Nabi: error message"
+msgstr "나비: 오류 메시지"
+
+#: src/ui.c:1164
 msgid "Hangul input method: Nabi"
 msgstr "한글 입력기: 나비"
 
-#: src/ui.c:1142
+#: src/ui.c:1165
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
-#: src/ui.c:1260
+#: src/ui.c:1283
 msgid "_Hide palette"
 msgstr "팔레트 숨기기(_H)"
 
