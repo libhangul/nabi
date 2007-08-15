@@ -1,12 +1,6 @@
 simplyreddir= @NABI_THEMES_DIR@/SimplyRed
 simplyred_DATA = SimplyRed/none.png SimplyRed/hangul.png SimplyRed/english.png
 
-mswindowsdir= @NABI_THEMES_DIR@/MSWindows
-mswindows_DATA = MSWindows/none.png MSWindows/hangul.png MSWindows/english.png
-
-mswindowsxpdir= @NABI_THEMES_DIR@/MSWindowsXP
-mswindowsxp_DATA = MSWindowsXP/none.png MSWindowsXP/hangul.png MSWindowsXP/english.png
-
 macdir= @NABI_THEMES_DIR@/Mac
 mac_DATA = Mac/README Mac/none.png Mac/hangul.png Mac/english.png
 
@@ -31,8 +25,6 @@ jini_DATA = Jini/README Jini/none.png Jini/hangul.png Jini/english.png \
 
 EXTRA_DIST = \
 	$(simplyred_DATA) \
-	$(mswindows_DATA) \
-	$(mswindowsxp_DATA) \
 	$(mac_DATA) \
 	$(onion_DATA) \
 	$(keyboard_DATA) \
