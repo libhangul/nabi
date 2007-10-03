@@ -1,9 +1,6 @@
 simplyreddir= @NABI_THEMES_DIR@/SimplyRed
 simplyred_DATA = SimplyRed/none.png SimplyRed/hangul.png SimplyRed/english.png
 
-macdir= @NABI_THEMES_DIR@/Mac
-mac_DATA = Mac/README Mac/none.png Mac/hangul.png Mac/english.png
-
 oniondir= @NABI_THEMES_DIR@/Onion
 onion_DATA = Onion/README Onion/none.png Onion/hangul.png Onion/english.png
 
@@ -25,7 +22,6 @@ jini_DATA = Jini/README Jini/none.png Jini/hangul.png Jini/english.png \
 
 EXTRA_DIST = \
 	$(simplyred_DATA) \
-	$(mac_DATA) \
 	$(onion_DATA) \
 	$(keyboard_DATA) \
 	$(kingsejong_DATA) \
