@@ -25,5 +25,6 @@ EXTRA_DIST = \
 	$(onion_DATA) \
 	$(keyboard_DATA) \
 	$(kingsejong_DATA) \
+	$(kingsejong2_DATA) \
 	$(tux_DATA) \
 	$(jini_DATA)
