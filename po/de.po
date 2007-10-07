@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-08-15 16:59+0900\n"
+"POT-Creation-Date: 2007-10-07 10:30+0900\n"
 "PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -64,50 +64,50 @@ msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
 msgid "3 set yetguel"
 msgstr "세벌식 옛글/ 3-fach alte Schrift"
 
-#: src/ui.c:600
+#: src/ui.c:606
 msgid "XIM Server is not running"
 msgstr "XIM Server (Dienst für Eingabe-Methode) läuft nicht"
 
-#: src/ui.c:611
+#: src/ui.c:617
 msgid "Total"
 msgstr "Total"
 
-#: src/ui.c:612
+#: src/ui.c:618
 msgid "Space"
 msgstr "Grösse"
 
-#: src/ui.c:613
+#: src/ui.c:619
 msgid "BackSpace"
 msgstr "Zurücktaste"
 
-#: src/ui.c:614
+#: src/ui.c:620
 msgid "Shift"
 msgstr "Grosstelltaste"
 
 #. choseong
-#: src/ui.c:617
+#: src/ui.c:623
 msgid "Choseong"
 msgstr "초성/Choseong"
 
 #. jungseong
-#: src/ui.c:631
+#: src/ui.c:637
 msgid "Jungseong"
 msgstr "중성/Jungseong"
 
 #. jongseong
-#: src/ui.c:652
+#: src/ui.c:658
 msgid "Jongseong"
 msgstr "종성/Jongseong"
 
-#: src/ui.c:676
+#: src/ui.c:682
 msgid "Nabi keypress statistics"
 msgstr "Tastenstatistik von Nabi"
 
-#: src/ui.c:720
+#: src/ui.c:726
 msgid "About Nabi"
 msgstr "Über Nabi"
 
-#: src/ui.c:738
+#: src/ui.c:744
 #, fuzzy, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
@@ -123,32 +123,32 @@ msgstr ""
 "Copyright © 2003-2006 최환진/Choe Hwanjin\n"
 "Deutsche Übersetzung: © 2006 Niklaus Giger"
 
-#: src/ui.c:750
+#: src/ui.c:756
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM Name</span>: "
 
-#: src/ui.c:756
+#: src/ui.c:762
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">Locale (Ländereinstellung)</span>: "
 
-#: src/ui.c:762
+#: src/ui.c:768
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">Encoding (Eingabe-Kodierung)</span>: "
 
-#: src/ui.c:768
+#: src/ui.c:774
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">Verbunden</span>: "
 
-#: src/ui.c:802
+#: src/ui.c:808
 msgid "Keypress Statistics"
 msgstr "Tastaturstatistik"
 
 #. palette menu
-#: src/ui.c:910
+#: src/ui.c:916
 msgid "_Show palette"
 msgstr ""
 
-#: src/ui.c:1120
+#: src/ui.c:1126
 msgid ""
 "<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
 "\n"
@@ -158,20 +158,20 @@ msgid ""
 "Please change the theme settings."
 msgstr ""
 
-#: src/ui.c:1127
+#: src/ui.c:1133
 msgid "Nabi: error message"
 msgstr ""
 
-#: src/ui.c:1164
+#: src/ui.c:1170
 msgid "Hangul input method: Nabi"
 msgstr "Hangul Eingabehilfe: Nabi"
 
-#: src/ui.c:1165
+#: src/ui.c:1171
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
 
-#: src/ui.c:1283
+#: src/ui.c:1289
 msgid "_Hide palette"
 msgstr ""
 

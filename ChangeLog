@@ -1,4 +1,94 @@
 ------------------------------------------------------------------------
+r640 | krisna | 2007-10-07 10:38:23 +0900 (Sun, 07 Oct 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/themes/Makefile.am
+
+kingsejong2를 dist 패키지에 추가
+
+------------------------------------------------------------------------
+r639 | krisna | 2007-10-03 23:17:46 +0900 (Wed, 03 Oct 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/themes/Makefile.am
+
+Mac 테마도 제거함 (라이센스 문제가 있을 수 있음)
+
+------------------------------------------------------------------------
+r638 | krisna | 2007-08-15 17:13:51 +0900 (Wed, 15 Aug 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/themes/Makefile.am
+
+MS-Windows 관련 테마 제거
+ * 라이센스상 문제의 소지가 있음
+
+------------------------------------------------------------------------
+r637 | krisna | 2007-08-15 17:12:20 +0900 (Wed, 15 Aug 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r636 | krisna | 2007-08-15 17:11:47 +0900 (Wed, 15 Aug 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+theme loading 실패할때 error 처리
+ * 오류 메시지 상자 출력 루틴 추가
+ * GtkWindow의 default icons 세팅 루틴을 에러 메시지 박스가 뜨기 전으로 옮김
+ * load_icon()에서 잘못된 메모리 관리 수정
+
+------------------------------------------------------------------------
+r635 | krisna | 2007-08-13 01:11:13 +0900 (Mon, 13 Aug 2007) | 3 lines
+Changed paths:
+   A /nabi/trunk/themes/KingSejong2
+   A /nabi/trunk/themes/KingSejong2/README
+   A /nabi/trunk/themes/KingSejong2/english.png
+   A /nabi/trunk/themes/KingSejong2/hangul.png
+   A /nabi/trunk/themes/KingSejong2/none.png
+   M /nabi/trunk/themes/Makefile.am
+
+KingSejong2 아이콘 추가
+Stefan Krämer <st.kraemer@gmail.com>님이 보내주신 것
+
+------------------------------------------------------------------------
+r634 | krisna | 2007-07-21 17:20:26 +0900 (Sat, 21 Jul 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/tables/Makefile.am
+   A /nabi/trunk/tables/symbol.txt
+
+candidate에 symbol table 추가:
+ 자음으로 기호 입력하는 기능 구현
+
+------------------------------------------------------------------------
+r633 | krisna | 2007-07-21 17:18:44 +0900 (Sat, 21 Jul 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+
+사용하지 않는 변수 제거
+
+------------------------------------------------------------------------
+r632 | krisna | 2007-07-08 23:25:59 +0900 (Sun, 08 Jul 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/Makefile.am
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+ChangeLog 생성룰 개선
+
+------------------------------------------------------------------------
+r631 | krisna | 2007-07-08 22:35:12 +0900 (Sun, 08 Jul 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
 r630 | krisna | 2007-07-08 00:27:04 +0900 (Sun, 08 Jul 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/src/preference.c
