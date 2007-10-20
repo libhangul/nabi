@@ -113,7 +113,7 @@
 0x00e7 0x0039   # XK_ccedilla           -> XK_9
 0x00e8 0x0037   # XK_egrave             -> XK_7
 0x00e9 0x0032   # XK_eacute             -> XK_2
-0x00f9 0x002c   # XK_ugrave             -> XK_comma
+0x00f9 0x0027   # XK_ugrave             -> XK_apostrophe
 0xfe52 0x005b   # XK_dead_circumflex    -> XK_bracketleft
 0xfe57 0x007b   # XK_dead_diaeresis     -> XK_braceleft
 
