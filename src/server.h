@@ -133,6 +133,7 @@ struct _NabiServer {
     Bool                    commit_by_word;
     Bool                    auto_reorder;
     Bool                    show_status;
+    Bool                    use_simplified_chinese;
     NabiInputMode           input_mode;
     GdkColor                preedit_fg;
     GdkColor                preedit_bg;
@@ -182,6 +183,7 @@ void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
 void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
 void        nabi_server_set_global_input_mode(NabiServer* server, Bool state);
+void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
 void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);

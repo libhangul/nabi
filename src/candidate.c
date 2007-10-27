@@ -29,6 +29,7 @@
 #include "server.h"
 #include "candidate.h"
 #include "gettext.h"
+#include "util.h"
 #include "nabi.h"
 
 enum {
@@ -303,13 +304,21 @@ nabi_candidate_update_list(NabiCandidate *candidate)
 	const Hanja* hanja = candidate->data[candidate->first + i];
 	const char* value = hanja_get_value(hanja);
 	const char* comment = hanja_get_comment(hanja);
+	char* candidate_str;
+
+	if (nabi_server->use_simplified_chinese) {
+	    candidate_str = nabi_traditional_to_simplified(value);
+	} else {
+	    candidate_str = g_strdup(value);
+	}
 
 	gtk_list_store_append(candidate->store, &iter);
 	gtk_list_store_set(candidate->store, &iter,
 			   COLUMN_INDEX, (i + 1) % 10,
-			   COLUMN_CHARACTER, value,
+			   COLUMN_CHARACTER, candidate_str,
 			   COLUMN_COMMENT, comment,
 			   -1);
+	g_free(candidate_str);
     }
     nabi_candidate_set_window_position(candidate);
 }

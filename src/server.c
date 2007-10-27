@@ -150,6 +150,7 @@ nabi_server_new(const char *name)
 
     /* options */
     server->show_status = False;
+    server->use_simplified_chinese = False;
     server->preedit_fg.pixel = 0;
     server->preedit_fg.red = 0xffff;
     server->preedit_fg.green = 0;
@@ -871,6 +872,12 @@ void
 nabi_server_set_global_input_mode(NabiServer* server, Bool state)
 {
     server->global_input_mode = state;
+}
+
+void
+nabi_server_set_simplified_chinese(NabiServer* server, Bool state)
+{
+    server->use_simplified_chinese = state;
 }
 
 void

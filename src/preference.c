@@ -713,6 +713,15 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
     gtk_widget_destroy(dialog);
 }
 
+static void
+on_simplified_chinese_toggled(GtkToggleButton* button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    config->use_simplified_chinese = flag;
+    nabi_server_set_simplified_chinese(nabi_server, flag);
+}
+
 static GtkWidget*
 create_candidate_page(void)
 {
@@ -736,9 +745,6 @@ create_candidate_page(void)
     /* options for candidate */
     vbox1 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
 
     label = gtk_label_new("");
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
@@ -821,6 +827,36 @@ create_candidate_page(void)
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
 		 G_CALLBACK(on_candidate_key_remove_button_clicked),treeview);
+
+    /* options for candidate option */
+    vbox1 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Hanja Options</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
+
+    hbox2 = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
+
+    button = gtk_check_button_new_with_label(_("Use simplified chinese"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->use_simplified_chinese);
+    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_simplified_chinese_toggled), NULL);
 
     return page;
 }

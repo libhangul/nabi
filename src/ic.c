@@ -36,6 +36,7 @@
 #include "server.h"
 #include "fontset.h"
 #include "debug.h"
+#include "util.h"
 #include "nabi.h"
 
 static void nabi_ic_preedit_configure(NabiIC *ic);
@@ -1735,15 +1736,29 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
     }
 
     if (strlen(value) > 0) {
+	char* modified_value;
 	char* candidate;
+
+	if (nabi_server->use_simplified_chinese) {
+	    modified_value = nabi_traditional_to_simplified(value);
+	    if (!nabi_connection_is_valid_str(ic->connection, modified_value)) {
+		g_free(modified_value);
+		modified_value = g_strdup(value);
+	    }
+	} else {
+	    modified_value = g_strdup(value);
+	}
+
 	if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
-	    candidate = g_strdup_printf("%s(%s)", value, key);
+	    candidate = g_strdup_printf("%s(%s)", modified_value, key);
 	else if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
-	    candidate = g_strdup_printf("%s(%s)", key, value);
+	    candidate = g_strdup_printf("%s(%s)", key, modified_value);
 	else
-	    candidate = g_strdup_printf("%s", value);
+	    candidate = g_strdup_printf("%s", modified_value);
 
 	nabi_ic_commit_utf8(ic, candidate);
+
+	g_free(modified_value);
 	g_free(candidate);
     }
 

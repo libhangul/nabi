@@ -46,6 +46,7 @@ struct _NabiConfig {
     gboolean        commit_by_word;
     gboolean        auto_reorder;
     gboolean        global_input_mode;
+    gboolean        use_simplified_chinese;
 
     /* candidate options */
     gchar*	    candidate_font;

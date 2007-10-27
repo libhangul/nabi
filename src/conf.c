@@ -65,6 +65,7 @@ const static struct config_item config_items[] = {
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
     { "global_input_mode",  CONFIG_BOOL, OFFSET(global_input_mode)        },
+    { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
     { NULL,                 0,           0                                }
 };
 

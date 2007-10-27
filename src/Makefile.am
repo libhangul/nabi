@@ -26,6 +26,7 @@ nabi_SOURCES = \
 	ui.c \
 	preference.c \
 	handlebox.h handlebox.c \
+	sctc.h util.h util.c \
 	main.c
 
 nabi_LDFLAGS = @LIBHANGUL_LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lX11 @GTK_LIBS@ 
