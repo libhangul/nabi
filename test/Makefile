@@ -4,7 +4,7 @@ CFLAGS = -I/usr/X11R6/include -Wall -g
 CXXFLAGS = -I/usr/X11R6/include -Wall -g
 LIBS = -L/usr/X11R6/lib -lX11
 
-all: xlib gtk gtk1 qt
+all: xlib gtk gtk1 qt xim_filter.so
 
 clean:
 	rm -f xlib gtk1 gtk qt
@@ -20,3 +20,6 @@ gtk: gtk.c
 
 qt: qt.cpp
 	g++ -Wall -I$(QTDIR)/include -L$(QTDIR)/lib -lqt-mt qt.cpp -o qt
+
+xim_filter.so: xim_filter.c
+	gcc -Wall -g -shared -fPIC xim_filter.c -o xim_filter.so -ldl
