@@ -438,7 +438,7 @@ nabi_state_icon_load_scaled(GtkWidget* image,
     } else if (w > 0 && h < 0) { 
 	factor = (double)w / (double)orig_width;
 	new_width = w;
-	new_height = h * factor;
+	new_height = orig_height * factor;
     } else {
 	factor = MIN((double)w / (double)orig_width,
 		     (double)h / (double)orig_height);
