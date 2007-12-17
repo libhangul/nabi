@@ -420,7 +420,6 @@ nabi_state_icon_load_scaled(GtkWidget* image,
     int orig_height;
     int new_width;
     int new_height;
-    GdkInterpType scale_method = GDK_INTERP_NEAREST;
     double factor;
     GdkPixbuf* scaled;
 
@@ -433,12 +432,12 @@ nabi_state_icon_load_scaled(GtkWidget* image,
 	new_height = orig_height;
     } else if (w < 0 && h > 0) {
 	factor = (double)h / (double)orig_height;
-	new_width = orig_width * factor;
+	new_width = orig_width * factor + 0.5; // 반올림
 	new_height = h;
     } else if (w > 0 && h < 0) { 
 	factor = (double)w / (double)orig_width;
 	new_width = w;
-	new_height = orig_height * factor;
+	new_height = orig_height * factor + 0.5; // 반올림
     } else {
 	factor = MIN((double)w / (double)orig_width,
 		     (double)h / (double)orig_height);
@@ -446,11 +445,13 @@ nabi_state_icon_load_scaled(GtkWidget* image,
 	new_height = h;
     }
 
-    scale_method = factor < 1 ? GDK_INTERP_BILINEAR :GDK_INTERP_NEAREST;
     scaled = gdk_pixbuf_scale_simple(pixbuf, new_width, new_height,
-				     scale_method);
+				     GDK_INTERP_TILES);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image), scaled);
     g_object_unref(G_OBJECT(scaled));
+
+    nabi_log(3, "icon resize: %dx%d -> %dx%d\n",
+	    orig_width, orig_height, new_width, new_height);
 }
 
 static void
