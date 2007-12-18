@@ -1036,25 +1036,27 @@ preference_window_create(void)
     child = create_theme_page();
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* keyboard */
-    label = gtk_label_new(_("Keyboard"));
-    child = create_keyboard_page();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+    if (nabi_server != NULL) {
+	/* keyboard */
+	label = gtk_label_new(_("Keyboard"));
+	child = create_keyboard_page();
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* key */
-    label = gtk_label_new(_("Hangul"));
-    child = create_hangul_page();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+	/* key */
+	label = gtk_label_new(_("Hangul"));
+	child = create_hangul_page();
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* candidate */
-    label = gtk_label_new(_("Hanja"));
-    child = create_candidate_page();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+	/* candidate */
+	label = gtk_label_new(_("Hanja"));
+	child = create_candidate_page();
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
-    /* advanced */
-    label = gtk_label_new(_("Advanced"));
-    child = create_advanced_page();
-    gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+	/* advanced */
+	label = gtk_label_new(_("Advanced"));
+	child = create_advanced_page();
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
+    }
 
     vbox = GTK_DIALOG(dialog)->vbox;
     gtk_box_pack_start(GTK_BOX(vbox), notebook, TRUE, TRUE, 0);
@@ -1063,7 +1065,7 @@ preference_window_create(void)
 		     G_CALLBACK(on_preference_destroy), NULL);
 
     //gtk_window_set_icon(GTK_WINDOW(dialog), default_icon);
-    gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 200);
+    gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 300);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CLOSE);
 
     list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));

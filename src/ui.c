@@ -753,55 +753,55 @@ on_menu_about(GtkWidget *widget)
     gtk_box_pack_start(GTK_BOX(vbox), comment, FALSE, TRUE, 0);
     gtk_widget_show(comment);
 
-    server_info = gtk_table_new(4, 2, TRUE);
-    label = gtk_label_new("");
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">XIM name</span>: "));
-    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 0, 1);
-
-    label = gtk_label_new("");
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Locale</span>: "));
-    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 1, 2);
-
-    label = gtk_label_new("");
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Encoding</span>: "));
-    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 2, 3);
-
-    label = gtk_label_new("");
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Connected</span>: "));
-    gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 3, 4);
-
-    label = gtk_label_new(nabi_server->name);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 0, 1);
-
-    label = gtk_label_new(setlocale(LC_CTYPE, NULL));
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 1, 2);
-
-    g_get_charset(&encoding);
-    label = gtk_label_new(encoding);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 2, 3);
-
-    snprintf(buf, sizeof(buf), "%d", g_slist_length(nabi_server->connections));
-    label = gtk_label_new(buf);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 3, 4);
-
-    gtk_box_pack_start(GTK_BOX(vbox), server_info, FALSE, TRUE, 5);
-    gtk_widget_show_all(server_info);
-
-    if (!nabi->status_only) {
+    if (nabi_server != NULL) {
 	GtkWidget *hbox;
 	GtkWidget *button;
+
+	server_info = gtk_table_new(4, 2, TRUE);
+	label = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label),
+		_("<span weight=\"bold\">XIM name</span>: "));
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 0, 1);
+
+	label = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label),
+		_("<span weight=\"bold\">Locale</span>: "));
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 1, 2);
+
+	label = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label),
+		_("<span weight=\"bold\">Encoding</span>: "));
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 2, 3);
+
+	label = gtk_label_new("");
+	gtk_label_set_markup(GTK_LABEL(label),
+		_("<span weight=\"bold\">Connected</span>: "));
+	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 0, 1, 3, 4);
+
+	label = gtk_label_new(nabi_server->name);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 0, 1);
+
+	label = gtk_label_new(setlocale(LC_CTYPE, NULL));
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 1, 2);
+
+	g_get_charset(&encoding);
+	label = gtk_label_new(encoding);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 2, 3);
+
+	snprintf(buf, sizeof(buf), "%d", g_slist_length(nabi_server->connections));
+	label = gtk_label_new(buf);
+	gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+	gtk_table_attach_defaults(GTK_TABLE(server_info), label, 1, 2, 3, 4);
+
+	gtk_box_pack_start(GTK_BOX(vbox), server_info, FALSE, TRUE, 5);
+	gtk_widget_show_all(server_info);
 
 	hbox = gtk_hbox_new(TRUE, 10);
 	gtk_box_pack_start(GTK_BOX(GTK_DIALOG(dialog)->vbox),
@@ -928,7 +928,7 @@ create_tray_icon_menu(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
     /* keyboard list */
-    if (!nabi->status_only) {
+    if (nabi_server != NULL) {
 	int i = 0;
 	const NabiHangulKeyboard* keyboards;
 	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
@@ -1057,7 +1057,7 @@ static void
 on_palette_realized(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
-    if (!nabi->status_only)
+    if (nabi_server != NULL)
 	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 

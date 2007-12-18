@@ -228,6 +228,9 @@ nabi_server_destroy(NabiServer *server)
 void
 nabi_server_set_hangul_keyboard(NabiServer *server, const char *id)
 {
+    if (server == NULL)
+	return;
+
     if (server->hangul_keyboard != NULL)
 	g_free(server->hangul_keyboard);
 
@@ -781,6 +784,9 @@ nabi_server_set_keyboard_layout(NabiServer *server, const char* name)
 {
     GList* list;
 
+    if (server != NULL)
+	return;
+
     if (strcmp(name, "none") == 0) {
 	server->layout = NULL;
 	return;
@@ -799,13 +805,19 @@ nabi_server_set_keyboard_layout(NabiServer *server, const char* name)
 const NabiHangulKeyboard*
 nabi_server_get_hangul_keyboard_list(NabiServer* server)
 {
-    return server->hangul_keyboard_list;
+    if (server != NULL)
+	return server->hangul_keyboard_list;
+
+    return NULL;
 }
 
 const char*
 nabi_server_get_keyboard_name_by_id(NabiServer* server, const char* id)
 {
     int i;
+
+    if (server == NULL)
+	return NULL;
 
     for (i = 0; server->hangul_keyboard_list[i].id != NULL; i++) {
 	if (strcmp(id, server->hangul_keyboard_list[i].id) == 0) {
@@ -846,38 +858,45 @@ nabi_server_normalize_keysym(NabiServer *server,
 void
 nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag)
 {
-    server->dynamic_event_flow = flag;
+    if (server != NULL)
+	server->dynamic_event_flow = flag;
 }
 
 void
 nabi_server_set_xim_name(NabiServer* server, const char* name)
 {
-    g_free(server->name);
-    server->name = g_strdup(name);
+    if (server != NULL) {
+	g_free(server->name);
+	server->name = g_strdup(name);
+    }
 }
 
 void
 nabi_server_set_commit_by_word(NabiServer* server, Bool flag)
 {
-    server->commit_by_word = flag;
+    if (server != NULL)
+	server->commit_by_word = flag;
 }
 
 void
 nabi_server_set_auto_reorder(NabiServer* server, Bool flag)
 {
-    server->auto_reorder = flag;
+    if (server != NULL)
+	server->auto_reorder = flag;
 }
 
 void
 nabi_server_set_global_input_mode(NabiServer* server, Bool state)
 {
-    server->global_input_mode = state;
+    if (server != NULL)
+	server->global_input_mode = state;
 }
 
 void
 nabi_server_set_simplified_chinese(NabiServer* server, Bool state)
 {
-    server->use_simplified_chinese = state;
+    if (server != NULL)
+	server->use_simplified_chinese = state;
 }
 
 void
