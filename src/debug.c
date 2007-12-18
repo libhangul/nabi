@@ -48,6 +48,8 @@ nabi_log(int level, const char* format, ...)
     if (level <= log_level) {
 	va_list ap;
 
+	fprintf(output_device, "Nabi(%d): ", level);
+
 	va_start(ap, format);
 	vfprintf(output_device, format, ap);
 	va_end(ap);

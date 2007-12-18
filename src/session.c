@@ -30,6 +30,7 @@
 
 #include <gtk/gtk.h>
 
+#include "debug.h"
 #include "server.h"
 #include "session.h"
 #include "nabi.h"
@@ -45,7 +46,7 @@ process_ice_messages(GIOChannel *channel,
 
     status = IceProcessMessages(ice_conn, NULL, NULL);
     if (status == IceProcessMessagesIOError) {
-	fprintf(stderr, "Nabi: ice message process error\n");
+	nabi_log(1, "ice message process error\n");
 	IceSetShutdownNegotiation(ice_conn, False);
 	IceCloseConnection(ice_conn);
     }
@@ -220,7 +221,7 @@ nabi_session_open(char *previos_id)
 					   sizeof(buf),
 					   buf);
     if (session_connection == NULL) {
-	fprintf(stderr, "Nabi: Session: %s\n", buf);
+	nabi_log(1, "session: %s\n", buf);
 	return;
     }
 
