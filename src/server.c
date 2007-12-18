@@ -856,6 +856,27 @@ nabi_server_normalize_keysym(NabiServer *server,
 }
 
 void
+nabi_server_toggle_input_mode(NabiServer* server)
+{
+    if (server == NULL)
+	return;
+
+    if (server->global_input_mode) {
+	if (server->input_mode == NABI_INPUT_MODE_DIRECT) {
+	    server->input_mode = NABI_INPUT_MODE_COMPOSE;
+	    if (server->mode_info_cb != NULL)
+		server->mode_info_cb(NABI_MODE_INFO_COMPOSE);
+	    nabi_log(1, "change input mode: compose\n");
+	} else {
+	    server->input_mode = NABI_INPUT_MODE_DIRECT;
+	    if (server->mode_info_cb != NULL)
+		server->mode_info_cb(NABI_MODE_INFO_DIRECT);
+	    nabi_log(1, "change input mode: direct\n");
+	}
+    }
+}
+
+void
 nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag)
 {
     if (server != NULL)

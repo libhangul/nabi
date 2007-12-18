@@ -75,8 +75,8 @@ typedef enum {
 
 enum {
     NABI_MODE_INFO_NONE,
-    NABI_MODE_INFO_ENGLISH,
-    NABI_MODE_INFO_HANGUL
+    NABI_MODE_INFO_DIRECT,
+    NABI_MODE_INFO_COMPOSE
 };
 
 typedef void (*NabiModeInfoCallback)(int);
@@ -171,6 +171,7 @@ void        nabi_server_set_keyboard_layout(NabiServer *server,
 					    const char* name);
 void        nabi_server_set_hangul_keyboard(NabiServer *server,
 					 const char *id);
+void        nabi_server_toggle_input_mode(NabiServer* server);
 
 void        nabi_server_set_mode_info_cb(NabiServer *server,
 					 NabiModeInfoCallback func);
