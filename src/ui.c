@@ -551,12 +551,7 @@ on_tray_icon_button_press(GtkWidget *widget,
 {
     static GtkWidget *menu = NULL;
 
-    if (event->type != GDK_BUTTON_PRESS)
-	return FALSE;
-
-    switch (event->button) {
-    case 1:
-    case 3:
+    if (event->type == GDK_BUTTON_PRESS) {
 	if (menu != NULL)
 	    gtk_widget_destroy(menu);
 	menu = create_tray_icon_menu();
@@ -564,8 +559,6 @@ on_tray_icon_button_press(GtkWidget *widget,
 		       nabi_menu_position_func, widget,
 		       event->button, event->time);
 	return TRUE;
-    default:
-	break;
     }
 
     return FALSE;
