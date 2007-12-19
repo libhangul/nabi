@@ -50,28 +50,11 @@ struct _NabiKeyboardLayout {
     GArray* table;
 };
 
-enum {
-    NABI_TRIGGER_KEY_HANGUL      = 1 << 0,
-    NABI_TRIGGER_KEY_SHIFT_SPACE = 1 << 1,
-    NABI_TRIGGER_KEY_ALT_R       = 1 << 2
-};
-
-enum {
-    NABI_CANDIDATE_KEY_HANJA  = 1 << 0,
-    NABI_CANDIDATE_KEY_F9     = 1 << 1,
-    NABI_CANDIDATE_KEY_CTRL_R = 1 << 2
-};
-
 typedef enum {
     NABI_OUTPUT_SYLLABLE,
     NABI_OUTPUT_JAMO,
     NABI_OUTPUT_MANUAL
 } NabiOutputMode;
-
-typedef enum {
-    NABI_KEYBOARD_2SET,
-    NABI_KEYBOARD_3SET
-} NabiKeyboardType;
 
 typedef enum {
     NABI_INPUT_MODE_PER_DESKTOP,
