@@ -212,18 +212,21 @@ nabi_config_new()
 void
 nabi_config_delete(NabiConfig* config)
 {
-    g_free(config->xim_name);
     g_free(config->theme);
+
+    g_free(config->trigger_keys);
+    g_free(config->candidate_keys);
 
     g_free(config->hangul_keyboard);
     g_free(config->latin_keyboard);
     g_free(config->keyboard_layouts_file);
 
-    g_free(config->trigger_keys);
-    g_free(config->candidate_keys);
+    g_free(config->xim_name);
+    g_free(config->output_mode);
 
     g_free(config->candidate_font);
-    g_free(config->output_mode);
+    g_free(config->candidate_format);
+
     g_free(config->preedit_fg);
     g_free(config->preedit_bg);
 

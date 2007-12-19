@@ -483,6 +483,8 @@ nabi_state_icon_destroy(NabiStateIcon* state)
 static void
 on_tray_icon_embedded(GtkWidget *widget, gpointer data)
 {
+    nabi_log(1, "tray icon is embedded\n");
+
     if (!nabi->config->show_palette) {
 	nabi_palette_hide(nabi_palette);
     }
@@ -745,6 +747,7 @@ on_menu_about(GtkWidget *widget)
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(vbox), comment, FALSE, TRUE, 0);
     gtk_widget_show(comment);
+    g_free(comment_str);
 
     if (nabi_server != NULL) {
 	GtkWidget *hbox;
