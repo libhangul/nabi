@@ -111,6 +111,7 @@ nabi_server_new(const char *name)
 
     server->xims = 0;
     server->widget = NULL;
+    server->root_window = NULL;
     server->display = NULL;
     server->window = 0;
     server->filter_mask = 0;
@@ -163,9 +164,6 @@ nabi_server_new(const char *name)
     server->preedit_bg.green = 0;
     server->preedit_bg.blue = 0;
     server->candidate_font = NULL;
-
-    /* mode info */
-    server->mode_info_cb = NULL;
 
     /* statistics */
     memset(&(server->statistics), 0, sizeof(server->statistics));
@@ -254,12 +252,19 @@ nabi_server_set_hangul_keyboard(NabiServer *server, const char *id)
 }
 
 void
-nabi_server_set_mode_info_cb(NabiServer *server, NabiModeInfoCallback func)
+nabi_server_set_mode_info(NabiServer *server, int state)
 {
+    guint32 data;
+
     if (server == NULL)
 	return;
 
-    server->mode_info_cb = func;
+    data = state;
+    gdk_property_change(server->root_window,
+			gdk_atom_intern ("_HANGUL_INPUT_MODE", FALSE),
+			gdk_atom_intern ("INTEGER", FALSE),
+			32, GDK_PROP_MODE_REPLACE,
+			(const guchar *)&data, 1);
 }
 
 void
@@ -553,6 +558,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
 
     server->xims = xims;
     server->widget = widget;
+    server->root_window = gdk_screen_get_root_window(gtk_widget_get_screen(widget));
     server->display = display;
     server->window = window;
 
@@ -909,13 +915,11 @@ nabi_server_toggle_input_mode(NabiServer* server)
     if (server->input_mode_option == NABI_INPUT_MODE_PER_DESKTOP) {
 	if (server->input_mode == NABI_INPUT_MODE_DIRECT) {
 	    server->input_mode = NABI_INPUT_MODE_COMPOSE;
-	    if (server->mode_info_cb != NULL)
-		server->mode_info_cb(NABI_MODE_INFO_COMPOSE);
+	    nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_COMPOSE);
 	    nabi_log(1, "change input mode: compose\n");
 	} else {
 	    server->input_mode = NABI_INPUT_MODE_DIRECT;
-	    if (server->mode_info_cb != NULL)
-		server->mode_info_cb(NABI_MODE_INFO_DIRECT);
+	    nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_DIRECT);
 	    nabi_log(1, "change input mode: direct\n");
 	}
     }

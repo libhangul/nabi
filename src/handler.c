@@ -202,8 +202,7 @@ nabi_handler_unset_ic_focus(XIMS ims, IMChangeFocusStruct *data)
     if (ic == NULL)
 	    return True;
 
-    if (nabi_server->mode_info_cb != NULL)
-	nabi_server->mode_info_cb(NABI_MODE_INFO_NONE);
+    nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_NONE);
 
     if (ic->candidate) {
 	nabi_candidate_delete(ic->candidate);

@@ -998,21 +998,6 @@ nabi_tray_update_state(NabiTrayIcon* tray, int state)
 	nabi_state_icon_update(tray->state, state);
 }
 
-static void
-nabi_set_input_mode_info (int state)
-{
-    long data = state;
-
-    if (nabi->root_window == NULL)
-	return;
-
-    gdk_property_change (nabi->root_window,
-		         gdk_atom_intern ("_HANGUL_INPUT_MODE", FALSE),
-		         gdk_atom_intern ("INTEGER", FALSE),
-		         32, GDK_PROP_MODE_REPLACE,
-		         (const guchar *)&data, 1);
-}
-
 static GdkFilterReturn
 root_window_event_filter (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
 {
@@ -1067,8 +1052,6 @@ static void
 on_palette_realized(GtkWidget *widget, gpointer data)
 {
     install_event_filter(widget);
-    if (nabi_server != NULL)
-	nabi_server_set_mode_info_cb(nabi_server, nabi_set_input_mode_info);
 }
 
 static GdkPixbuf*

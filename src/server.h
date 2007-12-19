@@ -84,6 +84,7 @@ struct _NabiServer {
     char*		    name;
     XIMS                    xims;
     GtkWidget*              widget;
+    GdkWindow*              root_window;
     Display*                display;
     Window                  window;
     long                    filter_mask;
@@ -130,9 +131,6 @@ struct _NabiServer {
     GdkColor                preedit_bg;
     gchar*		    candidate_font;
 
-    /* mode information */
-    NabiModeInfoCallback    mode_info_cb;
-
     /* statistics */
     struct NabiStatistics   statistics;
 };
@@ -164,8 +162,7 @@ void        nabi_server_set_hangul_keyboard(NabiServer *server,
 					 const char *id);
 void        nabi_server_toggle_input_mode(NabiServer* server);
 
-void        nabi_server_set_mode_info_cb(NabiServer *server,
-					 NabiModeInfoCallback func);
+void        nabi_server_set_mode_info(NabiServer *server, int state);
 void        nabi_server_set_output_mode (NabiServer *server,
 					 NabiOutputMode mode);
 void	    nabi_server_set_candidate_font(NabiServer *server,

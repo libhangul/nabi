@@ -1155,13 +1155,11 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_flush(ic);
 	nabi_ic_preedit_done(ic);
-	if (nabi_server->mode_info_cb != NULL)
-	    nabi_server->mode_info_cb(NABI_MODE_INFO_DIRECT);
+	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_DIRECT);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
 	nabi_ic_preedit_start(ic);
-	if (nabi_server->mode_info_cb != NULL)
-	    nabi_server->mode_info_cb(NABI_MODE_INFO_COMPOSE);
+	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_COMPOSE);
 	break;
     default:
 	break;
