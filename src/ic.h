@@ -35,6 +35,7 @@ typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
 typedef struct _NabiIC         NabiIC;
 typedef struct _NabiConnection NabiConnection;
+typedef struct _NabiToplevel   NabiToplevel;
 
 typedef enum {
     NABI_INPUT_MODE_DIRECT,
@@ -46,6 +47,12 @@ struct _NabiConnection {
     NabiInputMode  mode;
     GIConv         cd;
     GSList*        ic_list;
+};
+
+struct _NabiToplevel {
+    Window        id;
+    NabiInputMode mode;
+    unsigned int  ref;
 };
 
 struct _PreeditAttributes {
@@ -101,6 +108,7 @@ struct _NabiIC {
     PreeditAttributes   preedit;          /* preedit attributes */
 
     NabiConnection*     connection;
+    NabiToplevel*       toplevel;
 
     /* hangul data */
     NabiInputMode       mode;
@@ -116,6 +124,9 @@ NabiIC*      nabi_connection_create_ic(NabiConnection* conn,
 				       IMChangeICStruct* data);
 void         nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic);
 
+NabiToplevel* nabi_toplevel_new(Window id);
+void          nabi_toplevel_ref(NabiToplevel* toplevel);
+void          nabi_toplevel_unref(NabiToplevel* toplevel);
 
 NabiIC* nabi_ic_create(NabiConnection* conn, IMChangeICStruct *data);
 void    nabi_ic_destroy(NabiIC *ic);
@@ -126,6 +137,8 @@ void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 
 Bool    nabi_ic_is_empty(NabiIC *ic);
 CARD16  nabi_ic_get_id(NabiIC* ic);
+
+void    nabi_ic_set_focus(NabiIC *ic);
 
 void    nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode);
 

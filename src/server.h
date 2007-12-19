@@ -73,6 +73,13 @@ typedef enum {
     NABI_KEYBOARD_3SET
 } NabiKeyboardType;
 
+typedef enum {
+    NABI_INPUT_MODE_PER_DESKTOP,
+    NABI_INPUT_MODE_PER_APPLICATION,
+    NABI_INPUT_MODE_PER_TOPLEVEL,
+    NABI_INPUT_MODE_PER_IC
+} NabiInputModeOption;
+
 enum {
     NABI_MODE_INFO_NONE,
     NABI_MODE_INFO_DIRECT,
@@ -104,6 +111,7 @@ struct _NabiServer {
 
     /* xim connect list */
     GSList*                 connections;
+    GSList*                 toplevels;
 
     /* Input Context list */
     CARD16                  last_icid;
@@ -129,12 +137,12 @@ struct _NabiServer {
 
     /* options */
     Bool                    dynamic_event_flow;
-    Bool                    global_input_mode;
     Bool                    commit_by_word;
     Bool                    auto_reorder;
     Bool                    show_status;
     Bool                    use_simplified_chinese;
     NabiInputMode           input_mode;
+    NabiInputModeOption     input_mode_option;
     GdkColor                preedit_fg;
     GdkColor                preedit_bg;
     gchar*		    candidate_font;
@@ -183,7 +191,8 @@ void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
 void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
-void        nabi_server_set_global_input_mode(NabiServer* server, Bool state);
+void        nabi_server_set_input_mode_option(NabiServer* server,
+					      NabiInputModeOption flag);
 void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
@@ -198,6 +207,10 @@ NabiConnection* nabi_server_get_connection    (NabiServer *server,
 					       CARD16 connect_id);
 void            nabi_server_destroy_connection(NabiServer *server,
 					       CARD16 connect_id);
+
+NabiToplevel*   nabi_server_get_toplevel(NabiServer* server, Window id);
+void            nabi_server_remove_toplevel(NabiServer* server,
+					    NabiToplevel* toplevel);
 
 Bool        nabi_server_is_locale_supported(NabiServer *server,
 					    const char *locale);

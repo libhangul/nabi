@@ -899,12 +899,32 @@ on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
 }
 
 static void
-on_global_input_mode_button_toggled(GtkToggleButton *button, gpointer data)
+on_input_mode_option_changed(GtkComboBox* combo_box, gpointer data)
 {
-    gboolean flag = gtk_toggle_button_get_active(button);
+    NabiInputModeOption input_mode_option;
+    char* input_mode_option_str = NULL;
 
-    config->global_input_mode = flag;
-    nabi_server_set_global_input_mode(nabi_server, flag);
+    input_mode_option = (NabiInputModeOption)gtk_combo_box_get_active(combo_box);
+    
+    switch (input_mode_option) {
+    case NABI_INPUT_MODE_PER_DESKTOP:
+	input_mode_option_str = g_strdup("per_desktop");
+	break;
+    case NABI_INPUT_MODE_PER_APPLICATION:
+	input_mode_option_str = g_strdup("per_application");
+	break;
+    case NABI_INPUT_MODE_PER_IC:
+	input_mode_option_str = g_strdup("per_context");
+	break;
+    case NABI_INPUT_MODE_PER_TOPLEVEL:
+    default:
+	input_mode_option_str = g_strdup("per_toplevel");
+	break;
+    }
+
+    g_free(config->input_mode_option);
+    config->input_mode_option = input_mode_option_str;
+    nabi_server_set_input_mode_option(nabi_server, input_mode_option);
 }
 
 static GtkWidget*
@@ -918,6 +938,7 @@ create_advanced_page(void)
     GtkWidget *label;
     GtkWidget *button;
     GtkWidget *entry;
+    GtkWidget *combo_box;
 
     page = gtk_vbox_new(FALSE, 12);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -990,12 +1011,36 @@ create_advanced_page(void)
     hbox2 = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
 
-    button = gtk_check_button_new_with_label(_("Use global input mode"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
-			         config->global_input_mode);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
-    g_signal_connect(G_OBJECT(button), "toggled",
-		     G_CALLBACK(on_global_input_mode_button_toggled), NULL);
+
+    label = gtk_label_new(_("Input mode option: "));
+    gtk_box_pack_start(GTK_BOX(hbox2), label, FALSE, FALSE, 0);
+
+    combo_box = gtk_combo_box_new_text();
+    gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
+			NABI_INPUT_MODE_PER_DESKTOP, _("per desktop"));
+    gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
+			NABI_INPUT_MODE_PER_APPLICATION, _("per application"));
+    gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
+			NABI_INPUT_MODE_PER_TOPLEVEL, _("per toplevel"));
+    gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
+			NABI_INPUT_MODE_PER_IC, _("per context"));
+    if (strcmp(config->input_mode_option, "per_desktop") == 0)
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
+				 NABI_INPUT_MODE_PER_DESKTOP);
+    else if (strcmp(config->input_mode_option, "per_application") == 0)
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
+				NABI_INPUT_MODE_PER_APPLICATION);
+    else if (strcmp(config->input_mode_option, "per_context") == 0)
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
+				NABI_INPUT_MODE_PER_IC);
+    else
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
+				NABI_INPUT_MODE_PER_TOPLEVEL);
+
+    gtk_box_pack_start(GTK_BOX(hbox2), combo_box, FALSE, FALSE, 0);
+
+    g_signal_connect(G_OBJECT(combo_box), "changed",
+		     G_CALLBACK(on_input_mode_option_changed), NULL);
 
     return page;
 }

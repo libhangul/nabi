@@ -184,16 +184,9 @@ nabi_handler_set_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 	    (int)data->connect_id, (int)data->icid);
 
     if (ic == NULL)
-	    return True;
+	return True;
 
-    if (nabi_server->global_input_mode) {
-	nabi_ic_set_mode(ic, nabi_server->input_mode);
-    } else {
-	if (ic->connection != NULL)
-	    nabi_ic_set_mode(ic, ic->connection->mode);
-    }
-
-    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
+    nabi_ic_set_focus(ic);
 
     return True;
 }

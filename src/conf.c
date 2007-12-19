@@ -64,7 +64,7 @@ const static struct config_item config_items[] = {
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
-    { "global_input_mode",  CONFIG_BOOL, OFFSET(global_input_mode)        },
+    { "input_mode_option",  CONFIG_STR,  OFFSET(input_mode_option)        },
     { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
     { NULL,                 0,           0                                }
 };
@@ -198,13 +198,14 @@ nabi_config_new()
     config->candidate_format = g_strdup("hanja");
 
     config->output_mode = g_strdup("syllable");
+    config->input_mode_option = g_strdup("per_toplevel");
+
     config->preedit_fg = g_strdup("#000000");
     config->preedit_bg = g_strdup("#FFFFFF");
 
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
     config->auto_reorder = TRUE;
-    config->global_input_mode = TRUE;
 
     return config;
 }
@@ -223,6 +224,7 @@ nabi_config_delete(NabiConfig* config)
 
     g_free(config->xim_name);
     g_free(config->output_mode);
+    g_free(config->input_mode_option);
 
     g_free(config->candidate_font);
     g_free(config->candidate_format);

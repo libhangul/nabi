@@ -122,6 +122,9 @@ nabi_server_new(const char *name)
     /* connection list */
     server->connections = NULL;
 
+    /* toplevel window list */
+    server->toplevels = NULL;
+
     /* init IC table */
     server->last_icid = 0;
     server->freed_icid = NULL;
@@ -137,10 +140,10 @@ nabi_server_new(const char *name)
     server->hangul_keyboard_list = hangul_keyboard_list;
 
     server->dynamic_event_flow = True;
-    server->global_input_mode = True;
     server->commit_by_word = False;
     server->auto_reorder = True;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
+    server->input_mode_option = NABI_INPUT_MODE_PER_TOPLEVEL;
 
     /* hanja */
     server->hanja_table = NULL;
@@ -200,6 +203,19 @@ nabi_server_destroy(NabiServer *server)
 	server->ic_table[i] = NULL;
     }
     g_free(server->ic_table);
+
+    /* free remaining toplevel list */
+    if (server->toplevels != NULL) {
+	item = server->toplevels;
+	while (item != NULL) {
+	    NabiToplevel* toplevel = (NabiToplevel*)item->data;
+	    nabi_log(3, "remove remaining toplevel: 0x%x\n", toplevel->id);
+	    g_free(item->data);
+	    item = g_slist_next(item);
+	}
+	g_slist_free(server->toplevels);
+	server->toplevels = NULL;
+    }
 
     /* free remaining fontsets */
     nabi_fontset_free_all(server->display);
@@ -603,6 +619,35 @@ nabi_server_destroy_connection(NabiServer *server, CARD16 connect_id)
     nabi_connection_destroy(conn);
 }
 
+NabiToplevel*
+nabi_server_get_toplevel(NabiServer* server, Window id)
+{
+    NabiToplevel* toplevel;
+    GSList* item;
+
+    item = server->toplevels;
+    while (item != NULL) {
+	NabiToplevel* toplevel = (NabiToplevel*)item->data;
+	if (toplevel != NULL && toplevel->id == id) {
+	    nabi_toplevel_ref(toplevel);
+	    return toplevel;
+	}
+	item = g_slist_next(item);
+    }
+
+    toplevel = nabi_toplevel_new(id);
+    server->toplevels = g_slist_prepend(server->toplevels, toplevel);
+
+    return toplevel;
+}
+
+void
+nabi_server_remove_toplevel(NabiServer* server, NabiToplevel* toplevel)
+{
+    if (server != NULL && server->toplevels != NULL)
+	server->toplevels = g_slist_remove(server->toplevels, toplevel);
+}
+
 Bool
 nabi_server_is_locale_supported(NabiServer *server, const char *locale)
 {
@@ -861,7 +906,7 @@ nabi_server_toggle_input_mode(NabiServer* server)
     if (server == NULL)
 	return;
 
-    if (server->global_input_mode) {
+    if (server->input_mode_option == NABI_INPUT_MODE_PER_DESKTOP) {
 	if (server->input_mode == NABI_INPUT_MODE_DIRECT) {
 	    server->input_mode = NABI_INPUT_MODE_COMPOSE;
 	    if (server->mode_info_cb != NULL)
@@ -907,10 +952,10 @@ nabi_server_set_auto_reorder(NabiServer* server, Bool flag)
 }
 
 void
-nabi_server_set_global_input_mode(NabiServer* server, Bool state)
+nabi_server_set_input_mode_option(NabiServer* server, NabiInputModeOption flag)
 {
     if (server != NULL)
-	server->global_input_mode = state;
+	server->input_mode_option = flag;
 }
 
 void

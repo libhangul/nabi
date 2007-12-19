@@ -171,6 +171,37 @@ nabi_connection_is_valid_str(NabiConnection* conn, const char* str)
     return True;
 }
 
+NabiToplevel*
+nabi_toplevel_new(Window id)
+{
+    NabiToplevel* toplevel = g_new(NabiToplevel, 1);
+
+    toplevel->id = id;
+    toplevel->mode = NABI_INPUT_MODE_DIRECT;
+    toplevel->ref = 1;
+
+    return toplevel;
+}
+
+void
+nabi_toplevel_ref(NabiToplevel* toplevel)
+{
+    if (toplevel != NULL)
+	toplevel->ref++;
+}
+
+void
+nabi_toplevel_unref(NabiToplevel* toplevel)
+{
+    if (toplevel != NULL) {
+	toplevel->ref--;
+	if (toplevel->ref <= 0) {
+	    nabi_server_remove_toplevel(nabi_server, toplevel);
+	    g_free(toplevel);
+	}
+    }
+}
+
 static void
 nabi_ic_init_values(NabiIC *ic)
 {
@@ -235,6 +266,8 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->candidate = NULL;
 
+    ic->toplevel = NULL;
+
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
     hangul_ic_connect_callback(ic->hic, "translate",
 			       nabi_ic_hic_on_translate, ic);
@@ -298,6 +331,11 @@ nabi_ic_destroy(NabiIC *ic)
     if (ic->candidate != NULL) {
 	nabi_candidate_delete(ic->candidate);
 	ic->candidate = NULL;
+    }
+
+    if (ic->toplevel != NULL) {
+	nabi_toplevel_unref(ic->toplevel);
+	ic->toplevel = NULL;
     }
 
     if (ic->hic != NULL) {
@@ -681,6 +719,48 @@ nabi_ic_preedit_window_new(NabiIC *ic)
 }
 
 static void
+nabi_ic_set_client_window(NabiIC* ic, Window client_window)
+{
+    Status s;
+    Window w;
+    Window root = None;
+    Window parent = None;
+    Window* children = NULL;
+    unsigned int  nchildren = 0;
+
+    ic->client_window = client_window;
+    
+    w = client_window;
+    s = XQueryTree(nabi_server->display, w,
+		   &root, &parent, &children, &nchildren);
+    if (s) {
+	while (parent != root) {
+	    if (children != NULL) {
+		XFree(children);
+		children = NULL;
+	    }
+
+	    w = parent;
+	    s = XQueryTree(nabi_server->display, w,
+			   &root, &parent, &children, &nchildren);
+	    if (!s)
+		break;
+	}
+	if (children != NULL) {
+	    XFree(children);
+	    children = NULL;
+	}
+    }
+
+    nabi_log(3, "ic: %d-%d, toplevel: %x\n", ic->id, ic->connection->id, w);
+
+    if (ic->toplevel != NULL)
+	nabi_toplevel_unref(ic->toplevel);
+
+    ic->toplevel = nabi_server_get_toplevel(nabi_server, w);
+}
+
+static void
 nabi_ic_set_focus_window(NabiIC *ic, Window focus_window)
 {
     ic->focus_window = focus_window;
@@ -802,7 +882,7 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	if (streql(XNInputStyle, ic_attr->name)) {
 	    ic->input_style = *(INT32*)ic_attr->value;
 	} else if (streql(XNClientWindow, ic_attr->name)) {
-	    ic->client_window = *(Window*)ic_attr->value;
+	    nabi_ic_set_client_window(ic, *(Window*)ic_attr->value);
 	} else if (streql(XNFocusWindow, ic_attr->name)) {
 	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
 	} else {
@@ -1023,16 +1103,53 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
 }
 
 void
+nabi_ic_set_focus(NabiIC* ic)
+{
+    NabiInputMode mode = ic->mode;
+
+    switch (nabi_server->input_mode_option) {
+    case NABI_INPUT_MODE_PER_DESKTOP:
+	mode = nabi_server->input_mode;
+	break;
+    case NABI_INPUT_MODE_PER_APPLICATION:
+	if (ic->connection != NULL)
+	    mode = ic->connection->mode;
+	break;
+    case NABI_INPUT_MODE_PER_TOPLEVEL:
+	if (ic->toplevel != NULL)
+	    mode = ic->toplevel->mode;
+	break;
+    case NABI_INPUT_MODE_PER_IC:
+    default:
+	break;
+    }
+
+    nabi_ic_set_mode(ic, mode);
+
+    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
+}
+
+void
 nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 {
-    ic->mode = mode;
-
-    if (nabi_server->global_input_mode) {
+    switch (nabi_server->input_mode_option) {
+    case NABI_INPUT_MODE_PER_DESKTOP:
 	nabi_server->input_mode = mode;
-    } else {
+	break;
+    case NABI_INPUT_MODE_PER_APPLICATION:
 	if (ic->connection != NULL)
 	    ic->connection->mode = mode;
+	break;
+    case NABI_INPUT_MODE_PER_TOPLEVEL:
+	if (ic->toplevel != NULL)
+	    ic->toplevel->mode = mode;
+	break;
+    case NABI_INPUT_MODE_PER_IC:
+    default:
+	break;
     }
+
+    ic->mode = mode;
 
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:

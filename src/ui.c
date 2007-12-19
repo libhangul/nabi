@@ -299,6 +299,7 @@ nabi_app_setup_server(void)
 {
     const char *locale;
     char **keys;
+    const char* option;
 
     if (nabi->status_only)
 	return;
@@ -339,10 +340,23 @@ nabi_app_setup_server(void)
 				       nabi->config->use_dynamic_event_flow);
     nabi_server_set_commit_by_word(nabi_server, nabi->config->commit_by_word);
     nabi_server_set_auto_reorder(nabi_server, nabi->config->auto_reorder);
-    nabi_server_set_global_input_mode(nabi_server,
-				      nabi->config->global_input_mode);
     nabi_server_set_simplified_chinese(nabi_server,
 				       nabi->config->use_simplified_chinese);
+
+    option = nabi->config->input_mode_option;
+    if (strcmp(option, "per_desktop") == 0) {
+	nabi_server_set_input_mode_option(nabi_server,
+					  NABI_INPUT_MODE_PER_DESKTOP);
+    } else if (strcmp(option, "per_application") == 0) {
+	nabi_server_set_input_mode_option(nabi_server,
+					  NABI_INPUT_MODE_PER_APPLICATION);
+    } else if (strcmp(option, "per_ic") == 0) {
+	nabi_server_set_input_mode_option(nabi_server,
+					  NABI_INPUT_MODE_PER_IC);
+    } else {
+	nabi_server_set_input_mode_option(nabi_server,
+					  NABI_INPUT_MODE_PER_TOPLEVEL);
+    }
 }
 
 void
