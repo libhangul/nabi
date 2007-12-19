@@ -53,5 +53,7 @@ nabi_log(int level, const char* format, ...)
 	va_start(ap, format);
 	vfprintf(output_device, format, ap);
 	va_end(ap);
+
+	fflush(output_device);
     }
 }
