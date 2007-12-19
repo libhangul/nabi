@@ -289,6 +289,10 @@ static void
 egg_tray_icon_update_manager_window (EggTrayIcon *icon)
 {
   Display *xdisplay;
+
+  /* #300760 참조 */
+  if (!GTK_IS_WIDGET(icon))
+    return;
   
   xdisplay = GDK_DISPLAY_XDISPLAY (gtk_widget_get_display (GTK_WIDGET (icon)));
   
