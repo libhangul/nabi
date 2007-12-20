@@ -566,6 +566,8 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     gdk_gc_set_foreground(server->gc, &(server->preedit_fg));
     gdk_gc_set_background(server->gc, &(server->preedit_bg));
 
+    server->start_time = time(NULL);
+
     nabi_log(1, "xim server started\n");
 
     return 0;
@@ -986,14 +988,20 @@ nabi_server_write_log(NabiServer *server)
     if (file != NULL) {
 	int i, sum;
 	time_t current_time;
-	struct tm current_tm;
-	char date[256] = { '\0', };
+	struct tm local_time;
+	char buf[256] = { '\0', };
+
+	localtime_r(&server->start_time, &local_time);
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &local_time);
+	fprintf(file, "%s - ", buf);
 
 	current_time = time(NULL);
-	localtime_r(&current_time, &current_tm);
-	strftime(date, sizeof(date), "%Y-%m-%d %H:%M:%S", &current_tm);
+	localtime_r(&current_time, &local_time);
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &local_time);
 
-	fprintf(file, "%s\n", date);
+	fprintf(file, "%s", buf);
+	fprintf(file, " (%ds)\n", (int)(current_time - server->start_time));
+
 	fprintf(file, "total: %d\n", server->statistics.total);
 	fprintf(file, "space: %d\n", server->statistics.space);
 	fprintf(file, "backspace: %d\n", server->statistics.backspace);

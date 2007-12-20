@@ -25,6 +25,8 @@
 
 #include <X11/Xlib.h>
 #include <wchar.h>
+#include <time.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 
@@ -132,6 +134,7 @@ struct _NabiServer {
     gchar*		    candidate_font;
 
     /* statistics */
+    time_t                  start_time;
     struct NabiStatistics   statistics;
 };
 
