@@ -1,4 +1,230 @@
 ------------------------------------------------------------------------
+r664 | krisna | 2007-12-23 16:21:52 +0900 (Sun, 23 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+nabi 0.99.0 작업 준비
+
+------------------------------------------------------------------------
+r663 | krisna | 2007-12-23 16:15:04 +0900 (Sun, 23 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/IMdkit/i18nAttr.c
+
+컴파일러 워닝 방지
+
+------------------------------------------------------------------------
+r662 | krisna | 2007-12-23 13:42:29 +0900 (Sun, 23 Dec 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+같은 이름의 xim이 이미 작동중인지 확인하는 코드 추가
+ * nabi_server_is_running() 추가
+ * nabi_server가 생성되었는지에 따라 코드가 작동하도록 수정
+
+------------------------------------------------------------------------
+r661 | krisna | 2007-12-21 00:23:49 +0900 (Fri, 21 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+로그 함수 개선: 시작시간과 끝나는 시간을 모두 기록
+
+------------------------------------------------------------------------
+r660 | krisna | 2007-12-20 23:40:21 +0900 (Thu, 20 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r659 | krisna | 2007-12-20 00:33:04 +0900 (Thu, 20 Dec 2007) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/handler.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+input mode info:
+ * input mode 정보를 업데이트 하는 코드를 ui.c 에서 NabiServer 쪽으로 옮김
+ * NabiServer에서 mode_info_cb를 삭제하고 그와 관련된 코드도 삭제
+ * nabi_server_set_mode_info()를 사용하여 상태 업데이트
+
+
+------------------------------------------------------------------------
+r658 | krisna | 2007-12-20 00:10:21 +0900 (Thu, 20 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/server.h
+
+필요 없는 데이터타입 제거
+
+------------------------------------------------------------------------
+r657 | krisna | 2007-12-20 00:07:51 +0900 (Thu, 20 Dec 2007) | 10 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/handler.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+입력 모드 관리 옵션 구현:
+ * 입력 모드를 per desktop, per application, per toplevel, per context로 
+   세분하여 구현함
+ * toplevel 별로 입력 모드를 관리하는 기능 구현
+ * 입력 모드 관리 방법에 따른 옵션 조정 ui 추가
+ * NabiServer에 toplevel 리스트 추가
+ * NabiIC에 관련 함수 구현(NabiToplevel 추가)
+   client_window에서 toplevel window 찾는 루틴 구현
+ * global_input_mode 옵션 제거
+
+------------------------------------------------------------------------
+r656 | krisna | 2007-12-19 16:13:45 +0900 (Wed, 19 Dec 2007) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/eggtrayicon.c
+
+notification area 프로그램이 갑자기 죽는 경우 처리
+ * peksystray로 여러번 테스트해봤지만, 이제는 죽는 현상은 발생하지 않고
+   작동하는 것으로 나와서 처리할 방법이 애매하여 등록된 버그에 올라온 패치를
+   적용하는 것으로 마무리함
+ * 참고: [#300760] E16.8의 systray 사용후 E restart시 nabi 죽는 문제
+
+------------------------------------------------------------------------
+r655 | krisna | 2007-12-19 15:49:53 +0900 (Wed, 19 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/ui.c
+
+memory leak 수정
+
+------------------------------------------------------------------------
+r654 | krisna | 2007-12-19 15:49:32 +0900 (Wed, 19 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/debug.c
+
+디버그 메시지 출력 개선 (flush)
+
+------------------------------------------------------------------------
+r653 | krisna | 2007-12-18 18:00:35 +0900 (Tue, 18 Dec 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+ * nabi_server_toggle_input_mode() 함수 구현
+ * NABI_MODE_INFO_ENGLISH -> NABI_MODE_INFO_DIRECT
+ * NABI_MODE_INFO_HANGUL -> NABI_MODE_INFO_COMPOSE
+
+------------------------------------------------------------------------
+r652 | krisna | 2007-12-18 17:59:21 +0900 (Tue, 18 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+tray icon을 마우스의 아무 버튼으로나 클릭해도 메뉴가 나오게 함
+
+------------------------------------------------------------------------
+r651 | krisna | 2007-12-18 15:17:17 +0900 (Tue, 18 Dec 2007) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/debug.c
+   M /nabi/trunk/src/session.c
+
+디버그 메시지 출력 변경:
+ * 디버그 메시지 출력 포맷 변경
+ * session 관련 메시지 디버그출력 루틴 사용
+
+------------------------------------------------------------------------
+r650 | krisna | 2007-12-18 14:37:45 +0900 (Tue, 18 Dec 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/ui.c
+
+--status-only (-s) 옵션을 사용한 경우 처리
+
+------------------------------------------------------------------------
+r649 | krisna | 2007-12-17 21:10:14 +0900 (Mon, 17 Dec 2007) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+아이콘 리사이징 루틴 개선
+ * 크기 계산할때 반올림 처리
+ * 리사이징 옵션 GDK_INTERP_TILES으로 변경
+ * 디버그 메시지 출력
+
+------------------------------------------------------------------------
+r648 | krisna | 2007-12-17 21:02:16 +0900 (Mon, 17 Dec 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ui.c
+
+세로 패널에 아이콘이 들어갈 경우 크기 계산에서 오류 발생하는 문제 수정
+참고: #304681
+
+------------------------------------------------------------------------
+r647 | krisna | 2007-10-29 00:38:19 +0900 (Mon, 29 Oct 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/test/Makefile
+   A /nabi/trunk/test/xim_filter.c
+
+XIM api 호출 테스트를 위한 코드 추가
+
+------------------------------------------------------------------------
+r646 | krisna | 2007-10-28 00:52:16 +0900 (Sun, 28 Oct 2007) | 7 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+   M /nabi/trunk/src/Makefile.am
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/preference.c
+   A /nabi/trunk/src/sctc.h
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+   A /nabi/trunk/src/util.c
+   A /nabi/trunk/src/util.h
+
+간체자 입력 기능 구현:
+ * 설정창 한자탭에 "간체자로 입력" 옵션 추가
+ * config에 use_simplified_chinese 옵션 추가
+ * util.c util.h sctc.h를 추가하고 nabi_traditional_to_simplified() 함수를
+   이용하여 간체자와 번체자간 변환을 처리
+ * 옵션에 대한 번역 업데이트
+
+------------------------------------------------------------------------
+r645 | krisna | 2007-10-20 23:17:04 +0900 (Sat, 20 Oct 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/tables/keyboard_layouts
+
+#304587 프랑스어 자판 버그 수정 ( ugrave -> apostrophe )
+
+------------------------------------------------------------------------
+r642 | krisna | 2007-10-07 10:41:56 +0900 (Sun, 07 Oct 2007) | 3 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/NEWS
+   M /nabi/trunk/TODO
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+문서 업데이트
+번역 업데이트
+
+------------------------------------------------------------------------
+r641 | krisna | 2007-10-07 10:39:40 +0900 (Sun, 07 Oct 2007) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+0.19 버젼 작업
+
+------------------------------------------------------------------------
 r640 | krisna | 2007-10-07 10:38:23 +0900 (Sun, 07 Oct 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/themes/Makefile.am
