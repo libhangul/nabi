@@ -501,6 +501,28 @@ nabi_server_is_candidate_key(NabiServer* server, KeySym key, unsigned int state)
 			      key, state);
 }
 
+Bool
+nabi_server_is_running(const char* name)
+{
+    Display* display;
+    Atom atom;
+    Window owner;
+    char atom_name[64];
+
+    display = gdk_x11_get_default_xdisplay();
+
+    snprintf(atom_name, sizeof(atom_name), "@server=%s", name);
+
+    atom = XInternAtom(display, atom_name, True);
+    if (atom != None) { 
+	owner = XGetSelectionOwner(display, atom);
+	if (owner != None)
+	    return True;
+    }
+
+    return False;
+}
+
 int
 nabi_server_start(NabiServer *server, GtkWidget *widget)
 {
@@ -540,7 +562,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     g_free(locales);
 
     if (xims == NULL) {
-	fprintf(stderr, "Nabi: Can't open Input Method Service\n");
+	nabi_log(1, "can't open input method service\n");
 	exit(1);
     }
 

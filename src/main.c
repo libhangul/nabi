@@ -93,10 +93,6 @@ main(int argc, char *argv[])
     XSetErrorHandler(nabi_x_error_handler);
     XSetIOErrorHandler(nabi_x_io_error_handler);
 
-#ifdef HAVE_LIBSM
-    nabi_session_open(nabi->session_id);
-#endif
-
     if (!nabi->status_only) {
 	char *xim_name;
 	/* we prefer command line option as default xim name */
@@ -104,31 +100,43 @@ main(int argc, char *argv[])
 	    xim_name = nabi->xim_name;
 	else
 	    xim_name = nabi->config->xim_name;
+
+	if (nabi_server_is_running(xim_name)) {
+	    nabi_log(1, "xim %s is already running\n", xim_name);
+	    goto quit;
+	}
+
 	nabi_server = nabi_server_new(xim_name);
 	nabi_server_init(nabi_server);
+	nabi_app_setup_server();
     }
 
-    nabi_app_setup_server();
-
     widget = nabi_app_create_palette();
-    g_signal_connect_after(G_OBJECT(widget), "realize",
-	    	           G_CALLBACK(on_realize), nabi_server);
-    g_signal_connect_after(G_OBJECT(widget), "destroy",
-	    	           G_CALLBACK(on_destroy), nabi_server);
+    if (nabi_server != NULL) {
+	g_signal_connect_after(G_OBJECT(widget), "realize",
+			       G_CALLBACK(on_realize), nabi_server);
+	g_signal_connect_after(G_OBJECT(widget), "destroy",
+			       G_CALLBACK(on_destroy), nabi_server);
+    }
     gtk_widget_show(widget);
+
+#ifdef HAVE_LIBSM
+    nabi_session_open(nabi->session_id);
+#endif
 
     gtk_main();
 
-    if (!nabi->status_only) {
+#ifdef HAVE_LIBSM
+    nabi_session_close();
+#endif
+
+    if (nabi_server != NULL) {
 	nabi_server_write_log(nabi_server);
 	nabi_server_destroy(nabi_server);
 	nabi_server = NULL;
     }
     
-#ifdef HAVE_LIBSM
-    nabi_session_close();
-#endif
-
+quit:
     nabi_app_free();
 
     return 0;
