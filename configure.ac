@@ -1,6 +1,6 @@
-AC_INIT(nabi, 0.19, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
+AC_INIT(nabi, 0.99.0, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
 
-AM_INIT_AUTOMAKE(nabi, 0.19)
+AM_INIT_AUTOMAKE(nabi, 0.99.0)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -20,13 +20,15 @@ AC_C_CONST
 AC_C_INLINE
 
 AC_TYPE_SIZE_T
+AC_STRUCT_TM
 
 dnl Checks for library functions.
 AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([gethostname memmove memset mkdir putenv setlocale strchr strdup strtol])
+AC_FUNC_STRFTIME
+AC_CHECK_FUNCS([gethostname memmove memset mkdir putenv setlocale strchr strdup strtol localtime_r])
 
 dnl Checks for X window system
 AC_PATH_XTRA
