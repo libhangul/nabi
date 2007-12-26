@@ -621,7 +621,8 @@ nabi_ic_preedit_hide(NabiIC *ic)
     nabi_log(4, "hide preedit window: id = %d-%d\n",
 	     ic->connection->id, ic->id);
 
-    gdk_window_hide(ic->preedit.window);
+    if (gdk_window_is_visible(ic->preedit.window))
+	gdk_window_hide(ic->preedit.window);
 }
 
 /* move and resize preedit window */
