@@ -94,8 +94,9 @@ nabi_connection_create(CARD16 id, const char* locale)
 	    }
 	}
     }
-    conn->ic_list = NULL;
 
+    conn->next_new_ic_id = 1;
+    conn->ic_list = NULL;
     
     return conn;
 }
@@ -128,6 +129,12 @@ nabi_connection_create_ic(NabiConnection* conn, IMChangeICStruct* data)
 	return NULL;
 
     ic = nabi_ic_create(conn, data);
+    ic->id = conn->next_new_ic_id;
+
+    conn->next_new_ic_id++;
+    if (conn->next_new_ic_id == 0)
+	conn->next_new_ic_id++;
+
     conn->ic_list = g_slist_prepend(conn->ic_list, ic);
     return ic;
 }
@@ -140,6 +147,23 @@ nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic)
 
     conn->ic_list = g_slist_remove(conn->ic_list, ic);
     nabi_ic_destroy(ic);
+}
+
+NabiIC*
+nabi_connection_get_ic(NabiConnection* conn, CARD16 id)
+{
+    if (conn == NULL || id == 0)
+	return NULL;
+
+    GSList* item = conn->ic_list;
+    while (item != NULL) {
+	NabiIC* ic = (NabiIC*)item->data;
+	if (ic->id == id)
+	    return ic;
+	item = g_slist_next(item);
+    }
+
+    return NULL;
 }
 
 gboolean
@@ -278,7 +302,7 @@ nabi_ic_init_values(NabiIC *ic)
 NabiIC*
 nabi_ic_create(NabiConnection* conn, IMChangeICStruct *data)
 {
-    NabiIC *ic = nabi_server_alloc_ic(nabi_server); 
+    NabiIC *ic = g_new(NabiIC, 1);
 
     ic->connection = conn;
 
@@ -343,7 +367,7 @@ nabi_ic_destroy(NabiIC *ic)
 	ic->hic = NULL;
     }
 
-    nabi_server_dealloc_ic(nabi_server, ic);
+    g_free(ic);
 }
 
 CARD16
@@ -640,7 +664,9 @@ static GdkFilterReturn
 gdk_event_filter(GdkXEvent *xevent, GdkEvent *gevent, gpointer data)
 {
     XEvent *event = (XEvent*)xevent;
-    NabiIC *ic = nabi_server_get_ic(nabi_server, GPOINTER_TO_UINT(data));
+    guint connect_id = GPOINTER_TO_UINT(data) >> 16;
+    guint ic_id = GPOINTER_TO_UINT(data) & 0xFFFF;
+    NabiIC *ic = nabi_server_get_ic(nabi_server, connect_id, ic_id);
 
     if (ic == NULL)
 	return GDK_FILTER_REMOVE;
@@ -675,6 +701,8 @@ nabi_ic_preedit_window_new(NabiIC *ic)
     GdkWindow *parent = NULL;
     GdkWindowAttr attr;
     gint mask;
+    guint connect_id;
+    guint ic_id;
 
     if (ic->focus_window != 0)
 	parent = gdk_window_foreign_new(ic->focus_window);
@@ -713,8 +741,11 @@ nabi_ic_preedit_window_new(NabiIC *ic)
     gdk_gc_set_background(ic->preedit.hilight_gc, &(nabi_server->preedit_fg));
 
     /* install our preedit window event filter */
+    connect_id = ic->connection->id;
+    ic_id = ic->id;
     gdk_window_add_filter(ic->preedit.window,
-			  gdk_event_filter, GUINT_TO_POINTER((guint)ic->id));
+			  gdk_event_filter,
+			  GUINT_TO_POINTER(connect_id << 16 | ic_id));
     g_object_unref(G_OBJECT(parent));
 }
 

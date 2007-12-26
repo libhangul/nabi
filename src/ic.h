@@ -46,6 +46,7 @@ struct _NabiConnection {
     CARD16         id;
     NabiInputMode  mode;
     GIConv         cd;
+    CARD16         next_new_ic_id;
     GSList*        ic_list;
 };
 
@@ -123,6 +124,7 @@ void         nabi_connection_destroy(NabiConnection* conn);
 NabiIC*      nabi_connection_create_ic(NabiConnection* conn,
 				       IMChangeICStruct* data);
 void         nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic);
+NabiIC*      nabi_connection_get_ic(NabiConnection* conn, CARD16 id);
 
 NabiToplevel* nabi_toplevel_new(Window id);
 void          nabi_toplevel_ref(NabiToplevel* toplevel);

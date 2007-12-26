@@ -95,15 +95,9 @@ struct _NabiServer {
     char**                  locales;
     GdkGC*		    gc;
 
-    /* xim connect list */
+    /* xim connection list */
     GSList*                 connections;
     GSList*                 toplevels;
-
-    /* Input Context list */
-    CARD16                  last_icid;
-    GSList*                 freed_icid;
-    NabiIC**                ic_table;
-    int                     ic_table_size;
 
     /* keyboard translate */
     GList*                  layouts;
@@ -179,9 +173,8 @@ void        nabi_server_set_input_mode_option(NabiServer* server,
 					      NabiInputModeOption flag);
 void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
 
-NabiIC*     nabi_server_alloc_ic        (NabiServer* server);
-void        nabi_server_dealloc_ic      (NabiServer* server, NabiIC* ic);
-NabiIC*     nabi_server_get_ic          (NabiServer *server, CARD16 icid);
+NabiIC*     nabi_server_get_ic          (NabiServer *server,
+					 CARD16 connect_id, CARD16 icid);
 gboolean    nabi_server_is_valid_ic     (NabiServer* server, NabiIC* ic);
 
 NabiConnection* nabi_server_create_connection (NabiServer *server,

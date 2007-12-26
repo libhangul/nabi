@@ -86,7 +86,7 @@ nabi_handler_destroy_ic(XIMS ims, IMChangeICStruct *data)
 
     conn = nabi_server_get_connection(nabi_server, data->connect_id);
     if (conn != NULL) {
-	NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+	NabiIC *ic = nabi_connection_get_ic(conn, data->icid);
 	if (ic != NULL) {
 	    nabi_log(1, "destroy ic: id = %d-%d\n",
 		     (int)data->connect_id, (int)data->icid);
@@ -99,7 +99,7 @@ nabi_handler_destroy_ic(XIMS ims, IMChangeICStruct *data)
 static Bool
 nabi_handler_set_ic_values(XIMS ims, IMChangeICStruct *data)
 {
-    NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC *ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "set values: id = %d-%d\n",
 	     (int)data->connect_id, (int)data->icid);
@@ -111,7 +111,7 @@ nabi_handler_set_ic_values(XIMS ims, IMChangeICStruct *data)
 static Bool
 nabi_handler_get_ic_values(XIMS ims, IMChangeICStruct *data)
 {
-    NabiIC *ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC *ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "get values: id = %d-%d\n",
 	     (int)data->connect_id, (int)data->icid);
@@ -128,8 +128,12 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
     int index;
     XKeyEvent *kevent;
     
-    if (data->event.type != KeyPress)
+    if (data->event.type != KeyPress) {
+	nabi_log(4, "forward event: id = %d-%d, key release\n",
+		    (int)data->connect_id, (int)data->icid);
+	IMForwardEvent(ims, (XPointer)data);
 	return True;
+    }
 
     kevent = (XKeyEvent*)&data->event;
     index = (kevent->state & ShiftMask) ? 1 : 0;
@@ -139,7 +143,7 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
 	     (int)data->connect_id, (int)data->icid,
 	     keysym, (keysym < 0x80) ? keysym : ' ');
 
-    ic = nabi_server_get_ic(nabi_server, data->icid);
+    ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
     if (ic == NULL)
 	return True;
 
@@ -178,7 +182,7 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
 static Bool
 nabi_handler_set_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "set focus: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
@@ -194,7 +198,7 @@ nabi_handler_set_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 static Bool
 nabi_handler_unset_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "unset focus: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
@@ -215,7 +219,7 @@ nabi_handler_unset_ic_focus(XIMS ims, IMChangeFocusStruct *data)
 static Bool
 nabi_handler_reset_ic(XIMS ims, IMResetICStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "reset: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
@@ -230,7 +234,7 @@ nabi_handler_reset_ic(XIMS ims, IMResetICStruct *data)
 static Bool
 nabi_handler_trigger_notify(XIMS ims, IMTriggerNotifyStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "trigger notify: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
@@ -247,7 +251,7 @@ nabi_handler_trigger_notify(XIMS ims, IMTriggerNotifyStruct *data)
 static Bool
 nabi_handler_preedit_start_reply(XIMS ims, IMPreeditCBStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "preedit start reply: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
@@ -260,7 +264,7 @@ nabi_handler_preedit_start_reply(XIMS ims, IMPreeditCBStruct *data)
 static Bool
 nabi_handler_preedit_caret_reply(XIMS ims, IMPreeditCBStruct *data)
 {
-    NabiIC* ic = nabi_server_get_ic(nabi_server, data->icid);
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
 
     nabi_log(1, "preedit caret replay: id = %d-%d\n",
 	    (int)data->connect_id, (int)data->icid);
