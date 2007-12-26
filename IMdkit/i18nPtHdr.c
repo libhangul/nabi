@@ -32,10 +32,13 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
+
 #ifdef DEBUG
 extern int verbose;
 extern void DebugLog(int deflevel, int inplevel, char *fmt, ...);
 #endif
+
+#include "../src/debug.h"
 
 #include <stdlib.h>
 #include <sys/param.h>
@@ -51,6 +54,38 @@ extern void DebugLog(int deflevel, int inplevel, char *fmt, ...);
 #include "XimFunc.h"
 
 extern Xi18nClient *_Xi18nFindClient (Xi18n, CARD16);
+
+static void DiscardQueue (XIMS ims, CARD16 connect_id)
+{
+    Xi18n i18n_core = ims->protocol;
+    Xi18nClient *client = (Xi18nClient *) _Xi18nFindClient (i18n_core,
+                                                            connect_id);
+
+    if (client != NULL) {
+	client->sync = False;
+	while (client->pending != NULL) {
+	    XIMPending* pending = client->pending;
+
+	    client->pending = pending->next;
+
+	    XFree(pending->p);
+	    XFree(pending);
+	}
+    }
+}
+
+static void DiscardAllQueue(XIMS ims)
+{
+    Xi18n i18n_core = ims->protocol;
+    Xi18nClient* client = i18n_core->address.clients;
+
+    while (client != NULL) {
+	if (client->sync) {
+	    DiscardQueue(ims, client->connect_id);
+	}
+	client = client->next;
+    }
+}
 
 static void GetProtocolVersion (CARD16 client_major,
                                 CARD16 client_minor,
@@ -861,6 +896,23 @@ static void SetICFocusMessageProc (XIMS ims,
     CARD16 connect_id = call_data->any.connect_id;
     CARD16 input_method_ID;
 
+    /* some buggy xim clients do not send XIM_SYNC_REPLY for synchronous
+     * events. In such case, xim server is waiting for XIM_SYNC_REPLY 
+     * forever. So the xim server is blocked to waiting sync reply. 
+     * It prevents further input.
+     * Usually it happens when a client calls XSetICFocus() with another ic 
+     * before passing an event to XFilterEvent(), where the event is need 
+     * by the old focused ic to sync its state.
+     * To avoid such problem, remove the whole clients queue and set them 
+     * as asynchronous.
+     *
+     * See:
+     * http://kldp.net/tracker/index.php?func=detail&aid=300802&group_id=275&atid=100275
+     * http://bugs.freedesktop.org/show_bug.cgi?id=7869
+     */
+    nabi_log(6, "set focus: discard all client queue: %d\n", connect_id);
+    DiscardAllQueue(ims);
+
     setfocus = (IMChangeFocusStruct *) &call_data->changefocus;
 
     fm = FrameMgrInit (set_ic_focus_fr,
@@ -892,6 +944,18 @@ static void UnsetICFocusMessageProc (XIMS ims,
     IMChangeFocusStruct *unsetfocus;
     CARD16 connect_id = call_data->any.connect_id;
     CARD16 input_method_ID;
+    Xi18nClient *client = _Xi18nFindClient (i18n_core, connect_id);
+
+    /* some buggy clients unset focus ic before the ic answer the sync reply,
+     * so the xim server may be blocked to waiting sync reply. To avoid 
+     * this problem, remove the client queue and set it asynchronous
+     * 
+     * See: SetICFocusMessageProc
+     */
+    if (client != NULL && client->sync) {
+	nabi_log(6, "unset focus: discard client queue: %d\n", connect_id);
+	DiscardQueue(ims, client->connect_id);
+    }
 
     unsetfocus = (IMChangeFocusStruct *) &call_data->changefocus;
 
@@ -1824,11 +1888,13 @@ void _Xi18nMessageHandler (XIMS ims,
 #endif
         if (client->sync == True)
         {
+	    nabi_log(6, "XIM_FORWARD_EVENT(cid=%x: sync, add to queue\n", connect_id);
             AddQueue (client, p);
             *delete = False;
         }
         else
         {
+	    nabi_log(6, "XIM_FORWARD_EVENT(cid=%x): async, process event\n", connect_id);
             ForwardEventMessageProc (ims, &call_data, p1);
         }
         break;
@@ -1850,6 +1916,7 @@ void _Xi18nMessageHandler (XIMS ims,
 #ifdef DEBUG
 	DebugLog(3, verbose, "-- XIM_SYNC_REPLY\n");
 #endif
+	nabi_log(6, "XIM_SYNC_REPLY(cid=%x) process queue\n", connect_id);
         SyncReplyMessageProc (ims, &call_data, p1);
         ProcessQueue (ims, connect_id);
         break;
