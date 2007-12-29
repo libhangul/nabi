@@ -79,6 +79,36 @@ load_resized_icons_from_file(const gchar *filename, int size)
     return pixbuf_resized;
 }
 
+static GtkWidget*
+create_pref_item(const char* title, GtkWidget* child,
+		 gboolean expand, gboolean fill)
+{
+    GtkWidget* vbox;
+    GtkWidget* hbox;
+    GtkWidget* label;
+    char markup[256];
+
+    snprintf(markup, sizeof(markup), "<span weight=\"bold\">%s</span>", title);
+
+    vbox = gtk_vbox_new(FALSE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label), markup);
+    gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, TRUE, TRUE, 6);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    gtk_box_pack_start(GTK_BOX(hbox), child, expand, fill, 0);
+
+    return vbox;
+}
+
 static GtkTreeModel *
 get_themes_list(int size)
 {
@@ -180,8 +210,7 @@ static GtkWidget*
 create_theme_page(void)
 {
     GtkWidget *page;
-    GtkWidget *hbox;
-    GtkWidget *label;
+    GtkWidget *item;
     GtkWidget *scrolledwindow;
     GtkWidget *treeview;
     GtkTreeModel *model;
@@ -193,19 +222,6 @@ create_theme_page(void)
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Tray icons</span>"));
-    gtk_box_pack_start(GTK_BOX(page), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(page), hbox, TRUE, TRUE, 0);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
 				   GTK_POLICY_AUTOMATIC,
@@ -213,7 +229,8 @@ create_theme_page(void)
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
 					GTK_SHADOW_IN);
-    gtk_box_pack_start(GTK_BOX(hbox), scrolledwindow, TRUE, TRUE, 0);
+    item = create_pref_item(_("Tray icons"), scrolledwindow, TRUE, TRUE);
+    gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     /* loading themes list */
     model = get_themes_list(nabi->icon_size);
@@ -305,38 +322,17 @@ static GtkWidget*
 create_keyboard_page(void)
 {
     GtkWidget *page;
-    GtkWidget *hbox;
-    GtkWidget *vbox1;
-    GtkWidget *vbox2;
-    GtkWidget *label;
+    GtkWidget *item;
     GtkWidget *combo_box;
     GtkSizeGroup* size_group;
     GList* list;
     int i;
     const NabiHangulKeyboard* keyboards;
 
-    page = gtk_vbox_new(FALSE, 12);
+    page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Hangul keyboard</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, FALSE, 0);
-
+    /* hangul keyboard */
     size_group = gtk_size_group_new(GTK_SIZE_GROUP_HORIZONTAL);
 
     combo_box = gtk_combo_box_new_text();
@@ -348,30 +344,14 @@ create_keyboard_page(void)
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	}
     }
-    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, FALSE, 0);
     gtk_size_group_add_widget(size_group, combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_hangul_keyboard_changed), NULL);
     hangul_keyboard_list_combo = combo_box;
 
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+    item = create_pref_item(_("Hangul keyboard"), combo_box, FALSE, FALSE);
+    gtk_box_pack_start(GTK_BOX(page), item, FALSE, TRUE, 0);
 
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">English keyboard</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
 
     /* latin keyboard */
     combo_box = gtk_combo_box_new_text();
@@ -388,10 +368,12 @@ create_keyboard_page(void)
 	list = g_list_next(list);
 	i++;
     }
-    gtk_box_pack_start(GTK_BOX(vbox2), combo_box, FALSE, FALSE, 0);
     gtk_size_group_add_widget(size_group, combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_latin_keyboard_changed), NULL);
+
+    item = create_pref_item(_("English keyboard"), combo_box, FALSE, FALSE);
+    gtk_box_pack_start(GTK_BOX(page), item, FALSE, TRUE, 0);
 
     g_object_unref(G_OBJECT(size_group));
 
@@ -661,8 +643,9 @@ static GtkWidget*
 create_hangul_page(void)
 {
     GtkWidget *page;
-    GtkWidget *vbox1;
+    GtkWidget *item;
     GtkWidget *hbox;
+    GtkWidget *vbox1;
     GtkWidget *vbox2;
     GtkWidget *label;
     GtkWidget *button;
@@ -674,25 +657,17 @@ create_hangul_page(void)
     GtkTreeModel *model;
     GtkTreeIter iter;
 
-    page = gtk_vbox_new(FALSE, 12);
+    page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
     /* options for trigger key */
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
+    vbox1 = gtk_vbox_new(FALSE, 0);
 
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Trigger keys</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+    item = create_pref_item(_("Trigger keys"), vbox1, TRUE, TRUE);
+    gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
@@ -712,7 +687,7 @@ create_hangul_page(void)
     gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
     column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Trigger Keys"));
+    gtk_tree_view_column_set_title(column, _("Trigger keys"));
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
@@ -744,26 +719,14 @@ create_hangul_page(void)
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_trigger_key_remove_button_clicked),treeview);
 
-    label = gtk_label_new(_("* You should restart nabi to apply this option"));
+    label = gtk_label_new(_("* You should restart nabi to apply above option"));
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, FALSE, 6);
 
     /* options for off keys */
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Off keys</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
     hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+    item = create_pref_item(_("Off keys"), hbox, TRUE, TRUE);
+    gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
@@ -783,7 +746,7 @@ create_hangul_page(void)
     gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
 
     column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Off Keys"));
+    gtk_tree_view_column_set_title(column, _("Off keys"));
     renderer = gtk_cell_renderer_text_new();
     gtk_tree_view_column_pack_start(column, renderer, FALSE);
     gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
@@ -850,11 +813,9 @@ static GtkWidget*
 create_candidate_page(void)
 {
     GtkWidget *page;
-    GtkWidget *vbox1;
-    GtkWidget *vbox2;
+    GtkWidget *item;
+    GtkWidget *vbox;
     GtkWidget *hbox;
-    GtkWidget *hbox2;
-    GtkWidget *label;
     GtkWidget *button;
     GtkWidget *scrolledwindow;
     GtkWidget *treeview;
@@ -863,56 +824,23 @@ create_candidate_page(void)
     GtkCellRenderer *renderer;
     GtkTreeModel *model;
 
-    page = gtk_vbox_new(FALSE, 12);
+    page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
     /* options for candidate */
-    vbox1 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Hanja Font</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
-
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
-
     button = gtk_button_new_with_label(config->candidate_font);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
-
+    item = create_pref_item(_("Hanja Font"), button, FALSE, FALSE);
+    gtk_box_pack_start(GTK_BOX(page), item, FALSE, TRUE, 0);
+    
     /* options for candidate key */
-    vbox1 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Hanja keys</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
     hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+    item = create_pref_item(_("Hanja keys"), hbox, TRUE, TRUE);
+    gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 6);
 
     scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
@@ -920,7 +848,7 @@ create_candidate_page(void)
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
 					GTK_SHADOW_IN);
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
 
     model = get_key_list_store(config->candidate_keys);
     treeview = gtk_tree_view_new_with_model(model);
@@ -939,48 +867,28 @@ create_candidate_page(void)
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
     gtk_tree_selection_unselect_all(selection);
 
-    vbox2 = gtk_vbox_new(FALSE, 6);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
+    vbox = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, TRUE, 6);
 
     button = gtk_button_new_from_stock(GTK_STOCK_ADD);
-    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_key_add_button_clicked), treeview);
 
     button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
 		 G_CALLBACK(on_candidate_key_remove_button_clicked),treeview);
 
     /* options for candidate option */
-    vbox1 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">Hanja Options</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
-
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, TRUE, 0);
-
     button = gtk_check_button_new_with_label(_("Use simplified chinese"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->use_simplified_chinese);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_simplified_chinese_toggled), NULL);
+
+    item = create_pref_item(_("Hanja Options"), button, FALSE, FALSE);
+    gtk_box_pack_start(GTK_BOX(page), item, FALSE, FALSE, 0);
 
     return page;
 }
@@ -1055,89 +963,69 @@ static GtkWidget*
 create_advanced_page(void)
 {
     GtkWidget *page;
-    GtkWidget *vbox1;
-    GtkWidget *vbox2;
+    GtkWidget *item;
+    GtkWidget *vbox;
     GtkWidget *hbox;
-    GtkWidget *hbox2;
     GtkWidget *label;
     GtkWidget *button;
     GtkWidget *entry;
     GtkWidget *combo_box;
 
-    page = gtk_vbox_new(FALSE, 12);
+    page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    vbox1 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(page), vbox1, FALSE, TRUE, 0);
+    vbox = gtk_vbox_new(FALSE, 0);
+    item = create_pref_item(_("Advanced"), vbox, TRUE, TRUE);
+    gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 0);
-
-    label = gtk_label_new("");
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
-    gtk_label_set_markup(GTK_LABEL(label),
-			 _("<span weight=\"bold\">XIM</span>"));
-    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox1), hbox, FALSE, TRUE, 6);
-
-    label = gtk_label_new("    ");
-    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
-
-    vbox2 = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 0);
-
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     label = gtk_label_new(_("XIM name:"));
-    gtk_box_pack_start(GTK_BOX(hbox2), label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
     entry = gtk_entry_new();
     gtk_entry_set_width_chars(GTK_ENTRY(entry), 16);
     gtk_entry_set_text(GTK_ENTRY(entry), config->xim_name);
-    gtk_box_pack_start(GTK_BOX(hbox2), entry, FALSE, FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 6);
     g_signal_connect(G_OBJECT(entry), "changed",
 		     G_CALLBACK(on_xim_name_changed), NULL);
 
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     button = gtk_check_button_new_with_label(_("Use dynamic event flow"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->use_dynamic_event_flow);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_event_flow_button_toggled), NULL);
 
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     button = gtk_check_button_new_with_label(_("Commit by word"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->commit_by_word);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_commit_by_word_button_toggled), NULL);
 
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     button = gtk_check_button_new_with_label(_("Automatic reordering"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->auto_reorder);
-    gtk_box_pack_start(GTK_BOX(hbox2), button, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_auto_reorder_button_toggled), NULL);
 
-    hbox2 = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), hbox2, FALSE, FALSE, 0);
-
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     label = gtk_label_new(_("Input mode option: "));
-    gtk_box_pack_start(GTK_BOX(hbox2), label, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
     combo_box = gtk_combo_box_new_text();
     gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
@@ -1161,7 +1049,7 @@ create_advanced_page(void)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_TOPLEVEL);
 
-    gtk_box_pack_start(GTK_BOX(hbox2), combo_box, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
 
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_input_mode_option_changed), NULL);
