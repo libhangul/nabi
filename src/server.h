@@ -91,6 +91,7 @@ struct _NabiServer {
     Window                  window;
     long                    filter_mask;
     XIMTriggerKeys          trigger_keys;
+    XIMTriggerKeys          off_keys;
     XIMTriggerKeys          candidate_keys;
     char**                  locales;
     GdkGC*		    gc;
@@ -145,11 +146,14 @@ Bool        nabi_server_is_running();
 Bool        nabi_server_is_trigger_key  (NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
+Bool        nabi_server_is_off_key      (NabiServer*  server,
+                                         KeySym       key,
+                                         unsigned int state);
 Bool        nabi_server_is_candidate_key(NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
-void        nabi_server_set_trigger_keys(NabiServer *server,
-					 char **keys);
+void        nabi_server_set_trigger_keys  (NabiServer *server, char **keys);
+void        nabi_server_set_off_keys      (NabiServer *server, char **keys);
 void        nabi_server_set_candidate_keys(NabiServer *server, char **keys);
 
 void        nabi_server_load_keyboard_layout(NabiServer *server,

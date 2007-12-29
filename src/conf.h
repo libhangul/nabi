@@ -32,6 +32,7 @@ struct _NabiConfig {
     gboolean        show_palette;
 
     gchar*          trigger_keys;
+    gchar*          off_keys;
     gchar*          candidate_keys;
 
     /* keyboard option */

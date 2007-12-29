@@ -55,6 +55,7 @@ const static struct config_item config_items[] = {
     { "latin_keyboard",     CONFIG_STR,  OFFSET(latin_keyboard)           },
     { "keyboard_layouts",   CONFIG_STR,  OFFSET(keyboard_layouts_file)    },
     { "triggerkeys",        CONFIG_STR,  OFFSET(trigger_keys)             },
+    { "offkeys",            CONFIG_STR,  OFFSET(off_keys)                 },
     { "candidatekeys",      CONFIG_STR,  OFFSET(candidate_keys)           },
     { "output_mode",        CONFIG_STR,  OFFSET(output_mode)              },
     { "preedit_foreground", CONFIG_STR,  OFFSET(preedit_fg)               },
@@ -192,6 +193,7 @@ nabi_config_new()
     config->keyboard_layouts_file = g_strdup("keyboard_layouts");
 
     config->trigger_keys = g_strdup("Hangul,Shift+space");
+    config->off_keys = g_strdup("Escape");
     config->candidate_keys = g_strdup("Hangul_Hanja,F9");
 
     config->candidate_font = g_strdup("Sans 14");

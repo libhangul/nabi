@@ -1731,7 +1731,10 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 	return False;
 
     /* for vi user: on Esc we change state to direct mode */
-    if (keysym == XK_Escape) {
+    if (nabi_server_is_off_key(nabi_server, keysym, state)) {
+	/* 이 경우는 vi 나 emacs등 에디터에서 사용하기 위한 키이므로
+	 * 이 키를 xim에서 사용하지 않고 그대로 다시 forwarding하는 
+	 * 방식으로 작동하게 한다. */
 	nabi_ic_set_mode(ic, NABI_INPUT_MODE_DIRECT);
 	return False;
     }

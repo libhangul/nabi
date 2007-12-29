@@ -115,6 +115,8 @@ nabi_server_new(const char *name)
     server->filter_mask = 0;
     server->trigger_keys.count_keys = 0;
     server->trigger_keys.keylist = NULL;
+    server->off_keys.count_keys = 0;
+    server->off_keys.keylist = NULL;
     server->candidate_keys.count_keys = 0;
     server->candidate_keys.keylist = NULL;
 
@@ -277,11 +279,26 @@ nabi_server_set_candidate_font(NabiServer *server, const gchar *font_name)
     }
 }
 
-static XIMTriggerKey*
-xim_trigger_keys_create(char **keys, int n)
+static void
+xim_trigger_keys_set_value(XIMTriggerKeys* keys, char** key_strings)
 {
-    int i, j;
+    int i, j, n;
     XIMTriggerKey *keylist;
+
+    if (keys == NULL)
+	return;
+
+    if (keys->keylist != NULL) {
+	g_free(keys->keylist);
+	keys->keylist = NULL;
+	keys->count_keys = 0;
+    }
+
+    if (key_strings == NULL)
+	return;
+
+    for (n = 0; key_strings[n] != NULL; n++)
+	continue;
 
     keylist = g_new(XIMTriggerKey, n);
     for (i = 0; i < n; i++) {
@@ -291,7 +308,7 @@ xim_trigger_keys_create(char **keys, int n)
     }
 
     for (i = 0; i < n; i++) {
-	gchar **list = g_strsplit(keys[i], "+", 0);
+	gchar **list = g_strsplit(key_strings[i], "+", 0);
 
 	for (j = 0; list[j] != NULL; j++) {
 	    if (strcmp("Shift", list[j]) == 0) {
@@ -312,25 +329,14 @@ xim_trigger_keys_create(char **keys, int n)
 	}
     }
 
-    return keylist;
+    keys->keylist = keylist;
+    keys->count_keys = n;
 }
 
 void
 nabi_server_set_trigger_keys(NabiServer *server, char **keys)
 {
-    int n;
-
-    if (keys == NULL)
-	return;
-
-    if (server->trigger_keys.keylist != NULL)
-	g_free(server->trigger_keys.keylist);
-
-    for (n = 0; keys[n] != NULL; n++)
-	continue;
-
-    server->trigger_keys.keylist = xim_trigger_keys_create(keys, n);
-    server->trigger_keys.count_keys = n;
+    xim_trigger_keys_set_value(&server->trigger_keys, keys);
 
     if (server->xims != NULL && server->dynamic_event_flow) {
 	IMSetIMValues(server->xims,
@@ -340,28 +346,23 @@ nabi_server_set_trigger_keys(NabiServer *server, char **keys)
 }
 
 void
+nabi_server_set_off_keys(NabiServer *server, char **keys)
+{
+    xim_trigger_keys_set_value(&server->off_keys, keys);
+}
+
+void
 nabi_server_set_candidate_keys(NabiServer *server, char **keys)
 {
-    int n;
-
-    if (keys == NULL)
-	return;
-
-    if (server->candidate_keys.keylist != NULL)
-	g_free(server->candidate_keys.keylist);
-
-    for (n = 0; keys[n] != NULL; n++)
-	continue;
-
-    server->candidate_keys.keylist = xim_trigger_keys_create(keys, n);
-    server->candidate_keys.count_keys = n;
+    xim_trigger_keys_set_value(&server->candidate_keys, keys);
 }
 
 void
 nabi_server_init(NabiServer *server)
 {
     const char *charset;
-    char *trigger_keys[3] = { "Hangul", "Shift+space", NULL };
+    char *trigger_keys[3]   = { "Hangul", "Shift+space", NULL };
+    char *off_keys[2]       = { "Escape", NULL };
     char *candidate_keys[3] = { "Hangul_Hanja", "F9", NULL };
 
     if (server == NULL)
@@ -371,6 +372,7 @@ nabi_server_init(NabiServer *server)
     server->filter_mask = KeyPressMask;
 
     nabi_server_set_trigger_keys(server, trigger_keys);
+    nabi_server_set_off_keys(server, off_keys);
     nabi_server_set_candidate_keys(server, candidate_keys);
 
     server->output_mode = NABI_OUTPUT_SYLLABLE;
@@ -438,6 +440,14 @@ nabi_server_is_trigger_key(NabiServer* server, KeySym key, unsigned int state)
 {
     return nabi_server_is_key(server->trigger_keys.keylist,
 			      server->trigger_keys.count_keys,
+			      key, state);
+}
+
+Bool
+nabi_server_is_off_key(NabiServer* server, KeySym key, unsigned int state)
+{
+    return nabi_server_is_key(server->off_keys.keylist,
+			      server->off_keys.count_keys,
 			      key, state);
 }
 

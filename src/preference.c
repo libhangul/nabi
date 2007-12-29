@@ -514,8 +514,8 @@ on_trigger_key_remove_button_clicked(GtkWidget *widget,
     }
 }
 
-static void
-update_candidate_keys_setting(GtkTreeModel *model)
+static char**
+get_key_list_string_array(GtkTreeModel* model)
 {
     GtkTreeIter iter;
     gboolean ret;
@@ -540,6 +540,70 @@ update_candidate_keys_setting(GtkTreeModel *model)
 	ret = gtk_tree_model_iter_next(model, &iter);
     }
     keys[n] = NULL;
+
+    return keys;
+}
+
+static void
+update_off_keys_setting(GtkTreeModel *model)
+{
+    char **keys = get_key_list_string_array(model);
+
+    g_free(config->off_keys);
+    config->off_keys = g_strjoinv(",", keys);
+    nabi_server_set_off_keys(nabi_server, keys);
+    g_strfreev(keys);
+}
+
+static void
+on_off_key_add_button_clicked(GtkWidget *widget, gpointer data)
+{
+    GtkWidget *dialog;
+    gint result;
+
+    dialog = key_capture_dialog_new("Select off key",
+		NULL,
+		"",
+		_("<span weight=\"bold\">"
+		"Press any key which you want to use as off key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\" or click \"Cancel\""
+		"</span>"));
+    result = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (result == GTK_RESPONSE_OK) {
+	const gchar *key = key_capture_dialog_get_key_text(dialog);
+	if (strlen(key) > 0) {
+	    GtkTreeModel *model;
+	    GtkTreeIter iter;
+
+	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
+	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
+	    update_off_keys_setting(model);
+	}
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static void
+on_off_key_remove_button_clicked(GtkWidget *widget,
+				       gpointer data)
+{
+    GtkTreeSelection *selection;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
+    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
+	update_off_keys_setting(GTK_TREE_MODEL(model));
+    }
+}
+
+static void
+update_candidate_keys_setting(GtkTreeModel *model)
+{
+    char **keys = get_key_list_string_array(model);
 
     g_free(config->candidate_keys);
     config->candidate_keys = g_strjoinv(",", keys);
@@ -683,6 +747,66 @@ create_hangul_page(void)
     label = gtk_label_new(_("* You should restart nabi to apply this option"));
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
     gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    /* options for off keys */
+    vbox1 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(page), vbox1, TRUE, TRUE, 0);
+
+    label = gtk_label_new("");
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_misc_set_alignment(GTK_MISC(label), 0.0, 0.5);
+    gtk_label_set_markup(GTK_LABEL(label),
+			 _("<span weight=\"bold\">Off keys</span>"));
+    gtk_box_pack_start(GTK_BOX(vbox1), label, FALSE, TRUE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox1), hbox, TRUE, TRUE, 0);
+
+    label = gtk_label_new("    ");
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, TRUE, 0);
+
+    vbox2 = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
+
+    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
+					GTK_SHADOW_IN);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
+    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
+
+    model = get_key_list_store(config->off_keys);
+    treeview = gtk_tree_view_new_with_model(model);
+    g_object_unref(G_OBJECT(model));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, _("Off Keys"));
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    gtk_tree_selection_unselect_all(selection);
+
+    vbox2 = gtk_vbox_new(FALSE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_object_set_data(G_OBJECT(treeview), "add-button", button);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_off_key_add_button_clicked), treeview);
+
+    button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
+    g_object_set_data(G_OBJECT(treeview), "remove-button", button);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_off_key_remove_button_clicked),treeview);
 
     return page;
 }
