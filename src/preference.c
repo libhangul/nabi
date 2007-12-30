@@ -381,7 +381,7 @@ create_keyboard_page(void)
 }
 
 static GtkTreeModel*
-get_key_list_store(const char *key_list)
+create_key_list_store(const char *key_list)
 {
     int i;
     GtkListStore *store;
@@ -400,8 +400,47 @@ get_key_list_store(const char *key_list)
     return GTK_TREE_MODEL(store);
 }
 
-static void
-update_trigger_keys_setting(GtkTreeModel *model)
+static GtkWidget*
+create_key_list_widget(const char* key_list)
+{
+    GtkWidget *scrolledwindow;
+    GtkWidget *treeview;
+    GtkTreeViewColumn *column;
+    GtkTreeSelection *selection;
+    GtkCellRenderer *renderer;
+    GtkTreeModel *model;
+
+    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
+				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
+					GTK_SHADOW_IN);
+    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
+
+    model = create_key_list_store(key_list);
+    treeview = gtk_tree_view_new_with_model(model);
+    g_object_unref(G_OBJECT(model));
+    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
+    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+
+    column = gtk_tree_view_column_new();
+    gtk_tree_view_column_set_title(column, "key");
+    renderer = gtk_cell_renderer_text_new();
+    gtk_tree_view_column_pack_start(column, renderer, FALSE);
+    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
+
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
+    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
+    gtk_tree_selection_unselect_all(selection);
+
+    g_object_set_data(G_OBJECT(scrolledwindow), "treeview", treeview);
+
+    return scrolledwindow;
+}
+
+static char**
+create_key_list_string_array(GtkTreeModel* model)
 {
     GtkTreeIter iter;
     gboolean ret;
@@ -427,10 +466,17 @@ update_trigger_keys_setting(GtkTreeModel *model)
     }
     keys[n] = NULL;
 
+    return keys;
+}
+
+static void
+update_trigger_keys_setting(GtkTreeModel *model)
+{
+    char **keys = create_key_list_string_array(model);
+
     g_free(config->trigger_keys);
     config->trigger_keys = g_strjoinv(",", keys);
     nabi_server_set_trigger_keys(nabi_server, keys);
-
     g_strfreev(keys);
 }
 
@@ -496,40 +542,10 @@ on_trigger_key_remove_button_clicked(GtkWidget *widget,
     }
 }
 
-static char**
-get_key_list_string_array(GtkTreeModel* model)
-{
-    GtkTreeIter iter;
-    gboolean ret;
-    int n;
-    char **keys;
-
-    n = 0;
-    ret = gtk_tree_model_get_iter_first(model, &iter);
-    while (ret) {
-	n++;
-	ret = gtk_tree_model_iter_next(model, &iter);
-    }
-
-    keys = g_new(char*, n + 1);
-    n = 0;
-    ret = gtk_tree_model_get_iter_first(model, &iter);
-    while (ret) {
-	char *key = NULL;
-	gtk_tree_model_get(model, &iter, 0, &key, -1);
-	if (key != NULL)
-	    keys[n++] = key;
-	ret = gtk_tree_model_iter_next(model, &iter);
-    }
-    keys[n] = NULL;
-
-    return keys;
-}
-
 static void
 update_off_keys_setting(GtkTreeModel *model)
 {
-    char **keys = get_key_list_string_array(model);
+    char **keys = create_key_list_string_array(model);
 
     g_free(config->off_keys);
     config->off_keys = g_strjoinv(",", keys);
@@ -585,7 +601,7 @@ on_off_key_remove_button_clicked(GtkWidget *widget,
 static void
 update_candidate_keys_setting(GtkTreeModel *model)
 {
-    char **keys = get_key_list_string_array(model);
+    char **keys = create_key_list_string_array(model);
 
     g_free(config->candidate_keys);
     config->candidate_keys = g_strjoinv(",", keys);
@@ -649,13 +665,10 @@ create_hangul_page(void)
     GtkWidget *vbox2;
     GtkWidget *label;
     GtkWidget *button;
-    GtkWidget *scrolledwindow;
+    GtkWidget *widget;
     GtkWidget *treeview;
-    GtkTreeViewColumn *column;
-    GtkTreeSelection *selection;
-    GtkCellRenderer *renderer;
     GtkTreeModel *model;
-    GtkTreeIter iter;
+    int n;
 
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -672,30 +685,9 @@ create_hangul_page(void)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
-					GTK_SHADOW_IN);
-    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
-
-    model = get_key_list_store(config->trigger_keys);
-    treeview = gtk_tree_view_new_with_model(model);
-    g_object_unref(G_OBJECT(model));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Trigger keys"));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    gtk_tree_selection_unselect_all(selection);
+    widget = create_key_list_widget(config->trigger_keys);
+    treeview = g_object_get_data(G_OBJECT(widget), "treeview");
+    gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
@@ -709,8 +701,10 @@ create_hangul_page(void)
     button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
     g_object_set_data(G_OBJECT(treeview), "remove-button", button);
-    gtk_tree_model_get_iter_first(model, &iter);
-    if (!gtk_tree_model_iter_next(model, &iter)) {
+
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    n = gtk_tree_model_iter_n_children(model, NULL);
+    if (n <= 1) {
 	/* there is only one entry in trigger key list.
 	 * nabi need at least on trigger key.
 	 * So we disable remove the button, here */
@@ -731,30 +725,9 @@ create_hangul_page(void)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
-					GTK_SHADOW_IN);
-    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(vbox2), scrolledwindow, TRUE, TRUE, 0);
-
-    model = get_key_list_store(config->off_keys);
-    treeview = gtk_tree_view_new_with_model(model);
-    g_object_unref(G_OBJECT(model));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Off keys"));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    gtk_tree_selection_unselect_all(selection);
+    widget = create_key_list_widget(config->off_keys);
+    treeview = g_object_get_data(G_OBJECT(widget), "treeview");
+    gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
 
     vbox2 = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
@@ -817,12 +790,8 @@ create_candidate_page(void)
     GtkWidget *vbox;
     GtkWidget *hbox;
     GtkWidget *button;
-    GtkWidget *scrolledwindow;
+    GtkWidget *widget;
     GtkWidget *treeview;
-    GtkTreeViewColumn *column;
-    GtkTreeSelection *selection;
-    GtkCellRenderer *renderer;
-    GtkTreeModel *model;
 
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -842,30 +811,9 @@ create_candidate_page(void)
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 6);
 
-    scrolledwindow = gtk_scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolledwindow),
-				   GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
-					GTK_SHADOW_IN);
-    gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
-    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
-
-    model = get_key_list_store(config->candidate_keys);
-    treeview = gtk_tree_view_new_with_model(model);
-    g_object_unref(G_OBJECT(model));
-    gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
-    gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
-
-    column = gtk_tree_view_column_new();
-    gtk_tree_view_column_set_title(column, _("Hanja Keys"));
-    renderer = gtk_cell_renderer_text_new();
-    gtk_tree_view_column_pack_start(column, renderer, FALSE);
-    gtk_tree_view_column_add_attribute(column, renderer, "text", 0);
-    gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-    gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
-    gtk_tree_selection_unselect_all(selection);
+    widget = create_key_list_widget(config->candidate_keys);
+    treeview = g_object_get_data(G_OBJECT(widget), "treeview");
+    gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
 
     vbox = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, TRUE, 6);
