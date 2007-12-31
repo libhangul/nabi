@@ -31,6 +31,7 @@
 #include "server.h"
 
 #include "keycapturedialog.h"
+#include "debug.h"
 
 enum {
     THEMES_LIST_PATH = 0,
@@ -175,19 +176,19 @@ search_text_in_model (GtkTreeModel *model, int column, const char *target_text)
     gchar *text = NULL;
     GtkTreeIter iter;
     GtkTreePath *path;
+    gboolean ret;
 
-    gtk_tree_model_get_iter_first(model, &iter);
-    do {
-	gtk_tree_model_get(model, &iter,
-			   column, &text,
-			   -1);
+    ret = gtk_tree_model_get_iter_first(model, &iter);
+    while (ret) {
+	gtk_tree_model_get(model, &iter, column, &text, -1);
 	if (text != NULL && strcmp(target_text, text) == 0) {
 	    path = gtk_tree_model_get_path(model, &iter);
 	    g_free(text);
 	    return path;
 	}
 	g_free(text);
-    } while (gtk_tree_model_iter_next(model, &iter));
+	ret = gtk_tree_model_iter_next(model, &iter);
+    }
 
     return NULL;
 }
@@ -447,12 +448,7 @@ create_key_list_string_array(GtkTreeModel* model)
     int n;
     char **keys;
 
-    n = 0;
-    ret = gtk_tree_model_get_iter_first(model, &iter);
-    while (ret) {
-	n++;
-	ret = gtk_tree_model_iter_next(model, &iter);
-    }
+    n = gtk_tree_model_iter_n_children(model, NULL);
 
     keys = g_new(char*, n + 1);
     n = 0;
@@ -481,68 +477,6 @@ update_trigger_keys_setting(GtkTreeModel *model)
 }
 
 static void
-on_trigger_key_add_button_clicked(GtkWidget *widget,
-				  gpointer data)
-{
-    GtkWidget *dialog;
-    gint result;
-
-    dialog = key_capture_dialog_new("Select trigger key",
-		NULL,
-		"",
-		_("<span weight=\"bold\">"
-		"Press any key which you want to use as trigger key. "
-		"The key you pressed is displayed below.\n"
-		"If you want to use it, click \"Ok\" or click \"Cancel\""
-		"</span>"));
-    result = gtk_dialog_run(GTK_DIALOG(dialog));
-    if (result == GTK_RESPONSE_OK) {
-	const gchar *key = key_capture_dialog_get_key_text(dialog);
-	if (strlen(key) > 0) {
-	    GtkTreeModel *model;
-	    GtkTreeIter iter;
-	    GtkWidget *remove_button;
-
-	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
-	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
-	    update_trigger_keys_setting(model);
-
-	    /* Maybe remove button can be insensitive,
-	     * so we set it sensitive */
-	    remove_button = g_object_get_data(G_OBJECT(data),
-					      "remove-button");
-	    if (remove_button != NULL)
-		gtk_widget_set_sensitive(remove_button, TRUE);
-	}
-    }
-    gtk_widget_destroy(dialog);
-}
-
-static void
-on_trigger_key_remove_button_clicked(GtkWidget *widget,
-				     gpointer data)
-{
-    GtkTreeSelection *selection;
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
-	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-	update_trigger_keys_setting(GTK_TREE_MODEL(model));
-
-	/* there is only one entry in trigger key list.
-	 * nabi need at least on trigger key.
-	 * So we disable remove the button, here */
-	gtk_tree_model_get_iter_first(model, &iter);
-	if (!gtk_tree_model_iter_next(model, &iter)) {
-	    gtk_widget_set_sensitive(widget, FALSE);
-	}
-    }
-}
-
-static void
 update_off_keys_setting(GtkTreeModel *model)
 {
     char **keys = create_key_list_string_array(model);
@@ -551,40 +485,54 @@ update_off_keys_setting(GtkTreeModel *model)
     config->off_keys = g_strjoinv(",", keys);
     nabi_server_set_off_keys(nabi_server, keys);
     g_strfreev(keys);
+
+    nabi_log(4, "set off keys: %s\n", config->off_keys);
 }
 
 static void
-on_off_key_add_button_clicked(GtkWidget *widget, gpointer data)
+on_key_list_add_button_clicked(GtkWidget *widget, gpointer data)
 {
     GtkWidget *dialog;
+    gchar* title;
+    gchar* message;
     gint result;
 
-    dialog = key_capture_dialog_new("Select off key",
-		NULL,
-		"",
-		_("<span weight=\"bold\">"
-		"Press any key which you want to use as off key. "
-		"The key you pressed is displayed below.\n"
-		"If you want to use it, click \"Ok\" or click \"Cancel\""
-		"</span>"));
+    title = g_object_get_data(G_OBJECT(widget), "dialog-title");
+    message = g_object_get_data(G_OBJECT(widget), "dialog-message");
+
+    dialog = key_capture_dialog_new(_(title), NULL, "", _(message));
     result = gtk_dialog_run(GTK_DIALOG(dialog));
     if (result == GTK_RESPONSE_OK) {
 	const gchar *key = key_capture_dialog_get_key_text(dialog);
 	if (strlen(key) > 0) {
 	    GtkTreeModel *model;
-	    GtkTreeIter iter;
+	    GtkTreePath *path;
 
 	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
-	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
-	    update_off_keys_setting(model);
+	    path = search_text_in_model(model, 0, key);
+	    if (path == NULL) {
+		GtkWidget* remove_button;
+		GtkTreeIter iter;
+		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
+		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
+
+		/* treeview가 remove button을 가지고 있으면 sensitive 플래그를
+		 * 켠다. item이 하나 추가 되었으므로 remove button이 활성화
+		 * 되어도 된다. */
+		remove_button = g_object_get_data(G_OBJECT(data),
+						  "remove-button");
+		if (remove_button != NULL)
+		    gtk_widget_set_sensitive(remove_button, TRUE);
+	    } else {
+		gtk_tree_path_free(path);
+	    }
 	}
     }
     gtk_widget_destroy(dialog);
 }
 
 static void
-on_off_key_remove_button_clicked(GtkWidget *widget,
+on_key_list_remove_button_clicked(GtkWidget *widget,
 				       gpointer data)
 {
     GtkTreeSelection *selection;
@@ -593,8 +541,20 @@ on_off_key_remove_button_clicked(GtkWidget *widget,
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
     if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
+	GtkWidget *remove_button;
 	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-	update_off_keys_setting(GTK_TREE_MODEL(model));
+
+	/* treeview 가 "remove-button"을 가지고 있을 경우에는
+	 * item이 1개만 남았을때 부터 remove button을 insensitive하게 만들어
+	 * 더이상 아이템을 지울수 없게 한다.
+	 * trigger키의 경우에는 최소한 1개의 아이템이 있어야 한다. */
+	remove_button = g_object_get_data(G_OBJECT(data), "remove-button");
+	if (remove_button) {
+	    int n = gtk_tree_model_iter_n_children(model, NULL);
+	    if (n <= 1) {
+		gtk_widget_set_sensitive(remove_button, FALSE);
+	    }
+	}
     }
 }
 
@@ -607,52 +567,8 @@ update_candidate_keys_setting(GtkTreeModel *model)
     config->candidate_keys = g_strjoinv(",", keys);
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
-}
 
-static void
-on_candidate_key_add_button_clicked(GtkWidget *widget,
-				    gpointer data)
-{
-    GtkWidget *dialog;
-    gint result;
-
-    dialog = key_capture_dialog_new("Select candidate key",
-		NULL,
-		"",
-		_("<span weight=\"bold\">"
-		"Press any key which you want to use as candidate key. "
-		"The key you pressed is displayed below.\n"
-		"If you want to use it, click \"Ok\" or click \"Cancel\""
-		"</span>"));
-    result = gtk_dialog_run(GTK_DIALOG(dialog));
-    if (result == GTK_RESPONSE_OK) {
-	const gchar *key = key_capture_dialog_get_key_text(dialog);
-	if (strlen(key) > 0) {
-	    GtkTreeModel *model;
-	    GtkTreeIter iter;
-
-	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
-	    gtk_list_store_append(GTK_LIST_STORE(model), &iter);
-	    gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
-	    update_candidate_keys_setting(model);
-	}
-    }
-    gtk_widget_destroy(dialog);
-}
-
-static void
-on_candidate_key_remove_button_clicked(GtkWidget *widget,
-				       gpointer data)
-{
-    GtkTreeSelection *selection;
-    GtkTreeModel *model;
-    GtkTreeIter iter;
-
-    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(data));
-    if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
-	gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
-	update_candidate_keys_setting(GTK_TREE_MODEL(model));
-    }
+    nabi_log(4, "set candidate keys: %s\n", config->candidate_keys);
 }
 
 static GtkWidget*
@@ -668,6 +584,8 @@ create_hangul_page(void)
     GtkWidget *widget;
     GtkWidget *treeview;
     GtkTreeModel *model;
+    const char *title;
+    const char *message;
     int n;
 
     page = gtk_vbox_new(FALSE, 6);
@@ -688,15 +606,26 @@ create_hangul_page(void)
     widget = create_key_list_widget(config->trigger_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    g_signal_connect_after(G_OBJECT(model), "row-changed",
+			   G_CALLBACK(update_trigger_keys_setting), NULL);
+    g_signal_connect_after(G_OBJECT(model), "row-deleted",
+			   G_CALLBACK(update_trigger_keys_setting), NULL);
 
     vbox2 = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
 
+    title   = _("Select trigger key");
+    message = _("Press any key which you want to use as trigger key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\" or click \"Cancel\"");
+
     button = gtk_button_new_from_stock(GTK_STOCK_ADD);
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
-    g_object_set_data(G_OBJECT(treeview), "add-button", button);
+    g_object_set_data(G_OBJECT(button), "dialog-title", (gpointer)title);
+    g_object_set_data(G_OBJECT(button), "dialog-message", (gpointer)message);
     g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_trigger_key_add_button_clicked), treeview);
+		     G_CALLBACK(on_key_list_add_button_clicked), treeview);
 
     button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
@@ -711,7 +640,7 @@ create_hangul_page(void)
 	gtk_widget_set_sensitive(button, FALSE);
     }
     g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_trigger_key_remove_button_clicked),treeview);
+		     G_CALLBACK(on_key_list_remove_button_clicked), treeview);
 
     label = gtk_label_new(_("* You should restart nabi to apply above option"));
     gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
@@ -727,22 +656,31 @@ create_hangul_page(void)
 
     widget = create_key_list_widget(config->off_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
+    g_signal_connect_after(G_OBJECT(model), "row-changed",
+			   G_CALLBACK(update_off_keys_setting), NULL);
+    g_signal_connect_after(G_OBJECT(model), "row-deleted",
+			   G_CALLBACK(update_off_keys_setting), NULL);
 
     vbox2 = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, FALSE, TRUE, 6);
 
+    title   = _("Select off key");
+    message = _("Press any key which you want to use as off key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\" or click \"Cancel\"");
     button = gtk_button_new_from_stock(GTK_STOCK_ADD);
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
-    g_object_set_data(G_OBJECT(treeview), "add-button", button);
+    g_object_set_data(G_OBJECT(button), "dialog-title", (gpointer)title);
+    g_object_set_data(G_OBJECT(button), "dialog-message", (gpointer)message);
     g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_off_key_add_button_clicked), treeview);
+		     G_CALLBACK(on_key_list_add_button_clicked), treeview);
 
     button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_box_pack_start(GTK_BOX(vbox2), button, FALSE, TRUE, 0);
-    g_object_set_data(G_OBJECT(treeview), "remove-button", button);
     g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_off_key_remove_button_clicked),treeview);
+		     G_CALLBACK(on_key_list_remove_button_clicked), treeview);
 
     return page;
 }
@@ -792,6 +730,9 @@ create_candidate_page(void)
     GtkWidget *button;
     GtkWidget *widget;
     GtkWidget *treeview;
+    GtkTreeModel *model;
+    const char *title;
+    const char *message;
 
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
@@ -813,20 +754,31 @@ create_candidate_page(void)
 
     widget = create_key_list_widget(config->candidate_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
+    g_signal_connect_after(G_OBJECT(model), "row-changed",
+			   G_CALLBACK(update_candidate_keys_setting), NULL);
+    g_signal_connect_after(G_OBJECT(model), "row-deleted",
+			   G_CALLBACK(update_candidate_keys_setting), NULL);
 
     vbox = gtk_vbox_new(FALSE, 6);
     gtk_box_pack_start(GTK_BOX(hbox), vbox, FALSE, TRUE, 6);
 
+    title   = _("Select candidate key");
+    message = _("Press any key which you want to use as candidate key. "
+		"The key you pressed is displayed below.\n"
+		"If you want to use it, click \"Ok\", or click \"Cancel\"");
     button = gtk_button_new_from_stock(GTK_STOCK_ADD);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
+    g_object_set_data(G_OBJECT(button), "dialog-title", (gpointer)title);
+    g_object_set_data(G_OBJECT(button), "dialog-message", (gpointer)message);
     g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(on_candidate_key_add_button_clicked), treeview);
+		     G_CALLBACK(on_key_list_add_button_clicked), treeview);
 
     button = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, TRUE, 0);
     g_signal_connect(G_OBJECT(button), "clicked",
-		 G_CALLBACK(on_candidate_key_remove_button_clicked),treeview);
+		 G_CALLBACK(on_key_list_remove_button_clicked), treeview);
 
     /* options for candidate option */
     button = gtk_check_button_new_with_label(_("Use simplified chinese"));
