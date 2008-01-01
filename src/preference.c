@@ -750,7 +750,7 @@ create_candidate_page(void)
     gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     vbox = gtk_vbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 6);
+    gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
 
     widget = create_key_list_widget(config->candidate_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
