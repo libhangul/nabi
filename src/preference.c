@@ -44,6 +44,9 @@ enum {
 
 static NabiConfig* config = NULL;
 static GtkWidget *hangul_keyboard_list_combo = NULL;
+static GtkTreeModel* trigger_key_model = NULL;
+static GtkTreeModel* off_key_model = NULL;
+static GtkTreeModel* candidate_key_model = NULL;
 
 static GdkPixbuf *
 load_resized_icons_from_file(const gchar *filename, int size)
@@ -500,19 +503,62 @@ on_key_list_add_button_clicked(GtkWidget *widget, gpointer data)
     title = g_object_get_data(G_OBJECT(widget), "dialog-title");
     message = g_object_get_data(G_OBJECT(widget), "dialog-message");
 
-    dialog = key_capture_dialog_new(_(title), NULL, "", _(message));
+    dialog = key_capture_dialog_new(title, NULL, "", message);
+
+run:
     result = gtk_dialog_run(GTK_DIALOG(dialog));
     if (result == GTK_RESPONSE_OK) {
 	const gchar *key = key_capture_dialog_get_key_text(dialog);
 	if (strlen(key) > 0) {
-	    GtkTreeModel *model;
+	    GtkWidget* message_dialog;
 	    GtkTreePath *path;
 
-	    model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
-	    path = search_text_in_model(model, 0, key);
-	    if (path == NULL) {
-		GtkWidget* remove_button;
+	    path = search_text_in_model(trigger_key_model, 0, key);
+	    if (path != NULL) {
+		message_dialog = gtk_message_dialog_new_with_markup(GTK_WINDOW(dialog),
+		     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		     GTK_MESSAGE_WARNING,
+		     GTK_BUTTONS_CLOSE,
+		     _("This key is already registered for <span weight=\"bold\">trigger key</span>\n"
+		       "Please  select another key"));
+		gtk_dialog_run(GTK_DIALOG(message_dialog));
+		gtk_widget_destroy(message_dialog);
+		gtk_tree_path_free(path);
+		goto run;
+	    }
+
+	    path = search_text_in_model(off_key_model, 0, key);
+	    if (path != NULL) {
+		message_dialog = gtk_message_dialog_new_with_markup(GTK_WINDOW(dialog),
+		     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		     GTK_MESSAGE_WARNING,
+		     GTK_BUTTONS_CLOSE,
+		     _("This key is already registered for <span weight=\"bold\">off key</span>\n"
+		       "Please  select another key"));
+		gtk_dialog_run(GTK_DIALOG(message_dialog));
+		gtk_widget_destroy(message_dialog);
+		gtk_tree_path_free(path);
+		goto run;
+	    }
+
+	    path = search_text_in_model(candidate_key_model, 0, key);
+	    if (path != NULL) {
+		message_dialog = gtk_message_dialog_new_with_markup(GTK_WINDOW(dialog),
+		     GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT,
+		     GTK_MESSAGE_WARNING,
+		     GTK_BUTTONS_CLOSE,
+		     _("This key is already registered for <span weight=\"bold\">candidate key</span>\n"
+		       "Please  select another key"));
+		gtk_dialog_run(GTK_DIALOG(message_dialog));
+		gtk_widget_destroy(message_dialog);
+		gtk_tree_path_free(path);
+		goto run;
+	    } else {
+		GtkTreeModel *model;
 		GtkTreeIter iter;
+		GtkWidget* remove_button;
+
+		model = gtk_tree_view_get_model(GTK_TREE_VIEW(data));
 		gtk_list_store_append(GTK_LIST_STORE(model), &iter);
 		gtk_list_store_set (GTK_LIST_STORE(model), &iter, 0, key, -1);
 
@@ -523,11 +569,10 @@ on_key_list_add_button_clicked(GtkWidget *widget, gpointer data)
 						  "remove-button");
 		if (remove_button != NULL)
 		    gtk_widget_set_sensitive(remove_button, TRUE);
-	    } else {
-		gtk_tree_path_free(path);
 	    }
 	}
     }
+
     gtk_widget_destroy(dialog);
 }
 
@@ -632,6 +677,7 @@ create_hangul_page(void)
     g_object_set_data(G_OBJECT(treeview), "remove-button", button);
 
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    trigger_key_model = model;
     n = gtk_tree_model_iter_n_children(model, NULL);
     if (n <= 1) {
 	/* there is only one entry in trigger key list.
@@ -657,6 +703,7 @@ create_hangul_page(void)
     widget = create_key_list_widget(config->off_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    off_key_model = model;
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
     g_signal_connect_after(G_OBJECT(model), "row-changed",
 			   G_CALLBACK(update_off_keys_setting), NULL);
@@ -755,6 +802,7 @@ create_candidate_page(void)
     widget = create_key_list_widget(config->candidate_keys);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    candidate_key_model = model;
     gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
     g_signal_connect_after(G_OBJECT(model), "row-changed",
 			   G_CALLBACK(update_candidate_keys_setting), NULL);
@@ -963,6 +1011,9 @@ on_preference_destroy(GtkWidget *dialog, gpointer data)
     nabi_app_save_config();
 
     hangul_keyboard_list_combo = NULL;
+    trigger_key_model = NULL;
+    off_key_model = NULL;
+    candidate_key_model = NULL;
 }
 
 GtkWidget*
