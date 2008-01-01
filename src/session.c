@@ -251,4 +251,14 @@ nabi_session_close(void)
     nabi->session_id = NULL;
 }
 
+#else  /* HAVE_LIBSM */
+
+void nabi_session_open(char *previos_id)
+{
+}
+
+void nabi_session_close(void)
+{
+}
+
 #endif /* HAVE_LIBSM */

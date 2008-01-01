@@ -120,15 +120,11 @@ main(int argc, char *argv[])
     }
     gtk_widget_show(widget);
 
-#ifdef HAVE_LIBSM
     nabi_session_open(nabi->session_id);
-#endif
 
     gtk_main();
 
-#ifdef HAVE_LIBSM
     nabi_session_close();
-#endif
 
     if (nabi_server != NULL) {
 	nabi_server_write_log(nabi_server);
