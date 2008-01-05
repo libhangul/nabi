@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-01-01 18:48+0900\n"
+"POT-Creation-Date: 2008-01-05 13:37+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
@@ -107,12 +107,12 @@ msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
 "\n"
-"Copyright (c) 2003-2004,2007 Choe Hwanjin"
+"Copyright (C) 2003-2008 Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">쉬운 한글 입력기</span>\n"
 "버젼 %s\n"
 "\n"
-"Copyright © 2003-2004,2007 최환진"
+"Copyright (C) 2003-2008 최환진"
 
 #: src/ui.c:773
 msgid "<span weight=\"bold\">XIM name</span>: "
@@ -284,7 +284,7 @@ msgid "Hanja Options"
 msgstr "한자 옵션"
 
 #. advanced
-#: src/preference.c:926 src/preference.c:1061
+#: src/preference.c:926 src/preference.c:1064
 msgid "Advanced"
 msgstr "고급"
 
@@ -324,27 +324,27 @@ msgstr "윈도우마다 따로"
 msgid "per context"
 msgstr "입력창마다 따로"
 
-#: src/preference.c:1028
+#: src/preference.c:1031
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:1040
+#: src/preference.c:1043
 msgid "Tray"
 msgstr "트레이"
 
 #. keyboard
-#: src/preference.c:1046
+#: src/preference.c:1049
 msgid "Keyboard"
 msgstr "자판"
 
 #. key
-#: src/preference.c:1051
+#: src/preference.c:1054
 msgid "Hangul"
 msgstr "한글"
 
 #. candidate
-#: src/preference.c:1056
+#: src/preference.c:1059
 msgid "Hanja"
 msgstr "한자"
 

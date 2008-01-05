@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-01-01 18:48+0900\n"
+"POT-Creation-Date: 2008-01-05 13:37+0900\n"
 "PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -113,7 +113,7 @@ msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
 "\n"
-"Copyright (c) 2003-2004,2007 Choe Hwanjin"
+"Copyright (C) 2003-2008 Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">Eine einfache Eingabemethode für koreanische Zeichen</"
 "span>\n"
@@ -295,7 +295,7 @@ msgid "Hanja Options"
 msgstr "한자/Hanja Tasten"
 
 #. advanced
-#: src/preference.c:926 src/preference.c:1061
+#: src/preference.c:926 src/preference.c:1064
 msgid "Advanced"
 msgstr "Feinheiten"
 
@@ -335,27 +335,27 @@ msgstr ""
 msgid "per context"
 msgstr ""
 
-#: src/preference.c:1028
+#: src/preference.c:1031
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
 #. icons
-#: src/preference.c:1040
+#: src/preference.c:1043
 msgid "Tray"
 msgstr "Ablage"
 
 #. keyboard
-#: src/preference.c:1046
+#: src/preference.c:1049
 msgid "Keyboard"
 msgstr "Tastatur"
 
 #. key
-#: src/preference.c:1051
+#: src/preference.c:1054
 msgid "Hangul"
 msgstr "한글/Hangul"
 
 #. candidate
-#: src/preference.c:1056
+#: src/preference.c:1059
 msgid "Hanja"
 msgstr "한자/Hanja"
 
