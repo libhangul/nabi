@@ -1,6 +1,6 @@
-AC_INIT(nabi, 0.99.0, http://kldp.net/tracker/?func=add&group_id=275&atid=100275)
+AC_INIT(nabi, 0.99.1, http://kldp.net/projects/nabi/)
 
-AM_INIT_AUTOMAKE(nabi, 0.99.0)
+AM_INIT_AUTOMAKE(nabi, 0.99.1)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
@@ -13,7 +13,7 @@ dnl Checks for header files.
 AC_PATH_X
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h wchar.h])
+AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -40,8 +40,8 @@ esac
 dnl Checks for GTK+ libraries.
 AC_PATH_PROG(PKG_CONFIG, pkg-config,
 	     AC_MSG_ERROR([nabi needs pkg-config]))
-PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.2.0,,
-		  AC_MSG_ERROR([nabi needs GTK+ 2.2.0 or higher]))
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,,
+		  AC_MSG_ERROR([nabi needs GTK+ 2.4.0 or higher]))
 
 # checks for libhangul
 PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.0.5,,
@@ -89,8 +89,8 @@ esac
 
 if test "$enable_debug" = "yes"; then
     AC_DEFINE(NABI_DEBUG, 1, [Define to 1 if you want to use debug code])
-    CFLAGS="$CFLAGS -g"
-    CXXFLAGS="$CXXFLAGS -g"
+    CFLAGS="$CFLAGS -Wall -g"
+    CXXFLAGS="$CXXFLAGS -Wall -g"
 fi
 
 AC_OUTPUT([
