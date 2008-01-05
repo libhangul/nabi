@@ -49,8 +49,9 @@ static GtkTreeModel* off_key_model = NULL;
 static GtkTreeModel* candidate_key_model = NULL;
 
 static GdkPixbuf *
-load_resized_icons_from_file(const gchar *filename, int size)
+load_resized_icons_from_file(const gchar *base_filename, int size)
 {
+    char* filename;
     GdkPixbuf *pixbuf;
     GdkPixbuf *pixbuf_resized;
     gdouble factor;
@@ -58,7 +59,18 @@ load_resized_icons_from_file(const gchar *filename, int size)
     gint new_width, new_height;
     GdkInterpType scale_method = GDK_INTERP_NEAREST;
 
+    filename = g_strconcat(base_filename, ".svg", NULL);
     pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
+    g_free(filename);
+    if (pixbuf == NULL) {
+	filename = g_strconcat(base_filename, ".png", NULL);
+	pixbuf = gdk_pixbuf_new_from_file(filename, NULL);
+	g_free(filename);
+    }
+
+    if (pixbuf == NULL)
+	return NULL;
+
     orig_width = gdk_pixbuf_get_width(pixbuf);
     orig_height = gdk_pixbuf_get_height(pixbuf);
 
@@ -146,27 +158,33 @@ get_themes_list(int size)
 	    continue;
 
 	theme_dir = g_build_filename(path, dent->d_name, NULL);
-	file_none = g_build_filename(theme_dir, "none.png", NULL);
-	file_hangul = g_build_filename(theme_dir, "hangul.png", NULL);
-	file_english = g_build_filename(theme_dir, "english.png", NULL);
+	file_none = g_build_filename(theme_dir, "none", NULL);
+	file_hangul = g_build_filename(theme_dir, "hangul", NULL);
+	file_english = g_build_filename(theme_dir, "english", NULL);
 	pixbuf_none = load_resized_icons_from_file(file_none, size);
 	pixbuf_hangul = load_resized_icons_from_file(file_hangul, size);
 	pixbuf_english = load_resized_icons_from_file(file_english, size);
-	gtk_list_store_append(store, &iter);
-	gtk_list_store_set (store, &iter,
-			    THEMES_LIST_PATH, theme_dir,
-			    THEMES_LIST_NONE, pixbuf_none,
-			    THEMES_LIST_HANGUL, pixbuf_hangul,
-			    THEMES_LIST_ENGLISH, pixbuf_english,
-			    THEMES_LIST_NAME, dent->d_name,
-			    -1);
+
+	if (pixbuf_none != NULL &&
+	    pixbuf_hangul != NULL &&
+	    pixbuf_english != NULL) {
+	    gtk_list_store_append(store, &iter);
+	    gtk_list_store_set (store, &iter,
+				THEMES_LIST_PATH, theme_dir,
+				THEMES_LIST_NONE, pixbuf_none,
+				THEMES_LIST_HANGUL, pixbuf_hangul,
+				THEMES_LIST_ENGLISH, pixbuf_english,
+				THEMES_LIST_NAME, dent->d_name,
+				-1);
+	    g_object_unref(pixbuf_none);
+	    g_object_unref(pixbuf_hangul);
+	    g_object_unref(pixbuf_english);
+	}
+
 	g_free(theme_dir);
 	g_free(file_none);
 	g_free(file_hangul);
 	g_free(file_english);
-	g_object_unref(pixbuf_none);
-	g_object_unref(pixbuf_hangul);
-	g_object_unref(pixbuf_english);
     }
     closedir(dir);
 
