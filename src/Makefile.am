@@ -4,7 +4,7 @@ nabi_CFLAGS = \
 	@X_CFLAGS@ \
 	@GTK_CFLAGS@ \
 	@LIBHANGUL_CFLAGS@ \
-	-DLOCALEDIR=\"${datadir}/locale\" \
+	-DLOCALEDIR=\"${localedir}\" \
 	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
 	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
 
