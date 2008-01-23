@@ -817,7 +817,7 @@ nabi_server_set_keyboard_layout(NabiServer *server, const char* name)
 {
     GList* list;
 
-    if (server != NULL)
+    if (server == NULL)
 	return;
 
     if (strcmp(name, "none") == 0) {
