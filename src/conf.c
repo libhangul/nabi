@@ -209,6 +209,8 @@ nabi_config_new()
     config->commit_by_word = FALSE;
     config->auto_reorder = TRUE;
 
+    config->use_simplified_chinese = FALSE;
+
     return config;
 }
 
