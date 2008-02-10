@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-01-05 13:37+0900\n"
+"POT-Creation-Date: 2008-02-10 12:32+0900\n"
 "PO-Revision-Date: 2006-11-19 19:30+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -162,63 +162,64 @@ msgstr ""
 msgid "Nabi: error message"
 msgstr ""
 
-#: src/ui.c:1166
-msgid "Hangul input method: Nabi"
-msgstr "Hangul Eingabehilfe: Nabi"
+#: src/ui.c:1168
+#, fuzzy, c-format
+msgid "Nabi: %s"
+msgstr "Nabi: Zeichensatz: %s\n"
 
-#: src/ui.c:1167
+#: src/ui.c:1173
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
 
-#: src/ui.c:1285
+#: src/ui.c:1291
 msgid "_Hide palette"
 msgstr ""
 
-#: src/preference.c:236
+#: src/preference.c:254
 msgid "Tray icons"
 msgstr ""
 
-#: src/preference.c:356
+#: src/preference.c:374
 #, fuzzy
 msgid "Hangul keyboard"
 msgstr "Hangul/koreanische Tastatur"
 
-#: src/preference.c:379
+#: src/preference.c:397
 #, fuzzy
 msgid "English keyboard"
 msgstr "Hangul/koreanische Tastatur"
 
-#: src/preference.c:522
+#: src/preference.c:540
 msgid ""
 "This key is already registered for <span weight=\"bold\">trigger key</span>\n"
 "Please  select another key"
 msgstr ""
 
-#: src/preference.c:536
+#: src/preference.c:554
 msgid ""
 "This key is already registered for <span weight=\"bold\">off key</span>\n"
 "Please  select another key"
 msgstr ""
 
-#: src/preference.c:550
+#: src/preference.c:568
 msgid ""
 "This key is already registered for <span weight=\"bold\">candidate key</"
 "span>\n"
 "Please  select another key"
 msgstr ""
 
-#: src/preference.c:642
+#: src/preference.c:660
 #, fuzzy
 msgid "Trigger keys"
 msgstr "Umschalttasten"
 
-#: src/preference.c:663
+#: src/preference.c:681
 #, fuzzy
 msgid "Select trigger key"
 msgstr "Umschalttasten"
 
-#: src/preference.c:664
+#: src/preference.c:682
 #, fuzzy
 msgid ""
 "Press any key which you want to use as trigger key. The key you pressed is "
@@ -230,20 +231,20 @@ msgstr ""
 "dargestelltFalls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
 "\"</span>"
 
-#: src/preference.c:691
+#: src/preference.c:709
 #, fuzzy
 msgid "* You should restart nabi to apply above option"
 msgstr "* Sie müssen Nabi neu starten, um diese Option zu aktivieren."
 
-#: src/preference.c:697
+#: src/preference.c:715
 msgid "Off keys"
 msgstr ""
 
-#: src/preference.c:716
+#: src/preference.c:734
 msgid "Select off key"
 msgstr ""
 
-#: src/preference.c:717
+#: src/preference.c:735
 #, fuzzy
 msgid ""
 "Press any key which you want to use as off key. The key you pressed is "
@@ -255,25 +256,25 @@ msgstr ""
 "dargestelltFalls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
 "\"</span>"
 
-#: src/preference.c:741
+#: src/preference.c:759
 msgid "Select hanja font"
 msgstr "Wahl 한자/Hanja Zeichensatz"
 
-#: src/preference.c:791
+#: src/preference.c:809
 #, fuzzy
 msgid "Hanja Font"
 msgstr "한자/Hanja"
 
-#: src/preference.c:796
+#: src/preference.c:814
 #, fuzzy
 msgid "Hanja keys"
 msgstr "한자/Hanja Tasten"
 
-#: src/preference.c:815
+#: src/preference.c:833
 msgid "Select candidate key"
 msgstr ""
 
-#: src/preference.c:816
+#: src/preference.c:834
 #, fuzzy
 msgid ""
 "Press any key which you want to use as candidate key. The key you pressed is "
@@ -285,79 +286,82 @@ msgstr ""
 "benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\"</span>"
 
 #. options for candidate option
-#: src/preference.c:832
+#: src/preference.c:850
 msgid "Use simplified chinese"
 msgstr ""
 
-#: src/preference.c:838
+#: src/preference.c:856
 #, fuzzy
 msgid "Hanja Options"
 msgstr "한자/Hanja Tasten"
 
 #. advanced
-#: src/preference.c:926 src/preference.c:1064
+#: src/preference.c:944 src/preference.c:1082
 msgid "Advanced"
 msgstr "Feinheiten"
 
-#: src/preference.c:932
+#: src/preference.c:950
 msgid "XIM name:"
 msgstr ""
 
-#: src/preference.c:945
+#: src/preference.c:963
 msgid "Use dynamic event flow"
 msgstr ""
 
-#: src/preference.c:955
+#: src/preference.c:973
 msgid "Commit by word"
 msgstr ""
 
-#: src/preference.c:965
+#: src/preference.c:983
 msgid "Automatic reordering"
 msgstr ""
 
-#: src/preference.c:975
+#: src/preference.c:993
 msgid "Input mode option: "
 msgstr ""
 
-#: src/preference.c:980
+#: src/preference.c:998
 msgid "per desktop"
 msgstr ""
 
-#: src/preference.c:982
+#: src/preference.c:1000
 msgid "per application"
 msgstr ""
 
-#: src/preference.c:984
+#: src/preference.c:1002
 msgid "per toplevel"
 msgstr ""
 
-#: src/preference.c:986
+#: src/preference.c:1004
 msgid "per context"
 msgstr ""
 
-#: src/preference.c:1031
+#: src/preference.c:1049
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
 #. icons
-#: src/preference.c:1043
+#: src/preference.c:1061
 msgid "Tray"
 msgstr "Ablage"
 
 #. keyboard
-#: src/preference.c:1049
+#: src/preference.c:1067
 msgid "Keyboard"
 msgstr "Tastatur"
 
 #. key
-#: src/preference.c:1054
+#: src/preference.c:1072
 msgid "Hangul"
 msgstr "한글/Hangul"
 
 #. candidate
-#: src/preference.c:1059
+#: src/preference.c:1077
 msgid "Hanja"
 msgstr "한자/Hanja"
+
+#~ msgid "Hangul input method: Nabi"
+#~ msgstr "Hangul Eingabehilfe: Nabi"
 
 #~ msgid "Hanja Keys"
 #~ msgstr "한자/Hanja Tasten"
@@ -412,9 +416,6 @@ msgstr "한자/Hanja"
 
 #~ msgid "Nabi: missing charset\n"
 #~ msgstr "Nami: Zeichensatz fehlt\n"
-
-#~ msgid "Nabi: font: %s\n"
-#~ msgstr "Nabi: Zeichensatz: %s\n"
 
 #~ msgid "Nabi: get unknown ic attributes: %s\n"
 #~ msgstr "Nabi: erhielt unbekannte ic Attribute: %s\n"

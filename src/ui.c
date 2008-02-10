@@ -1143,6 +1143,8 @@ nabi_create_tray_icon(gpointer data)
     GtkWidget *eventbox;
     GtkTooltips *tooltips;
     GtkOrientation orientation;
+    const char *keyboard_name;
+    char tip_text[256];
     int w, h;
 
     if (nabi_tray != NULL)
@@ -1161,9 +1163,13 @@ nabi_create_tray_icon(gpointer data)
 		     G_CALLBACK(on_tray_icon_button_press), NULL);
     gtk_widget_show(eventbox);
 
+    keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
+					nabi->config->hangul_keyboard);
+    snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
+
     tooltips = gtk_tooltips_new();
     gtk_tooltips_set_tip(GTK_TOOLTIPS(tooltips), eventbox,
-			 _("Hangul input method: Nabi"),
+			 tip_text,
 			 _("Hangul input method: Nabi"
 			   " - You can input hangul using this program"));
 
