@@ -118,6 +118,32 @@ void _Xi18nDeleteClient (Xi18n i18n_core, CARD16 connect_id)
     /*endfor*/
 }
 
+void _Xi18nDeleteAllClients (Xi18n i18n_core)
+{
+    Xi18nClient *client = i18n_core->address.clients;
+
+    while (client != NULL) {
+	Xi18nClient* tmp = client;
+        client = client->next;
+	free (tmp);
+    }
+
+    i18n_core->address.clients = NULL;
+}
+
+void _Xi18nDeleteFreeClients (Xi18n i18n_core)
+{
+    Xi18nClient *client = i18n_core->address.free_clients;
+
+    while (client != NULL) {
+	Xi18nClient* tmp = client;
+        client = client->next;
+	free (tmp);
+    }
+
+    i18n_core->address.free_clients = NULL;
+}
+
 void _Xi18nSendMessage (XIMS ims,
                         CARD16 connect_id,
                         CARD8 major_opcode,
@@ -163,8 +189,8 @@ void _Xi18nSendMessage (XIMS ims,
 
     i18n_core->methods.send (ims, connect_id, reply, reply_length);
 
-    XFree (reply);
-    XFree (reply_hdr);
+    free (reply);
+    free (reply_hdr);
     FrameMgrFree (fm);
 }
 
@@ -231,7 +257,7 @@ void _Xi18nSendTriggerKey (XIMS ims, CARD16 connect_id)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree(reply);
+    free (reply);
 }
 
 void _Xi18nSetEventMask (XIMS ims,
@@ -272,5 +298,5 @@ void _Xi18nSetEventMask (XIMS ims,
                        total_size);
 
     FrameMgrFree (fm);
-    XFree(reply);
+    free (reply);
 }

@@ -71,7 +71,7 @@ int _Xi18nGeometryCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_GEOMETRY is an asyncronous protocol,
        so return immediately. */
@@ -113,7 +113,7 @@ int _Xi18nPreeditStartCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     return True;
 }
@@ -184,7 +184,7 @@ int _Xi18nPreeditDrawCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_PREEDIT_DRAW is an asyncronous protocol, so return immediately. */
     return True;
@@ -231,7 +231,7 @@ int _Xi18nPreeditCaretCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     return True;
 }
@@ -272,7 +272,7 @@ int _Xi18nPreeditDoneCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_PREEDIT_DONE is an asyncronous protocol, so return immediately. */
     return True;
@@ -313,7 +313,7 @@ int _Xi18nStatusStartCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_STATUS_START is an asyncronous protocol, so return immediately. */
     return True;
@@ -409,7 +409,7 @@ int _Xi18nStatusDrawCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_STATUS_DRAW is an asyncronous protocol, so return immediately. */
     return True;
@@ -451,7 +451,7 @@ int _Xi18nStatusDoneCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_STATUS_DONE is an asyncronous protocol, so return immediately. */
     return True;
@@ -503,7 +503,7 @@ int _Xi18nStringConversionCallback (XIMS ims, IMProtocol *call_data)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     /* XIM_STR_CONVERSION is a syncronous protocol,
        so should wait here for XIM_STR_CONVERSION_REPLY. */

@@ -58,6 +58,7 @@ const static struct config_item config_items[] = {
     { "offkeys",            CONFIG_STR,  OFFSET(off_keys)                 },
     { "candidatekeys",      CONFIG_STR,  OFFSET(candidate_keys)           },
     { "output_mode",        CONFIG_STR,  OFFSET(output_mode)              },
+    { "input_mode_option",  CONFIG_STR,  OFFSET(input_mode_option)        },
     { "preedit_foreground", CONFIG_STR,  OFFSET(preedit_fg)               },
     { "preedit_background", CONFIG_STR,  OFFSET(preedit_bg)               },
     { "candidate_font",	    CONFIG_STR,  OFFSET(candidate_font)           },
@@ -65,7 +66,6 @@ const static struct config_item config_items[] = {
     { "dynamic_event_flow", CONFIG_BOOL, OFFSET(use_dynamic_event_flow)   },
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
-    { "input_mode_option",  CONFIG_STR,  OFFSET(input_mode_option)        },
     { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
     { NULL,                 0,           0                                }
 };
@@ -217,24 +217,26 @@ nabi_config_new()
 void
 nabi_config_delete(NabiConfig* config)
 {
-    g_free(config->theme);
+    g_free(config->xim_name);
 
-    g_free(config->trigger_keys);
-    g_free(config->candidate_keys);
+    g_free(config->theme);
 
     g_free(config->hangul_keyboard);
     g_free(config->latin_keyboard);
     g_free(config->keyboard_layouts_file);
 
-    g_free(config->xim_name);
+    g_free(config->trigger_keys);
+    g_free(config->off_keys);
+    g_free(config->candidate_keys);
+
     g_free(config->output_mode);
     g_free(config->input_mode_option);
 
-    g_free(config->candidate_font);
-    g_free(config->candidate_format);
-
     g_free(config->preedit_fg);
     g_free(config->preedit_bg);
+
+    g_free(config->candidate_font);
+    g_free(config->candidate_format);
 
     g_free(config);
 }

@@ -675,7 +675,7 @@ static void *xi18n_setup (Display *dpy, XIMArg *args)
 
     if (ParseArgs (i18n_core, I18N_OPEN, args) != NULL)
     {
-        XFree (i18n_core);
+        free (i18n_core);
         return NULL;
     }
     /*endif*/
@@ -756,10 +756,10 @@ static Status xi18n_openIM(XIMS ims)
         ||
         !i18n_core->methods.begin (ims))
     {
-        XFree (i18n_core->address.im_name);
-        XFree (i18n_core->address.im_locale);
-        XFree (i18n_core->address.im_addr);
-        XFree (i18n_core);
+        free (i18n_core->address.im_name);
+        free (i18n_core->address.im_locale);
+        free (i18n_core->address.im_addr);
+        free (i18n_core);
         return False;
     }
     /*endif*/
@@ -787,10 +787,21 @@ static Status xi18n_closeIM(XIMS ims)
                         i18n_core->address.im_window,
                         WaitXSelectionRequest,
                         (XPointer)ims);
-    XFree (i18n_core->address.im_name);
-    XFree (i18n_core->address.im_locale);
-    XFree (i18n_core->address.im_addr);
-    XFree (i18n_core);
+
+    _Xi18nDeleteAllClients(i18n_core);
+    _Xi18nDeleteFreeClients(i18n_core);
+
+    free (i18n_core->address.im_name);
+    free (i18n_core->address.im_locale);
+    free (i18n_core->address.im_addr);
+    free (i18n_core->address.input_styles.supported_styles);
+    free (i18n_core->address.on_keys.keylist);
+    free (i18n_core->address.off_keys.keylist);
+    free (i18n_core->address.encoding_list.supported_encodings);
+    free (i18n_core->address.xim_attr);
+    free (i18n_core->address.xic_attr);
+    free (i18n_core->address.connect_addr);
+    free (i18n_core);
     return True;
 }
 
@@ -942,7 +953,7 @@ static Status xi18n_forwardEvent (XIMS ims, XPointer xp)
                        reply,
                        total_size + event_size);
 
-    XFree (reply);
+    free (reply);
     FrameMgrFree (fm);
 
     return True;
@@ -1039,7 +1050,7 @@ static Status xi18n_commit (XIMS ims, XPointer xp)
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     return True;
 }
@@ -1162,7 +1173,7 @@ static int xi18n_syncXlib (XIMS ims, XPointer xp)
     _Xi18nSendMessage (ims, connect_id, XIM_SYNC, 0, reply, total_size);
 
     FrameMgrFree (fm);
-    XFree(reply);
+    free(reply);
     return True;
 }
 

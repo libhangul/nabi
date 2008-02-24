@@ -488,7 +488,7 @@ static Bool WaitXIMProtocol (Display *dpy,
         /*endif*/
         _Xi18nMessageHandler (ims, connect_id, packet, &delete);
         if (delete == True)
-            XFree (packet);
+            free (packet);
         /*endif*/
         return True;
     }

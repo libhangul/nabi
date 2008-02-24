@@ -120,7 +120,7 @@ XIMS _GetIMS (char *modifiers)
 	return ims;
     }
     /*endif*/
-    XFree (ims);
+    free (ims);
     return (XIMS) NULL;
 }
 

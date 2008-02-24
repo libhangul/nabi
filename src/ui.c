@@ -93,7 +93,6 @@ static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
 static void remove_event_filter();
 static GtkWidget* create_tray_icon_menu(void);
 
-static GdkPixbuf *default_icon = NULL;
 static GdkPixbuf *none_pixbuf = NULL;
 static GdkPixbuf *hangul_pixbuf = NULL;
 static GdkPixbuf *english_pixbuf = NULL;
@@ -183,6 +182,7 @@ void
 nabi_app_init(int *argc, char ***argv)
 {
     gchar *icon_filename;
+    GdkPixbuf *default_icon = NULL;
 
     /* set XMODIFIERS env var to none before creating any widget
      * If this is not set, xim server will try to connect herself.
@@ -269,9 +269,8 @@ nabi_app_init(int *argc, char ***argv)
     g_free(icon_filename);
 
     if (default_icon != NULL) {
-	GList *list = g_list_prepend(NULL, default_icon);
-	gtk_window_set_default_icon_list(list);
-	g_list_free(list);
+	gtk_window_set_default_icon(default_icon);
+	g_object_unref(default_icon);
     }
 
     /* status icons */
@@ -377,12 +376,6 @@ nabi_app_quit(void)
 void
 nabi_app_free(void)
 {
-    /* remove default icon */
-    if (default_icon != NULL) {
-	g_object_unref(default_icon);
-	default_icon = NULL;
-    }
-
     if (nabi == NULL)
 	return;
 

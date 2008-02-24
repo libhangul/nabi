@@ -161,7 +161,7 @@ static void ConnectMessageProc (XIMS ims,
                        total_size);
 
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 }
 
 static void DisConnectMessageProc (XIMS ims, IMProtocol *call_data)
@@ -233,7 +233,7 @@ static void OpenMessageProc(XIMS ims, IMProtocol *call_data, unsigned char *p)
         _Xi18nSendTriggerKey (ims, connect_id);
     }
     /*endif*/
-    XFree (imopen->lang.name);
+    free (imopen->lang.name);
 
     fm = FrameMgrInit (open_reply_fr,
                        NULL,
@@ -300,7 +300,7 @@ static void OpenMessageProc(XIMS ims, IMProtocol *call_data, unsigned char *p)
                        total_size);
 
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 }
 
 static void CloseMessageProc (XIMS ims,
@@ -362,7 +362,7 @@ static void CloseMessageProc (XIMS ims,
                        total_size);
 
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 }
 
 static XIMExt *MakeExtensionList (Xi18n i18n_core,
@@ -518,9 +518,9 @@ static void QueryExtensionMessageProc (XIMS ims,
                                   &reply_number);
 
     for (i = 0;  i < number;  i++)
-        XFree (query_ext->extension[i].name);
+        free (query_ext->extension[i].name);
     /*endfor*/
-    XFree (query_ext->extension);
+    free (query_ext->extension);
 
     fm = FrameMgrInit (query_extension_reply_fr,
                        NULL,
@@ -571,12 +571,12 @@ static void QueryExtensionMessageProc (XIMS ims,
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     for (i = 0;  i < reply_number;  i++)
-        XFree (ext_list[i].name);
+        free (ext_list[i].name);
     /*endfor*/
-    XFree ((char *) ext_list);
+    free (ext_list);
 }
 
 static void SyncReplyMessageProc (XIMS ims,
@@ -805,7 +805,7 @@ static void GetIMValuesMessageProc (XIMS ims,
             return;
     }
 #endif  /* PROTOCOL_RICH */
-    XFree (name_list);
+    free (name_list);
 
     im_attribute_list = MakeIMAttributeList (i18n_core,
                                              connect_id,
@@ -813,7 +813,7 @@ static void GetIMValuesMessageProc (XIMS ims,
                                              &number,
                                              &list_len);
     if (im_attrID_list)
-        XFree (im_attrID_list);
+        free (im_attrID_list);
     /*endif*/
 
     fm = FrameMgrInit (get_im_values_reply_fr,
@@ -857,11 +857,11 @@ static void GetIMValuesMessageProc (XIMS ims,
                        reply,
                        total_size);
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 
     for (i = 0; i < iter_count; i++)
-        XFree(im_attribute_list[i].value);
-    XFree (im_attribute_list);
+        free (im_attribute_list[i].value);
+    free (im_attribute_list);
 }
 
 static void CreateICMessageProc (XIMS ims,
@@ -1035,7 +1035,7 @@ static void DestroyICMessageProc (XIMS ims,
                        0,
                        reply,
                        total_size);
-    XFree(reply);
+    free (reply);
     FrameMgrFree (fm);
 }
 
@@ -1107,7 +1107,7 @@ static void ResetICMessageProc (XIMS ims,
     if (resetic->commit_string)
 	XFree(resetic->commit_string);
 
-    XFree(reply);
+    free (reply);
 }
 
 /* For byte swapping */
@@ -1420,7 +1420,7 @@ static void TriggerNotifyMessageProc (XIMS ims,
     }
     /*endif*/
     FrameMgrFree (fm);
-    XFree (reply);
+    free (reply);
 }
 
 static INT16 ChooseEncoding (Xi18n i18n_core,
@@ -1568,23 +1568,23 @@ static void EncodingNegotiatonMessageProc (XIMS ims,
                        0,
                        reply,
                        total_size);
-    XFree (reply);
+    free (reply);
 
     /* free data for encoding list */
     if (enc_nego->encoding)
     {
         for (i = 0;  i < (int) enc_nego->encoding_number;  i++)
-            XFree (enc_nego->encoding[i].name);
+            free (enc_nego->encoding[i].name);
         /*endfor*/
-        XFree (enc_nego->encoding);
+        free (enc_nego->encoding);
     }
     /*endif*/
     if (enc_nego->encodinginfo)
     {
         for (i = 0;  i < (int) enc_nego->encoding_info_number;  i++)
-            XFree (enc_nego->encodinginfo[i].name);
+            free (enc_nego->encodinginfo[i].name);
         /*endfor*/
-        XFree (enc_nego->encodinginfo);
+        free (enc_nego->encodinginfo);
     }
     /*endif*/
     FrameMgrFree (fm);

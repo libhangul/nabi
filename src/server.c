@@ -207,9 +207,7 @@ nabi_server_destroy(NabiServer *server)
 
     /* keyboard */
     nabi_server_delete_layouts(server);
-
-    if (server->hangul_keyboard != NULL)
-	g_free(server->hangul_keyboard);
+    g_free(server->hangul_keyboard);
 
     /* delete hanja table */
     if (server->hanja_table != NULL)
@@ -221,6 +219,9 @@ nabi_server_destroy(NabiServer *server)
 
     g_free(server->trigger_keys.keylist);
     g_free(server->candidate_keys.keylist);
+    g_free(server->off_keys.keylist);
+
+    g_free(server->candidate_font);
     g_free(server->name);
 
     g_free(server);
@@ -327,6 +328,7 @@ xim_trigger_keys_set_value(XIMTriggerKeys* keys, char** key_strings)
 		keylist[i].keysym = gdk_keyval_from_name(list[j]);
 	    }
 	}
+	g_strfreev(list);
     }
 
     keys->keylist = keylist;

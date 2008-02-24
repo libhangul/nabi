@@ -733,9 +733,9 @@ void _Xi18nChangeIC (XIMS ims,
     }
     /*endfor*/
     for (i = 0;  i < attrib_num;  i++)
-        XFree (attrib_list[i].value);
+        free (attrib_list[i].value);
     /*endfor*/
-    XFree (attrib_list);
+    free (attrib_list);
 
     FrameMgrFree (fm);
 
@@ -756,11 +756,11 @@ void _Xi18nChangeIC (XIMS ims,
 
     /* Here, we must free value of ic_attr, pre_attr and sts_attr */ 
     for (i = 0; i < ic_num; i++)
-	XFree (ic_attr[i].value);
+	free (ic_attr[i].value);
     for (i = 0; i < preedit_ic_num; i++)
-	XFree (pre_attr[i].value);
+	free (pre_attr[i].value);
     for (i = 0; i < status_ic_num; i++)
-	XFree (sts_attr[i].value);
+	free (sts_attr[i].value);
 
     if (create_flag == True)
     {
@@ -834,7 +834,7 @@ void _Xi18nChangeIC (XIMS ims,
     }
     /*endif*/
     FrameMgrFree (fm);
-    XFree(reply);
+    free (reply);
 }
 
 /* called from GetICValueMessageProc */
@@ -1022,50 +1022,50 @@ void _Xi18nGetIC (XIMS ims, IMProtocol *call_data, unsigned char *p)
                        0,
                        reply,
                        total_size);
-    XFree (reply);
-    XFree (attrID_list);
+    free (reply);
+    free (attrID_list);
 
     for (i = 0;  i < (int) getic->ic_attr_num;  i++)
     {
 	if (getic->ic_attr[i].name)
-	    XFree (getic->ic_attr[i].name);
+	    free (getic->ic_attr[i].name);
 	/*endif*/
         if (getic->ic_attr[i].value)
-            XFree (getic->ic_attr[i].value);
+            free (getic->ic_attr[i].value);
         /*endif*/
     }
     /*endfor*/
     for (i = 0;  i < (int) getic->preedit_attr_num;  i++)
     {
 	if (getic->preedit_attr[i].name)
-	    XFree (getic->preedit_attr[i].name);
+	    free (getic->preedit_attr[i].name);
 	/*endif*/
 	if (getic->preedit_attr[i].value)
-	    XFree (getic->preedit_attr[i].value);
+	    free (getic->preedit_attr[i].value);
 	/*endif*/
     }
     /*endfor*/
     for (i = 0;  i < (int) getic->status_attr_num;  i++)
     {
 	if (getic->status_attr[i].name)
-	    XFree (getic->status_attr[i].name);
+	    free (getic->status_attr[i].name);
 	/*endif*/
 	if (getic->status_attr[i].value)
-	    XFree (getic->status_attr[i].value);
+	    free (getic->status_attr[i].value);
 	/*endif*/
     }
     /*endfor*/
     
     if (preedit_ret)
     {
-        XFree (preedit_ret->value);
-        XFree (preedit_ret);
+        free (preedit_ret->value);
+        free (preedit_ret);
     }
     /*endif*/
     if (status_ret)
     {
-        XFree (status_ret->value);
-        XFree (status_ret);
+        free (status_ret->value);
+        free (status_ret);
     }
     /*endif*/
     FrameMgrFree (fm);

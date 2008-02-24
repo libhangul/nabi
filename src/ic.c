@@ -428,6 +428,7 @@ nabi_ic_hic_on_transition(HangulInputContext* hic,
     if (ic != NULL) {
 	char* utf8 = g_ucs4_to_utf8((const gunichar*)preedit, -1, NULL, NULL, NULL);
 	ret = nabi_connection_is_valid_str(ic->connection, utf8);
+	nabi_log(6, "on translation: %s: %s\n", utf8, ret ? "true" : "false");
 	g_free(utf8);
     }
 
@@ -1350,6 +1351,9 @@ nabi_ic_preedit_update(NabiIC *ic)
 
     if (preedit_len <= 0) {
 	nabi_ic_preedit_clear(ic);
+	g_free(normal);
+	g_free(hilight);
+	g_free(preedit);
 	return;
     }
 
@@ -1849,12 +1853,14 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	    ic->candidate = nabi_candidate_new(preedit, 9,
 				    list, valid_list, valid_list_length,
 				    parent, &nabi_ic_candidate_commit_cb, ic);
+	    g_free(preedit);
 	    return True;
 	} else {
 	    hanja_list_delete(list);
 	}
     }
 
+    g_free(preedit);
     return False;
 }
 
