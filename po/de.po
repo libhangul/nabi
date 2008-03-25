@@ -5,32 +5,31 @@
 # This file is distributed under the same license as the PACKAGE package.
 #
 # Choe Hwanjin <krisna@kldp.org>, YEAR.
-# Niklaus Giger <niklaus.giger@member.fsf.org>, 2006.
+# Niklaus Giger <niklaus.giger@member.fsf.org>, 2006, 2008.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-02-10 12:32+0900\n"
-"PO-Revision-Date: 2006-11-19 19:30+0100\n"
+"PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
-"Language-Team:  <ami-list@lists.kldp.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
+"Language-Team:  <ami-list@lists.kldp.net>\n"
 
 #: src/candidate.c:355
-#, fuzzy
 msgid "hanja"
 msgstr "한자/Hanja"
 
 #: src/candidate.c:362
 msgid "hanja(hangul)"
-msgstr ""
+msgstr "Hanja (Hangul)"
 
 #: src/candidate.c:368
 msgid "hangul(hanja)"
-msgstr ""
+msgstr "Hangul(Hanja)"
 
 #: src/eggtrayicon.c:118
 msgid "Orientation"
@@ -108,7 +107,7 @@ msgid "About Nabi"
 msgstr "Über Nabi"
 
 #: src/ui.c:756
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
@@ -120,8 +119,8 @@ msgstr ""
 "Nabi ist das koreanische Wort für Schmetterling.\n"
 "Version %s\n"
 "\n"
-"Copyright © 2003-2006 최환진/Choe Hwanjin\n"
-"Deutsche Übersetzung: © 2006 Niklaus Giger"
+"Copyright © 2003-2008 최환진/Choe Hwanjin\n"
+"Deutsche Übersetzung: © 2006-2008  Niklaus Giger"
 
 #: src/ui.c:773
 msgid "<span weight=\"bold\">XIM name</span>: "
@@ -146,7 +145,7 @@ msgstr "Tastaturstatistik"
 #. palette menu
 #: src/ui.c:929
 msgid "_Show palette"
-msgstr ""
+msgstr "Zeige Hinweis"
 
 #: src/ui.c:1122
 msgid ""
@@ -157,50 +156,55 @@ msgid ""
 "value.\n"
 "Please change the theme settings."
 msgstr ""
+"<span size=\"x-large\" weight=\"bold\">Kann ein Icon nicht laden</span>\n"
+"\n"
+"Es gab Fehler beim Laden der Icons für die Schaltfläche. Nabi wird deshalb die eingebauten Icons verwenden und das verwendete Schema wird auf die Vorgabe zurückgesetzt."
+"\nBitte ändern Sie das Schema."
 
 #: src/ui.c:1129
 msgid "Nabi: error message"
-msgstr ""
+msgstr "Nabi: Fehlermeldung"
 
 #: src/ui.c:1168
-#, fuzzy, c-format
+#, c-format
 msgid "Nabi: %s"
-msgstr "Nabi: Zeichensatz: %s\n"
+msgstr "Nabi: Zeichensatz: %s"
 
 #: src/ui.c:1173
 msgid "Hangul input method: Nabi - You can input hangul using this program"
-msgstr ""
-"Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
+msgstr "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
 
 #: src/ui.c:1291
 msgid "_Hide palette"
-msgstr ""
+msgstr "Hinweis ausblenden"
 
 #: src/preference.c:254
 msgid "Tray icons"
-msgstr ""
+msgstr "Icons für die Schaltfläche"
 
 #: src/preference.c:374
-#, fuzzy
 msgid "Hangul keyboard"
 msgstr "Hangul/koreanische Tastatur"
 
 #: src/preference.c:397
-#, fuzzy
 msgid "English keyboard"
-msgstr "Hangul/koreanische Tastatur"
+msgstr "englische Tastatur"
 
 #: src/preference.c:540
 msgid ""
 "This key is already registered for <span weight=\"bold\">trigger key</span>\n"
 "Please  select another key"
 msgstr ""
+"Diese Taste wurde schon als <span weight=\"bold\">Umschalttaste</span> gewählt.\n"
+"Bitte eine andere Taste auswählen."
 
 #: src/preference.c:554
 msgid ""
 "This key is already registered for <span weight=\"bold\">off key</span>\n"
 "Please  select another key"
 msgstr ""
+"Diese Taste wurde schon als <span weight=\"bold\">Ausschalttaste</span> gewählt.\n"
+"Bitte eine andere Taste auswählen."
 
 #: src/preference.c:568
 msgid ""
@@ -208,92 +212,83 @@ msgid ""
 "span>\n"
 "Please  select another key"
 msgstr ""
+"Diese Taste wurde schon als <span weight=\"bold\">Kandidatauswahltaste</span> gewählt.\n"
+"Bitte eine andere Taste auswählen."
 
 #: src/preference.c:660
-#, fuzzy
 msgid "Trigger keys"
 msgstr "Umschalttasten"
 
 #: src/preference.c:681
-#, fuzzy
 msgid "Select trigger key"
-msgstr "Umschalttasten"
+msgstr "Bitte Umschalttaste auswählen"
 
 #: src/preference.c:682
-#, fuzzy
 msgid ""
 "Press any key which you want to use as trigger key. The key you pressed is "
 "displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\""
 msgstr ""
-"<span weight=\"bold\">Drücken Sie irgendeine Taste, welche Sie zum "
-"Umschalten verwenden möchten. Die gedrückte Taste wird unten "
-"dargestelltFalls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
-"\"</span>"
+"Drücken Sie irgendeine Taste, welche Sie zum Umschalten verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
+"Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
+"\""
 
 #: src/preference.c:709
-#, fuzzy
 msgid "* You should restart nabi to apply above option"
 msgstr "* Sie müssen Nabi neu starten, um diese Option zu aktivieren."
 
 #: src/preference.c:715
 msgid "Off keys"
-msgstr ""
+msgstr "Ausschalttaste."
 
 #: src/preference.c:734
 msgid "Select off key"
-msgstr ""
+msgstr "Bitte Ausschalttaste auswählen"
 
 #: src/preference.c:735
-#, fuzzy
 msgid ""
 "Press any key which you want to use as off key. The key you pressed is "
 "displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\""
 msgstr ""
-"<span weight=\"bold\">Drücken Sie irgendeine Taste, welche Sie zum "
-"Umschalten verwenden möchten. Die gedrückte Taste wird unten "
-"dargestelltFalls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
-"\"</span>"
+"Drücken Sie irgendeine Taste, welche Sie zum "
+"Umschalten verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
+"Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #: src/preference.c:759
 msgid "Select hanja font"
 msgstr "Wahl 한자/Hanja Zeichensatz"
 
 #: src/preference.c:809
-#, fuzzy
 msgid "Hanja Font"
-msgstr "한자/Hanja"
+msgstr "한자/Hanja Zeichensatz"
 
 #: src/preference.c:814
-#, fuzzy
 msgid "Hanja keys"
 msgstr "한자/Hanja Tasten"
 
 #: src/preference.c:833
 msgid "Select candidate key"
-msgstr ""
+msgstr "Bitte \"Kandidatauswahl\" Taste auswählen"
 
 #: src/preference.c:834
-#, fuzzy
 msgid ""
 "Press any key which you want to use as candidate key. The key you pressed is "
 "displayed below.\n"
 "If you want to use it, click \"Ok\", or click \"Cancel\""
 msgstr ""
-"<span weight=\"bold\">rücken Sie irgendeine Taste, welche Sie zum Wahltaste "
-"verwenden möchten. Die gedrückte Taste wird unten dargestelltFalls Sie sie "
-"benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\"</span>"
+"Drücken Sie irgendeine Taste, welche Sie als Kandidatauswahltaste "
+"verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
+"Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #. options for candidate option
 #: src/preference.c:850
 msgid "Use simplified chinese"
-msgstr ""
+msgstr "Vereinfaches Chinesisch benutzen"
 
 #: src/preference.c:856
-#, fuzzy
 msgid "Hanja Options"
-msgstr "한자/Hanja Tasten"
+msgstr "한자/Hanja Optionen"
 
 #. advanced
 #: src/preference.c:944 src/preference.c:1082
@@ -302,39 +297,40 @@ msgstr "Feinheiten"
 
 #: src/preference.c:950
 msgid "XIM name:"
-msgstr ""
+msgstr "XIM Name:"
 
 #: src/preference.c:963
 msgid "Use dynamic event flow"
-msgstr ""
+msgstr "Dynamischen Ereignisfluss benutzen"
 
 #: src/preference.c:973
 msgid "Commit by word"
-msgstr ""
+msgstr "Bestätigung nach jedem Wort"
 
 #: src/preference.c:983
 msgid "Automatic reordering"
-msgstr ""
+msgstr "Automatische Neuanordnung"
 
 #: src/preference.c:993
 msgid "Input mode option: "
-msgstr ""
+msgstr "Auswahl des Eingabemodus"
 
 #: src/preference.c:998
 msgid "per desktop"
-msgstr ""
+msgstr "Pro Desktop"
 
 #: src/preference.c:1000
+#, fuzzy
 msgid "per application"
-msgstr ""
+msgstr "Pro Programm"
 
 #: src/preference.c:1002
 msgid "per toplevel"
-msgstr ""
+msgstr "Pro höchste Stufe"
 
 #: src/preference.c:1004
 msgid "per context"
-msgstr ""
+msgstr "Pro Kontext"
 
 #: src/preference.c:1049
 msgid "Nabi Preferences"
@@ -343,7 +339,7 @@ msgstr "Einstellungen von Nabi"
 #. icons
 #: src/preference.c:1061
 msgid "Tray"
-msgstr "Ablage"
+msgstr "Schaltfläche"
 
 #. keyboard
 #: src/preference.c:1067
@@ -360,98 +356,3 @@ msgstr "한글/Hangul"
 msgid "Hanja"
 msgstr "한자/Hanja"
 
-#~ msgid "Hangul input method: Nabi"
-#~ msgstr "Hangul Eingabehilfe: Nabi"
-
-#~ msgid "Hanja Keys"
-#~ msgstr "한자/Hanja Tasten"
-
-#~ msgid "Trigger Keys"
-#~ msgstr "Umschalttasten"
-
-#~ msgid "<span weight=\"bold\">Tray icons</span>"
-#~ msgstr "<span weight=\"bold\">Ablage Icons</span>"
-
-#~ msgid "<span weight=\"bold\">Hangul keyboard</span>"
-#~ msgstr "<span weight=\"bold\">Hangul/koreanische Tastatur</span>"
-
-#~ msgid "<span weight=\"bold\">English keyboard</span>"
-#~ msgstr "<span weight=\"bold\">Englische Tastatur</span>"
-
-#~ msgid "<span weight=\"bold\">Trigger keys</span>"
-#~ msgstr "<span weight=\"bold\">한영 전환키</span>"
-
-#, fuzzy
-#~ msgid "<span weight=\"bold\">Off keys</span>"
-#~ msgstr "<span weight=\"bold\">한자/Hanja Tasten</span>"
-
-#~ msgid "<span weight=\"bold\">Hanja Font</span>"
-#~ msgstr "<span weight=\"bold\">한자/Hanja Zeichensatz</span>"
-
-#~ msgid "<span weight=\"bold\">Hanja keys</span>"
-#~ msgstr "<span weight=\"bold\">한자/Hanja Tasten</span>"
-
-#, fuzzy
-#~ msgid "<span weight=\"bold\">Hanja Options</span>"
-#~ msgstr "<span weight=\"bold\">한자/Hanja Zeichensatz</span>"
-
-#, fuzzy
-#~ msgid "<span weight=\"bold\">XIM</span>"
-#~ msgstr "<span weight=\"bold\">XIM Name</span>: "
-
-#~ msgid "_About..."
-#~ msgstr "Über nabi..."
-
-#~ msgid "_Preferences..."
-#~ msgstr "Einstellungen..."
-
-#~ msgid "Nabi: None"
-#~ msgstr "Nabi: Keine"
-
-#~ msgid "Nabi: English"
-#~ msgstr "Nabi: Englisch"
-
-#~ msgid "Nabi: Hangul"
-#~ msgstr "Nabi: Hangul/Koreanisch"
-
-#~ msgid "Nabi: missing charset\n"
-#~ msgstr "Nami: Zeichensatz fehlt\n"
-
-#~ msgid "Nabi: get unknown ic attributes: %s\n"
-#~ msgstr "Nabi: erhielt unbekannte ic Attribute: %s\n"
-
-#~ msgid "Nabi: Can't load config file\n"
-#~ msgstr "Nabi: Kann Konfigurationsdatei nicht lesen\n"
-
-#~ msgid "Nabi: Can't write config file\n"
-#~ msgstr "Nabi: Kann Konfigurationsdatei nicht schreiben\n"
-
-#~ msgid "Querty keyboard"
-#~ msgstr "Querty Tastatur"
-
-#~ msgid "Dvorak keyboard"
-#~ msgstr "Dvorak Tastatur"
-
-#~ msgid "Nabi: Can't read keyboard map file\n"
-#~ msgstr "Nabi: Kann Tastatur datei nicht lesen\n"
-
-#~ msgid "Nabi: Can't open compose table dir: %s (%s)\n"
-#~ msgstr "Nabi: Kann Umsetzungstabelle %s (%s) nicht öffnen\n"
-
-#~ msgid "Nabi: Can't load compose table: %s\n"
-#~ msgstr "Nabi: Kann Umsetzungstabelle %s nicht laden\n"
-
-#~ msgid "Nabi: Can't load any compose table\n"
-#~ msgstr "Nabi: Kann keine einzige Umsetzungstabelle laden\n"
-
-#~ msgid "Nabi: Can't load candidate table\n"
-#~ msgstr "Nabi: Kann geeignete Umsetzungstabelle nicht laden\n"
-
-#~ msgid "Nabi: Can't open keyboard table dir: %s\n"
-#~ msgstr "Nabi: Kann Verzeichnis %s für Tastaturtabelle nicht öffnen\n"
-
-#~ msgid "Nabi: Can't load keyboard table: %s\n"
-#~ msgstr "Nabi: Kann Tastatustabelle %s nicht laden\n"
-
-#~ msgid "Nabi: Can't load any keyboard table\n"
-#~ msgstr "Nabi: Kann keine einzige Tastaturtabelle laden\n"
