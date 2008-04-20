@@ -1,4 +1,133 @@
 ------------------------------------------------------------------------
+r700 | gangs | 2008-04-20 16:32:56 +0900 (Sun, 20 Apr 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+libhangul 0.0.8 이상 사용: #304770 수정을 위해 
+
+------------------------------------------------------------------------
+r699 | gangs | 2008-04-20 16:26:29 +0900 (Sun, 20 Apr 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+po 업데이트
+
+------------------------------------------------------------------------
+r698 | gangs | 2008-04-20 16:05:09 +0900 (Sun, 20 Apr 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/test/Makefile
+
+gcc에 debug 옵션 추가
+
+------------------------------------------------------------------------
+r697 | gangs | 2008-04-20 15:52:06 +0900 (Sun, 20 Apr 2008) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+
+자판 변경후 output mode 옵션을 항상 재설정함
+ * 나비버그: #304770
+
+------------------------------------------------------------------------
+r696 | gangs | 2008-04-20 15:16:59 +0900 (Sun, 20 Apr 2008) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/ic.h
+
+한자 변환 기능 버그 수정:
+ * 한자 변환 전에 자모형을 음절형 스트링으로 변환후 검색 시도
+  - 나비버그: #304770
+ * ic의 Preedit string을 gunichar array로 가지고 있도록 변경
+ * nabi_u4str_xxx() 함수들 추가
+
+------------------------------------------------------------------------
+r694 | gangs | 2008-03-25 11:35:10 +0900 (Tue, 25 Mar 2008) | 3 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+
+update german translation:
+ Thanks to Niklaus Giger <niklaus.giger@member.fsf.org>
+
+------------------------------------------------------------------------
+r693 | krisna | 2008-02-24 20:54:32 +0900 (Sun, 24 Feb 2008) | 7 lines
+Changed paths:
+   M /nabi/trunk/IMdkit/IMConn.c
+   M /nabi/trunk/IMdkit/XimFunc.h
+   M /nabi/trunk/IMdkit/i18nClbk.c
+   M /nabi/trunk/IMdkit/i18nIc.c
+   M /nabi/trunk/IMdkit/i18nMethod.c
+   M /nabi/trunk/IMdkit/i18nPtHdr.c
+   M /nabi/trunk/IMdkit/i18nUtil.c
+   M /nabi/trunk/IMdkit/i18nX.c
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/ui.c
+
+memory leak 수정:
+ * IMdkit 코드에서 XFree()를 쓰던 곳을 free()로 변경.
+   이 코드들은 malloc()으로 할당하고도 XFree()를 쓰고 있었음
+ * IMdkit에서 빠진 몇가지를 free 하도록 처리
+ * nabi 코드에서 free하지 않던 스트링 처리
+ * default_icon 처리 루틴 단순화
+
+------------------------------------------------------------------------
+r692 | krisna | 2008-02-10 14:14:57 +0900 (Sun, 10 Feb 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+   M /nabi/trunk/src/ui.c
+
+트레이 아이콘의 툴팁에 자판 정보 나오게 함
+
+------------------------------------------------------------------------
+r691 | krisna | 2008-02-04 02:36:12 +0900 (Mon, 04 Feb 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+
+기본 설정의 간체자 사용 옵션 값을 FALSE로 설정 (#304722)
+
+------------------------------------------------------------------------
+r690 | krisna | 2008-01-23 23:23:32 +0900 (Wed, 23 Jan 2008) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+
+keyboard layout 설정 버그 수정
+ * nabi_server_set_keyboard_layout() 함수에서 server 포인터 처리 실수
+ * #304700 수정
+
+------------------------------------------------------------------------
+r689 | krisna | 2008-01-05 23:25:31 +0900 (Sat, 05 Jan 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/preference.c
+
+theme list에 svg icon이 있으면 svg를 보여주도록 함
+
+------------------------------------------------------------------------
+r687 | krisna | 2008-01-05 22:59:25 +0900 (Sat, 05 Jan 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+0.99.1 release
+
+------------------------------------------------------------------------
+r686 | krisna | 2008-01-05 22:59:10 +0900 (Sat, 05 Jan 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/AUTHORS
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r685 | krisna | 2008-01-05 22:56:29 +0900 (Sat, 05 Jan 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 파일 업데이트
+
+------------------------------------------------------------------------
 r684 | krisna | 2008-01-05 13:41:16 +0900 (Sat, 05 Jan 2008) | 2 lines
 Changed paths:
    M /nabi/trunk/src/Makefile.am
