@@ -454,6 +454,12 @@ nabi_ic_set_hangul_keyboard(NabiIC *ic, const char* hangul_keyboard)
 	return;
 
     hangul_ic_select_keyboard(ic->hic, hangul_keyboard);
+
+    if (nabi_server->output_mode == NABI_OUTPUT_JAMO) {
+	hangul_ic_set_output_mode(ic->hic, HANGUL_OUTPUT_JAMO);
+    } else {
+	hangul_ic_set_output_mode(ic->hic, HANGUL_OUTPUT_SYLLABLE);
+    }
 }
 
 static void
@@ -1217,8 +1223,7 @@ nabi_ic_set_focus(NabiIC* ic)
     }
 
     nabi_ic_set_mode(ic, mode);
-
-    hangul_ic_select_keyboard(ic->hic, nabi_server->hangul_keyboard);
+    nabi_ic_set_hangul_keyboard(ic, nabi_server->hangul_keyboard);
 }
 
 void
@@ -1942,7 +1947,7 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 
     /* 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를 지운다.*/
     while (keylen > 0 && ic->preedit.str->len > 0) {
-	int n = hangul_syllable_len(ic->preedit.str->data,
+	int n = hangul_syllable_len((ucschar*)ic->preedit.str->data,
 				    ic->preedit.str->len);
 	nabi_u4str_erase(ic->preedit.str, 0, n);
 	keylen--;
