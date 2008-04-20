@@ -10,13 +10,13 @@ clean:
 	rm -f xlib gtk1 gtk qt
 
 xlib: xlib.cpp
-	g++ $(CXXFLAGS) xlib.cpp -o xlib $(LIBS)
+	g++  $(CXXFLAGS) xlib.cpp -o xlib $(LIBS)
 
 gtk1: gtk1.c
-	gcc -Wall `gtk-config --cflags --libs` gtk1.c -o gtk1
+	gcc -Wall -g `gtk-config --cflags --libs` gtk1.c -o gtk1
 
 gtk: gtk.c
-	gcc -Wall `pkg-config --cflags --libs gtk+-2.0` gtk.c -o gtk
+	gcc -Wall -g `pkg-config --cflags --libs gtk+-2.0` gtk.c -o gtk
 
 qt: qt.cpp
 	g++ -Wall -I$(QTDIR)/include -L$(QTDIR)/lib -lqt-mt qt.cpp -o qt
