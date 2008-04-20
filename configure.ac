@@ -44,8 +44,8 @@ PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,,
 		  AC_MSG_ERROR([nabi needs GTK+ 2.4.0 or higher]))
 
 # checks for libhangul
-PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.0.5,,
-		  AC_MSG_ERROR([nabi needs libhangul 0.0.5 or higher]))
+PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.0.8,,
+		  AC_MSG_ERROR([nabi needs libhangul 0.0.8 or higher]))
 
 dnl gettext stuff
 ALL_LINGUAS="ko de"
