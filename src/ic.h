@@ -57,7 +57,7 @@ struct _NabiToplevel {
 };
 
 struct _PreeditAttributes {
-    GString*        str;
+    GArray*         str;
     GdkWindow*      window;         /* where to draw the preedit string */
     int             width;          /* preedit area width */
     int             height;         /* preedit area height */

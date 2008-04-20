@@ -41,12 +41,71 @@
 
 static void nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
-static char* nabi_ic_get_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_flush_string(NabiIC *ic);
 static void  nabi_ic_hic_on_translate(HangulInputContext* hic,
                          int ascii, ucschar* c, void* data);
 static bool  nabi_ic_hic_on_transition(HangulInputContext* hic,
 			 ucschar c, const ucschar* preedit, void* data);
+
+
+static inline GArray*
+nabi_u4str_append(GArray* str, const GArray* s)
+{
+    return g_array_append_vals(str, s->data, s->len);
+}
+
+static inline GArray*
+nabi_u4str_new(GArray* s)
+{
+    GArray* str = g_array_new(TRUE, TRUE, sizeof(gunichar));
+    if (s != NULL)
+	nabi_u4str_append(str, s);
+    return str;
+}
+
+static inline void
+nabi_u4str_clear(GArray* str)
+{
+    if (str->len > 0)
+	g_array_remove_range(str, 0, str->len);
+}
+
+static inline GArray*
+nabi_u4str_erase(GArray* str, guint pos, guint len)
+{
+    g_array_remove_range(str, pos, len);
+    return str;
+}
+
+static GArray*
+nabi_u4str_append_ucs4(GArray* str, const ucschar* s, gint len)
+{
+    /* ucschar의 크기와 gunichar의 크기가 다를수 있으므로 
+     * g_array_append_vals()에 길이를 직접 넘기지 않는다 */
+    if (len < 0) {
+	while (*s != 0) {
+	    gunichar c = *s;
+	    g_array_append_vals(str, &c, 1);
+	    s++;
+	}
+    } else {
+	int i;
+	for (i = 0; i < len; i++) {
+	    gunichar c = s[i];
+	    g_array_append_vals(str, &c, 1);
+	}
+    }
+
+    return str;
+}
+
+static inline gchar*
+nabi_u4str_to_utf8(GArray* str, guint len)
+{
+    if (len < 0)
+	len = str->len;
+    return g_ucs4_to_utf8((gunichar*)str->data, len, NULL, NULL, NULL);
+}
 
 static inline void *
 nabi_malloc(size_t size)
@@ -238,7 +297,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->mode = NABI_INPUT_MODE_DIRECT;
 
     /* preedit attr */
-    ic->preedit.str = g_string_new(NULL);
+    ic->preedit.str = nabi_u4str_new(NULL);
     ic->preedit.window = NULL;
     ic->preedit.width = 1;	/* minimum window size is 1 x 1 */
     ic->preedit.height = 1;	/* minimum window size is 1 x 1 */
@@ -328,7 +387,7 @@ nabi_ic_destroy(NabiIC *ic)
 
     /* destroy preedit string */
     if (ic->preedit.str != NULL) {
-	g_string_free(ic->preedit.str, TRUE);
+	g_array_free(ic->preedit.str, TRUE);
 	ic->preedit.str = NULL;
     }
 
@@ -577,7 +636,7 @@ nabi_ic_preedit_draw(NabiIC *ic)
     char* normal;
     char* hilight;
 
-    normal = g_strdup(ic->preedit.str->str);
+    normal = nabi_u4str_to_utf8(ic->preedit.str, -1);
     hilight = nabi_ic_get_hic_preedit_string(ic);
     preedit = g_strconcat(normal, hilight, NULL);
 
@@ -1123,7 +1182,7 @@ nabi_ic_reset(NabiIC *ic, IMResetICStruct *data)
     }
     g_free(preedit);
 
-    g_string_erase(ic->preedit.str, 0, -1);
+    nabi_u4str_clear(ic->preedit.str);
     ic->preedit.prev_length = 0;
 
     if (ic->input_style & XIMPreeditPosition) {
@@ -1279,13 +1338,22 @@ nabi_ic_get_hic_preedit_string(NabiIC *ic)
 }
 
 static char*
-nabi_ic_get_preedit_string(NabiIC *ic)
+nabi_ic_get_candidate_string(NabiIC *ic)
 {
     char* ret;
-    char* str = nabi_ic_get_hic_preedit_string(ic);
-    ret = g_strconcat(ic->preedit.str->str, str, NULL);
-    g_free(str);
+    const ucschar* u;
+    GArray* str;
+    int n;
 
+    str = nabi_u4str_new(ic->preedit.str);
+
+    u = hangul_ic_get_preedit_string(ic->hic);
+    nabi_u4str_append_ucs4(str, u, -1);
+
+    n = hangul_jamos_to_syllables((ucschar*)str->data, str->len,
+				  (ucschar*)str->data, str->len);
+    ret = nabi_u4str_to_utf8(str, n);
+    g_array_free(str, TRUE);
     return ret;
 }
 
@@ -1297,19 +1365,19 @@ nabi_ic_get_hic_commit_string(NabiIC *ic)
 }
 
 static char*
-nabi_ic_get_hic_flush_string(NabiIC *ic)
-{
-    const ucschar *str = hangul_ic_flush(ic->hic);
-    return g_ucs4_to_utf8((const gunichar*)str, -1, NULL, NULL, NULL);
-}
-
-static char*
 nabi_ic_get_flush_string(NabiIC *ic)
 {
     char* ret;
-    char* str = nabi_ic_get_hic_flush_string(ic);
-    ret = g_strconcat(ic->preedit.str->str, str, NULL);
-    g_free(str);
+    const ucschar* p;
+    GArray* str;
+
+    str = nabi_u4str_new(ic->preedit.str);
+
+    p = hangul_ic_flush(ic->hic);
+    nabi_u4str_append_ucs4(str, p, -1);
+
+    ret = nabi_u4str_to_utf8(str, -1);
+    g_array_free(str, TRUE);
 
     return ret;
 }
@@ -1341,7 +1409,7 @@ nabi_ic_preedit_update(NabiIC *ic)
     char* normal;
     char* hilight;
 
-    normal = g_strdup(ic->preedit.str->str);
+    normal = nabi_u4str_to_utf8(ic->preedit.str, -1);
     hilight = nabi_ic_get_hic_preedit_string(ic);
     preedit = g_strconcat(normal, hilight, NULL);
 
@@ -1478,17 +1546,19 @@ nabi_ic_commit_utf8(NabiIC *ic, const char *utf8_str)
 Bool
 nabi_ic_commit(NabiIC *ic)
 {
-    char* str = nabi_ic_get_hic_commit_string(ic);
     if (nabi_server->commit_by_word) {
-	ic->preedit.str = g_string_append(ic->preedit.str, str);
+	const ucschar *str = hangul_ic_get_commit_string(ic->hic);
+
+	nabi_u4str_append_ucs4(ic->preedit.str, str, -1);
 
 	if (hangul_ic_is_empty(ic->hic))
 	    nabi_ic_flush(ic);
     } else {
-	if (strlen(str) > 0)
+	char* str = nabi_ic_get_hic_commit_string(ic);
+	if (str != NULL && strlen(str) > 0)
 	    nabi_ic_commit_utf8(ic, str);
+	g_free(str);
     }
-    g_free(str);
 
     return True;
 }
@@ -1497,11 +1567,11 @@ void
 nabi_ic_flush(NabiIC *ic)
 {
     char* str = nabi_ic_get_flush_string(ic);
-    if (strlen(str) > 0)
+    if (str != NULL && strlen(str) > 0)
 	nabi_ic_commit_utf8(ic, str);
     g_free(str);
 
-    g_string_erase(ic->preedit.str, 0, -1);
+    nabi_u4str_clear(ic->preedit.str);
 }
 
 void
@@ -1708,18 +1778,6 @@ nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
     return True;
 }
 
-static GString*
-nabi_string_erase_lastchar(GString* str)
-{
-    char* start = str->str;
-    char* end = start + str->len;
-    char* last = g_utf8_find_prev_char(start, end);
-    if (last != NULL)
-	str = g_string_erase(str, last - start, end - last);
-
-    return str;
-}
-
 Bool
 nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 {
@@ -1769,7 +1827,7 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 	    nabi_ic_preedit_update(ic);
 	else {
 	    if (ic->preedit.str->len > 0) {
-		nabi_string_erase_lastchar(ic->preedit.str);
+		nabi_u4str_erase(ic->preedit.str, ic->preedit.str->len - 1, 1);
 		nabi_ic_preedit_update(ic);
 		return True;
 	    }
@@ -1809,7 +1867,7 @@ Bool
 nabi_ic_popup_candidate_window (NabiIC *ic)
 {
     Window parent = 0;
-    char* preedit;
+    char* key_text;
     HanjaList* list;
 
     if (ic->focus_window != 0)
@@ -1820,11 +1878,11 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     if (ic->candidate != NULL)
 	nabi_candidate_delete(ic->candidate);
 
-    preedit = nabi_ic_get_preedit_string(ic);
-    list = hanja_table_match_prefix(nabi_server->symbol_table, preedit);
+    key_text = nabi_ic_get_candidate_string(ic);
+    list = hanja_table_match_prefix(nabi_server->symbol_table, key_text);
 
     if (list == NULL)
-	list = hanja_table_match_prefix(nabi_server->hanja_table, preedit);
+	list = hanja_table_match_prefix(nabi_server->hanja_table, key_text);
 
     if (list != NULL) {
 	int i, valid_list_length = 0;
@@ -1850,17 +1908,17 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	}
 
 	if (valid_list_length > 0) {
-	    ic->candidate = nabi_candidate_new(preedit, 9,
+	    ic->candidate = nabi_candidate_new(key_text, 9,
 				    list, valid_list, valid_list_length,
 				    parent, &nabi_ic_candidate_commit_cb, ic);
-	    g_free(preedit);
+	    g_free(key_text);
 	    return True;
 	} else {
 	    hanja_list_delete(list);
 	}
     }
 
-    g_free(preedit);
+    g_free(key_text);
     return False;
 }
 
@@ -1880,14 +1938,18 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 
     key = hanja_get_key(hanja);
     if (key != NULL)
-	keylen = strlen(key);
+	keylen = g_utf8_strlen(key, -1);
 
-    /* hanja item의 key 길이 만큼 지우도록 한다. key가 ic->preedit.str보다 
-     * 길다면 hic의 내용도 reset을 해준다. */
-    if (keylen >= 0 && keylen <= ic->preedit.str->len) {
-	g_string_erase(ic->preedit.str, 0, keylen);
-    } else {
-	g_string_erase(ic->preedit.str, 0, -1);
+    /* 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를 지운다.*/
+    while (keylen > 0 && ic->preedit.str->len > 0) {
+	int n = hangul_syllable_len(ic->preedit.str->data,
+				    ic->preedit.str->len);
+	nabi_u4str_erase(ic->preedit.str, 0, n);
+	keylen--;
+    }
+
+    /* 아직도 keylen이 남았다면 hic에 있는 글자까지 지워야 하는 경우다 */
+    if (keylen > 0) {
 	hangul_ic_reset(ic->hic);
     }
 
