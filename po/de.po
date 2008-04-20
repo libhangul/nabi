@@ -10,14 +10,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-10 12:32+0900\n"
+"POT-Creation-Date: 2008-04-20 16:07+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
+"Language-Team:  <ami-list@lists.kldp.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
-"Language-Team:  <ami-list@lists.kldp.net>\n"
 
 #: src/candidate.c:355
 msgid "hanja"
@@ -63,50 +63,50 @@ msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
 msgid "3 set yetguel"
 msgstr "세벌식 옛글/ 3-fach alte Schrift"
 
-#: src/ui.c:618
+#: src/ui.c:611
 msgid "XIM Server is not running"
 msgstr "XIM Server (Dienst für Eingabe-Methode) läuft nicht"
 
-#: src/ui.c:629
+#: src/ui.c:622
 msgid "Total"
 msgstr "Total"
 
-#: src/ui.c:630
+#: src/ui.c:623
 msgid "Space"
 msgstr "Grösse"
 
-#: src/ui.c:631
+#: src/ui.c:624
 msgid "BackSpace"
 msgstr "Zurücktaste"
 
-#: src/ui.c:632
+#: src/ui.c:625
 msgid "Shift"
 msgstr "Grosstelltaste"
 
 #. choseong
-#: src/ui.c:635
+#: src/ui.c:628
 msgid "Choseong"
 msgstr "초성/Choseong"
 
 #. jungseong
-#: src/ui.c:649
+#: src/ui.c:642
 msgid "Jungseong"
 msgstr "중성/Jungseong"
 
 #. jongseong
-#: src/ui.c:670
+#: src/ui.c:663
 msgid "Jongseong"
 msgstr "종성/Jongseong"
 
-#: src/ui.c:694
+#: src/ui.c:687
 msgid "Nabi keypress statistics"
 msgstr "Tastenstatistik von Nabi"
 
-#: src/ui.c:738
+#: src/ui.c:731
 msgid "About Nabi"
 msgstr "Über Nabi"
 
-#: src/ui.c:756
+#: src/ui.c:749
 #, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
@@ -122,32 +122,32 @@ msgstr ""
 "Copyright © 2003-2008 최환진/Choe Hwanjin\n"
 "Deutsche Übersetzung: © 2006-2008  Niklaus Giger"
 
-#: src/ui.c:773
+#: src/ui.c:766
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM Name</span>: "
 
-#: src/ui.c:779
+#: src/ui.c:772
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">Locale (Ländereinstellung)</span>: "
 
-#: src/ui.c:785
+#: src/ui.c:778
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">Encoding (Eingabe-Kodierung)</span>: "
 
-#: src/ui.c:791
+#: src/ui.c:784
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">Verbunden</span>: "
 
-#: src/ui.c:821
+#: src/ui.c:814
 msgid "Keypress Statistics"
 msgstr "Tastaturstatistik"
 
 #. palette menu
-#: src/ui.c:929
+#: src/ui.c:922
 msgid "_Show palette"
 msgstr "Zeige Hinweis"
 
-#: src/ui.c:1122
+#: src/ui.c:1115
 msgid ""
 "<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
 "\n"
@@ -158,23 +158,26 @@ msgid ""
 msgstr ""
 "<span size=\"x-large\" weight=\"bold\">Kann ein Icon nicht laden</span>\n"
 "\n"
-"Es gab Fehler beim Laden der Icons für die Schaltfläche. Nabi wird deshalb die eingebauten Icons verwenden und das verwendete Schema wird auf die Vorgabe zurückgesetzt."
-"\nBitte ändern Sie das Schema."
+"Es gab Fehler beim Laden der Icons für die Schaltfläche. Nabi wird deshalb "
+"die eingebauten Icons verwenden und das verwendete Schema wird auf die "
+"Vorgabe zurückgesetzt.\n"
+"Bitte ändern Sie das Schema."
 
-#: src/ui.c:1129
+#: src/ui.c:1122
 msgid "Nabi: error message"
 msgstr "Nabi: Fehlermeldung"
 
-#: src/ui.c:1168
+#: src/ui.c:1161
 #, c-format
 msgid "Nabi: %s"
 msgstr "Nabi: Zeichensatz: %s"
 
-#: src/ui.c:1173
+#: src/ui.c:1166
 msgid "Hangul input method: Nabi - You can input hangul using this program"
-msgstr "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
+msgstr ""
+"Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
 
-#: src/ui.c:1291
+#: src/ui.c:1284
 msgid "_Hide palette"
 msgstr "Hinweis ausblenden"
 
@@ -195,7 +198,8 @@ msgid ""
 "This key is already registered for <span weight=\"bold\">trigger key</span>\n"
 "Please  select another key"
 msgstr ""
-"Diese Taste wurde schon als <span weight=\"bold\">Umschalttaste</span> gewählt.\n"
+"Diese Taste wurde schon als <span weight=\"bold\">Umschalttaste</span> "
+"gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
 #: src/preference.c:554
@@ -203,7 +207,8 @@ msgid ""
 "This key is already registered for <span weight=\"bold\">off key</span>\n"
 "Please  select another key"
 msgstr ""
-"Diese Taste wurde schon als <span weight=\"bold\">Ausschalttaste</span> gewählt.\n"
+"Diese Taste wurde schon als <span weight=\"bold\">Ausschalttaste</span> "
+"gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
 #: src/preference.c:568
@@ -212,7 +217,8 @@ msgid ""
 "span>\n"
 "Please  select another key"
 msgstr ""
-"Diese Taste wurde schon als <span weight=\"bold\">Kandidatauswahltaste</span> gewählt.\n"
+"Diese Taste wurde schon als <span weight=\"bold\">Kandidatauswahltaste</"
+"span> gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
 #: src/preference.c:660
@@ -229,9 +235,9 @@ msgid ""
 "displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\""
 msgstr ""
-"Drücken Sie irgendeine Taste, welche Sie zum Umschalten verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
-"Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen"
-"\""
+"Drücken Sie irgendeine Taste, welche Sie zum Umschalten verwenden möchten. "
+"Die gedrückte Taste wird unten dargestellt.\n"
+"Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #: src/preference.c:709
 msgid "* You should restart nabi to apply above option"
@@ -251,8 +257,8 @@ msgid ""
 "displayed below.\n"
 "If you want to use it, click \"Ok\" or click \"Cancel\""
 msgstr ""
-"Drücken Sie irgendeine Taste, welche Sie zum "
-"Umschalten verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
+"Drücken Sie irgendeine Taste, welche Sie zum Umschalten verwenden möchten. "
+"Die gedrückte Taste wird unten dargestellt.\n"
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #: src/preference.c:759
@@ -277,8 +283,8 @@ msgid ""
 "displayed below.\n"
 "If you want to use it, click \"Ok\", or click \"Cancel\""
 msgstr ""
-"Drücken Sie irgendeine Taste, welche Sie als Kandidatauswahltaste "
-"verwenden möchten. Die gedrückte Taste wird unten dargestellt.\n"
+"Drücken Sie irgendeine Taste, welche Sie als Kandidatauswahltaste verwenden "
+"möchten. Die gedrückte Taste wird unten dargestellt.\n"
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #. options for candidate option
@@ -355,4 +361,3 @@ msgstr "한글/Hangul"
 #: src/preference.c:1077
 msgid "Hanja"
 msgstr "한자/Hanja"
-

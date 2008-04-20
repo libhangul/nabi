@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-02-10 12:32+0900\n"
+"POT-Creation-Date: 2008-04-20 16:07+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
@@ -58,50 +58,50 @@ msgstr "세벌식 순아래"
 msgid "3 set yetguel"
 msgstr "세벌식 옛글"
 
-#: src/ui.c:618
+#: src/ui.c:611
 msgid "XIM Server is not running"
 msgstr "입력기 서버가 작동하지 않습니다"
 
-#: src/ui.c:629
+#: src/ui.c:622
 msgid "Total"
 msgstr "전체"
 
-#: src/ui.c:630
+#: src/ui.c:623
 msgid "Space"
 msgstr "스페이스"
 
-#: src/ui.c:631
+#: src/ui.c:624
 msgid "BackSpace"
 msgstr "백스페이스"
 
-#: src/ui.c:632
+#: src/ui.c:625
 msgid "Shift"
 msgstr "쉬프트"
 
 #. choseong
-#: src/ui.c:635
+#: src/ui.c:628
 msgid "Choseong"
 msgstr "초성"
 
 #. jungseong
-#: src/ui.c:649
+#: src/ui.c:642
 msgid "Jungseong"
 msgstr "중성"
 
 #. jongseong
-#: src/ui.c:670
+#: src/ui.c:663
 msgid "Jongseong"
 msgstr "종성"
 
-#: src/ui.c:694
+#: src/ui.c:687
 msgid "Nabi keypress statistics"
 msgstr "키입력 통계"
 
-#: src/ui.c:738
+#: src/ui.c:731
 msgid "About Nabi"
 msgstr "Nabi에 대해서"
 
-#: src/ui.c:756
+#: src/ui.c:749
 #, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
@@ -114,32 +114,32 @@ msgstr ""
 "\n"
 "Copyright (C) 2003-2008 최환진"
 
-#: src/ui.c:773
+#: src/ui.c:766
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM 이름</span>: "
 
-#: src/ui.c:779
+#: src/ui.c:772
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">로캘</span>: "
 
-#: src/ui.c:785
+#: src/ui.c:778
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">인코딩</span>: "
 
-#: src/ui.c:791
+#: src/ui.c:784
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">연결된 수</span>: "
 
-#: src/ui.c:821
+#: src/ui.c:814
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
 #. palette menu
-#: src/ui.c:929
+#: src/ui.c:922
 msgid "_Show palette"
 msgstr "팔레트 보이기(_S)"
 
-#: src/ui.c:1122
+#: src/ui.c:1115
 msgid ""
 "<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
 "\n"
@@ -155,20 +155,20 @@ msgstr ""
 "내장 아이콘을 사용하겠습니다. 테마는 기본값으로 바뀌게 됩니다.\n"
 "테마 설정을 바꿔주시기 바랍니다."
 
-#: src/ui.c:1129
+#: src/ui.c:1122
 msgid "Nabi: error message"
 msgstr "나비: 오류 메시지"
 
-#: src/ui.c:1168
+#: src/ui.c:1161
 #, c-format
 msgid "Nabi: %s"
 msgstr "나비: %s"
 
-#: src/ui.c:1173
+#: src/ui.c:1166
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr "한글 입력기: 나비 - 이 프로그램으로 한글을 입력할 수 있습니다"
 
-#: src/ui.c:1291
+#: src/ui.c:1284
 msgid "_Hide palette"
 msgstr "팔레트 숨기기(_H)"
 
