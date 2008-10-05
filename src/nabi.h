@@ -30,6 +30,7 @@ struct _NabiApplication {
     gchar*	    xim_name;
 
     GtkWidget*      palette;
+    GtkWidget*      keyboard_button;
     gboolean	    status_only;
     gchar*	    session_id;
 

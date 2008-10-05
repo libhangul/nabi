@@ -528,12 +528,15 @@ nabi_menu_position_func(GtkMenu *menu,
 			gboolean *push_in,
 			gpointer data)
 {
+    GtkWidget *widget;
     GdkWindow *window;
     GdkScreen *screen;
     gint width, height, menu_width, menu_height;
     gint screen_width, screen_height;
 
-    window = GDK_WINDOW(GTK_WIDGET(data)->window);
+    widget = GTK_WIDGET(data);
+
+    window = GDK_WINDOW(widget->window);
     screen = gdk_drawable_get_screen(GDK_DRAWABLE(window));
     screen_width = gdk_screen_get_width(screen);
     screen_height = gdk_screen_get_height(screen);
@@ -545,10 +548,12 @@ nabi_menu_position_func(GtkMenu *menu,
 			  &menu_width, &menu_height);
 
     if (*y + height < screen_height / 2)
-	*y += height;
+	*y += widget->allocation.height;
     else
 	*y -= menu_height;
 
+    *x += widget->allocation.x;
+    *y += widget->allocation.y;
     if (*x + menu_width > screen_width)
 	*x = screen_width - menu_width;
 }
@@ -868,22 +873,16 @@ on_menu_hide_palette(GtkWidget *widget, gpointer data)
 static void
 on_menu_keyboard(GtkWidget *widget, gpointer data)
 {
-    GtkWidget* title_menu;
     const char* id = (const char*)data;
 
     nabi_app_set_hangul_keyboard(id);
     preference_window_update();
     nabi_app_save_config();
 
-    title_menu = g_object_get_data(G_OBJECT(widget), "nabi_title_menu");
-    if (title_menu != NULL) {
-	GtkWidget* label;
-	label = gtk_bin_get_child(GTK_BIN(title_menu));
-	if (label != NULL) {
-	    const char* name;
-	    name = nabi_server_get_keyboard_name_by_id(nabi_server, id);
-	    gtk_label_set_text(GTK_LABEL(label), _(name));
-	}
+    if (nabi->keyboard_button != NULL) {
+	const char* name;
+	name = nabi_server_get_keyboard_name_by_id(nabi_server, id);
+	gtk_button_set_label(GTK_BUTTON(nabi->keyboard_button), _(name));
     }
 }
 
@@ -1190,17 +1189,24 @@ nabi_create_tray_icon(gpointer data)
     return FALSE;
 }
 
+static void
+on_palette_item_pressed(GtkWidget* widget, gpointer data)
+{
+    gtk_menu_popup(GTK_MENU(data), NULL, NULL,
+	    nabi_menu_position_func, widget,
+	    0, gtk_get_current_event_time());
+}
+
 GtkWidget*
 nabi_app_create_palette(void)
 {
     GtkWidget* handlebox;
     GtkWidget* hbox;
     GtkWidget* eventbox;
-    GtkWidget* menubar;
-    GtkWidget* submenu = NULL;
+    GtkWidget* menu;
     GtkWidget* menuitem;
-    GtkWidget* title_menuitem;
     GtkWidget* image;
+    GtkWidget* button;
     const char* current_keyboard_name = NULL;
 
     nabi_palette = g_new(NabiPalette, 1);
@@ -1230,71 +1236,77 @@ nabi_app_create_palette(void)
     gtk_container_add(GTK_CONTAINER(eventbox), nabi_palette->state->widget);
     gtk_widget_show(nabi_palette->state->widget);
 
-    menubar = gtk_menu_bar_new();
-    gtk_box_pack_start(GTK_BOX(hbox), menubar, FALSE, FALSE, 0);
-
     current_keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
 				    nabi->config->hangul_keyboard);
     if (current_keyboard_name != NULL) {
 	const NabiHangulKeyboard* keyboards;
 
-	menuitem = gtk_menu_item_new_with_label(_(current_keyboard_name));
-	gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
-	title_menuitem = menuitem;
+	button = gtk_button_new_with_label(_(current_keyboard_name));
+	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+	gtk_button_set_focus_on_click(GTK_BUTTON(button), FALSE);
+	GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
+	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+	gtk_widget_show(button);
+	nabi->keyboard_button = button;
 
 	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
 	if (keyboards != NULL) {
 	    int i;
-	    submenu = gtk_menu_new();
-	    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
-
+	    menu = gtk_menu_new();
 	    for (i = 0; keyboards[i].id != NULL; i++) {
 		menuitem = gtk_menu_item_new_with_label(_(keyboards[i].name));
-		gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
-		g_object_set_data(G_OBJECT(menuitem),
-				  "nabi_title_menu", title_menuitem);
+		gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+		gtk_widget_show(menuitem);
 		g_signal_connect(G_OBJECT(menuitem), "activate",
 				 G_CALLBACK(on_menu_keyboard),
 				 (gpointer)keyboards[i].id);
 	    }
+
+	    g_signal_connect(G_OBJECT(button), "pressed",
+			     G_CALLBACK(on_palette_item_pressed), menu);
 	}
     }
 
     image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
-    menuitem = gtk_image_menu_item_new();
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menuitem), image);
-    gtk_menu_shell_append(GTK_MENU_SHELL(menubar), menuitem);
+    button = gtk_button_new();
+    gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+    gtk_button_set_focus_on_click(GTK_BUTTON(button), FALSE);
+    GTK_WIDGET_UNSET_FLAGS(button, GTK_CAN_FOCUS);
+    gtk_button_set_image(GTK_BUTTON(button), image);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    gtk_widget_show(button);
 
-    submenu = gtk_menu_new();
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuitem), submenu);
+    menu = gtk_menu_new();
 
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_DIALOG_INFO, NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_about), menuitem);
 
     menuitem = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_PREFERENCES, NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_preference), menuitem);
 
     menuitem = gtk_menu_item_new_with_mnemonic(_("_Hide palette"));
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_hide_palette), menuitem);
 
     menuitem = gtk_separator_menu_item_new();
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 
     menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, NULL);
-    gtk_menu_shell_append(GTK_MENU_SHELL(submenu), menuitem);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_quit), menuitem);
 
-    gtk_widget_show_all(menubar);
+    gtk_widget_show_all(menu);
+    g_signal_connect(G_OBJECT(button), "pressed",
+		     G_CALLBACK(on_palette_item_pressed), menu);
 
     g_idle_add(nabi_create_tray_icon, NULL);
 
