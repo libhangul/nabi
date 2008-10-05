@@ -211,8 +211,9 @@ Bool	    nabi_server_load_compose_table(NabiServer *server,
 const NabiHangulKeyboard*
 nabi_server_get_hangul_keyboard_list(NabiServer* server);
 
-const char*
-nabi_server_get_keyboard_name_by_id(NabiServer* server, const char* id);
+const char* nabi_server_get_keyboard_name_by_id(NabiServer* server,
+                                                const char* id);
+const char* nabi_server_get_current_keyboard_name(NabiServer* server);
 
 #endif  /* __SERVER_H_ */
 

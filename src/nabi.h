@@ -31,6 +31,8 @@ struct _NabiApplication {
 
     GtkWidget*      palette;
     GtkWidget*      keyboard_button;
+    GtkWidget*      tray_icon;
+    GtkTooltips*    tooltips;
     gboolean	    status_only;
     gchar*	    session_id;
 

@@ -863,6 +863,12 @@ nabi_server_get_keyboard_name_by_id(NabiServer* server, const char* id)
     return NULL;
 }
 
+const char*
+nabi_server_get_current_keyboard_name(NabiServer* server)
+{
+    return nabi_server_get_keyboard_name_by_id(server, server->hangul_keyboard);
+}
+
 KeySym
 nabi_server_normalize_keysym(NabiServer *server,
 			     KeySym keysym, unsigned int state)
