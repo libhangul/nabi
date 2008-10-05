@@ -96,11 +96,11 @@ on_realize(GtkWidget *widget, gpointer data)
 static void
 nabi_handle_box_init (NabiHandleBox *handle_box)
 {
+    gtk_window_set_type_hint(GTK_WINDOW(handle_box),
+			     GDK_WINDOW_TYPE_HINT_TOOLBAR);
     gtk_window_set_decorated(GTK_WINDOW(handle_box), FALSE);
     gtk_window_set_skip_pager_hint(GTK_WINDOW(handle_box), TRUE);
     gtk_window_set_skip_taskbar_hint(GTK_WINDOW(handle_box), TRUE);
-    gtk_window_set_keep_above(GTK_WINDOW(handle_box), TRUE);
-    gtk_window_stick(GTK_WINDOW(handle_box));
     gtk_window_set_resizable(GTK_WINDOW(handle_box), FALSE);
     gtk_container_set_border_width(GTK_CONTAINER(handle_box), 1);
 
@@ -111,7 +111,10 @@ nabi_handle_box_init (NabiHandleBox *handle_box)
 GtkWidget*
 nabi_handle_box_new (void)
 {
-    return g_object_new (NABI_TYPE_HANDLE_BOX, NULL);
+    GtkWidget* widget = g_object_new (NABI_TYPE_HANDLE_BOX, NULL);
+    GTK_WINDOW(widget)->type = GTK_WINDOW_TOPLEVEL;
+
+    return widget;
 }
 
 static void
@@ -153,11 +156,6 @@ nabi_handle_box_size_allocate (GtkWidget     *widget,
 	child_allocation.width -= HANDLE_SIZE;
 
 	gtk_widget_size_allocate (bin->child, &child_allocation);
-    }
-
-    if (GTK_WIDGET_REALIZED(widget)) {
-	gdk_window_resize (widget->window,
-		allocation->width, allocation->height);
     }
 }
 
