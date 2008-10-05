@@ -139,6 +139,23 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
     index = (kevent->state & ShiftMask) ? 1 : 0;
     keysym = XLookupKeysym(kevent, index);
 
+    // 위에서 XLookupString()을 사용하지 않고 XLookupKeysym()함수를
+    // 사용한 것은 데스크탑에서 여러 언어 자판을 지원하기위해서 Xkb를
+    // 사용하는 경우에 쉽게 처리하기 위한 방편이다.
+    // Xkb를 사용하게 되면 keymap이 재정의되므로 XLookupString()의 리턴값은
+    // 재정의된 키값을 얻게되어 각 언어(예를 들어 프랑스, 러시아 등)의
+    // 자판에서 일반 qwerty 자판으로 변환을 해줘야 한다. 이 문제를 좀더 
+    // 손쉽게 풀기 위해서 재정의된 자판이 아닌 첫번째 자판의 값을 직접
+    // 가져오기 위해서 XLookupKeysym()함수를 사용한다.
+    // 그러나 이 함수를 사용하게되면 새로 정의된 키를 가져와야 되는 경우에
+    // 못가져오는 수가 생긴다. 이를 피하기 위해서 XLookupKeysym() 함수가
+    // 0을 리턴하면 XLookupString()으로 다시한번 시도하는 방식으로 
+    // 처리한다.
+    if (keysym == NoSymbol) {
+	char buf[64];
+	XLookupString(kevent, buf, sizeof(buf), &keysym, NULL);
+    }
+
     nabi_log(3, "forward event: id = %d-%d, keysym = 0x%x('%c')\n",
 	     (int)data->connect_id, (int)data->icid,
 	     keysym, (keysym < 0x80) ? keysym : ' ');
