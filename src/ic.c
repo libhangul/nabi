@@ -500,6 +500,27 @@ nabi_ic_hic_on_transition(HangulInputContext* hic,
     return ret;
 }
 
+static PangoLayout*
+nabi_ic_create_pango_layout(NabiIC *ic, const char* text)
+{
+    GdkScreen* screen;
+    PangoContext* context;
+    PangoLayout* layout;
+
+    screen = gdk_drawable_get_screen(ic->preedit.window);
+    context = gdk_pango_context_get_for_screen(screen);
+
+    pango_context_set_font_description(context, nabi_server->preedit_font);
+    pango_context_set_base_dir(context, PANGO_DIRECTION_LTR);
+    pango_context_set_language(context, pango_language_get_default());
+
+    layout = pango_layout_new(context);
+    if (text != NULL)
+	pango_layout_set_text(layout, text, -1);
+
+    return layout;
+}
+
 static void
 nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *preedit,
 				char* normal, char* hilight)
@@ -519,10 +540,10 @@ nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *preedit,
     normal_gc = ic->preedit.normal_gc;
     hilight_gc = ic->preedit.hilight_gc;
 
-    normal_l = gtk_widget_create_pango_layout(nabi_server->widget, normal);
+    normal_l = nabi_ic_create_pango_layout(ic, normal);
     pango_layout_get_pixel_extents(normal_l, NULL, &normal_r);
 
-    hilight_l = gtk_widget_create_pango_layout(nabi_server->widget, hilight);
+    hilight_l = nabi_ic_create_pango_layout(ic, hilight);
     pango_layout_get_pixel_extents(hilight_l, NULL, &hilight_r);
 
     fg = nabi_server->preedit_fg;

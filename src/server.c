@@ -180,6 +180,7 @@ nabi_server_new(const char *name)
     server->preedit_bg.red = 0;
     server->preedit_bg.green = 0;
     server->preedit_bg.blue = 0;
+    server->preedit_font = NULL;
     server->candidate_font = NULL;
 
     /* statistics */
@@ -243,6 +244,7 @@ nabi_server_destroy(NabiServer *server)
     g_free(server->candidate_keys.keylist);
     g_free(server->off_keys.keylist);
 
+    pango_font_description_free(server->preedit_font);
     g_free(server->candidate_font);
     g_free(server->name);
 
@@ -287,6 +289,18 @@ nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
 	server->output_mode = mode;
     } else  {
 	server->output_mode = mode;
+    }
+}
+
+void
+nabi_server_set_preedit_font(NabiServer *server, const gchar *font_desc)
+{
+    if (server == NULL)
+	return;
+
+    if (font_desc != NULL) {
+	pango_font_description_free(server->preedit_font);
+	server->preedit_font = pango_font_description_from_string(font_desc);
     }
 }
 
@@ -531,6 +545,8 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     server->window = window;
 
     server->start_time = time(NULL);
+
+    server->preedit_font = pango_font_description_from_string("Sans 9");
 
     nabi_log(1, "xim server started\n");
 

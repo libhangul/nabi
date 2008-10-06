@@ -925,6 +925,17 @@ on_input_mode_option_changed(GtkComboBox* combo_box, gpointer data)
     nabi_server_set_input_mode_option(nabi_server, input_mode_option);
 }
 
+static void
+on_preedit_font_changed(GtkFontButton* widget, gpointer data)
+{
+    const char* font_desc;
+    font_desc = gtk_font_button_get_font_name(widget);
+
+    g_free(config->preedit_font);
+    config->preedit_font = g_strdup(font_desc);
+    nabi_server_set_preedit_font(nabi_server, font_desc);
+}
+
 static GtkWidget*
 create_advanced_page(void)
 {
@@ -1019,6 +1030,17 @@ create_advanced_page(void)
 
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_input_mode_option_changed), NULL);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    label = gtk_label_new(_("Preedit string font: "));
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+    button = gtk_font_button_new_with_font(config->preedit_font);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(button), "font-set",
+		     G_CALLBACK(on_preedit_font_changed), NULL);
 
     return page;
 }

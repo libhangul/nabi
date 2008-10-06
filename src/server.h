@@ -125,6 +125,8 @@ struct _NabiServer {
     NabiInputModeOption     input_mode_option;
     GdkColor                preedit_fg;
     GdkColor                preedit_bg;
+
+    PangoFontDescription*   preedit_font;
     gchar*		    candidate_font;
 
     /* statistics */
@@ -165,6 +167,8 @@ void        nabi_server_toggle_input_mode(NabiServer* server);
 void        nabi_server_set_mode_info(NabiServer *server, int state);
 void        nabi_server_set_output_mode (NabiServer *server,
 					 NabiOutputMode mode);
+void	    nabi_server_set_preedit_font(NabiServer *server,
+					   const gchar *font_desc);
 void	    nabi_server_set_candidate_font(NabiServer *server,
 					   const gchar *font_name);
 void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);

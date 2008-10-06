@@ -54,6 +54,7 @@ struct _NabiConfig {
     gchar*          candidate_format;
 
     /* preedit attribute */
+    gchar*	    preedit_font;
     gchar*          preedit_fg;
     gchar*          preedit_bg;
 };
