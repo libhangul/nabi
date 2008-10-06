@@ -94,7 +94,6 @@ struct _NabiServer {
     XIMTriggerKeys          off_keys;
     XIMTriggerKeys          candidate_keys;
     char**                  locales;
-    GdkGC*		    gc;
 
     /* xim connection list */
     GSList*                 connections;

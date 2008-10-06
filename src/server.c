@@ -171,9 +171,6 @@ nabi_server_destroy(NabiServer *server)
     if (server == NULL)
 	return;
 
-    if (server->gc != NULL)
-	g_object_unref(G_OBJECT(server->gc));
-
     /* destroy remaining connections */
     if (server->connections != NULL) {
 	item = server->connections;
@@ -543,10 +540,6 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     server->root_window = gdk_screen_get_root_window(gtk_widget_get_screen(widget));
     server->display = display;
     server->window = window;
-
-    server->gc = gdk_gc_new(widget->window);
-    gdk_gc_set_foreground(server->gc, &(server->preedit_fg));
-    gdk_gc_set_background(server->gc, &(server->preedit_bg));
 
     server->start_time = time(NULL);
 
