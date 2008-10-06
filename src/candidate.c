@@ -324,6 +324,19 @@ nabi_candidate_update_list(NabiCandidate *candidate)
 }
 
 static void
+nabi_candidate_on_treeview_realize(GtkWidget* widget, gpointer data)
+{
+    gtk_widget_modify_fg  (widget, GTK_STATE_ACTIVE,
+			   &widget->style->fg[GTK_STATE_SELECTED]);
+    gtk_widget_modify_bg  (widget, GTK_STATE_ACTIVE,
+			   &widget->style->bg[GTK_STATE_SELECTED]);
+    gtk_widget_modify_text(widget, GTK_STATE_ACTIVE,
+			   &widget->style->text[GTK_STATE_SELECTED]);
+    gtk_widget_modify_base(widget, GTK_STATE_ACTIVE,
+			   &widget->style->base[GTK_STATE_SELECTED]);
+}
+
+static void
 nabi_candidate_create_window(NabiCandidate *candidate)
 {
     GtkWidget *frame;
@@ -410,6 +423,17 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 		     G_CALLBACK(nabi_candidate_on_row_activated), candidate);
     g_signal_connect(G_OBJECT(treeview), "cursor-changed",
 		     G_CALLBACK(nabi_candidate_on_cursor_changed), candidate);
+    // candidate window는 포커스가 없는 윈도우이므로 treeview에는 
+    // focus가 없는 상태가 되어서 select가 되지 않는다.
+    // 그런데 테마에 따라서 active 색상이 normal 색상과 같은 것들이 있다.
+    // 그런 경우에는 active 상태인 row가 normal과 같이 그려지므로 
+    // 구분이 되지 않는다. 즉 선택된 candidate가 구분이 안되는 경우가 
+    // 있다는 것이다.
+    // 그런 경우를 피하기 위해서 realize된 후(style이 attach된 후)
+    // style을 modify해서 active인 것이 select 된 것과 동일하게 그려지도록
+    // 처리한다.
+    g_signal_connect_after(G_OBJECT(treeview), "realize",
+		     G_CALLBACK(nabi_candidate_on_treeview_realize), NULL);
 
     g_signal_connect(G_OBJECT(candidate->window), "key-press-event",
 		     G_CALLBACK(nabi_candidate_on_key_press), candidate);
