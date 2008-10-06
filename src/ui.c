@@ -358,6 +358,8 @@ nabi_app_setup_server(void)
 	nabi_server_set_input_mode_option(nabi_server,
 					  NABI_INPUT_MODE_PER_TOPLEVEL);
     }
+
+    nabi_server_set_preedit_font(nabi_server, nabi->config->preedit_font);
 }
 
 void

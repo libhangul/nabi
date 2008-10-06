@@ -180,7 +180,7 @@ nabi_server_new(const char *name)
     server->preedit_bg.red = 0;
     server->preedit_bg.green = 0;
     server->preedit_bg.blue = 0;
-    server->preedit_font = NULL;
+    server->preedit_font = pango_font_description_from_string("Sans 9");
     server->candidate_font = NULL;
 
     /* statistics */
@@ -545,8 +545,6 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     server->window = window;
 
     server->start_time = time(NULL);
-
-    server->preedit_font = pango_font_description_from_string("Sans 9");
 
     nabi_log(1, "xim server started\n");
 
