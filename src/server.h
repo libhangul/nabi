@@ -126,7 +126,7 @@ struct _NabiServer {
     GdkColor                preedit_bg;
 
     PangoFontDescription*   preedit_font;
-    gchar*		    candidate_font;
+    PangoFontDescription*   candidate_font;
 
     /* statistics */
     time_t                  start_time;
@@ -170,7 +170,7 @@ void        nabi_server_set_output_mode (NabiServer *server,
 void	    nabi_server_set_preedit_font(NabiServer *server,
 					   const gchar *font_desc);
 void	    nabi_server_set_candidate_font(NabiServer *server,
-					   const gchar *font_name);
+					   const gchar *font_desc);
 void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);

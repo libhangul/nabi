@@ -181,7 +181,7 @@ nabi_server_new(Display* display, int screen, const char *name)
     server->preedit_bg.green = 0;
     server->preedit_bg.blue = 0;
     server->preedit_font = pango_font_description_from_string("Sans 9");
-    server->candidate_font = NULL;
+    server->candidate_font = pango_font_description_from_string("Sans 14");
 
     /* statistics */
     memset(&(server->statistics), 0, sizeof(server->statistics));
@@ -245,7 +245,7 @@ nabi_server_destroy(NabiServer *server)
     g_free(server->off_keys.keylist);
 
     pango_font_description_free(server->preedit_font);
-    g_free(server->candidate_font);
+    pango_font_description_free(server->candidate_font);
     g_free(server->name);
 
     g_free(server);
@@ -294,27 +294,27 @@ nabi_server_set_output_mode(NabiServer *server, NabiOutputMode mode)
 }
 
 void
-nabi_server_set_preedit_font(NabiServer *server, const gchar *font_desc)
+nabi_server_set_preedit_font(NabiServer *server, const char *font_desc)
 {
     if (server == NULL)
 	return;
 
-    if (font_desc != NULL) {
+    if (font_desc != NULL)
 	pango_font_description_free(server->preedit_font);
-	server->preedit_font = pango_font_description_from_string(font_desc);
-    }
+    server->preedit_font = pango_font_description_from_string(font_desc);
+    nabi_log(3, "set preedit font: %s\n", font_desc);
 }
 
 void
-nabi_server_set_candidate_font(NabiServer *server, const gchar *font_name)
+nabi_server_set_candidate_font(NabiServer *server, const char *font_desc)
 {
     if (server == NULL)
 	return;
 
-    if (font_name != NULL) {
-	g_free(server->candidate_font);
-	server->candidate_font = g_strdup(font_name);
-    }
+    if (font_desc != NULL)
+	pango_font_description_free(server->candidate_font);
+    server->candidate_font = pango_font_description_from_string(font_desc);
+    nabi_log(3, "set candidate font: %s\n", font_desc);
 }
 
 static void
