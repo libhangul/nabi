@@ -95,7 +95,7 @@ static char *nabi_locales[] = {
 };
 
 NabiServer*
-nabi_server_new(const char *name)
+nabi_server_new(Display* display, int screen, const char *name)
 {
     const char *charset;
     char *trigger_keys[3]   = { "Hangul", "Shift+space", NULL };
@@ -106,6 +106,9 @@ nabi_server_new(const char *name)
 
     server = (NabiServer*)malloc(sizeof(NabiServer));
 
+    server->display = display;
+    server->screen = screen;
+
     /* server var */
     if (name == NULL)
 	server->name = strdup(PACKAGE);
@@ -113,9 +116,6 @@ nabi_server_new(const char *name)
 	server->name = strdup(name);
 
     server->xims = 0;
-    server->widget = NULL;
-    server->root_window = NULL;
-    server->display = NULL;
     server->window = 0;
     server->filter_mask = 0;
     server->trigger_keys.count_keys = 0;
@@ -266,17 +266,18 @@ nabi_server_set_hangul_keyboard(NabiServer *server, const char *id)
 void
 nabi_server_set_mode_info(NabiServer *server, int state)
 {
-    guint32 data;
+    long data;
 
     if (server == NULL)
 	return;
 
     data = state;
-    gdk_property_change(server->root_window,
-			gdk_atom_intern ("_HANGUL_INPUT_MODE", FALSE),
-			gdk_atom_intern ("INTEGER", FALSE),
-			32, GDK_PROP_MODE_REPLACE,
-			(const guchar *)&data, 1);
+    Window root = RootWindow(server->display, server->screen);
+    Atom property = XInternAtom(server->display, "_HANGUL_INPUT_MODE", FALSE);
+    Atom type = XInternAtom(server->display, "INTEGER", FALSE);
+
+    XChangeProperty(server->display, root, property, type, 
+		    32, PropModeReplace, (unsigned char*)&data, 1);
 }
 
 void
@@ -484,9 +485,8 @@ nabi_server_is_running(const char* name)
 }
 
 int
-nabi_server_start(NabiServer *server, GtkWidget *widget)
+nabi_server_start(NabiServer *server)
 {
-    Display *display;
     Window window;
     XIMS xims;
     XIMStyles input_styles;
@@ -499,8 +499,9 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     if (server->xims != NULL)
 	return 0;
 
-    display = GDK_WINDOW_XDISPLAY(widget->window);
-    window = GDK_WINDOW_XWINDOW(widget->window);
+    window = XCreateSimpleWindow(server->display,
+				 RootWindow(server->display, server->screen),
+				 0, 0, 1, 1, 1, 0, 0);
 
     input_styles.count_styles = sizeof(nabi_input_styles) 
 		    / sizeof(XIMStyle) - 1;
@@ -511,7 +512,7 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
     encodings.supported_encodings = nabi_encodings;
 
     locales = g_strjoinv(",", server->locales);
-    xims = IMOpenIM(display,
+    xims = IMOpenIM(server->display,
 		   IMModifiers, "Xi18n",
 		   IMServerWindow, window,
 		   IMServerName, server->name,
@@ -539,9 +540,6 @@ nabi_server_start(NabiServer *server, GtkWidget *widget)
 		  NULL);
 
     server->xims = xims;
-    server->widget = widget;
-    server->root_window = gdk_screen_get_root_window(gtk_widget_get_screen(widget));
-    server->display = display;
     server->window = window;
 
     server->start_time = time(NULL);

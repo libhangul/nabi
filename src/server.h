@@ -83,11 +83,10 @@ struct NabiStatistics {
 
 struct _NabiServer {
     /* XIMS */
+    Display*                display;
+    int                     screen;
     char*		    name;
     XIMS                    xims;
-    GtkWidget*              widget;
-    GdkWindow*              root_window;
-    Display*                display;
     Window                  window;
     long                    filter_mask;
     XIMTriggerKeys          trigger_keys;
@@ -136,10 +135,11 @@ struct _NabiServer {
 
 extern NabiServer* nabi_server;
 
-NabiServer* nabi_server_new		(const char *name);
+NabiServer* nabi_server_new		(Display*    display,
+					 int         screen,
+					 const char* name);
 void        nabi_server_destroy         (NabiServer* server);
-int         nabi_server_start           (NabiServer* server,
-					 GtkWidget*  widget);
+int         nabi_server_start           (NabiServer* server);
 int         nabi_server_stop            (NabiServer *server);
 
 Bool        nabi_server_is_running();

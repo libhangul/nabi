@@ -38,18 +38,6 @@
 NabiApplication* nabi = NULL;
 NabiServer* nabi_server = NULL;
 
-static void
-on_realize(GtkWidget *widget, gpointer data)
-{
-    nabi_server_start(nabi_server, widget);
-}
-
-static void
-on_destroy(GtkWidget *widget, gpointer data)
-{
-    nabi_server_stop(nabi_server);
-}
-
 static int
 nabi_x_error_handler(Display *display, XErrorEvent *error)
 {
@@ -94,7 +82,10 @@ main(int argc, char *argv[])
     XSetIOErrorHandler(nabi_x_io_error_handler);
 
     if (!nabi->status_only) {
+	Display* display;
+	int screen;
 	char *xim_name;
+
 	/* we prefer command line option as default xim name */
 	if (nabi->xim_name != NULL)
 	    xim_name = nabi->xim_name;
@@ -106,18 +97,19 @@ main(int argc, char *argv[])
 	    goto quit;
 	}
 
-	nabi_server = nabi_server_new(xim_name);
+	display = gdk_x11_get_default_xdisplay();
+	screen = gdk_x11_get_default_screen();
+
+	nabi_server = nabi_server_new(display, screen, xim_name);
 	nabi_app_setup_server();
     }
 
     widget = nabi_app_create_palette();
-    if (nabi_server != NULL) {
-	g_signal_connect_after(G_OBJECT(widget), "realize",
-			       G_CALLBACK(on_realize), nabi_server);
-	g_signal_connect_after(G_OBJECT(widget), "destroy",
-			       G_CALLBACK(on_destroy), nabi_server);
-    }
     gtk_widget_show(widget);
+
+    if (nabi_server != NULL) {
+	nabi_server_start(nabi_server);
+    }
 
     nabi_session_open(nabi->session_id);
 
@@ -126,6 +118,7 @@ main(int argc, char *argv[])
     nabi_session_close();
 
     if (nabi_server != NULL) {
+	nabi_server_stop(nabi_server);
 	nabi_server_write_log(nabi_server);
 	nabi_server_destroy(nabi_server);
 	nabi_server = NULL;
