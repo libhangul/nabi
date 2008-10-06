@@ -136,7 +136,6 @@ extern NabiServer* nabi_server;
 
 NabiServer* nabi_server_new		(const char *name);
 void        nabi_server_destroy         (NabiServer* server);
-void        nabi_server_init            (NabiServer* server);
 int         nabi_server_start           (NabiServer* server,
 					 GtkWidget*  widget);
 int         nabi_server_stop            (NabiServer *server);

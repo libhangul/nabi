@@ -107,7 +107,6 @@ main(int argc, char *argv[])
 	}
 
 	nabi_server = nabi_server_new(xim_name);
-	nabi_server_init(nabi_server);
 	nabi_app_setup_server();
     }
 

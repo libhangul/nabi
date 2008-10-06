@@ -97,6 +97,11 @@ static char *nabi_locales[] = {
 NabiServer*
 nabi_server_new(const char *name)
 {
+    const char *charset;
+    char *trigger_keys[3]   = { "Hangul", "Shift+space", NULL };
+    char *off_keys[2]       = { "Escape", NULL };
+    char *candidate_keys[3] = { "Hangul_Hanja", "F9", NULL };
+
     NabiServer *server;
 
     server = (NabiServer*)malloc(sizeof(NabiServer));
@@ -119,6 +124,25 @@ nabi_server_new(const char *name)
     server->off_keys.keylist = NULL;
     server->candidate_keys.count_keys = 0;
     server->candidate_keys.keylist = NULL;
+    server->locales = nabi_locales;
+    server->filter_mask = KeyPressMask;
+
+    /* keys */
+    nabi_server_set_trigger_keys(server, trigger_keys);
+    nabi_server_set_off_keys(server, off_keys);
+    nabi_server_set_candidate_keys(server, candidate_keys);
+
+    /* check locale encoding */
+    if (g_get_charset(&charset)) {
+	/* utf8 encoding */
+	/* We add current locale to nabi support  locales array,
+	 * so whatever the locale string is, if its encoding is utf8,
+	 * nabi support the locale */
+	int i;
+	for (i = 0; server->locales[i] != NULL; i++)
+	    continue;
+	server->locales[i] = setlocale(LC_CTYPE, NULL);
+    }
 
     /* connection list */
     server->connections = NULL;
@@ -137,12 +161,13 @@ nabi_server_new(const char *name)
     server->auto_reorder = True;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
     server->input_mode_option = NABI_INPUT_MODE_PER_TOPLEVEL;
+    server->output_mode = NABI_OUTPUT_SYLLABLE;
 
     /* hanja */
-    server->hanja_table = NULL;
+    server->hanja_table = hanja_table_load(NULL);
 
     /* symbol */
-    server->symbol_table = NULL;
+    server->symbol_table = hanja_table_load(NABI_SYMBOL_TABLE);
 
     /* options */
     server->show_status = False;
@@ -354,42 +379,6 @@ void
 nabi_server_set_candidate_keys(NabiServer *server, char **keys)
 {
     xim_trigger_keys_set_value(&server->candidate_keys, keys);
-}
-
-void
-nabi_server_init(NabiServer *server)
-{
-    const char *charset;
-    char *trigger_keys[3]   = { "Hangul", "Shift+space", NULL };
-    char *off_keys[2]       = { "Escape", NULL };
-    char *candidate_keys[3] = { "Hangul_Hanja", "F9", NULL };
-
-    if (server == NULL)
-	return;
-
-    server->locales = nabi_locales;
-    server->filter_mask = KeyPressMask;
-
-    nabi_server_set_trigger_keys(server, trigger_keys);
-    nabi_server_set_off_keys(server, off_keys);
-    nabi_server_set_candidate_keys(server, candidate_keys);
-
-    server->output_mode = NABI_OUTPUT_SYLLABLE;
-
-    /* check locale encoding */
-    if (g_get_charset(&charset)) {
-	/* utf8 encoding */
-	/* We add current locale to nabi support  locales array,
-	 * so whatever the locale string is, if its encoding is utf8,
-	 * nabi support the locale */
-	int i;
-	for (i = 0; server->locales[i] != NULL; i++)
-	    continue;
-	server->locales[i] = setlocale(LC_CTYPE, NULL);
-    }
-
-    server->hanja_table = hanja_table_load(NULL);
-    server->symbol_table = hanja_table_load(NABI_SYMBOL_TABLE);
 }
 
 gboolean
