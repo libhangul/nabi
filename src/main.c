@@ -111,11 +111,13 @@ main(int argc, char *argv[])
 	nabi_server_start(nabi_server);
     }
 
-    nabi_session_open(nabi->session_id);
+    if (nabi_log_get_level() == 0)
+	nabi_session_open(nabi->session_id);
 
     gtk_main();
 
-    nabi_session_close();
+    if (nabi_log_get_level() == 0)
+	nabi_session_close();
 
     if (nabi_server != NULL) {
 	nabi_server_stop(nabi_server);

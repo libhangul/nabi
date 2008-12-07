@@ -29,6 +29,12 @@ nabi_log_set_level(int level)
     log_level = level;
 }
 
+int
+nabi_log_get_level(int level)
+{
+    return log_level;
+}
+
 void
 nabi_log_set_device(const char* device)
 {

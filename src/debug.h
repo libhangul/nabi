@@ -19,6 +19,7 @@
 #ifndef nabi_debug_h
 #define nabi_debug_h
 
+int  nabi_log_get_level();
 void nabi_log_set_level(int level);
 void nabi_log_set_device(const char* device);
 void nabi_log(int level, const char* format, ...);
