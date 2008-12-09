@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <locale.h>
 #include <wchar.h>
 
@@ -169,16 +170,20 @@ void TextView::createIC(void)
 	XIMCallback preedit_start;
 	XIMCallback preedit_done;
 	XIMCallback preedit_draw;
+	XIMCallback preedit_caret;
 	preedit_start.callback = preeditStartCallback;
 	preedit_start.client_data = (XPointer)this;
 	preedit_done.callback = preeditDoneCallback;
 	preedit_done.client_data = (XPointer)this;
 	preedit_draw.callback = preeditDrawCallback;
 	preedit_draw.client_data = (XPointer)this;
+	preedit_caret.callback = preeditCaretCallback;
+	preedit_caret.client_data = (XPointer)this;
 	XVaNestedList attr = XVaCreateNestedList(0,
 				 XNPreeditStartCallback, &preedit_start,
 				 XNPreeditDoneCallback,  &preedit_done,
 				 XNPreeditDrawCallback,  &preedit_draw,
+				 XNPreeditCaretCallback, &preedit_caret,
 				 NULL);
 	m_ic = XCreateIC(m_im, 
 			 XNInputStyle, XIMPreeditCallbacks,
