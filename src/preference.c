@@ -751,6 +751,24 @@ create_hangul_page(void)
 }
 
 static void
+candidate_font_button_set_labels(GtkWidget* button, const char* font_name)
+{
+    GtkWidget* face_label = g_object_get_data(G_OBJECT(button), "face_label");
+    GtkWidget* size_label = g_object_get_data(G_OBJECT(button), "size_label");
+
+    const char* sep = strrchr(font_name, ' ');
+    if (sep != NULL) {
+	gchar* face_str = g_strndup(font_name, sep - font_name);
+	const gchar* size_str = sep + 1;
+	gtk_label_set_text(GTK_LABEL(face_label), face_str);
+	gtk_label_set_text(GTK_LABEL(size_label), size_str);
+	g_free(face_str);
+    } else {
+	gtk_label_set_text(GTK_LABEL(face_label), font_name);
+    }
+}
+
+static void
 on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 {
     gint result;
@@ -771,7 +789,7 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 	g_free(config->candidate_font);
 	config->candidate_font = g_strdup(font);
 	nabi_server_set_candidate_font(nabi_server, font);
-	gtk_button_set_label(GTK_BUTTON(button), font);
+	candidate_font_button_set_labels(button, font);
     }
     gtk_widget_destroy(dialog);
 }
@@ -795,6 +813,7 @@ create_candidate_page(void)
     GtkWidget *button;
     GtkWidget *widget;
     GtkWidget *treeview;
+    GtkWidget *label;
     GtkTreeModel *model;
     const char *title;
     const char *message;
@@ -802,8 +821,18 @@ create_candidate_page(void)
     page = gtk_vbox_new(FALSE, 6);
     gtk_container_set_border_width(GTK_CONTAINER(page), 12);
 
-    /* options for candidate */
-    button = gtk_button_new_with_label(config->candidate_font);
+    /* options for candidate font */
+    button = gtk_button_new();
+    hbox = gtk_hbox_new(FALSE, 0);
+    label = gtk_label_new("");
+    g_object_set_data(G_OBJECT(button), "face_label", label);
+    gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 5);
+    gtk_box_pack_start(GTK_BOX(hbox), gtk_vseparator_new(), FALSE, FALSE, 0);
+    label = gtk_label_new("");
+    g_object_set_data(G_OBJECT(button), "size_label", label);
+    gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
+    gtk_container_add(GTK_CONTAINER(button), hbox);
+    candidate_font_button_set_labels(button, config->candidate_font);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
     item = create_pref_item(_("Hanja Font"), button, FALSE, FALSE);
