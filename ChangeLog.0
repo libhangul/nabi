@@ -1,0 +1,409 @@
+2006-05-11  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* nabi.png: 새로운 아이콘에 맞게 수정
+	* src/ui.c: nabi.svg 로딩에 실패할경우 nabi.png를 아이콘으로 사용
+
+2006-04-23  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ui.c: 키입력 통계창 출력 루틴 개선
+
+2005-07-17  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* test 디렉토리 추가 - 여러가지 toolkit을 위한 테스트 코드
+
+2005-01-13  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ic.c: PreeditArea에서 preedit window의 위치를 제대로 잡음
+
+2005-01-08  Choe Hwanjin <choe.hwanjin@gmail.com>
+	* src/ic.c: reset할때 preedit window 숨김
+	  gtk1 text widget에서 preedit string이 안나오던 문제 수정(over the
+	  spot(PreeditPostion) 방식에서 foreground, background값을 client가
+	  보내주는 값대신 nabi의 설정값을 따름)
+
+2004-12-05  Choe Hwanjin <krisna@kldp.org>
+	* release 0.15
+
+2004-12-04  Choe Hwanjin <krisna@kldp.org>
+	* About 창 업데이트
+
+2004-12-03  Choe Hwanjin <krisna@kldp.org>
+	* 나비 아이콘 새로 올림 (bluetux님의 작품)
+
+2004-12-02  Choe Hwanjin <krisna@kldp.org>
+	* 자판에서 자모 빈도를 $HOME/.nabi/nabi.log에 기록함
+
+2004-11-26  Choe Hwanjin <krisna@kldp.org>
+	* 설정창에서 한글/한자로 메뉴를 나눔
+
+2004-11-21  Choe Hwanjin <krisna@kldp.org>
+	* 한영 전환키와 한자 키 설정을 보강
+	* 옛글 compose table 추가
+	* 순아래 자판 추가
+
+2004-11-09  Choe Hwanjin <krisna@kldp.org>
+	* tray의 크기에 맞춰 size-allocate 시그널에서 자동으로 크기를 수정함
+	* 아이콘 크기 설정 옵션을 없앰
+
+2004-11-03  Choe Hwanjin <krisna@kldp.org>
+	* 키 입력 통계를 다른 창으로 띄움
+	* 하드코딩된 locale 스트링을 제거
+	* Qt immodule의 XIM에서 preedit window 위치를 잘못 찾던 버그 수정
+
+2004-10-05  Choe Hwanjin <krisna@kldp.org>
+	* full compose map 추가(엣글 입력에 필요함)
+	* 세벌식 옛글 자판 추가
+
+2004-10-04  Choe Hwanjin <krisna@kldp.org>
+	* compose table을 제대로 로딩하지 못하던 버그 수정
+
+2004-08-30  Choe Hwanjin <krisna@kldp.org>
+	* Tux 테마 추가 (박준철님에게 감사드립니다)
+
+2004-08-28  Choe Hwanjin <krisna@kldp.org>
+	* release 0.14
+
+2004-08-28  Choe Hwanjin <krisna@kldp.org>
+	* ko이외에 ja_JP.UTF-8, zh_CN.UTF-8, zh_HK.UTF-8, zh_TW.UTF-8,
+	en_US.UTF-8을 지원하도록 함
+	* candidate list의 글꼴 설정 옵션도 설정창에 추가
+	* candidate list의 갯수를 9개로 변경
+
+2004-08-01  Choe Hwanjin <krisna@kldp.org>
+	* XIMPreeditArea 지원
+
+2004-07-31  Choe Hwanjin <krisna@kldp.org>
+	* XIMPreeditNothing을 지원하기 위해 ic.c에서 gdk 함수를 직접 부르는
+	  방식으로 변경함
+
+2004-07-25  Choe Hwanjin <krisna@kldp.org>
+	* 설정창 구현
+
+2004-06-23  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: nabi_ic_commit_keyval() 함수에서 더이상 XIM_COMMIT을 사용
+	하지 않고, 바로 key event를 forwarding하도록 수정함. 일부 프로그램에서
+	하나의 이벤트에서 두번 commit하는 것을 받아들이지 못하는 듯함.
+	ex) wine
+
+2004-06-05  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h src/server/c src/ui.c src/nabi.h src/automata.h
+	src/keyboard tables/compose/default configure.in: 키보드 테이블과
+	컴포우즈 테이블을 위한 함수 nabi_server_load_keyboard_table(),
+	nabi_server_load_compose_table()을 구현함. 더이상 ui.c에서 키보드와
+	컴포우즈 테이블을 관리하지 않음. keyboard_map, compose_map에서
+	keyboard_table, compose_table로 이름을 바꿈. compose table 포맷을
+	변경
+
+2004-04-23  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c src/ic.c src/ic.h src/server.c src/server.h:
+	  status window 콜백 함수를 구현함
+	* src/server.c: 한영 전환키로 오른쪽 Alt를 추가
+
+2004-04-19  Choe Hwanjin <krisna@kldp.org>
+	* src/server.c: charset 체크하면서 ko로 시작하지 않으면 워닝을
+	  출력하도록 함
+
+2004-03-15  Choe Hwanjin <krisna@kldp.org>
+	* release 0.13
+
+2004-03-07  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: about 창 모양 개선
+	* po/ko.po: 번역 업데이트
+
+2004-03-05  Choe Hwanjin <krisna@kldp.org>
+	* src/nabi.h src/main.c src/server.h src/server.c src/ui.c:
+	xim_name이라는 컨피그 옵션과 --xim-name 이라는 커맨드 라인 옵션을
+	추가함. 이것을 지정하면 XMODIFIER값을 다른 것을 사용할 수 있음
+
+2004-03-01  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: GtkTextView를 사용하게 되면 GtkIMContext를 생성하게 되어
+	XIM 서버가 멈추는 위험한 상황이 자주 발생하므로 About 창에서
+	GtkTextView대신 GtkLabel를 사용하도록 수정함
+
+2004-02-29  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/i18nIc.c IMdkit/i18nMethod.c IMdkit/i18nPtHdr.c:
+	바이트 오더 문제를 해결하기 위한 수정
+
+2004-02-18  Choe Hwanjin <krisna@kldp.org>
+	* GNU gettext 대신 glib gettext를 사용하도록 수정
+
+2004-02-16  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c: 한자 선택창 페이지를 바꾸면서 화면에서 벗어나는
+	  문제를 수정 (#300256)
+
+2004-02-10  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/Makefile.am src/Makefile.am: -Wall 컴파일 옵션 제거(#300245)
+
+2004-02-02  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: 위젯을 만들기 전에 XMODIFIERS 환경변수를 지움
+
+2004-01-29  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c src/nabi.h src/server.c src/server.h src/ui.c:
+	  설정값 candidate_font 추가, candidate 글자에 사용할 폰트 지정
+
+2004-01-27  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.h src/candidate.c src/ic.c src/ic.h src/handler.c:
+	  candidate window에서 한자의 뜻을 보여주기 위해 GtkTable대신
+	  GtkTreeView를 사용함
+
+2004-01-09  Choe Hwanjin <krisna@kldp.org>
+	* src/candidate.c src/candidate.h src/ic.c src/nabi.h src/server.c
+          src/server.h src/ui.c tables/Makefile.am tables/candidate/nabi.txt:
+	  기존에 사용하던 static array를 버리고 외부의 파일로 저장된 candidate
+	  table을 사용하는 기능을 구현
+
+2003-12-29  Choe Hwanjin <krisna@kldp.org>
+	* IMdkit/i18nIc.c,IMdkit/i18nPtHdr.c: 메모리 leak 문제 몇가지 해결
+
+2003-12-23  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,src/server.c,src/automata.c: backspace정보를 통계 정보
+	  구조체에 남기는 코드의 버그를 해결
+
+2003-12-20  Choe Hwanjin <krisna@kldp.org>
+	* src/nabi.h,src/session.h,src/session.c,src/ui.c,src/main.c:
+	  세션 기능을 구현, 세션저장만 하면 다음번에 제대로 다시 뜨게함,
+	  또 프로그램이 죽게되면 자동으로 다시 띄우도록 기본값을 줌
+
+2003-12-18  Choe Hwanjin <krisna@kldp.org>
+	* release 0.12
+
+2003-12-16  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: PreeditCallback 방식의 preedit style을 Underline에서 
+	  Reverse로 바꿈
+	  트레이 아이콘이 사라지면서 죽던 문제 수정
+
+2003-12-15  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: icon의 크기를 좀더 똑똑하게 처리
+	  메뉴의 위치를 마우스가 아닌 아이콘 위치 기준으로 설정
+
+2003-12-14  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
+	* icon들 업데이트 (김석진님에게 감사드립니다)
+
+2003-12-09  Choe Hwanjin  <krisna@people.kldp.org>
+	* configure.in,
+	  themes/MSWindows2000/Makefile.am,
+	  themes/MSWindows2000/english.png,
+	  themes/MSWindows2000/hangul.png,
+	  themes/MSWindows2000/none.png,
+	  themes/Makefile.am: MSWindows2000 테마 추가
+
+2003-12-05  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c, src/ic.c, src/ic.h: add utf8_to_compound_text() func.
+	  do not commit on ICReset, just send last preedit string
+
+2003-12-03  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c:
+	  PreeditPosition에서 preedit window를 spot location보다 한픽셀 뒤로 밂
+	  (커서위치를 보이게 하기 위함)
+
+2003-12-02  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c:
+	    set overide-redirect to show preedit window correctly on Qt app
+
+2003-11-29  Choe Hwanjin  <krisna@people.kldp.org>
+	* po/ko.po: update po
+	* ChangeLog: update ChangeLog
+	* src/ui.c: set dialog variable to NULL when about window closed
+	* src/ui.c: about window가 하나만 뜨게 함
+
+	* release 0.11
+
+2003-11-28  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c, src/server.c, src/server.h: gc를 ic별로 관리하는 대신
+	  server에 기본 gc를 하나 만들고 그걸 사용하도록 함
+	* AUTHORS, NEWS, TODO: 문서 업데이트
+	* configure.in: prepare for version up
+	* po/ko.po: 번역 업데이트
+	* src/main.c, src/server.c, src/server.h, src/ui.c:
+	xim 서버 종료시 gtk2 application들이 죽던 문제 해결, xim서버를
+	정상적으로 종료함
+	* po/Makevars: set variable MSGID_BUGS_ADDRESS
+	* src/ui.c: update comment for parsing command line args routine
+
+2003-11-27  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c: candidate window에서 . 제거
+
+2003-11-26  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ui.c: rename function for root window event filtering
+
+2003-11-25  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/main.c, src/nabi.h, src/server.c, src/ui.c:
+	-s(--status-only) 옵션 추가(디버깅용도, 또는 상태 정보만 보여주기)
+
+2003-11-24  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/main.c: 실수로 추가한 코드 제거 (server start 루틴 작동함)
+	* src/main.c, src/ui.c: update main window
+	* src/automata.c:
+	세벌식 오토마타에서 잘못돼 있던 goto update를 goto insert로 수정,
+	OUTPUT_JAMO의 경우만 순서를 고려하지 않는 코드(모아치기)를 사용
+
+2003-11-15  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/server.c: argument check, 안전한 프로그램을 위해
+
+2003-11-13  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ui.c: add tooltips on tray icon
+
+2003-11-10  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c: candidate window의 memory leak
+
+2003-11-09  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/ic.c: PreeditPosition에서 preedit window 위치 조정 (xterm에서)
+	* src/candidate.c: 각 글자를 x 방향도 맞추도록 함
+
+2003-11-07  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c: candidate window에서 잘못된 인덱스 수정
+	* configure.in, po/ko.po: version up 0.10
+
+2003-11-05  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c, src/handler.c, src/ic.c:
+	단축키를 알파벳대신 숫자로 변경함
+
+2003-11-04  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/handler.c: on focus out event close the candidate window
+	* src/candidate.c: always show full window on screen
+	* src/ic.c, src/symboltable.h, src/candidate.c, src/candidate.h,
+	  src/hanjatable.h:
+	candidate selection window의 기본형을 wchar_t에서
+	unsigned short int로 변경
+	* src/Makefile.am: add symboltable.h to source list
+	* src/handler.c: change default keymapping on symbol selection window
+
+2003-11-03  Choe Hwanjin  <krisna@people.kldp.org>
+	* src/candidate.c, src/candidate.h, src/handler.c, src/hanjatable.h,
+	  src/ic.c, src/symboltable.h:
+	add symbol selection function
+
+2003-11-02  Choe Hwanjin  <krisna@people.kldp.org>
+	* ChangeLog, src/Makefile.am, src/candidate.c, src/candidate.h,
+	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
+	Add new candidate window routine
+
+2003-11-02  Choe Hwanjin <krisna@kldp.org>
+	* src/Makefile.am, src/candidate.c, src/candidate.h,
+	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
+	  Add new candidate window routine
+
+2003-10-30  Choe Hwanjin <krisna@kldp.org>
+	* 텍스트 파일들의 인코딩을 UTF-8로 변환
+
+2003-10-22  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c,src/nabi.h,src/ui.c,src/server.h,src/server.c:
+	  output_mode 옵션 추가 (syllable, jamo 가능)
+
+2003-10-20  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: gcc 3.3.2 에서 strict alias warning 안나게
+
+2003-10-19  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: unicode 범위의 keyval은 forwarding하지 않고 바로 commit 함
+
+2003-10-15  Choe Hwanjin <krisna@kldp.org>
+	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: 한글자모 이외의
+	  글자를 처리하는 루틴을 개선
+
+2003-10-14  Choe Hwanjin <krisna@kldp.org>
+	* release 0.9
+
+2003-10-13  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c,src/hangul.c,src/hangul.h,src/server.c:
+	  XwcXXX 함수를 모두 Xutf8XXX 함수로 바꿈, UCS 코드를 UTF8 스트링으로
+	  만드는 자체 루틴 추가, charset 체크에서도 WCHAR_T 대신 UTF-8
+	  사용 (BSD 지원을 위해)
+	  BSD 서버 사용을 지원해주신 Perky(http://openlook.org/)님께
+	  감사드립니다.
+
+2003-10-10  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: qt에서 한자 변환시 안보이던 문제 해결
+
+2003-10-08  Choe Hwanjin <krisna@kldp.org>
+	* release 0.8
+
+2003-10-08  Choe Hwanjin <krisna@kldp.org>
+	* src/automata.c: charset을 체크하는 부분을 더 추가
+	  (ㅃㅞㄹㄱ의 경우 고려), 세벌식 자판에서도 charset 체크 강화
+	* src/automata.c, src/server.h, src/server.c, src/ui.c: 각 키별로 눌린
+	  횟수를 저장해두는 기능을 추가함(about 창에서 볼수 있음)
+
+2003-10-01  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: XIMPreeditPosition 모드의 경우에는 commit한후에 preedit
+	  clear 하도록 수정함(Eterm의 경우는 preedit string을 지우고 commit
+	  해도 정상적으로 입력이 되지만, gtk+1 app의 경우는 입력순서가
+	  뒤바뀌는 경우가 있어서 XIMPreeditPosition의 경우는 기존의 방식대로 
+	  처리하도록 함, 따라서 XUnmapWindow()를 사용해도 입력순서에 영향을 
+	  미치지 않음 #284)
+
+2003-09-26  Choe Hwanjin <krisna@kldp.org>
+	* release 0.7
+
+2003-09-18  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.c: XIM spec에 맞게 preedit clear 한후 commit 함
+	* src/handler.c: 한자 변환 기능을 "Hanja"키 말고 F9도 작동하게 함
+
+2003-09-17  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c: set default icon
+
+2003-09-16  Choe Hwanjin <krisna@kldp.org>
+	* release 0.6
+	* src/session.c,src/main.c,src/ui.c: session 종료시 같이 종료
+
+2003-09-14  Choe Hwanjin <krisna@kldp.org>
+	* src/session.h,src/session.c: session 관련 코드 추가
+
+2003-09-10  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c: 특수키들을 포워딩 함
+	* src/automata.c: 세벌식 오토마타의 잘못된 곳 수정
+
+2003-09-09  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,src/server.c,src/ui.c: iconv를 이용한 charset 체크루틴 
+	  추가
+	* src/hangul.h,src/hangul.c: hangul_ucs_to_ksc 함수를 제거
+
+2003-09-08  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c,src/ic.c,src/ic.h,src/nabi.h,src/hanjatable.h,src/handler.c:
+	  한자 입력 기능 추가
+	* src/handler.c: preedit start/done을 제때에 맞게 호출하도록 수정
+	  mozilla에서 한글 상태에서 창을 닫으면 죽던 문제 해결(#248)
+
+2003-09-07  Choe Hwanjin <krisna@kldp.org>
+	* release 0.5
+
+2003-08-31  Choe Hwanjin <krisna@kldp.org>
+	* src/ui.c,main.c: system tray가 닫혀도 프로그램을 종료하지 않음
+	* src/ui.c: dvorak 자판을 위한 설정을 메뉴에 추가
+
+2003-08-29  Choe Hwanjin <krisna@kldp.org>
+	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc 테이블을 wchar_t에서 uint16_t
+	  형으로 바꿔서 크기를 줄임
+
+2003-08-27  Choe Hwanjin <krisna@kldp.org>
+	* src/server.h,server.c,automata.c: dvorak 자판 지원
+	* src/server.h,server.c,nabi.h,ui.c: dvorak 설정 지원
+	* src/ui.c: 메뉴 아이콘 추가
+
+2003-08-25  Choe Hwanjin <krisna@kldp.org>
+	* release 0.4
+	* src/ui.c,configure.in: 키보드 기본값을 DEFAULT_KEYBOARD로 사용
+
+2003-08-23  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnect를 추가해서
+	  connect_id 별로 한영 상태를 관리하도록 함
+
+2003-08-21  Choe Hwanjin <krisna@kldp.org>
+	* src/main.c,server.h,server.c: nabi_server_stop 함수 추가
+	* src/fontset.h,fontset.c: fontset 관련 루틴 추가
+	* src/ic.c: nabi_fontset 관련 함수 사용하도록 수정
+
+2003-08-11  Choe Hwanjin <krisna@kldp.org>
+	* src/ic.h,ic.c: preedit start 플래그 추가, preedit_start된 경우만
+	  preedit_done 메세지를 보냄(mozilla flash player와 관련된 문제점)
+	* src/ui.c: about 창에서 버젼 넘버 볼 수 있게
+
+2003-08-09  Choe Hwanjin <krisna@kldp.org>
+	* configure.in: gtk+ 2.2를 필요로 하도록 함
+
+2003-08-07  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c: vi 사용자를 위해 esc키일때 영문 상태로 자동 전환
+
+2003-08-06  Choe Hwanjin <krisna@kldp.org>
+	* src/handler.c: CapsLock, NumLock 처리 못하는 버그 수정
+	* src/ui.c: NabiKeyboardMap.map을 free 하는 버그 수정
+	* IMdkit/IMConn.c: malloc.h 대신 stdlib.h 를 include
+
+2003-08-05  Choe Hwanjin <krisna@kldp.org>
+	* Release

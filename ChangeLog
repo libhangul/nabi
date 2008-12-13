@@ -1,12 +1,202 @@
 ------------------------------------------------------------------------
-r700 | gangs | 2008-04-20 16:32:56 +0900 (Sun, 20 Apr 2008) | 2 lines
+r718 | krisna | 2008-12-13 01:32:50 +0900 (Sat, 13 Dec 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/po/de.po
+   M /nabi/trunk/po/ko.po
+
+번역 파일 업데이트
+
+------------------------------------------------------------------------
+r717 | krisna | 2008-12-13 01:20:19 +0900 (Sat, 13 Dec 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/preference.c
+
+한자 폰트 설정 버튼도 GtkFontButton 스타일로 구현
+
+------------------------------------------------------------------------
+r716 | krisna | 2008-12-09 23:05:55 +0900 (Tue, 09 Dec 2008) | 4 lines
+Changed paths:
+   M /nabi/trunk/test/xlib.cpp
+
+on the spot 모드에서 preedit caret callback 도 연결함
+최근 코드에서 부터는 preedit caret callback을 연결하지 않으면 on the spot으로
+XIC가 생성되지 않는 것 같음
+
+------------------------------------------------------------------------
+r715 | krisna | 2008-12-07 17:55:41 +0900 (Sun, 07 Dec 2008) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/debug.c
+   M /nabi/trunk/src/debug.h
+   M /nabi/trunk/src/main.c
+
+디버깅 메시지를 출력할때에는 session에 연결안하게 함
+ - 그래야 자동으로 재시작하지 않아서 디버깅 할때 편리함 
+
+------------------------------------------------------------------------
+r714 | krisna | 2008-10-07 00:48:21 +0900 (Tue, 07 Oct 2008) | 7 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+
+candidate window 개선:
+ * theme에 따라서 active 상태가 normal상태과 같게 그려지는 것들이 있다.
+   그런때에는 candidate item에서 현재 cursor가 있는 것들이 구분이 안되게
+   그려진다. candidate window는 focus가 가지 않는 윈도우다보니 아이템이
+   select가 되지 않는다. 그래서 treeview widget의 style을 수정해서 
+   active 상태를 select 상태의 색상과 같도록 처리한다.
+
+------------------------------------------------------------------------
+r713 | krisna | 2008-10-06 23:27:39 +0900 (Mon, 06 Oct 2008) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/candidate.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+NabiServer 수정
+ * candidate font도 PangoFontDescription을 사용하도록 수정
+   preedit font와 일관성을 가지기 위해서
+
+------------------------------------------------------------------------
+r712 | krisna | 2008-10-06 22:58:14 +0900 (Mon, 06 Oct 2008) | 9 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+NabiServer 시작 종료 방식을 단순화:
+ * NabiServer를 생성할때 Display와 Screen을 받고 거기에 따른 xim 서버를 
+   생성하도록 한다. xim 서버에서 사용하는 window를 직접 만드는 것이 
+   외부에서 윈도우를 제공 받는 것보다 좋은 선택인것 같다.
+ * 따라서 GtkWidget이 realize될때까지 기다릴 필요가 없이 바로 서버를 
+   시작해도 되므로 realize 시그널에 처리하지 않고 바로 
+   nabi_server_start() 함수를 부른다.
+ * NabiServer에서 root window 관련 기능도 Xlib을 이용해서 구현한다.
+
+------------------------------------------------------------------------
+r711 | krisna | 2008-10-06 18:27:04 +0900 (Mon, 06 Oct 2008) | 4 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/ui.c
+
+preedit font 설정:
+ * 처음에 app가 시작할때 설정값을 읽어오는 곳 처리
+ * preedit font 초기값을 nabi_server_new()에서 설정하는 것이 맞음
+
+------------------------------------------------------------------------
+r710 | krisna | 2008-10-06 18:10:56 +0900 (Mon, 06 Oct 2008) | 7 lines
+Changed paths:
+   M /nabi/trunk/src/conf.c
+   M /nabi/trunk/src/conf.h
+   M /nabi/trunk/src/ic.c
+   M /nabi/trunk/src/preference.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+preedit string 관리 코드 개선
+ * preedit string의 font에 대한 옵션 추가
+ * 설정 윈도우에 preedit_font 설정 버튼 추가
+ * 설정값에 preedit_font를 추가하고 ic에서 preedit string을 그릴때
+   이 폰트를 사용하여 그리도록 처리
+ * 이 옵션은 off the spot, root window 옵션일 경우에만 적용됨
+
+------------------------------------------------------------------------
+r709 | krisna | 2008-10-06 16:55:16 +0900 (Mon, 06 Oct 2008) | 5 lines
+Changed paths:
+   M /nabi/trunk/src/main.c
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+NabiServer 코드 정리:
+ * nabi_server_init()함수를 nabi_server_new()에 포함시키고 지움
+   nabi_server_init()함수를 따로 사용하지도 않는데 굳이 분리해둘
+   필요가 없는 것 같음
+
+------------------------------------------------------------------------
+r708 | krisna | 2008-10-06 16:38:58 +0900 (Mon, 06 Oct 2008) | 3 lines
+Changed paths:
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+
+NabiServer 코드 개선:
+ * 사용하지 않는 GdkGC 제거
+
+------------------------------------------------------------------------
+r707 | krisna | 2008-10-05 19:50:31 +0900 (Sun, 05 Oct 2008) | 9 lines
+Changed paths:
+   M /nabi/trunk/src/handler.c
+
+XLookupKeysym() 함수가 실패할 경우의 처리
+ * XLookupKeysym()이 실패하면 XLookupString()으로 한번더 키를 찾아본다.
+ * Xkb로 여러 자판을 설정해 놓고 쓰는 경우 기본 자판이 아닌 것들은
+   XLookupKeysym()으로 찾질 못해서 키를 변환하지 못하는 일이 발생한다.
+   이 문제를 해결하기 위해서 XLookupString()으로 한번더 체크한다.
+ * 일부 환경에서 한번 한글 모드로 전환한 후에는 shift-space 키가 
+   작동하지 않는 문제가 있었다.
+ * 버그: #304811
+
+------------------------------------------------------------------------
+r706 | krisna | 2008-10-05 16:03:11 +0900 (Sun, 05 Oct 2008) | 8 lines
+Changed paths:
+   M /nabi/trunk/src/handlebox.c
+
+nabi handlebox 구현 개선:
+ * window의 속성을 GDK_WINDOW_TYPE_HINT_TOOLBAR 로 설정
+ * keep above 속성이나 stick 속성은 handlebox에서 결정할 것이 아니라
+   app에서 결정할 내용이므로 제거
+ * 화면 해상도가 런타임에 바뀔 경우 창의 위치가 바뀌던 문제 수정
+   nabi_handle_box_size_allocate() 함수에서 gdk_window_resize()를 부르던
+   부분이 문제가 있는 것 같음
+
+------------------------------------------------------------------------
+r705 | krisna | 2008-10-05 12:49:26 +0900 (Sun, 05 Oct 2008) | 7 lines
+Changed paths:
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/server.c
+   M /nabi/trunk/src/server.h
+   M /nabi/trunk/src/ui.c
+
+자판을 바꾼후에도 툴팁이 갱신되지 않는 문제 수정
+ * 툴팁 관련 포인터를 NabiApplication structure에 저장하고 있다가
+   업데이트 하도록 바꿈
+ * 관련해서 keyboard 변경시에 keyboard 버튼 업데이트하는 방식도
+   바꿈
+ * 버그 #305100
+
+------------------------------------------------------------------------
+r704 | krisna | 2008-10-05 11:16:49 +0900 (Sun, 05 Oct 2008) | 6 lines
+Changed paths:
+   M /nabi/trunk/src/nabi.h
+   M /nabi/trunk/src/ui.c
+
+팔레트 구현 수정:
+ * palette를 menubar를 사용하지 않고 button으로 구현
+   menubar의 decoration이 볼록한 느낌이라 별로임
+ * menubar를 쓰지 않으므로 menuposition 함수를 사용해야 함
+ * 또한 menu position 함수도 allocation을 사용하도록 수정
+
+------------------------------------------------------------------------
+r702 | krisna | 2008-04-20 16:38:19 +0900 (Sun, 20 Apr 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+0.99.2 release
+
+------------------------------------------------------------------------
+r701 | krisna | 2008-04-20 16:37:09 +0900 (Sun, 20 Apr 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/NEWS
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r700 | krisna | 2008-04-20 16:32:56 +0900 (Sun, 20 Apr 2008) | 2 lines
 Changed paths:
    M /nabi/trunk/configure.ac
 
 libhangul 0.0.8 이상 사용: #304770 수정을 위해 
 
 ------------------------------------------------------------------------
-r699 | gangs | 2008-04-20 16:26:29 +0900 (Sun, 20 Apr 2008) | 2 lines
+r699 | krisna | 2008-04-20 16:26:29 +0900 (Sun, 20 Apr 2008) | 2 lines
 Changed paths:
    M /nabi/trunk/po/de.po
    M /nabi/trunk/po/ko.po
@@ -14,14 +204,14 @@ Changed paths:
 po 업데이트
 
 ------------------------------------------------------------------------
-r698 | gangs | 2008-04-20 16:05:09 +0900 (Sun, 20 Apr 2008) | 2 lines
+r698 | krisna | 2008-04-20 16:05:09 +0900 (Sun, 20 Apr 2008) | 2 lines
 Changed paths:
    M /nabi/trunk/test/Makefile
 
 gcc에 debug 옵션 추가
 
 ------------------------------------------------------------------------
-r697 | gangs | 2008-04-20 15:52:06 +0900 (Sun, 20 Apr 2008) | 3 lines
+r697 | krisna | 2008-04-20 15:52:06 +0900 (Sun, 20 Apr 2008) | 3 lines
 Changed paths:
    M /nabi/trunk/src/ic.c
 
@@ -29,7 +219,7 @@ Changed paths:
  * 나비버그: #304770
 
 ------------------------------------------------------------------------
-r696 | gangs | 2008-04-20 15:16:59 +0900 (Sun, 20 Apr 2008) | 6 lines
+r696 | krisna | 2008-04-20 15:16:59 +0900 (Sun, 20 Apr 2008) | 6 lines
 Changed paths:
    M /nabi/trunk/src/ic.c
    M /nabi/trunk/src/ic.h
@@ -41,7 +231,7 @@ Changed paths:
  * nabi_u4str_xxx() 함수들 추가
 
 ------------------------------------------------------------------------
-r694 | gangs | 2008-03-25 11:35:10 +0900 (Tue, 25 Mar 2008) | 3 lines
+r694 | krisna | 2008-03-25 11:35:10 +0900 (Tue, 25 Mar 2008) | 3 lines
 Changed paths:
    M /nabi/trunk/po/de.po
 
@@ -1242,88 +1432,6 @@ Changed paths:
 dvorak -> Dvorak 이름 변경
 
 ------------------------------------------------------------------------
-------------------------------------------------------------------------
-r574 | krisna | 2007-01-06 22:46:30 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/main.c
-
-session code 활성화
-
-------------------------------------------------------------------------
-r573 | krisna | 2007-01-06 22:45:00 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/candidate.c
-   M /nabi/trunk/src/candidate.h
-   M /nabi/trunk/src/debug.c
-   M /nabi/trunk/src/debug.h
-   M /nabi/trunk/src/ic.c
-   M /nabi/trunk/src/ic.h
-   M /nabi/trunk/src/main.c
-   M /nabi/trunk/src/nabi.h
-   M /nabi/trunk/src/preference.c
-   M /nabi/trunk/src/server.c
-   M /nabi/trunk/src/server.h
-   M /nabi/trunk/src/ui.c
-
-copyright 문구 업데이트
-
-------------------------------------------------------------------------
-r572 | krisna | 2007-01-06 22:39:00 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/server.c
-
-테스트하기 위해서 xim name을 "test"로 설정하던 코드를 제거
-
-------------------------------------------------------------------------
-r570 | krisna | 2007-01-06 16:43:40 +0900 (Sat, 06 Jan 2007) | 3 lines
-Changed paths:
-   M /nabi/trunk/ChangeLog
-   M /nabi/trunk/Makefile.am
-   M /nabi/trunk/NEWS
-
-문서 업데이트
-ChangeLog 자동 생성룰 추가
-
-------------------------------------------------------------------------
-r569 | krisna | 2007-01-06 16:11:39 +0900 (Sat, 06 Jan 2007) | 3 lines
-Changed paths:
-   M /nabi/trunk/configure.ac
-   M /nabi/trunk/src/Makefile.am
-
-* 0.16 릴리스 준비
-* 빠진 파일들 소스리스트에 추가
-
-------------------------------------------------------------------------
-r568 | krisna | 2007-01-06 16:09:42 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/po/de.po
-   M /nabi/trunk/po/ko.po
-
-update po files
-
-------------------------------------------------------------------------
-r567 | krisna | 2007-01-06 16:07:14 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/ui.c
-
-기본 테마 아이콘을 Jini로 변경
-
-------------------------------------------------------------------------
-r566 | krisna | 2007-01-06 15:54:31 +0900 (Sat, 06 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/src/ic.c
-   M /nabi/trunk/src/preference.c
-
-gcc 2.9 버젼에서 빌드가능하도록 변수 선언 위치 조정
-
-------------------------------------------------------------------------
-r565 | krisna | 2007-01-03 23:25:13 +0900 (Wed, 03 Jan 2007) | 2 lines
-Changed paths:
-   M /nabi/trunk/tables/keyboard_layouts
-
-dvorak -> Dvorak 이름 변경
-
-------------------------------------------------------------------------
 r564 | krisna | 2007-01-03 23:24:15 +0900 (Wed, 03 Jan 2007) | 2 lines
 Changed paths:
    M /nabi/trunk/tables/keyboard_layouts
@@ -1645,412 +1753,4082 @@ Changed paths:
 단축기 로딩 루틴에서 오타 수정 Ctrl->Control
 
 ------------------------------------------------------------------------
-2006-05-11  Choe Hwanjin <choe.hwanjin@gmail.com>
-	* nabi.png: 새로운 아이콘에 맞게 수정
-	* src/ui.c: nabi.svg 로딩에 실패할경우 nabi.png를 아이콘으로 사용
+r533 | krisna | 2006-04-23 23:56:28 +0900 (Sun, 23 Apr 2006) | 2 lines
+Changed paths:
+   M /nabi/trunk/src/automata.c
+   M /nabi/trunk/src/handler.c
 
-2006-04-23  Choe Hwanjin <choe.hwanjin@gmail.com>
-	* src/ui.c: 키입력 통계창 출력 루틴 개선
+XLookupString 대신 XLookupKeysym으로 대체, 유럽어 자판 문제 해결
 
-2005-07-17  Choe Hwanjin <choe.hwanjin@gmail.com>
-	* test 디렉토리 추가 - 여러가지 toolkit을 위한 테스트 코드
+------------------------------------------------------------------------
+r532 | krisna | 2006-04-23 22:47:04 +0900 (Sun, 23 Apr 2006) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   M /nabi/trunk/src/ui.c
 
-2005-01-13  Choe Hwanjin <choe.hwanjin@gmail.com>
-	* src/ic.c: PreeditArea에서 preedit window의 위치를 제대로 잡음
+자판 입력창 통계 수치 출력 루틴을 GString을 이용해서 개선
 
-2005-01-08  Choe Hwanjin <choe.hwanjin@gmail.com>
-	* src/ic.c: reset할때 preedit window 숨김
-	  gtk1 text widget에서 preedit string이 안나오던 문제 수정(over the
-	  spot(PreeditPostion) 방식에서 foreground, background값을 client가
-	  보내주는 값대신 nabi의 설정값을 따름)
+------------------------------------------------------------------------
+r531 | krisna | 2005-09-06 11:06:53 +0900 (Tue, 06 Sep 2005) | 3 lines
+Changed paths:
+   M /nabi/trunk/themes/KingSejong/english.png
+   M /nabi/trunk/themes/KingSejong/hangul.png
+   M /nabi/trunk/themes/KingSejong/none.png
+   M /nabi/trunk/themes/MSWindows/english.png
+   M /nabi/trunk/themes/MSWindows/hangul.png
+   M /nabi/trunk/themes/MSWindows/none.png
+   M /nabi/trunk/themes/MSWindowsXP/english.png
+   M /nabi/trunk/themes/MSWindowsXP/hangul.png
+   M /nabi/trunk/themes/MSWindowsXP/none.png
+   M /nabi/trunk/themes/Mac/english.png
+   M /nabi/trunk/themes/Mac/hangul.png
+   M /nabi/trunk/themes/Mac/none.png
+   M /nabi/trunk/themes/Onion/english.png
+   M /nabi/trunk/themes/Onion/hangul.png
+   M /nabi/trunk/themes/Onion/none.png
+   M /nabi/trunk/themes/SimplyRed/english.png
+   M /nabi/trunk/themes/SimplyRed/hangul.png
+   M /nabi/trunk/themes/SimplyRed/none.png
+   M /nabi/trunk/themes/Tux/english.png
+   M /nabi/trunk/themes/Tux/hangul.png
+   M /nabi/trunk/themes/Tux/none.png
+   M /nabi/trunk/themes/keyboard/english.png
+   M /nabi/trunk/themes/keyboard/hangul.png
+   M /nabi/trunk/themes/keyboard/none.png
 
-2004-12-05  Choe Hwanjin <krisna@kldp.org>
-	* release 0.15
+cvs에서 svn으로 이사한후, 이미지 파일들의 prop이 잘못 설정되어 있어서 이미지
+파일이 손상되었음. 이문제를 바로 잡음.
 
-2004-12-04  Choe Hwanjin <krisna@kldp.org>
-	* About 창 업데이트
+------------------------------------------------------------------------
+r530 | krisna | 2005-07-20 22:46:22 +0900 (Wed, 20 Jul 2005) | 2 lines
+Changed paths:
+   M /nabi/trunk/test/xlib.cpp
 
-2004-12-03  Choe Hwanjin <krisna@kldp.org>
-	* 나비 아이콘 새로 올림 (bluetux님의 작품)
+remove unneeded new line
 
-2004-12-02  Choe Hwanjin <krisna@kldp.org>
-	* 자판에서 자모 빈도를 $HOME/.nabi/nabi.log에 기록함
+------------------------------------------------------------------------
+r529 | krisna | 2005-07-20 22:35:24 +0900 (Wed, 20 Jul 2005) | 2 lines
+Changed paths:
+   M /nabi/trunk/test/xlib.cpp
 
-2004-11-26  Choe Hwanjin <krisna@kldp.org>
-	* 설정창에서 한글/한자로 메뉴를 나눔
+modifier 키가 눌렸을 경우는 insert 하지 않는다
 
-2004-11-21  Choe Hwanjin <krisna@kldp.org>
-	* 한영 전환키와 한자 키 설정을 보강
-	* 옛글 compose table 추가
-	* 순아래 자판 추가
+------------------------------------------------------------------------
+r528 | krisna | 2005-07-17 01:22:52 +0900 (Sun, 17 Jul 2005) | 2 lines
+Changed paths:
+   M /nabi/trunk/Makefile.am
 
-2004-11-09  Choe Hwanjin <krisna@kldp.org>
-	* tray의 크기에 맞춰 size-allocate 시그널에서 자동으로 크기를 수정함
-	* 아이콘 크기 설정 옵션을 없앰
+source tarball에 test 디렉토리도 추가함
 
-2004-11-03  Choe Hwanjin <krisna@kldp.org>
-	* 키 입력 통계를 다른 창으로 띄움
-	* 하드코딩된 locale 스트링을 제거
-	* Qt immodule의 XIM에서 preedit window 위치를 잘못 찾던 버그 수정
+------------------------------------------------------------------------
+r527 | krisna | 2005-07-17 01:17:20 +0900 (Sun, 17 Jul 2005) | 2 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   A /nabi/trunk/test
+   A /nabi/trunk/test/Makefile
+   A /nabi/trunk/test/gtk.c
+   A /nabi/trunk/test/gtk1.c
+   A /nabi/trunk/test/qt.cpp
+   A /nabi/trunk/test/xlib.cpp
 
-2004-10-05  Choe Hwanjin <krisna@kldp.org>
-	* full compose map 추가(엣글 입력에 필요함)
-	* 세벌식 옛글 자판 추가
+여러가지 toolkit에서 테스트하기 위한 코드가 들어 있는 test 디렉토리 추가
 
-2004-10-04  Choe Hwanjin <krisna@kldp.org>
-	* compose table을 제대로 로딩하지 못하던 버그 수정
+------------------------------------------------------------------------
+r526 | krisna | 2005-07-10 11:50:08 +0900 (Sun, 10 Jul 2005) | 2 lines
+Changed paths:
+   D /branches
+   A /nabi
+   A /nabi/branches (from /branches/nabi:525)
+   A /nabi/tags (from /tags:525)
+   A /nabi/trunk (from /trunk/nabi:525)
+   D /tags
+   D /trunk
+   A /web
+   A /web/branches (from /branches/web:525)
+   A /web/trunk (from /trunk/web:525)
 
-2004-08-30  Choe Hwanjin <krisna@kldp.org>
-	* Tux 테마 추가 (박준철님에게 감사드립니다)
+* cvs2svn으로부터 생성된 svn repo의 디렉토리를 프로젝트에 맞게 다시 정리함
 
-2004-08-28  Choe Hwanjin <krisna@kldp.org>
-	* release 0.14
+------------------------------------------------------------------------
+r524 | krisna | 2005-01-17 17:50:24 +0900 (Mon, 17 Jan 2005) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/server.c
 
-2004-08-28  Choe Hwanjin <krisna@kldp.org>
-	* ko이외에 ja_JP.UTF-8, zh_CN.UTF-8, zh_HK.UTF-8, zh_TW.UTF-8,
-	en_US.UTF-8을 지원하도록 함
-	* candidate list의 글꼴 설정 옵션도 설정창에 추가
-	* candidate list의 갯수를 9개로 변경
+gcc 4.0에서 발생하는 error/warning 제거 (from SungHyun Nam)
 
-2004-08-01  Choe Hwanjin <krisna@kldp.org>
-	* XIMPreeditArea 지원
+------------------------------------------------------------------------
+r523 | krisna | 2005-01-13 22:56:09 +0900 (Thu, 13 Jan 2005) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
 
-2004-07-31  Choe Hwanjin <krisna@kldp.org>
-	* XIMPreeditNothing을 지원하기 위해 ic.c에서 gdk 함수를 직접 부르는
-	  방식으로 변경함
+nabi_ic_preedit_show()에서 nabi_ic_preedit_configure를 부름
+(PreeditArea 방식에서 preedit window의 위치를 제대로 잡게됨)
 
-2004-07-25  Choe Hwanjin <krisna@kldp.org>
-	* 설정창 구현
+------------------------------------------------------------------------
+r522 | krisna | 2005-01-08 10:42:49 +0900 (Sat, 08 Jan 2005) | 5 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ic.c
 
-2004-06-23  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: nabi_ic_commit_keyval() 함수에서 더이상 XIM_COMMIT을 사용
-	하지 않고, 바로 key event를 forwarding하도록 수정함. 일부 프로그램에서
-	하나의 이벤트에서 두번 commit하는 것을 받아들이지 못하는 듯함.
-	ex) wine
+* reset할때 preedit window 숨김
+* gtk1 text widget에서 preedit string이 안나오던 문제 수정:
+  over the spot(PreeditPostion) 방식에서 foreground, background값을 client가
+  보내주는 값대신 nabi의 설정값을 따름
 
-2004-06-05  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h src/server/c src/ui.c src/nabi.h src/automata.h
-	src/keyboard tables/compose/default configure.in: 키보드 테이블과
-	컴포우즈 테이블을 위한 함수 nabi_server_load_keyboard_table(),
-	nabi_server_load_compose_table()을 구현함. 더이상 ui.c에서 키보드와
-	컴포우즈 테이블을 관리하지 않음. keyboard_map, compose_map에서
-	keyboard_table, compose_table로 이름을 바꿈. compose table 포맷을
-	변경
+------------------------------------------------------------------------
+r518 | krisna | 2004-12-05 00:29:47 +0900 (Sun, 05 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/NEWS
+
+Update document
+
+------------------------------------------------------------------------
+r517 | krisna | 2004-12-05 00:20:55 +0900 (Sun, 05 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+Release 0.15
+
+------------------------------------------------------------------------
+r516 | krisna | 2004-12-05 00:15:16 +0900 (Sun, 05 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/keycapturedialog.c
+
+Align the key text to center
+
+------------------------------------------------------------------------
+r515 | krisna | 2004-12-04 20:58:17 +0900 (Sat, 04 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/Makefile.am
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/ui.c
+
+Update about window (thanks to bluetux)
+
+------------------------------------------------------------------------
+r514 | krisna | 2004-12-04 17:26:18 +0900 (Sat, 04 Dec 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/nabi-about.png
+   M /trunk/nabi/src/ui.c
+
+apply new nabi about image
+
+------------------------------------------------------------------------
+r513 | krisna | 2004-12-03 23:36:24 +0900 (Fri, 03 Dec 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/Makefile.am
+   A /trunk/nabi/nabi.svg
+   M /trunk/nabi/src/ui.c
+
+nabi icon update(nabi.png->nabi.svg)
+
+------------------------------------------------------------------------
+r508 | krisna | 2004-12-02 23:15:35 +0900 (Thu, 02 Dec 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+ * nabi_server_write_log() 구현: 자모 빈도를 $HOME/.nabi/nabi.log에 기록
+ * Statistics에서 XK_space도 기록함
+
+------------------------------------------------------------------------
+r506 | krisna | 2004-11-30 21:48:24 +0900 (Tue, 30 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r505 | krisna | 2004-11-27 18:29:36 +0900 (Sat, 27 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/preference.c
+
+gtk_tree_model_get에서 있던 memory leak 수정
+
+------------------------------------------------------------------------
+r504 | krisna | 2004-11-27 18:27:55 +0900 (Sat, 27 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+ic_table 메모리 할당 에러 수정, 개수를 512로 줄임
+
+------------------------------------------------------------------------
+r503 | krisna | 2004-11-27 16:17:13 +0900 (Sat, 27 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+종료할때 about, preference 창을 닫도록 함
+
+------------------------------------------------------------------------
+r502 | krisna | 2004-11-26 23:48:54 +0900 (Fri, 26 Nov 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/ui.c
+
+* 설정창에서 한글/한자로 탭을 나눔
+* about창에서 더이상 gtk_dialog_run()을 사용하지 않음
+* about창 copyright 문구 수정
+
+------------------------------------------------------------------------
+r501 | krisna | 2004-11-25 22:46:06 +0900 (Thu, 25 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+0.15 준비
+
+------------------------------------------------------------------------
+r498 | krisna | 2004-11-21 20:23:20 +0900 (Sun, 21 Nov 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/tables/Makefile.am
+   A /trunk/nabi/tables/keyboard/3sqwerty
+
+* 순아래 자판 추가
+* 옛글 compose table을 Makefile.am에 추가
+
+------------------------------------------------------------------------
+r497 | krisna | 2004-11-21 20:12:08 +0900 (Sun, 21 Nov 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/keycapturedialog.c
+
+* FocusIn 이벤트에서 grab함
+* 마우스가 창을 벗어나서 클릭하면 창을 닫음
+
+------------------------------------------------------------------------
+r496 | krisna | 2004-11-21 15:57:53 +0900 (Sun, 21 Nov 2004) | 6 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/Makefile.am
+   A /trunk/nabi/src/keycapturedialog.c
+   A /trunk/nabi/src/keycapturedialog.h
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/ui.c
+
+* 한영,한자키를 사용자가 직접 선택할수 있도록 함
+* key_capture_dialog_new, key_capture_dialog_get_key_text 함수를 구현함
+* nabi_server_set_trigger_keys()와 nabi_server_set_candidate_keys()의 인자를
+  int에서 char**로 바꿈
+* 메뉴에서 종료를 선택하면 session에서 자동 재실행 옵션을 꺼서 바로 종료함
+
+------------------------------------------------------------------------
+r495 | krisna | 2004-11-09 21:25:02 +0900 (Tue, 09 Nov 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/ui.c
+
+ * tray icon size 설정 옵션 제거
+ * size-allocate 시그널에서 아이콘 크기를 자동 조정
+
+------------------------------------------------------------------------
+r494 | krisna | 2004-11-09 20:47:42 +0900 (Tue, 09 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ic.c
+
+Qt immodule의 XIM에서 preedit window 위치를 잘못 찾던 버그 수정
+
+------------------------------------------------------------------------
+r492 | krisna | 2004-11-06 00:34:00 +0900 (Sat, 06 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+태나무 리 -> 배나무 리
+
+------------------------------------------------------------------------
+r491 | krisna | 2004-11-03 23:33:51 +0900 (Wed, 03 Nov 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+숲 박 -> 엷을 박
+
+------------------------------------------------------------------------
+r490 | krisna | 2004-10-23 21:55:48 +0900 (Sat, 23 Oct 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+키 입력 통계를 다른 창으로 띄우게 함
+
+------------------------------------------------------------------------
+r489 | krisna | 2004-10-23 21:10:44 +0900 (Sat, 23 Oct 2004) | 6 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/keyboard.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/tables/keyboard/3yqwerty
+
+ * output_mode를 자판 별로 설정 가능하도록 함
+ * compose_table을 자판별로 가지고 있는 데이터로 수정함. 자판에서 compose_table
+ 포인터를 가지고 있지 않으면 server의 기본값을 사용하고 compose_table을 가지고
+ 있다면 keyboard_table이 가지고 있는 compose_table을 한글 자모 compose시에
+ 사용하도록 함
+
+------------------------------------------------------------------------
+r488 | krisna | 2004-10-23 20:14:43 +0900 (Sat, 23 Oct 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+server.c: locale string을 하드코딩하지 않고 UTF-8 인코딩인지만 확인한다
+
+------------------------------------------------------------------------
+r487 | krisna | 2004-10-05 22:31:09 +0900 (Tue, 05 Oct 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/keyboard.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+   A /trunk/nabi/tables/keyboard/3yqwerty
+
+세벌식 옛글 자판 추가
+
+------------------------------------------------------------------------
+r486 | krisna | 2004-10-05 21:30:49 +0900 (Tue, 05 Oct 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   A /trunk/nabi/tables/compose/full
+
+full compose table 추가함 (옛글 입력할때 필요한 compose map)
+
+------------------------------------------------------------------------
+r485 | krisna | 2004-10-04 14:17:25 +0900 (Mon, 04 Oct 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+ui.c: compose table을 제대로 로딩하지 못하던 문제를 수정
+
+------------------------------------------------------------------------
+r475 | krisna | 2004-08-30 12:08:03 +0900 (Mon, 30 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+Tux 테마 추가
+
+------------------------------------------------------------------------
+r474 | krisna | 2004-08-30 12:06:56 +0900 (Mon, 30 Aug 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/themes/Tux/README
+
+Tux 테마 README 추가
+
+------------------------------------------------------------------------
+r473 | krisna | 2004-08-30 10:44:39 +0900 (Mon, 30 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/themes/Makefile.am
+   A /trunk/nabi/themes/Tux
+   A /trunk/nabi/themes/Tux/Makefile.am
+   A /trunk/nabi/themes/Tux/english.png
+   A /trunk/nabi/themes/Tux/hangul.png
+   A /trunk/nabi/themes/Tux/none.png
+
+Tux 테마 추가
+
+------------------------------------------------------------------------
+r472 | krisna | 2004-08-28 23:03:42 +0900 (Sat, 28 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+release 0.14
+
+------------------------------------------------------------------------
+r470 | krisna | 2004-08-28 21:40:28 +0900 (Sat, 28 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/NEWS
+   M /trunk/nabi/TODO
+   M /trunk/nabi/po/ko.po
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r469 | krisna | 2004-08-28 20:46:36 +0900 (Sat, 28 Aug 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/ui.c
+
+ * preference.c: "테마"에서 "트레이"로 페이지 이름을 변경
+ * ui.c: nabi_app_set_candidate_font에서 config를 저장
+
+------------------------------------------------------------------------
+r468 | krisna | 2004-08-28 20:25:12 +0900 (Sat, 28 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/default-icons.h
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ui.c
+
+ * candidate list의 갯수를 9개로 변경
+
+------------------------------------------------------------------------
+r467 | krisna | 2004-08-28 16:53:59 +0900 (Sat, 28 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/ui.c
+
+ * candidate list의 글꼴 설정 옵션도 설정창에 추가
+
+------------------------------------------------------------------------
+r466 | krisna | 2004-08-28 15:30:55 +0900 (Sat, 28 Aug 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+ * ko이외에 ja_JP.UTF-8, zh_CN.UTF-8, zh_HK.UTF-8, zh_TW.UTF-8, en_US.UTF-8을
+ 지원하도록 함
+
+------------------------------------------------------------------------
+r465 | krisna | 2004-08-19 14:22:17 +0900 (Thu, 19 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-to-c.py
+
+hanja-to-c.py: 주석도 추가
+
+------------------------------------------------------------------------
+r464 | krisna | 2004-08-18 23:15:34 +0900 (Wed, 18 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-to-c.py
+
+hanja-to-c.py: 키 리스트를 출력할때 소팅해서 순서가 바뀌는 문제를 바로 잡음
+
+------------------------------------------------------------------------
+r463 | krisna | 2004-08-18 16:18:19 +0900 (Wed, 18 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/ChangeLog
+   A /trunk/nabi/tables/candidate/hanja-to-c.py
+
+hanja-to-c.py 스크립트 추가
+
+------------------------------------------------------------------------
+r462 | krisna | 2004-08-03 19:04:04 +0900 (Tue, 03 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/preference.c
+
+���ڵ�׸���丮�� define�����ü
+
+------------------------------------------------------------------------
+r461 | krisna | 2004-08-01 11:33:16 +0900 (Sun, 01 Aug 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ic.c
+
+XIMPreeditArea 지원
+
+------------------------------------------------------------------------
+r460 | krisna | 2004-07-31 23:03:26 +0900 (Sat, 31 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+NabiIC와 NabiServer에서 사용하던 Window, GC들을 GdkWindow, GdkGC로 변경함
+
+------------------------------------------------------------------------
+r459 | krisna | 2004-07-31 19:10:08 +0900 (Sat, 31 Jul 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/server.c
+
+ * 0.14 준비
+ * 설정창 설명문 추가
+ * 한자키를 모두다 끌 수 있도록 함
+
+------------------------------------------------------------------------
+r458 | krisna | 2004-07-31 13:45:33 +0900 (Sat, 31 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+java 어플리케이션에서 필요로 하는 XNPreeditState 정보를 제공
+
+------------------------------------------------------------------------
+r457 | krisna | 2004-07-27 22:07:47 +0900 (Tue, 27 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+키보드->자판
+
+------------------------------------------------------------------------
+r456 | krisna | 2004-07-27 22:06:33 +0900 (Tue, 27 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/preference.c
+
+설정창/자판 부분을 한글 자판/영문 자판 카테고리로 나눔
+
+------------------------------------------------------------------------
+r455 | krisna | 2004-07-27 21:11:08 +0900 (Tue, 27 Jul 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+ * 한국어 로캘이 아닐때 워닝 메시지를 한국어로 수정
+ * gtk_message_dialog_new_with_markup() 사용하지 않음 (2.4 API)
+
+------------------------------------------------------------------------
+r454 | krisna | 2004-07-26 22:36:15 +0900 (Mon, 26 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/ui.c
+
+preference 창에서 icon size widget을 GtkComboBox에서 GtkSpinButton으로 바꿈
+
+------------------------------------------------------------------------
+r453 | krisna | 2004-07-25 23:40:10 +0900 (Sun, 25 Jul 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+ * ko locale이 아닌경우 워닝 표시
+ * 디폴트 아이콘 설정
+
+------------------------------------------------------------------------
+r452 | krisna | 2004-07-25 22:25:11 +0900 (Sun, 25 Jul 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/fontset.c
+   M /trunk/nabi/src/fontset.h
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/hangul.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/session.h
+   M /trunk/nabi/src/ui.c
+
+ * fontset 로딩에서 실패하더라도 한번더 로딩하도록 수정
+ * copyright 문구 수정
+
+------------------------------------------------------------------------
+r451 | krisna | 2004-07-25 19:40:52 +0900 (Sun, 25 Jul 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/TODO
+   M /trunk/nabi/po/POTFILES.in
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/Makefile.am
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/nabi.h
+   A /trunk/nabi/src/preference.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+설정창 구현
+
+------------------------------------------------------------------------
+r450 | krisna | 2004-07-21 22:39:28 +0900 (Wed, 21 Jul 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ui.c
+
+ * candidate window에서 mouse를 grab하도록 하고,
+   keypress, scroll event를 처리하게 함
+ * tray icon이 embed되었을때 리사이징 하던 루틴을 제거
+
+------------------------------------------------------------------------
+r449 | krisna | 2004-06-26 22:12:13 +0900 (Sat, 26 Jun 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+
+shift key event가 오면 forwarding 함(전에는 무시했음)
+이것으로 wine 문제를 해결할수 있는 것 같음
+
+------------------------------------------------------------------------
+r448 | krisna | 2004-06-23 22:42:09 +0900 (Wed, 23 Jun 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/ic.c
+
+nabi_ic_commit_unicode() 함수에서 처리되지 않은 키는 모두 forwarding하도록 수정
+
+------------------------------------------------------------------------
+r447 | krisna | 2004-06-08 21:12:35 +0900 (Tue, 08 Jun 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+클 대 -> 큰 대
+
+------------------------------------------------------------------------
+r446 | krisna | 2004-06-05 14:47:17 +0900 (Sat, 05 Jun 2004) | 6 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/keyboard.h
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+   M /trunk/nabi/tables/compose/default
+
+ * keyboard table과 compose table을 위한 함수 nabi_server_load_keyboard_table()
+ nabi_server_load_compose_table()을 구현함. 더이상 ui.c에서 키보드와 컴포우즈
+ 테이블을 관리하지 않음.
+ * keyboard_map, compose_map에서 keyboard_table, compose_table로 이름을 바꿈
+ * compose table 포맷을 변경 name 부분을 []로 구분함
+
+------------------------------------------------------------------------
+r445 | aii | 2004-05-26 03:24:54 +0900 (Wed, 26 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/ChangeLog
+
+hanja-sanity.pl 가 두음을 살펴보도록 수정했습니다.
+
+------------------------------------------------------------------------
+r444 | aii | 2004-05-26 03:17:15 +0900 (Wed, 26 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-sanity.pl
+
+두음법칙을 고려하도록 수정합니다.
+
+------------------------------------------------------------------------
+r443 | aii | 2004-05-26 01:01:01 +0900 (Wed, 26 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+原音 등의 표시가 kKorean 과 일치하는 글자를 추가하였습니다.
+
+------------------------------------------------------------------------
+r442 | aii | 2004-05-21 16:07:09 +0900 (Fri, 21 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/ChangeLog
+
+nabi-hanja.txt 를 Unihan-4.0.1.txt 에 맞도록 이전하였습니다.
+
+------------------------------------------------------------------------
+r441 | aii | 2004-05-21 16:03:48 +0900 (Fri, 21 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+variant 정보가 있는 글자에 대해 同字 처리하였습니다.
+
+------------------------------------------------------------------------
+r440 | aii | 2004-05-20 17:46:25 +0900 (Thu, 20 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+Unihan-4.0.1.txt 로 이전하고 전체 검토를 마쳤습니다.
+
+------------------------------------------------------------------------
+r439 | krisna | 2004-05-16 22:15:19 +0900 (Sun, 16 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+몇가지 함수 관련 테스트 추가
+
+------------------------------------------------------------------------
+r438 | krisna | 2004-05-16 21:08:16 +0900 (Sun, 16 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/ChangeLog
+   M /trunk/nabi/tables/candidate/nabi-symbol.txt
+   M /trunk/nabi/tables/candidate/nabi.txt
+
+특수 문자표 재배치
+
+------------------------------------------------------------------------
+r437 | krisna | 2004-05-16 14:14:17 +0900 (Sun, 16 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+nabi_server_is_candidate_key() 함수 추가(한자 입력 키 체크 함수)
+
+------------------------------------------------------------------------
+r436 | krisna | 2004-05-11 19:00:54 +0900 (Tue, 11 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+중복된 backspace 처리 코드 통합
+
+------------------------------------------------------------------------
+r435 | krisna | 2004-05-11 18:13:07 +0900 (Tue, 11 May 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-gettext.py
+   M /trunk/nabi/tables/candidate/hanja-merge.py
+
+알고 보니 cvs 태그가 작동안함(cvs ci 로그를 메일로 보내는 스크립트에서
+기본적으로 안쓰도록 되어 있음)
+
+------------------------------------------------------------------------
+r434 | krisna | 2004-05-11 17:51:45 +0900 (Tue, 11 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-gettext.py
+   M /trunk/nabi/tables/candidate/hanja-merge.py
+
+cvs keyword 오타 수정
+
+------------------------------------------------------------------------
+r433 | krisna | 2004-05-11 17:50:41 +0900 (Tue, 11 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanja-gettext.py
+   M /trunk/nabi/tables/candidate/hanja-merge.py
+
+cvs keyword 추가
+
+------------------------------------------------------------------------
+r432 | aii | 2004-05-11 03:08:06 +0900 (Tue, 11 May 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+Unihan-3.2.0.txt 에 대한 검토분입니다.
+ - 발음이 모호한 글자는 반영하지 않았습니다.
+ - 자전에 없는 유사자(동자, 속자, 간체자 등)는 반영하지 않았습니다.
+
+------------------------------------------------------------------------
+r431 | aii | 2004-05-08 16:59:28 +0900 (Sat, 08 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+鞫 U+97AB 까지의 검토문을 반영합니다.
+
+------------------------------------------------------------------------
+r430 | krisna | 2004-05-07 14:34:28 +0900 (Fri, 07 May 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/ChangeLog
+   A /trunk/nabi/tables/candidate/hanja-gettext.py
+
+Unihan.txt 데이터베이스 파일에서 한자를 추출하는 hanja-gettext.py 추가
+
+------------------------------------------------------------------------
+r429 | krisna | 2004-05-07 10:56:09 +0900 (Fri, 07 May 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/ChangeLog
+
+한자 테이블만을 위한 ChangeLog 파일 생성
+
+------------------------------------------------------------------------
+r428 | krisna | 2004-05-07 10:54:12 +0900 (Fri, 07 May 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/hanja-merge.py
+
+한자 번역 결과물을 새 한자 템플릿 파일과 머지하는 도구를 만듦
+
+------------------------------------------------------------------------
+r427 | aii | 2004-05-04 12:43:51 +0900 (Tue, 04 May 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/hanja-variants.pl
+
+this script will check chinese variants in Unihan.txt
+
+------------------------------------------------------------------------
+r426 | krisna | 2004-05-03 16:09:38 +0900 (Mon, 03 May 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/ic.c
+
+ * feedback을 만들어주는 함수 추가
+ * commit 할때도 charset 변환 체크함
+ * 3벌식 오토마타에서 UTF-8에서는 모아치기 기능 지원하도록 수정
+
+------------------------------------------------------------------------
+r425 | krisna | 2004-04-29 22:50:36 +0900 (Thu, 29 Apr 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+ * 사용하지 않는 IMGetIMValues()함수 호출 부분을 제거
+ * charset 체크하는 곳에서 잘못된 비교를 하던 부분을 제거하고 그냥 출력
+
+------------------------------------------------------------------------
+r424 | krisna | 2004-04-29 14:57:52 +0900 (Thu, 29 Apr 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+마우스 왼쪽/오른쪽 버튼에 모두 메뉴가 나오게함, 가운데 버튼으로 메인 윈도우를
+보이게 하거나 숨기는 데 사용함
+
+------------------------------------------------------------------------
+r423 | krisna | 2004-04-27 21:42:09 +0900 (Tue, 27 Apr 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+상태창을 안보이게 기본값 수정
+
+------------------------------------------------------------------------
+r422 | krisna | 2004-04-23 18:34:20 +0900 (Fri, 23 Apr 2004) | 5 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
 
 2004-04-23  Choe Hwanjin <krisna@kldp.org>
 	* src/handler.c src/ic.c src/ic.h src/server.c src/server.h:
 	  status window 콜백 함수를 구현함
 	* src/server.c: 한영 전환키로 오른쪽 Alt를 추가
 
+------------------------------------------------------------------------
+r421 | krisna | 2004-04-19 12:25:18 +0900 (Mon, 19 Apr 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/server.c
+
 2004-04-19  Choe Hwanjin <krisna@kldp.org>
 	* src/server.c: charset 체크하면서 ko로 시작하지 않으면 워닝을
 	  출력하도록 함
 
-2004-03-15  Choe Hwanjin <krisna@kldp.org>
-	* release 0.13
+------------------------------------------------------------------------
+r419 | krisna | 2004-03-15 21:48:23 +0900 (Mon, 15 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/NEWS
+   M /trunk/nabi/TODO
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r418 | krisna | 2004-03-15 21:42:16 +0900 (Mon, 15 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+po 파일 날짜 업데이트
+
+------------------------------------------------------------------------
+r417 | krisna | 2004-03-15 21:41:52 +0900 (Mon, 15 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+autoconf 2.57에 맞게 AC_INIT 매크로의 인자 수정
+
+------------------------------------------------------------------------
+r416 | krisna | 2004-03-15 21:00:10 +0900 (Mon, 15 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi.txt
+
+한자 최종 수정본 적용
+
+------------------------------------------------------------------------
+r415 | krisna | 2004-03-08 21:22:23 +0900 (Mon, 08 Mar 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/hanja-sanity.pl
+
+한자 설명 파일의 잘못된 부분을 지적해주는 스크립트 추가
+
+------------------------------------------------------------------------
+r414 | krisna | 2004-03-08 20:59:18 +0900 (Mon, 08 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+여러가지 오타, 잘못된 곳 수정 (thanks to ai)
+
+------------------------------------------------------------------------
+r413 | krisna | 2004-03-07 21:46:03 +0900 (Sun, 07 Mar 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/ui.c
 
 2004-03-07  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: about 창 모양 개선
 	* po/ko.po: 번역 업데이트
+
+------------------------------------------------------------------------
+r412 | krisna | 2004-03-05 23:31:35 +0900 (Fri, 05 Mar 2004) | 5 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
 
 2004-03-05  Choe Hwanjin <krisna@kldp.org>
 	* src/nabi.h src/main.c src/server.h src/server.c src/ui.c:
 	xim_name이라는 컨피그 옵션과 --xim-name 이라는 커맨드 라인 옵션을
 	추가함. 이것을 지정하면 XMODIFIER값을 다른 것을 사용할 수 있음
 
+------------------------------------------------------------------------
+r411 | krisna | 2004-03-05 21:08:31 +0900 (Fri, 05 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+형-히 수정
+
+------------------------------------------------------------------------
+r410 | krisna | 2004-03-05 21:06:21 +0900 (Fri, 05 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+찬-체 수정
+
+------------------------------------------------------------------------
+r409 | krisna | 2004-03-03 22:00:51 +0900 (Wed, 03 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+자-직 주석 추가
+
+------------------------------------------------------------------------
+r408 | krisna | 2004-03-03 22:00:15 +0900 (Wed, 03 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+아-임 주석 추가
+
+------------------------------------------------------------------------
+r407 | krisna | 2004-03-02 22:12:35 +0900 (Tue, 02 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+Chloe Lewis님의 오타 수정
+
+------------------------------------------------------------------------
+r406 | krisna | 2004-03-02 21:44:21 +0900 (Tue, 02 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+Chloe Lewis님의 '사'부분 수정입니다.
+
+------------------------------------------------------------------------
+r405 | krisna | 2004-03-02 21:43:19 +0900 (Tue, 02 Mar 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+김선달님의 수정 작업 머지
+
+------------------------------------------------------------------------
+r404 | krisna | 2004-03-01 09:47:24 +0900 (Mon, 01 Mar 2004) | 5 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
 2004-03-01  Choe Hwanjin <krisna@kldp.org>
 	* src/ui.c: GtkTextView를 사용하게 되면 GtkIMContext를 생성하게 되어
 	XIM 서버가 멈추는 위험한 상황이 자주 발생하므로 About 창에서
 	GtkTextView대신 GtkLabel를 사용하도록 수정함
 
+------------------------------------------------------------------------
+r403 | krisna | 2004-02-29 19:47:56 +0900 (Sun, 29 Feb 2004) | 4 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/IMdkit/i18nIc.c
+   M /trunk/nabi/IMdkit/i18nMethod.c
+   M /trunk/nabi/IMdkit/i18nPtHdr.c
+
 2004-02-29  Choe Hwanjin <krisna@kldp.org>
 	* IMdkit/i18nIc.c IMdkit/i18nMethod.c IMdkit/i18nPtHdr.c:
 	바이트 오더 문제를 해결하기 위한 수정
 
-2004-02-18  Choe Hwanjin <krisna@kldp.org>
-	* GNU gettext 대신 glib gettext를 사용하도록 수정
-
-2004-02-16  Choe Hwanjin <krisna@kldp.org>
-	* src/candidate.c: 한자 선택창 페이지를 바꾸면서 화면에서 벗어나는
-	  문제를 수정 (#300256)
-
-2004-02-10  Choe Hwanjin <krisna@kldp.org>
-	* IMdkit/Makefile.am src/Makefile.am: -Wall 컴파일 옵션 제거(#300245)
-
-2004-02-02  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c: 위젯을 만들기 전에 XMODIFIERS 환경변수를 지움
-
-2004-01-29  Choe Hwanjin <krisna@kldp.org>
-	* src/candidate.c src/nabi.h src/server.c src/server.h src/ui.c:
-	  설정값 candidate_font 추가, candidate 글자에 사용할 폰트 지정
-
-2004-01-27  Choe Hwanjin <krisna@kldp.org>
-	* src/candidate.h src/candidate.c src/ic.c src/ic.h src/handler.c:
-	  candidate window에서 한자의 뜻을 보여주기 위해 GtkTable대신
-	  GtkTreeView를 사용함
-
-2004-01-09  Choe Hwanjin <krisna@kldp.org>
-	* src/candidate.c src/candidate.h src/ic.c src/nabi.h src/server.c
-          src/server.h src/ui.c tables/Makefile.am tables/candidate/nabi.txt:
-	  기존에 사용하던 static array를 버리고 외부의 파일로 저장된 candidate
-	  table을 사용하는 기능을 구현
-
-2003-12-29  Choe Hwanjin <krisna@kldp.org>
-	* IMdkit/i18nIc.c,IMdkit/i18nPtHdr.c: 메모리 leak 문제 몇가지 해결
-
-2003-12-23  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,src/server.c,src/automata.c: backspace정보를 통계 정보
-	  구조체에 남기는 코드의 버그를 해결
-
-2003-12-20  Choe Hwanjin <krisna@kldp.org>
-	* src/nabi.h,src/session.h,src/session.c,src/ui.c,src/main.c:
-	  세션 기능을 구현, 세션저장만 하면 다음번에 제대로 다시 뜨게함,
-	  또 프로그램이 죽게되면 자동으로 다시 띄우도록 기본값을 줌
-
-2003-12-18  Choe Hwanjin <krisna@kldp.org>
-	* release 0.12
-
-2003-12-16  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: PreeditCallback 방식의 preedit style을 Underline에서 
-	  Reverse로 바꿈
-	  트레이 아이콘이 사라지면서 죽던 문제 수정
-
-2003-12-15  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c: icon의 크기를 좀더 똑똑하게 처리
-	  메뉴의 위치를 마우스가 아닌 아이콘 위치 기준으로 설정
-
-2003-12-14  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,src/server.c: iconv를 직접 쓰지 않고 g_iconv를 사용
-	* icon들 업데이트 (김석진님에게 감사드립니다)
-
-2003-12-09  Choe Hwanjin  <krisna@people.kldp.org>
-	* configure.in,
-	  themes/MSWindows2000/Makefile.am,
-	  themes/MSWindows2000/english.png,
-	  themes/MSWindows2000/hangul.png,
-	  themes/MSWindows2000/none.png,
-	  themes/Makefile.am: MSWindows2000 테마 추가
-
-2003-12-05  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/handler.c, src/ic.c, src/ic.h: add utf8_to_compound_text() func.
-	  do not commit on ICReset, just send last preedit string
-
-2003-12-03  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ic.c:
-	  PreeditPosition에서 preedit window를 spot location보다 한픽셀 뒤로 밂
-	  (커서위치를 보이게 하기 위함)
-
-2003-12-02  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ic.c:
-	    set overide-redirect to show preedit window correctly on Qt app
-
-2003-11-29  Choe Hwanjin  <krisna@people.kldp.org>
-	* po/ko.po: update po
-	* ChangeLog: update ChangeLog
-	* src/ui.c: set dialog variable to NULL when about window closed
-	* src/ui.c: about window가 하나만 뜨게 함
-
-	* release 0.11
-
-2003-11-28  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ic.c, src/server.c, src/server.h: gc를 ic별로 관리하는 대신
-	  server에 기본 gc를 하나 만들고 그걸 사용하도록 함
-	* AUTHORS, NEWS, TODO: 문서 업데이트
-	* configure.in: prepare for version up
-	* po/ko.po: 번역 업데이트
-	* src/main.c, src/server.c, src/server.h, src/ui.c:
-	xim 서버 종료시 gtk2 application들이 죽던 문제 해결, xim서버를
-	정상적으로 종료함
-	* po/Makevars: set variable MSGID_BUGS_ADDRESS
-	* src/ui.c: update comment for parsing command line args routine
-
-2003-11-27  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/candidate.c: candidate window에서 . 제거
-
-2003-11-26  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ui.c: rename function for root window event filtering
-
-2003-11-25  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/main.c, src/nabi.h, src/server.c, src/ui.c:
-	-s(--status-only) 옵션 추가(디버깅용도, 또는 상태 정보만 보여주기)
-
-2003-11-24  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/main.c: 실수로 추가한 코드 제거 (server start 루틴 작동함)
-	* src/main.c, src/ui.c: update main window
-	* src/automata.c:
-	세벌식 오토마타에서 잘못돼 있던 goto update를 goto insert로 수정,
-	OUTPUT_JAMO의 경우만 순서를 고려하지 않는 코드(모아치기)를 사용
-
-2003-11-15  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/server.c: argument check, 안전한 프로그램을 위해
-
-2003-11-13  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ui.c: add tooltips on tray icon
-
-2003-11-10  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/candidate.c: candidate window의 memory leak
-
-2003-11-09  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/ic.c: PreeditPosition에서 preedit window 위치 조정 (xterm에서)
-	* src/candidate.c: 각 글자를 x 방향도 맞추도록 함
-
-2003-11-07  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/handler.c: candidate window에서 잘못된 인덱스 수정
-	* configure.in, po/ko.po: version up 0.10
-
-2003-11-05  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/candidate.c, src/handler.c, src/ic.c:
-	단축키를 알파벳대신 숫자로 변경함
-
-2003-11-04  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/handler.c: on focus out event close the candidate window
-	* src/candidate.c: always show full window on screen
-	* src/ic.c, src/symboltable.h, src/candidate.c, src/candidate.h,
-	  src/hanjatable.h:
-	candidate selection window의 기본형을 wchar_t에서
-	unsigned short int로 변경
-	* src/Makefile.am: add symboltable.h to source list
-	* src/handler.c: change default keymapping on symbol selection window
-
-2003-11-03  Choe Hwanjin  <krisna@people.kldp.org>
-	* src/candidate.c, src/candidate.h, src/handler.c, src/hanjatable.h,
-	  src/ic.c, src/symboltable.h:
-	add symbol selection function
-
-2003-11-02  Choe Hwanjin  <krisna@people.kldp.org>
-	* ChangeLog, src/Makefile.am, src/candidate.c, src/candidate.h,
-	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
-	Add new candidate window routine
-
-2003-11-02  Choe Hwanjin <krisna@kldp.org>
-	* src/Makefile.am, src/candidate.c, src/candidate.h,
-	  src/handler.c, src/ic.c, src/ic.h, src/ui.c:
-	  Add new candidate window routine
-
-2003-10-30  Choe Hwanjin <krisna@kldp.org>
-	* 텍스트 파일들의 인코딩을 UTF-8로 변환
-
-2003-10-22  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c,src/nabi.h,src/ui.c,src/server.h,src/server.c:
-	  output_mode 옵션 추가 (syllable, jamo 가능)
-
-2003-10-20  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c: gcc 3.3.2 에서 strict alias warning 안나게
-
-2003-10-19  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: unicode 범위의 keyval은 forwarding하지 않고 바로 commit 함
-
-2003-10-15  Choe Hwanjin <krisna@kldp.org>
-	* src/automata.c,src/handler.c,src/ic.c,src/ic.h: 한글자모 이외의
-	  글자를 처리하는 루틴을 개선
-
-2003-10-14  Choe Hwanjin <krisna@kldp.org>
-	* release 0.9
-
-2003-10-13  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c,src/hangul.c,src/hangul.h,src/server.c:
-	  XwcXXX 함수를 모두 Xutf8XXX 함수로 바꿈, UCS 코드를 UTF8 스트링으로
-	  만드는 자체 루틴 추가, charset 체크에서도 WCHAR_T 대신 UTF-8
-	  사용 (BSD 지원을 위해)
-	  BSD 서버 사용을 지원해주신 Perky(http://openlook.org/)님께
-	  감사드립니다.
-
-2003-10-10  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: qt에서 한자 변환시 안보이던 문제 해결
-
-2003-10-08  Choe Hwanjin <krisna@kldp.org>
-	* release 0.8
-
-2003-10-08  Choe Hwanjin <krisna@kldp.org>
-	* src/automata.c: charset을 체크하는 부분을 더 추가
-	  (ㅃㅞㄹㄱ의 경우 고려), 세벌식 자판에서도 charset 체크 강화
-	* src/automata.c, src/server.h, src/server.c, src/ui.c: 각 키별로 눌린
-	  횟수를 저장해두는 기능을 추가함(about 창에서 볼수 있음)
-
-2003-10-01  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: XIMPreeditPosition 모드의 경우에는 commit한후에 preedit
-	  clear 하도록 수정함(Eterm의 경우는 preedit string을 지우고 commit
-	  해도 정상적으로 입력이 되지만, gtk+1 app의 경우는 입력순서가
-	  뒤바뀌는 경우가 있어서 XIMPreeditPosition의 경우는 기존의 방식대로 
-	  처리하도록 함, 따라서 XUnmapWindow()를 사용해도 입력순서에 영향을 
-	  미치지 않음 #284)
-
-2003-09-26  Choe Hwanjin <krisna@kldp.org>
-	* release 0.7
-
-2003-09-18  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.c: XIM spec에 맞게 preedit clear 한후 commit 함
-	* src/handler.c: 한자 변환 기능을 "Hanja"키 말고 F9도 작동하게 함
-
-2003-09-17  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c: set default icon
-
-2003-09-16  Choe Hwanjin <krisna@kldp.org>
-	* release 0.6
-	* src/session.c,src/main.c,src/ui.c: session 종료시 같이 종료
-
-2003-09-14  Choe Hwanjin <krisna@kldp.org>
-	* src/session.h,src/session.c: session 관련 코드 추가
-
-2003-09-10  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: 특수키들을 포워딩 함
-	* src/automata.c: 세벌식 오토마타의 잘못된 곳 수정
-
-2003-09-09  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,src/server.c,src/ui.c: iconv를 이용한 charset 체크루틴 
-	  추가
-	* src/hangul.h,src/hangul.c: hangul_ucs_to_ksc 함수를 제거
-
-2003-09-08  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c,src/ic.c,src/ic.h,src/nabi.h,src/hanjatable.h,src/handler.c:
-	  한자 입력 기능 추가
-	* src/handler.c: preedit start/done을 제때에 맞게 호출하도록 수정
-	  mozilla에서 한글 상태에서 창을 닫으면 죽던 문제 해결(#248)
-
-2003-09-07  Choe Hwanjin <krisna@kldp.org>
-	* release 0.5
-
-2003-08-31  Choe Hwanjin <krisna@kldp.org>
-	* src/ui.c,main.c: system tray가 닫혀도 프로그램을 종료하지 않음
-	* src/ui.c: dvorak 자판을 위한 설정을 메뉴에 추가
-
-2003-08-29  Choe Hwanjin <krisna@kldp.org>
-	* src/ucs2ksc.h,src/hangul.c: usc_to_ksc 테이블을 wchar_t에서 uint16_t
-	  형으로 바꿔서 크기를 줄임
-
-2003-08-27  Choe Hwanjin <krisna@kldp.org>
-	* src/server.h,server.c,automata.c: dvorak 자판 지원
-	* src/server.h,server.c,nabi.h,ui.c: dvorak 설정 지원
-	* src/ui.c: 메뉴 아이콘 추가
-
-2003-08-25  Choe Hwanjin <krisna@kldp.org>
-	* release 0.4
-	* src/ui.c,configure.in: 키보드 기본값을 DEFAULT_KEYBOARD로 사용
-
-2003-08-23  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c,ic.c,ic.h,server.c,server.h: NabiConnect를 추가해서
-	  connect_id 별로 한영 상태를 관리하도록 함
-
-2003-08-21  Choe Hwanjin <krisna@kldp.org>
-	* src/main.c,server.h,server.c: nabi_server_stop 함수 추가
-	* src/fontset.h,fontset.c: fontset 관련 루틴 추가
-	* src/ic.c: nabi_fontset 관련 함수 사용하도록 수정
-
-2003-08-11  Choe Hwanjin <krisna@kldp.org>
-	* src/ic.h,ic.c: preedit start 플래그 추가, preedit_start된 경우만
-	  preedit_done 메세지를 보냄(mozilla flash player와 관련된 문제점)
-	* src/ui.c: about 창에서 버젼 넘버 볼 수 있게
-
-2003-08-09  Choe Hwanjin <krisna@kldp.org>
-	* configure.in: gtk+ 2.2를 필요로 하도록 함
-
-2003-08-07  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: vi 사용자를 위해 esc키일때 영문 상태로 자동 전환
-
-2003-08-06  Choe Hwanjin <krisna@kldp.org>
-	* src/handler.c: CapsLock, NumLock 처리 못하는 버그 수정
-	* src/ui.c: NabiKeyboardMap.map을 free 하는 버그 수정
-	* IMdkit/IMConn.c: malloc.h 대신 stdlib.h 를 include
-
-2003-08-05  Choe Hwanjin <krisna@kldp.org>
-	* Release
+------------------------------------------------------------------------
+r402 | krisna | 2004-02-29 19:47:19 +0900 (Sun, 29 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+ * 잘못된 에러 메세지 수정
+
+------------------------------------------------------------------------
+r401 | krisna | 2004-02-29 11:09:35 +0900 (Sun, 29 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi.txt
+
+초벌 작업된 한자 사전을 merge
+
+------------------------------------------------------------------------
+r400 | krisna | 2004-02-23 20:51:46 +0900 (Mon, 23 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+오타 수정 (광->굉)
+
+------------------------------------------------------------------------
+r399 | krisna | 2004-02-22 22:34:09 +0900 (Sun, 22 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+마 영역의 에러 수정 (ai)
+
+------------------------------------------------------------------------
+r398 | krisna | 2004-02-22 22:33:47 +0900 (Sun, 22 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+바 영역의 에러 수정 (ai)
+
+------------------------------------------------------------------------
+r397 | krisna | 2004-02-20 16:16:39 +0900 (Fri, 20 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+typo 적용 - ai
+
+------------------------------------------------------------------------
+r396 | krisna | 2004-02-20 16:15:28 +0900 (Fri, 20 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+라 적용 - ai
+
+------------------------------------------------------------------------
+r395 | krisna | 2004-02-20 16:14:34 +0900 (Fri, 20 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+나 주석 추가 - ai
+
+------------------------------------------------------------------------
+r394 | krisna | 2004-02-20 16:13:12 +0900 (Fri, 20 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+다 수정 - ai
+
+------------------------------------------------------------------------
+r393 | krisna | 2004-02-19 22:32:00 +0900 (Thu, 19 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+오류 수정 '가' - ai
+
+------------------------------------------------------------------------
+r392 | krisna | 2004-02-18 16:00:07 +0900 (Wed, 18 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ChangeLog
+
+update
+
+------------------------------------------------------------------------
+r391 | krisna | 2004-02-18 15:52:11 +0900 (Wed, 18 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/autogen.sh
+   D /trunk/nabi/po/Makefile.in.in
+
+glib-gettextize 적용
+
+------------------------------------------------------------------------
+r390 | krisna | 2004-02-18 15:45:41 +0900 (Wed, 18 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/Makefile.am
+   M /trunk/nabi/configure.in
+   D /trunk/nabi/m4
+   D /trunk/nabi/po/LINGUAS
+   M /trunk/nabi/po/Makefile.in.in
+   D /trunk/nabi/po/Makevars
+   M /trunk/nabi/po/POTFILES.in
+   D /trunk/nabi/po/Rules-quot
+   D /trunk/nabi/po/boldquot.sed
+   D /trunk/nabi/po/en@boldquot.header
+   D /trunk/nabi/po/en@quot.header
+   D /trunk/nabi/po/insert-header.sin
+   M /trunk/nabi/po/ko.po
+   D /trunk/nabi/po/quot.sed
+   D /trunk/nabi/po/remove-potcdate.sed
+   D /trunk/nabi/po/remove-potcdate.sin
+
+GNU gettext에서 glib-gettext로 바꿈, 여러 모로 관리하기 편리한것 같음
+
+------------------------------------------------------------------------
+r389 | krisna | 2004-02-17 17:07:28 +0900 (Tue, 17 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+78 적용
+
+------------------------------------------------------------------------
+r388 | krisna | 2004-02-17 17:07:01 +0900 (Tue, 17 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+26 적용
+
+------------------------------------------------------------------------
+r387 | krisna | 2004-02-16 22:20:25 +0900 (Mon, 16 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/candidate.c
+
+candidate 윈도우가 screen을 벗어나서 일부가 가려지던 문제를 해결(#300256)
+
+------------------------------------------------------------------------
+r386 | krisna | 2004-02-16 11:59:10 +0900 (Mon, 16 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-symbol.txt
+
+기호 순서 조정
+
+------------------------------------------------------------------------
+r385 | krisna | 2004-02-16 07:50:59 +0900 (Mon, 16 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+04 적용
+
+------------------------------------------------------------------------
+r384 | krisna | 2004-02-16 07:49:38 +0900 (Mon, 16 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+03 적용
+
+------------------------------------------------------------------------
+r383 | krisna | 2004-02-16 07:48:57 +0900 (Mon, 16 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+02 적용
+
+------------------------------------------------------------------------
+r382 | krisna | 2004-02-14 11:35:53 +0900 (Sat, 14 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+57 적용
+
+------------------------------------------------------------------------
+r381 | krisna | 2004-02-10 22:31:00 +0900 (Tue, 10 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/i18nPtHdr.c
+
+STR_CONVERSION 메세지 일부 구현
+
+------------------------------------------------------------------------
+r380 | krisna | 2004-02-10 22:25:56 +0900 (Tue, 10 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/IMdkit/Makefile.am
+   M /trunk/nabi/src/Makefile.am
+
+-Wall 컴파일 옵션 제거 (#300245)
+
+------------------------------------------------------------------------
+r379 | krisna | 2004-02-09 20:28:03 +0900 (Mon, 09 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+66 적용
+
+------------------------------------------------------------------------
+r378 | krisna | 2004-02-08 17:17:32 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+79 적용
+
+------------------------------------------------------------------------
+r377 | krisna | 2004-02-08 17:17:00 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+68 적용
+
+------------------------------------------------------------------------
+r376 | krisna | 2004-02-08 17:16:41 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+59 적용
+
+------------------------------------------------------------------------
+r375 | krisna | 2004-02-08 17:16:20 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+58 적용
+
+------------------------------------------------------------------------
+r374 | krisna | 2004-02-08 11:54:24 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+80,81 적용
+
+------------------------------------------------------------------------
+r373 | krisna | 2004-02-08 11:54:02 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+72 적용
+
+------------------------------------------------------------------------
+r372 | krisna | 2004-02-08 11:53:22 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+71 적용
+
+------------------------------------------------------------------------
+r371 | krisna | 2004-02-08 11:52:57 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+70 적용
+
+------------------------------------------------------------------------
+r370 | krisna | 2004-02-08 11:52:11 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+69 적용
+
+------------------------------------------------------------------------
+r369 | krisna | 2004-02-08 00:17:25 +0900 (Sun, 08 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+73 적용
+
+------------------------------------------------------------------------
+r368 | krisna | 2004-02-07 23:48:38 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+77 적용
+
+------------------------------------------------------------------------
+r367 | krisna | 2004-02-07 23:48:11 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+76 적용
+
+------------------------------------------------------------------------
+r366 | krisna | 2004-02-07 23:47:31 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+74 적용
+
+------------------------------------------------------------------------
+r365 | krisna | 2004-02-07 23:46:53 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+54 적용
+
+------------------------------------------------------------------------
+r364 | krisna | 2004-02-07 23:46:28 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+53 적용
+
+------------------------------------------------------------------------
+r363 | krisna | 2004-02-07 23:46:04 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+37 적용
+
+------------------------------------------------------------------------
+r362 | krisna | 2004-02-07 23:45:45 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+33 적용
+
+------------------------------------------------------------------------
+r361 | krisna | 2004-02-07 23:44:19 +0900 (Sat, 07 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+32 적용
+
+------------------------------------------------------------------------
+r360 | krisna | 2004-02-06 07:39:18 +0900 (Fri, 06 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+38 적용
+
+------------------------------------------------------------------------
+r359 | krisna | 2004-02-04 22:49:40 +0900 (Wed, 04 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+28 적용
+
+------------------------------------------------------------------------
+r358 | krisna | 2004-02-04 22:48:04 +0900 (Wed, 04 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+56 적용
+
+------------------------------------------------------------------------
+r357 | krisna | 2004-02-03 11:12:44 +0900 (Tue, 03 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+테마 디렉토리 이름 변경 적용(MSWindow2000 -> MSWindowsXP)
+
+------------------------------------------------------------------------
+r356 | krisna | 2004-02-02 18:13:26 +0900 (Mon, 02 Feb 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+위젯을 만들기 전에 XMODIFIERS 환경 변수를 지움. 그러지 않으면 xim의 위젯이
+xim 서버 자신에게 연결하려 해서 일종의 무한 루프에 빠지게 됨
+
+------------------------------------------------------------------------
+r355 | krisna | 2004-02-01 23:57:23 +0900 (Sun, 01 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+프로그램 정보창에서 키 입력 통계를 세로에서 가로 형식으로 수정
+
+------------------------------------------------------------------------
+r354 | krisna | 2004-02-01 23:30:03 +0900 (Sun, 01 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+05 적용
+
+------------------------------------------------------------------------
+r353 | krisna | 2004-02-01 14:43:56 +0900 (Sun, 01 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+08 적용
+
+------------------------------------------------------------------------
+r352 | krisna | 2004-02-01 01:23:56 +0900 (Sun, 01 Feb 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+07 적용
+
+------------------------------------------------------------------------
+r351 | krisna | 2004-01-31 12:38:32 +0900 (Sat, 31 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+about 윈도우의 통계정보 위젯을 GtkTextView로 바꿈
+
+------------------------------------------------------------------------
+r350 | krisna | 2004-01-31 10:27:18 +0900 (Sat, 31 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+39, 40 적용
+
+------------------------------------------------------------------------
+r349 | krisna | 2004-01-30 23:30:05 +0900 (Fri, 30 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+52 적용
+
+------------------------------------------------------------------------
+r348 | krisna | 2004-01-29 20:03:44 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/session.c
+
+쓸데없이 메세지 출력하는 부분 제거
+
+------------------------------------------------------------------------
+r347 | krisna | 2004-01-29 18:51:54 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   D /trunk/nabi/src/hanjatable.h
+   D /trunk/nabi/src/symboltable.h
+   D /trunk/nabi/src/ucs2ksc.h
+
+더이상 사용하지 않는 static array 파일들 제거
+
+------------------------------------------------------------------------
+r346 | krisna | 2004-01-29 18:47:15 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   D /trunk/nabi/themes/MSWindows2000
+   A /trunk/nabi/themes/MSWindowsXP
+   A /trunk/nabi/themes/MSWindowsXP/Makefile.am
+   A /trunk/nabi/themes/MSWindowsXP/english.png
+   A /trunk/nabi/themes/MSWindowsXP/hangul.png
+   A /trunk/nabi/themes/MSWindowsXP/none.png
+   M /trunk/nabi/themes/Makefile.am
+
+MSWindows2000 테마 이름을 MSWindowXP로 바꿈
+
+------------------------------------------------------------------------
+r345 | krisna | 2004-01-29 18:44:28 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/themes/MSWindows/Makefile.am
+   A /trunk/nabi/themes/MSWindows/english.png
+   A /trunk/nabi/themes/MSWindows/hangul.png
+   A /trunk/nabi/themes/MSWindows/none.png
+
+실수로 지원던 파일 복구
+
+------------------------------------------------------------------------
+r344 | krisna | 2004-01-29 18:44:00 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   D /trunk/nabi/themes/MSWindows/Makefile.am
+   D /trunk/nabi/themes/MSWindows/english.png
+   D /trunk/nabi/themes/MSWindows/hangul.png
+   D /trunk/nabi/themes/MSWindows/none.png
+
+실수로 파일 지움
+
+------------------------------------------------------------------------
+r343 | krisna | 2004-01-29 18:30:39 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+
+새로운 작업자 추가
+
+------------------------------------------------------------------------
+r342 | krisna | 2004-01-29 18:30:22 +0900 (Thu, 29 Jan 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+candidate_font 설정값 추가, 이것으로 candidate 창에서 candidate글자의 글꼴을
+선택할수 있음
+
+------------------------------------------------------------------------
+r341 | krisna | 2004-01-29 10:17:51 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+55 적용
+
+------------------------------------------------------------------------
+r340 | krisna | 2004-01-29 10:17:30 +0900 (Thu, 29 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+12 적용
+
+------------------------------------------------------------------------
+r339 | krisna | 2004-01-28 12:01:49 +0900 (Wed, 28 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+51 적용
+
+------------------------------------------------------------------------
+r338 | krisna | 2004-01-28 01:53:20 +0900 (Wed, 28 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+50 적용
+
+------------------------------------------------------------------------
+r337 | krisna | 2004-01-28 01:52:59 +0900 (Wed, 28 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+13 적용
+
+------------------------------------------------------------------------
+r336 | krisna | 2004-01-27 21:38:49 +0900 (Tue, 27 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+49 적용
+
+------------------------------------------------------------------------
+r335 | krisna | 2004-01-27 21:38:27 +0900 (Tue, 27 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+62 적용
+
+------------------------------------------------------------------------
+r334 | krisna | 2004-01-27 00:51:34 +0900 (Tue, 27 Jan 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+ * candidate window의 메인 위젯을 GtkTable에서 GtkTreeView로 바꿈
+ * ic->candidate_window를 ic->candidate로 이름 바꿈
+
+------------------------------------------------------------------------
+r333 | krisna | 2004-01-26 20:37:09 +0900 (Mon, 26 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+nabi_server_load_candidate_table 함수에서 잘못된 포인터 처리 수정
+
+------------------------------------------------------------------------
+r332 | krisna | 2004-01-26 19:50:53 +0900 (Mon, 26 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+09, 10, 11 적용
+
+------------------------------------------------------------------------
+r331 | krisna | 2004-01-26 19:49:13 +0900 (Mon, 26 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+31 적용
+
+------------------------------------------------------------------------
+r330 | krisna | 2004-01-26 19:47:37 +0900 (Mon, 26 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+48 적용
+
+------------------------------------------------------------------------
+r329 | krisna | 2004-01-20 12:34:40 +0900 (Tue, 20 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+47 적용
+
+------------------------------------------------------------------------
+r328 | krisna | 2004-01-19 23:48:40 +0900 (Mon, 19 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+65 적용
+
+------------------------------------------------------------------------
+r327 | krisna | 2004-01-19 12:00:51 +0900 (Mon, 19 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+43, 44, 45, 46 적용
+
+------------------------------------------------------------------------
+r326 | krisna | 2004-01-18 23:07:32 +0900 (Sun, 18 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+23, 24, 25 적용
+
+------------------------------------------------------------------------
+r325 | krisna | 2004-01-18 00:25:20 +0900 (Sun, 18 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+30번 적용
+
+------------------------------------------------------------------------
+r324 | krisna | 2004-01-17 23:28:43 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+22번 적용
+
+------------------------------------------------------------------------
+r323 | krisna | 2004-01-17 23:26:39 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+21번 적용
+
+------------------------------------------------------------------------
+r322 | krisna | 2004-01-17 16:41:18 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+20번 적용
+
+------------------------------------------------------------------------
+r321 | krisna | 2004-01-17 14:50:15 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+
+작업자 추가
+
+------------------------------------------------------------------------
+r320 | krisna | 2004-01-17 14:49:50 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+82, 83 적용
+
+------------------------------------------------------------------------
+r319 | krisna | 2004-01-17 14:21:28 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+19 적용
+
+------------------------------------------------------------------------
+r318 | krisna | 2004-01-17 14:12:20 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+18번 적용
+
+------------------------------------------------------------------------
+r317 | krisna | 2004-01-17 14:10:11 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+29번 적용
+
+------------------------------------------------------------------------
+r316 | krisna | 2004-01-17 01:04:21 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+41,42 작업 적용
+
+------------------------------------------------------------------------
+r315 | krisna | 2004-01-17 00:01:06 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+17번 적용
+
+------------------------------------------------------------------------
+r314 | krisna | 2004-01-17 00:00:00 +0900 (Sat, 17 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanjatable.py
+
+잘못 커밋된 부분을 복구
+
+------------------------------------------------------------------------
+r313 | krisna | 2004-01-16 23:52:09 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/hanjatable.py
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+36번 적용
+
+------------------------------------------------------------------------
+r312 | krisna | 2004-01-16 18:21:08 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+
+작업자 추가
+
+------------------------------------------------------------------------
+r311 | krisna | 2004-01-16 18:20:58 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+작업 번호 64 merge
+
+------------------------------------------------------------------------
+r310 | krisna | 2004-01-16 18:16:44 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+61번 작업 merge
+
+------------------------------------------------------------------------
+r309 | krisna | 2004-01-16 18:12:14 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+작업 번호 16번 적용
+
+------------------------------------------------------------------------
+r308 | krisna | 2004-01-16 13:31:48 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+속자, 동자, 약자, 고자 이런 지시자를 모두 한자로 전환
+
+------------------------------------------------------------------------
+r307 | krisna | 2004-01-16 13:31:21 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+
+작업자 추가
+
+------------------------------------------------------------------------
+r306 | krisna | 2004-01-16 13:22:33 +0900 (Fri, 16 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+작업 번호 01 적용
+
+------------------------------------------------------------------------
+r305 | krisna | 2004-01-15 23:59:01 +0900 (Thu, 15 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/CREDITS
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+작업 번호 06, 15, 60, 67 적용
+
+------------------------------------------------------------------------
+r304 | krisna | 2004-01-15 11:41:28 +0900 (Thu, 15 Jan 2004) | 3 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/CREDITS
+   M /trunk/nabi/tables/candidate/nabi-hanja.txt
+
+작업 번호 09, 14, 27, 34, 35, 75 적용
+도움을 주신 분들 목록에 남김
+
+------------------------------------------------------------------------
+r303 | krisna | 2004-01-13 17:24:02 +0900 (Tue, 13 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/FrameMgr.c
+
+FrameMgr Iter memory leak fix.
+
+------------------------------------------------------------------------
+r302 | krisna | 2004-01-13 11:55:41 +0900 (Tue, 13 Jan 2004) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables/candidate/README
+   A /trunk/nabi/tables/candidate/hanjatable.py
+   A /trunk/nabi/tables/candidate/nabi-hanja.txt
+   A /trunk/nabi/tables/candidate/nabi-symbol.txt
+
+한자 추출 스크립트와 문서 추가
+
+------------------------------------------------------------------------
+r301 | krisna | 2004-01-10 10:00:51 +0900 (Sat, 10 Jan 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/tables/candidate/nabi.txt
+
+ * 한자 commnet 부분을 지우고 새로 채워 넣기 쉽게 함
+ * 기호 부분에 있던 ^M을 지움
+
+------------------------------------------------------------------------
+r300 | krisna | 2004-01-10 01:12:46 +0900 (Sat, 10 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/handler.c
+
+candidate window를 가로에서 세로 방향으로 바꿈
+
+------------------------------------------------------------------------
+r299 | krisna | 2004-01-10 01:10:33 +0900 (Sat, 10 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+사용하지 않는 hanjatable.h, symboltable.h를 제거
+
+------------------------------------------------------------------------
+r298 | krisna | 2004-01-09 21:18:39 +0900 (Fri, 09 Jan 2004) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+   M /trunk/nabi/tables/Makefile.am
+   A /trunk/nabi/tables/candidate
+   A /trunk/nabi/tables/candidate/nabi.txt
+
+hanja_table과 symbol_table을 더이상 사용하지 않고 외부의 데이터 파일
+(NABI_DATA_DIR/candidate/nabi.txt)로 저장한 것을 읽어 오는 형식으로 바꿈
+
+------------------------------------------------------------------------
+r297 | krisna | 2004-01-09 18:33:18 +0900 (Fri, 09 Jan 2004) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/i18nClbk.c
+
+XIM_STR_CONVERSION message에서 factor 안보내던 부분을 수정
+
+------------------------------------------------------------------------
+r296 | krisna | 2003-12-29 20:08:56 +0900 (Mon, 29 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/session.c
+
+memory leak: property_free
+
+------------------------------------------------------------------------
+r295 | krisna | 2003-12-29 20:06:51 +0900 (Mon, 29 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+안쓰는 변수 삭제 session_id
+
+------------------------------------------------------------------------
+r294 | krisna | 2003-12-29 14:07:02 +0900 (Mon, 29 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi
+   M /trunk/nabi/.cvsignore
+   M /trunk/nabi/m4
+   A /trunk/nabi/m4/.cvsignore
+   M /trunk/nabi/po
+   M /trunk/nabi/po/.cvsignore
+   M /trunk/nabi/tables
+   A /trunk/nabi/tables/.cvsignore
+
+update cvsignore
+
+------------------------------------------------------------------------
+r293 | krisna | 2003-12-29 14:05:46 +0900 (Mon, 29 Dec 2003) | 4 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/IMdkit/i18nIc.c
+   M /trunk/nabi/IMdkit/i18nPtHdr.c
+
+memory leak 해결
+ IMdkit/i18nIc.c:_Xi18nChangeIC
+ IMdkit/i18nPtHdr.c:GetIMValueFromName
+
+------------------------------------------------------------------------
+r291 | krisna | 2003-12-23 13:45:43 +0900 (Tue, 23 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+nabi_server_on_keypress 함수에 keyval 인자를 추가함(backspace도 기록하기 위해)
+
+------------------------------------------------------------------------
+r290 | krisna | 2003-12-22 00:18:59 +0900 (Mon, 22 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/AUTHORS
+
+메일 주소 수정 (커밋정보를 메일로 보내는 테스트)
+
+------------------------------------------------------------------------
+r289 | krisna | 2003-12-22 00:07:56 +0900 (Mon, 22 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/AUTHORS
+
+메일 주소 수정 (cvs commits를 메일로 보내기 위한 설정을 테스트)
+
+------------------------------------------------------------------------
+r287 | krisna | 2003-12-20 21:59:08 +0900 (Sat, 20 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/session.h
+   M /trunk/nabi/src/ui.c
+
+Session properties중 최소한 기본적으로 필요한 것들을 설정하는 루틴 추가
+
+------------------------------------------------------------------------
+r286 | krisna | 2003-12-19 20:06:20 +0900 (Fri, 19 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/ui.c
+
+더이상 필요하지 않은 에러메세지 출력 루틴들을 지움
+
+------------------------------------------------------------------------
+r285 | krisna | 2003-12-19 15:59:51 +0900 (Fri, 19 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+기본 아이콘 크기가 36이 아니라 32가 일반적인 크기
+
+------------------------------------------------------------------------
+r283 | krisna | 2003-12-18 16:53:13 +0900 (Thu, 18 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/NEWS
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r282 | krisna | 2003-12-18 16:51:58 +0900 (Thu, 18 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+version up to 0.12
+
+------------------------------------------------------------------------
+r281 | krisna | 2003-12-18 16:51:14 +0900 (Thu, 18 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+po file update
+
+------------------------------------------------------------------------
+r278 | krisna | 2003-12-16 16:01:55 +0900 (Tue, 16 Dec 2003) | 3 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+g_build_filename 사용, menu position 수정
+tray icon destroy할때 none,hangul,english_image 포인터를 NULL로 세팅
+
+------------------------------------------------------------------------
+r277 | krisna | 2003-12-16 14:57:25 +0900 (Tue, 16 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ic.c
+
+PreeditCallback에서 preedit style을 XIMUnderline에서 XIMReverse로 바꿈
+
+------------------------------------------------------------------------
+r276 | krisna | 2003-12-16 12:40:09 +0900 (Tue, 16 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+remove comments
+
+------------------------------------------------------------------------
+r275 | krisna | 2003-12-16 00:20:31 +0900 (Tue, 16 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+implement GtkMenuPositionFunc for menu
+
+------------------------------------------------------------------------
+r274 | krisna | 2003-12-15 16:04:48 +0900 (Mon, 15 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+GtkSocket의 크기를 구해서 계산하여 icon의 크기를 24,36,48,64,128중에서 결정한다
+
+------------------------------------------------------------------------
+r273 | krisna | 2003-12-14 11:51:41 +0900 (Sun, 14 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r272 | krisna | 2003-12-14 11:50:36 +0900 (Sun, 14 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/themes/Mac/hangul.png
+
+change the color position (thanks to Kim Seok-Jin)
+
+------------------------------------------------------------------------
+r271 | krisna | 2003-12-14 11:45:47 +0900 (Sun, 14 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/themes/keyboard/english.png
+   M /trunk/nabi/themes/keyboard/hangul.png
+   M /trunk/nabi/themes/keyboard/none.png
+
+update icons thanks to Kim Seok-Jin
+
+------------------------------------------------------------------------
+r270 | krisna | 2003-12-14 11:16:43 +0900 (Sun, 14 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+does not use iconv directly, instead use g_iconv
+
+------------------------------------------------------------------------
+r268 | krisna | 2003-12-09 17:22:05 +0900 (Tue, 09 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+Update ChangeLog
+
+------------------------------------------------------------------------
+r267 | krisna | 2003-12-09 17:10:31 +0900 (Tue, 09 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+   A /trunk/nabi/themes/MSWindows2000
+   A /trunk/nabi/themes/MSWindows2000/Makefile.am
+   A /trunk/nabi/themes/MSWindows2000/english.png
+   A /trunk/nabi/themes/MSWindows2000/hangul.png
+   A /trunk/nabi/themes/MSWindows2000/none.png
+   M /trunk/nabi/themes/Makefile.am
+
+MSWindows2000 테마 추가
+
+------------------------------------------------------------------------
+r266 | krisna | 2003-12-05 22:41:02 +0900 (Fri, 05 Dec 2003) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+add utf8_to_compound_text() func.
+do not commit on ICReset, just send last preedit string
+
+------------------------------------------------------------------------
+r265 | krisna | 2003-12-03 11:55:59 +0900 (Wed, 03 Dec 2003) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+PreeditPosition에서 preedit window를 spot location보다 한픽셀 뒤로 밂
+(커서위치를 보이게 하기 위함)
+
+------------------------------------------------------------------------
+r264 | krisna | 2003-12-02 20:37:11 +0900 (Tue, 02 Dec 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+set overide-redirect to show preedit window correctly on Qt app
+
+------------------------------------------------------------------------
+r262 | krisna | 2003-11-29 17:29:45 +0900 (Sat, 29 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+update po
+
+------------------------------------------------------------------------
+r261 | krisna | 2003-11-29 17:28:18 +0900 (Sat, 29 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+update ChangeLog
+
+------------------------------------------------------------------------
+r260 | krisna | 2003-11-29 16:46:23 +0900 (Sat, 29 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+set dialog variable to NULL when about window closed
+
+------------------------------------------------------------------------
+r259 | krisna | 2003-11-29 16:42:27 +0900 (Sat, 29 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+about window가 하나만 뜨게 함
+
+------------------------------------------------------------------------
+r258 | krisna | 2003-11-28 18:52:45 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+gc를 ic별로 관리하는 대신 server에 기본 gc를 하나 만들고 그걸 사용하도록 함
+
+------------------------------------------------------------------------
+r257 | krisna | 2003-11-28 15:10:34 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/AUTHORS
+   M /trunk/nabi/NEWS
+   M /trunk/nabi/TODO
+
+문서 업데이트
+
+------------------------------------------------------------------------
+r256 | krisna | 2003-11-28 15:09:52 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+prepare for version up
+
+------------------------------------------------------------------------
+r255 | krisna | 2003-11-28 12:59:07 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r254 | krisna | 2003-11-28 12:00:16 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+xim 서버 종료시 gtk2 application들이 죽던 문제 해결, xim서버를 정상적으로 종료함
+
+------------------------------------------------------------------------
+r253 | krisna | 2003-11-28 11:03:33 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/Makevars
+
+set variable MSGID_BUGS_ADDRESS
+
+------------------------------------------------------------------------
+r252 | krisna | 2003-11-28 11:00:40 +0900 (Fri, 28 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+update comment for parsing command line args routine
+
+------------------------------------------------------------------------
+r251 | krisna | 2003-11-27 21:33:24 +0900 (Thu, 27 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+
+candidate window에서 . 제거
+
+------------------------------------------------------------------------
+r250 | krisna | 2003-11-26 11:54:14 +0900 (Wed, 26 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+rename function for root window event filtering
+
+------------------------------------------------------------------------
+r249 | krisna | 2003-11-25 17:10:33 +0900 (Tue, 25 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/ui.c
+
+-s(--status-only) 옵션 추가(디버깅용도, 또는 상태 정보만 보여주기)
+
+------------------------------------------------------------------------
+r248 | krisna | 2003-11-24 23:15:57 +0900 (Mon, 24 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+실수로 추가한 코드 제거 (server start 루틴 작동함)
+
+------------------------------------------------------------------------
+r247 | krisna | 2003-11-24 22:56:56 +0900 (Mon, 24 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/ui.c
+
+update main window
+
+------------------------------------------------------------------------
+r246 | krisna | 2003-11-24 11:39:10 +0900 (Mon, 24 Nov 2003) | 3 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+세벌식 오토마타에서 잘못돼 있던 goto update를 goto insert로 수정,
+OUTPUT_JAMO의 경우만 순서를 고려하지 않는 코드(모아치기)를 사용
+
+------------------------------------------------------------------------
+r244 | krisna | 2003-11-15 11:23:30 +0900 (Sat, 15 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+argument check, 안전한 프로그램을 위해
+
+------------------------------------------------------------------------
+r243 | krisna | 2003-11-13 23:03:37 +0900 (Thu, 13 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+add tooltips on tray icon
+
+------------------------------------------------------------------------
+r242 | krisna | 2003-11-10 17:28:34 +0900 (Mon, 10 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+
+candidate window의 memory leak
+
+------------------------------------------------------------------------
+r241 | krisna | 2003-11-09 19:55:15 +0900 (Sun, 09 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+PreeditPosition에서 preedit window 위치 조정 (xterm에서)
+
+------------------------------------------------------------------------
+r240 | krisna | 2003-11-09 19:53:53 +0900 (Sun, 09 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+
+각 글자를 x 방향도 맞추도록 함
+
+------------------------------------------------------------------------
+r238 | krisna | 2003-11-07 12:54:21 +0900 (Fri, 07 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+candidate window에서 잘못된 인덱스 수정
+
+------------------------------------------------------------------------
+r237 | krisna | 2003-11-07 10:48:48 +0900 (Fri, 07 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/po/ko.po
+
+version up 0.10
+
+------------------------------------------------------------------------
+r236 | krisna | 2003-11-05 11:26:50 +0900 (Wed, 05 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+
+단축키를 알파벳대신 숫자로 변경함
+
+------------------------------------------------------------------------
+r235 | krisna | 2003-11-04 20:44:13 +0900 (Tue, 04 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+on focus out event close the candidate window
+
+------------------------------------------------------------------------
+r234 | krisna | 2003-11-04 14:36:54 +0900 (Tue, 04 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+
+always show full window on screen
+
+------------------------------------------------------------------------
+r233 | krisna | 2003-11-04 14:28:49 +0900 (Tue, 04 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/hanjatable.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/symboltable.h
+
+candidate selection window의 기본형을 wchar_t에서 unsigned short int로 변경
+
+------------------------------------------------------------------------
+r232 | krisna | 2003-11-04 14:27:36 +0900 (Tue, 04 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+add symboltable.h to source list
+
+------------------------------------------------------------------------
+r231 | krisna | 2003-11-04 14:26:17 +0900 (Tue, 04 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+change default keymapping on symbol selection window
+
+------------------------------------------------------------------------
+r230 | krisna | 2003-11-03 23:58:23 +0900 (Mon, 03 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/candidate.c
+   M /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/hanjatable.h
+   M /trunk/nabi/src/ic.c
+   A /trunk/nabi/src/symboltable.h
+
+add symbol selection function
+
+------------------------------------------------------------------------
+r229 | krisna | 2003-11-02 22:12:59 +0900 (Sun, 02 Nov 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/Makefile.am
+   A /trunk/nabi/src/candidate.c
+   A /trunk/nabi/src/candidate.h
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/ui.c
+
+Add new candidate window routine
+
+------------------------------------------------------------------------
+r228 | krisna | 2003-10-30 21:30:59 +0900 (Thu, 30 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/README
+   M /trunk/nabi/TODO
+   M /trunk/nabi/po/ko.po
+   M /trunk/nabi/themes/KingSejong/README
+   M /trunk/nabi/themes/Mac/README
+   M /trunk/nabi/themes/keyboard/README
+
+텍스트 파일의 인코딩을 UTF-8 로 변환
+
+------------------------------------------------------------------------
+r227 | krisna | 2003-10-29 14:31:20 +0900 (Wed, 29 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/themes/SimplyRed/hangul.png
+
+update icon
+
+------------------------------------------------------------------------
+r226 | krisna | 2003-10-22 16:09:27 +0900 (Wed, 22 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r225 | krisna | 2003-10-22 16:06:58 +0900 (Wed, 22 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+jamo 방식으로 output 하는 기능
+
+------------------------------------------------------------------------
+r224 | krisna | 2003-10-20 20:46:24 +0900 (Mon, 20 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r223 | krisna | 2003-10-20 20:45:07 +0900 (Mon, 20 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+conforming to strict aliasing rule
+
+------------------------------------------------------------------------
+r222 | krisna | 2003-10-19 20:26:10 +0900 (Sun, 19 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r221 | krisna | 2003-10-19 20:24:29 +0900 (Sun, 19 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+0x20 - 0x7e, 0xa0 - 0xff 범위의 keyval은 forwarding 하지 않고 commit
+
+------------------------------------------------------------------------
+r220 | krisna | 2003-10-18 18:27:05 +0900 (Sat, 18 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r219 | krisna | 2003-10-18 11:37:43 +0900 (Sat, 18 Oct 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/autogen.sh
+
+autotool helper script
+
+------------------------------------------------------------------------
+r218 | krisna | 2003-10-17 17:59:37 +0900 (Fri, 17 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+Qt에서 한글 상태에서 영문입력 문제
+
+------------------------------------------------------------------------
+r217 | krisna | 2003-10-17 17:52:55 +0900 (Fri, 17 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+Qt 3.1.2 에서 한글상태에서 영문글자들이 입력 안되는 문제
+
+------------------------------------------------------------------------
+r216 | krisna | 2003-10-15 23:40:23 +0900 (Wed, 15 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+nabi_ic_commit_keyval 함수 추가
+
+------------------------------------------------------------------------
+r215 | krisna | 2003-10-15 11:28:09 +0900 (Wed, 15 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+unicode keysym 도 처리
+
+------------------------------------------------------------------------
+r214 | krisna | 2003-10-15 11:25:02 +0900 (Wed, 15 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+한글 범위만 기록함
+
+------------------------------------------------------------------------
+r213 | krisna | 2003-10-15 11:17:36 +0900 (Wed, 15 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+check_charset 리턴 값을 boolean 형에 맞게 수정
+
+------------------------------------------------------------------------
+r211 | krisna | 2003-10-15 10:36:17 +0900 (Wed, 15 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/configure.in
+
+0.9 release
+
+------------------------------------------------------------------------
+r210 | krisna | 2003-10-14 10:46:01 +0900 (Tue, 14 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/hangul.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/server.c
+
+hangul_wcharstr_to_utf8str 함수에 buffer 크기를 인자로 넘김
+
+------------------------------------------------------------------------
+r209 | krisna | 2003-10-13 23:38:13 +0900 (Mon, 13 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+0.9 준비
+
+------------------------------------------------------------------------
+r208 | krisna | 2003-10-13 23:29:17 +0900 (Mon, 13 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r207 | krisna | 2003-10-13 23:23:15 +0900 (Mon, 13 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/hangul.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/server.c
+
+내부적으로 사용하던 wchar_t 함수를 모두 utf8 함수로 수정 (bsd 지원)
+
+------------------------------------------------------------------------
+r206 | krisna | 2003-10-11 01:35:48 +0900 (Sat, 11 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+2벌식 자판에서도 한글 이외의 키가 입력되게 함
+
+------------------------------------------------------------------------
+r205 | krisna | 2003-10-10 17:20:40 +0900 (Fri, 10 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r204 | krisna | 2003-10-10 17:19:07 +0900 (Fri, 10 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+qt에서 한자 변환시 commit 하기 전에 안보이던 문제 해결
+
+------------------------------------------------------------------------
+r202 | krisna | 2003-10-08 23:32:35 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+라벨 업데이트
+
+------------------------------------------------------------------------
+r201 | krisna | 2003-10-08 23:30:30 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/NEWS
+   M /trunk/nabi/configure.in
+
+version up
+
+------------------------------------------------------------------------
+r200 | krisna | 2003-10-08 23:28:24 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r199 | krisna | 2003-10-08 18:46:47 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+출력 데이터 수정
+
+------------------------------------------------------------------------
+r198 | krisna | 2003-10-08 17:42:45 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+통계기능 추가
+
+------------------------------------------------------------------------
+r197 | krisna | 2003-10-08 10:55:31 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r196 | krisna | 2003-10-08 10:55:23 +0900 (Wed, 08 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+세벌식에서 charset check 강화
+
+------------------------------------------------------------------------
+r195 | krisna | 2003-10-01 18:43:40 +0900 (Wed, 01 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r194 | krisna | 2003-10-01 15:17:15 +0900 (Wed, 01 Oct 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+XIMPreeditPosition의 경우는 commit하고 preedit clear하도록 수정
+
+------------------------------------------------------------------------
+r192 | krisna | 2003-09-26 14:34:35 +0900 (Fri, 26 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r191 | krisna | 2003-09-26 10:43:42 +0900 (Fri, 26 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+version up 0.7
+
+------------------------------------------------------------------------
+r190 | krisna | 2003-09-22 16:31:02 +0900 (Mon, 22 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+몇가지 매크로 업데이트
+
+------------------------------------------------------------------------
+r189 | krisna | 2003-09-19 15:06:33 +0900 (Fri, 19 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+
+NULL pointer check
+
+------------------------------------------------------------------------
+r188 | krisna | 2003-09-19 14:39:20 +0900 (Fri, 19 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+한글 입력 모드 정보를 좀더 자주 갱신함
+
+------------------------------------------------------------------------
+r187 | krisna | 2003-09-18 22:01:53 +0900 (Thu, 18 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r186 | krisna | 2003-09-18 22:01:00 +0900 (Thu, 18 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+한자 변환 기능을 한자키 말고 F9도 작동하게 수정
+
+------------------------------------------------------------------------
+r185 | krisna | 2003-09-18 21:36:52 +0900 (Thu, 18 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+set/get ic values 함수에서 status attribute도 제대로 처리
+
+------------------------------------------------------------------------
+r184 | krisna | 2003-09-18 21:01:53 +0900 (Thu, 18 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r183 | krisna | 2003-09-18 20:48:08 +0900 (Thu, 18 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+conformint to XIM spec
+
+------------------------------------------------------------------------
+r182 | krisna | 2003-09-17 23:18:31 +0900 (Wed, 17 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+ic attr에서 XNSeparatorofNestedList 도 처리함
+
+------------------------------------------------------------------------
+r181 | krisna | 2003-09-17 16:28:20 +0900 (Wed, 17 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+closedir 빼먹은것을 수정
+
+------------------------------------------------------------------------
+r180 | krisna | 2003-09-17 11:58:09 +0900 (Wed, 17 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+default icon 설정
+
+------------------------------------------------------------------------
+r179 | krisna | 2003-09-17 11:47:08 +0900 (Wed, 17 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+default icon을 설정함
+
+------------------------------------------------------------------------
+r177 | krisna | 2003-09-16 18:02:49 +0900 (Tue, 16 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/configure.in
+
+version 0.6
+
+------------------------------------------------------------------------
+r176 | krisna | 2003-09-16 17:59:25 +0900 (Tue, 16 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+   M /trunk/nabi/src/hangul.c
+
+ucs2ksc.h 파일을 더이상 사용하지 않음
+
+------------------------------------------------------------------------
+r175 | krisna | 2003-09-16 11:57:18 +0900 (Tue, 16 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/ui.c
+
+종료 상황을 좀더 깔끔하게 처리
+
+------------------------------------------------------------------------
+r174 | krisna | 2003-09-15 18:07:50 +0900 (Mon, 15 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/session.h
+
+libSM이 없는 곳에서는 session을 사용안함
+
+------------------------------------------------------------------------
+r173 | krisna | 2003-09-15 10:36:36 +0900 (Mon, 15 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.c
+
+메세지 수정
+
+------------------------------------------------------------------------
+r172 | krisna | 2003-09-15 01:20:59 +0900 (Mon, 15 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/session.c
+
+종료 루틴에서 예외 처리
+
+------------------------------------------------------------------------
+r171 | krisna | 2003-09-14 17:24:27 +0900 (Sun, 14 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+about window를 화면 가운데에 뜨게
+
+------------------------------------------------------------------------
+r170 | krisna | 2003-09-14 17:18:38 +0900 (Sun, 14 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/src/Makefile.am
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/session.c
+   M /trunk/nabi/src/session.h
+   M /trunk/nabi/src/ui.c
+
+Session 에 반응하도록 코드를 추가
+
+------------------------------------------------------------------------
+r169 | krisna | 2003-09-14 01:42:01 +0900 (Sun, 14 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+세벌식에서 중성과 종성만 있는 경우를 바르게 처리하도록 함
+
+------------------------------------------------------------------------
+r168 | krisna | 2003-09-14 01:40:58 +0900 (Sun, 14 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+callback 함수의 형 정리
+
+------------------------------------------------------------------------
+r167 | krisna | 2003-09-14 01:25:43 +0900 (Sun, 14 Sep 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/src/session.c
+   A /trunk/nabi/src/session.h
+
+세션 관련 코드 추가
+
+------------------------------------------------------------------------
+r166 | krisna | 2003-09-10 13:19:45 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r165 | krisna | 2003-09-10 13:19:26 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/Makefile.am
+
+AM_CFLAGS가 작동안함, libXimd_a_CFLAGS에 직접 -Wall 옵션 넣음
+
+------------------------------------------------------------------------
+r164 | krisna | 2003-09-10 13:17:39 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+특수키 포워딩 하면서 남은 글자를 commit 하게 함
+
+------------------------------------------------------------------------
+r163 | krisna | 2003-09-10 13:17:08 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+글자 조합(compose)하는 부분의 버그 수정
+
+------------------------------------------------------------------------
+r162 | krisna | 2003-09-10 13:06:21 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+특수키는 바로 포워딩 한다
+
+------------------------------------------------------------------------
+r161 | krisna | 2003-09-10 13:04:32 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+사용하지 않는 변수 제거
+
+------------------------------------------------------------------------
+r160 | krisna | 2003-09-10 13:04:04 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+한자 입력창
+
+------------------------------------------------------------------------
+r159 | krisna | 2003-09-10 13:03:36 +0900 (Wed, 10 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+AM_CFLAGS가 작동 안함, 그래서 nabi_CFLAGS에다가 직접 -Wall 옵션 넣음
+
+------------------------------------------------------------------------
+r158 | krisna | 2003-09-09 15:00:39 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/hangul.h
+
+hangul_ucs_to_ksc 함수 제거
+
+------------------------------------------------------------------------
+r157 | krisna | 2003-09-09 13:56:16 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+탭 조정
+
+------------------------------------------------------------------------
+r156 | krisna | 2003-09-09 13:48:55 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+ic가 destroy 되면 한자 입력 창도 같이 destroy
+
+------------------------------------------------------------------------
+r155 | krisna | 2003-09-09 13:48:00 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+ic가 destroy되면 한자 입력 창도 같이 destroy
+
+------------------------------------------------------------------------
+r154 | krisna | 2003-09-09 11:50:40 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+한자 선택창의 포지션 설정
+
+------------------------------------------------------------------------
+r153 | krisna | 2003-09-09 11:44:02 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+check_ksc -> check_charset
+
+------------------------------------------------------------------------
+r152 | krisna | 2003-09-09 11:40:38 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+check_charset 함수 수정
+
+------------------------------------------------------------------------
+r151 | krisna | 2003-09-09 10:59:20 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+server -> nabi_server
+
+------------------------------------------------------------------------
+r150 | krisna | 2003-09-09 10:58:06 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+global variable server를 nabi_server로 바꿈
+
+------------------------------------------------------------------------
+r149 | krisna | 2003-09-09 10:47:43 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r148 | krisna | 2003-09-09 10:46:30 +0900 (Tue, 09 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+한자 입력 기능 구현(iconv를 이용한 charset 체크루틴)
+
+------------------------------------------------------------------------
+r147 | krisna | 2003-09-08 18:54:00 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+ksc <-> ucs 체크하는 코드 작성중
+
+------------------------------------------------------------------------
+r146 | krisna | 2003-09-08 16:56:35 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/ucs2ksc.h
+
+한글 테이블의 type을 바꿈
+
+------------------------------------------------------------------------
+r145 | krisna | 2003-09-08 16:50:00 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ucs2ksc.h
+
+const 추가
+
+------------------------------------------------------------------------
+r144 | krisna | 2003-09-08 16:18:29 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r143 | krisna | 2003-09-08 16:09:53 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+nabi_ic_preedit_start/done 을 매번 키입력때마다 체크해서 실행함
+
+------------------------------------------------------------------------
+r142 | krisna | 2003-09-08 15:14:23 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/ui.c
+
+한자 입력을 바로 commit 하지 않고 일단 preedit 스트링으로 보관함
+
+------------------------------------------------------------------------
+r141 | krisna | 2003-09-08 13:30:26 +0900 (Mon, 08 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/handler.c
+   A /trunk/nabi/src/hanjatable.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/ui.c
+
+한자 입력 기능
+
+------------------------------------------------------------------------
+r138 | krisna | 2003-09-07 23:25:18 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r137 | krisna | 2003-09-07 23:24:59 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+LDFLAGS와 LDADD를 분리
+
+------------------------------------------------------------------------
+r136 | krisna | 2003-09-07 22:57:31 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/Makefile.am
+   M /trunk/nabi/configure.in
+   M /trunk/nabi/src/Makefile.am
+
+X 환경을 검색하는 매크로를 다른 것으로 바꿈
+
+------------------------------------------------------------------------
+r135 | krisna | 2003-09-07 22:06:22 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+메세지 출력 함수 변경
+
+------------------------------------------------------------------------
+r134 | krisna | 2003-09-07 22:06:09 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/nabi.h
+
+빈칸 정리
+
+------------------------------------------------------------------------
+r133 | krisna | 2003-09-07 21:55:35 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+tab 크기 조정
+
+------------------------------------------------------------------------
+r132 | krisna | 2003-09-07 21:47:38 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+세션 관련 코드제거, 에러 리포팅 함수 이름 수정
+
+------------------------------------------------------------------------
+r131 | krisna | 2003-09-07 21:46:13 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+가능한 설정을 자주 저장한다
+
+------------------------------------------------------------------------
+r130 | krisna | 2003-09-07 21:44:23 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+header file include 정리
+
+------------------------------------------------------------------------
+r129 | krisna | 2003-09-07 21:34:46 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+   D /trunk/nabi/src/session.c
+   D /trunk/nabi/src/session.h
+
+we do not use session(libSM)
+
+------------------------------------------------------------------------
+r128 | krisna | 2003-09-07 21:20:11 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+use libSM
+
+------------------------------------------------------------------------
+r127 | krisna | 2003-09-07 21:14:38 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+use libSM
+
+------------------------------------------------------------------------
+r126 | krisna | 2003-09-07 21:07:16 +0900 (Sun, 07 Sep 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r125 | krisna | 2003-09-06 18:35:19 +0900 (Sat, 06 Sep 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/src/session.c
+   A /trunk/nabi/src/session.h
+
+SMlib 관련 코드 파일 추가
+
+------------------------------------------------------------------------
+r124 | krisna | 2003-08-31 00:30:47 +0900 (Sun, 31 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/ui.c
+
+system tray와 main window를 분리, 메뉴에 드보락 관련 부분 추가
+
+------------------------------------------------------------------------
+r123 | krisna | 2003-08-30 17:35:20 +0900 (Sat, 30 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+ENABLE_NLS 를 고려하여 코딩
+
+------------------------------------------------------------------------
+r122 | krisna | 2003-08-29 18:05:03 +0900 (Fri, 29 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.c
+
+NULL 포인터 체크
+
+------------------------------------------------------------------------
+r121 | krisna | 2003-08-29 17:57:41 +0900 (Fri, 29 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+ucs2ksc.h의 테이블 크기 줄임
+
+------------------------------------------------------------------------
+r120 | krisna | 2003-08-29 17:34:15 +0900 (Fri, 29 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+add comment about nabi_server_destroy()
+
+------------------------------------------------------------------------
+r119 | krisna | 2003-08-29 11:26:20 +0900 (Fri, 29 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/ucs2ksc.h
+
+ucs_to_ksc 테이블의 크기를 줄임
+
+------------------------------------------------------------------------
+r118 | krisna | 2003-08-29 10:06:37 +0900 (Fri, 29 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+탭 위치 설정
+
+------------------------------------------------------------------------
+r117 | krisna | 2003-08-27 13:23:31 +0900 (Wed, 27 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/ui.c
+
+메뉴 아이콘 추가
+
+------------------------------------------------------------------------
+r116 | krisna | 2003-08-27 13:02:41 +0900 (Wed, 27 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+dvorak 설정 정보
+
+------------------------------------------------------------------------
+r115 | krisna | 2003-08-27 13:00:35 +0900 (Wed, 27 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+dvorak 설정 정보 관련 루틴
+
+------------------------------------------------------------------------
+r114 | krisna | 2003-08-27 11:15:33 +0900 (Wed, 27 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+다음 버젼 준비
+
+------------------------------------------------------------------------
+r113 | krisna | 2003-08-27 10:32:50 +0900 (Wed, 27 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+dvorak 지원
+
+------------------------------------------------------------------------
+r111 | krisna | 2003-08-26 10:20:07 +0900 (Tue, 26 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+디버그 메세지 함수
+
+------------------------------------------------------------------------
+r110 | krisna | 2003-08-26 10:11:32 +0900 (Tue, 26 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po
+   A /trunk/nabi/po/.cvsignore
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r109 | krisna | 2003-08-25 23:11:20 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/TODO
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r108 | krisna | 2003-08-25 22:53:38 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+오타 수정
+
+------------------------------------------------------------------------
+r107 | krisna | 2003-08-25 22:51:20 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r106 | krisna | 2003-08-25 22:50:22 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/configure.in
+
+0.4
+
+------------------------------------------------------------------------
+r105 | krisna | 2003-08-25 22:47:55 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+디버그 메세지 제거
+
+------------------------------------------------------------------------
+r104 | krisna | 2003-08-25 22:46:13 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/NEWS
+
+0.4 출시?
+
+------------------------------------------------------------------------
+r103 | krisna | 2003-08-25 22:43:53 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+기본 자판 설정을 configure 할때 가능하게 함
+
+------------------------------------------------------------------------
+r102 | krisna | 2003-08-25 22:43:20 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+기본 자판 설정을 configure 스크립트에서 가능하게
+
+------------------------------------------------------------------------
+r101 | krisna | 2003-08-25 22:13:23 +0900 (Mon, 25 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/TODO
+
+업데이트
+
+------------------------------------------------------------------------
+r100 | krisna | 2003-08-24 22:36:49 +0900 (Sun, 24 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+디버그 메세지 함수
+
+------------------------------------------------------------------------
+r99 | krisna | 2003-08-24 18:18:38 +0900 (Sun, 24 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+다음 버젼 준비
+
+------------------------------------------------------------------------
+r98 | krisna | 2003-08-24 18:18:07 +0900 (Sun, 24 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+다음 버젼 준비
+
+------------------------------------------------------------------------
+r97 | krisna | 2003-08-24 00:47:07 +0900 (Sun, 24 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.c
+   M /trunk/nabi/src/fontset.h
+
+라이센스 문단 추가
+
+------------------------------------------------------------------------
+r96 | krisna | 2003-08-23 16:52:48 +0900 (Sat, 23 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+NabiConnect 추가
+
+------------------------------------------------------------------------
+r95 | krisna | 2003-08-23 16:52:29 +0900 (Sat, 23 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+NabiConnect obj 추가
+
+------------------------------------------------------------------------
+r94 | krisna | 2003-08-23 00:15:33 +0900 (Sat, 23 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.h
+
+오타 수정
+
+------------------------------------------------------------------------
+r93 | krisna | 2003-08-22 11:24:11 +0900 (Fri, 22 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/TODO
+
+*** empty log message ***
+
+------------------------------------------------------------------------
+r92 | krisna | 2003-08-22 11:19:42 +0900 (Fri, 22 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/fontset.c
+   M /trunk/nabi/src/fontset.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/server.c
+
+fontset 관련 루틴 정리 (free_all 함수 사용)
+
+------------------------------------------------------------------------
+r91 | krisna | 2003-08-21 23:06:28 +0900 (Thu, 21 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+fontset 관련 루틴 변경
+
+------------------------------------------------------------------------
+r90 | krisna | 2003-08-21 23:01:45 +0900 (Thu, 21 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+fontset 루틴 추가
+
+------------------------------------------------------------------------
+r89 | krisna | 2003-08-21 23:00:50 +0900 (Thu, 21 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+   A /trunk/nabi/src/fontset.c
+   A /trunk/nabi/src/fontset.h
+
+fontset 관련 루틴 추가
+
+------------------------------------------------------------------------
+r88 | krisna | 2003-08-21 21:29:27 +0900 (Thu, 21 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+nabi_server_stop 함수 추가
+
+------------------------------------------------------------------------
+r87 | krisna | 2003-08-20 14:16:08 +0900 (Wed, 20 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+stdint.h 를 include 한 부분을 제거 server.h에만 include 함
+
+------------------------------------------------------------------------
+r86 | krisna | 2003-08-19 10:05:38 +0900 (Tue, 19 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/TODO
+
+폰트 로딩 루틴 개선 필요성
+
+------------------------------------------------------------------------
+r85 | krisna | 2003-08-12 18:34:03 +0900 (Tue, 12 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+디버그 코드 추가
+
+------------------------------------------------------------------------
+r84 | krisna | 2003-08-12 12:58:37 +0900 (Tue, 12 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+오타 수정 (xnabi->nabi)
+
+------------------------------------------------------------------------
+r83 | krisna | 2003-08-11 15:22:36 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/TODO
+
+TODO 추가
+
+------------------------------------------------------------------------
+r82 | krisna | 2003-08-11 14:41:23 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+about 창에서 version number 보이게 함
+
+------------------------------------------------------------------------
+r81 | krisna | 2003-08-11 14:28:47 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+about 창에 버젼 표시
+
+------------------------------------------------------------------------
+r80 | krisna | 2003-08-11 10:41:40 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+3.0 준비
+
+------------------------------------------------------------------------
+r79 | krisna | 2003-08-11 10:40:43 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+flash 관련 문제 해결(preedit_start, preedit_done)
+
+------------------------------------------------------------------------
+r78 | krisna | 2003-08-11 10:29:52 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+변수 초기화 루틴 개선
+
+------------------------------------------------------------------------
+r77 | krisna | 2003-08-11 10:29:20 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/nabi.h
+
+사용하지 않는 변수 제거
+
+------------------------------------------------------------------------
+r76 | krisna | 2003-08-11 10:27:26 +0900 (Mon, 11 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+
+preedit start 플래그 추가
+
+------------------------------------------------------------------------
+r75 | krisna | 2003-08-09 23:12:34 +0900 (Sat, 09 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/README
+
+정보 더 추가
+
+------------------------------------------------------------------------
+r74 | krisna | 2003-08-09 23:10:21 +0900 (Sat, 09 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+gtk+-2.0 대신 2.2 체크
+
+------------------------------------------------------------------------
+r73 | krisna | 2003-08-09 12:52:15 +0900 (Sat, 09 Aug 2003) | 3 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+gtk+의 필요한 버젼체그 실수 수정
+multi head safty때문에 2.2 이상이 필요함(eggtrayicon에서 문제가 생김)
+
+------------------------------------------------------------------------
+r67 | krisna | 2003-08-07 17:51:33 +0900 (Thu, 07 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/src/handler.c
+
+vi 사용자들을 위해서 esc키를 누르면 자동으로 영문 상태로 전환하는 기능
+
+------------------------------------------------------------------------
+r66 | krisna | 2003-08-07 12:06:00 +0900 (Thu, 07 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit
+   A /trunk/nabi/IMdkit/.cvsignore
+
+cvsignore 추가
+
+------------------------------------------------------------------------
+r65 | krisna | 2003-08-07 12:02:24 +0900 (Thu, 07 Aug 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/ABOUT-NLS
+
+gettext 문서 추가
+
+------------------------------------------------------------------------
+r62 | krisna | 2003-08-06 18:16:09 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+g_malloc, g_free 대신 nabi_malloc, nabi_free 사용
+
+------------------------------------------------------------------------
+r61 | krisna | 2003-08-06 16:39:56 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+한영 전환 버그 수정(NumLock on 일때 한영 전환 안되는)
+
+------------------------------------------------------------------------
+r60 | krisna | 2003-08-06 14:37:50 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+메모리 관리 코드 수정
+
+------------------------------------------------------------------------
+r59 | krisna | 2003-08-06 12:47:10 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+malloc.h 대신 stdlib.h 사용
+
+------------------------------------------------------------------------
+r58 | krisna | 2003-08-06 11:57:33 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+해제 해서는 안되는 메모리 해제 루틴 제거
+
+------------------------------------------------------------------------
+r57 | krisna | 2003-08-06 11:47:35 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+X 의 에러 처리 함수 등록
+
+------------------------------------------------------------------------
+r56 | krisna | 2003-08-06 11:47:20 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+nabi_app_free 부분에서 빠진 곳 추가
+
+------------------------------------------------------------------------
+r55 | krisna | 2003-08-06 09:25:38 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+
+CapsLock, NumLock 문제 해결
+
+------------------------------------------------------------------------
+r54 | krisna | 2003-08-06 09:22:48 +0900 (Wed, 06 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+Num Lock, Caps Lock 경우에 처리하지 못하는 버그 수정
+
+------------------------------------------------------------------------
+r53 | krisna | 2003-08-05 18:22:17 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/Makefile.am
+
+CVS 디렉토리를 배포하지 않음
+
+------------------------------------------------------------------------
+r52 | krisna | 2003-08-05 18:21:21 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/ChangeLog
+   M /trunk/nabi/README
+
+파일 릴리즈를 위해서 간단한 문서 작성
+
+------------------------------------------------------------------------
+r51 | krisna | 2003-08-05 18:19:28 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+malloc.h대신 stdlib.h를 사용함
+
+------------------------------------------------------------------------
+r50 | krisna | 2003-08-05 18:18:30 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/IMdkit/IMConn.c
+
+malloc.h 대신 stdlib.h 로 바꿈
+
+------------------------------------------------------------------------
+r49 | krisna | 2003-08-05 18:16:19 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+다음 버젼 준비
+
+------------------------------------------------------------------------
+r48 | krisna | 2003-08-05 14:47:21 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r47 | krisna | 2003-08-05 14:43:48 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/hangul.c
+   M /trunk/nabi/src/hangul.h
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/ic.h
+   M /trunk/nabi/src/main.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+라이센스 스트링 추가
+
+------------------------------------------------------------------------
+r46 | krisna | 2003-08-05 14:07:39 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/Makefile.am
+   A /trunk/nabi/nabi.png
+
+기본 이미지 파일 추가
+
+------------------------------------------------------------------------
+r45 | krisna | 2003-08-05 14:07:17 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+버젼 0.1 로 수정, 시스템 체크를 추가
+
+------------------------------------------------------------------------
+r44 | krisna | 2003-08-05 11:17:48 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi
+   M /trunk/nabi/.cvsignore
+
+쓸데 없는 파일 목록 추가
+
+------------------------------------------------------------------------
+r43 | krisna | 2003-08-05 11:15:38 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+
+LOCALEDIR 설정을 config.h 에서 Makefile로 옮김
+
+------------------------------------------------------------------------
+r42 | krisna | 2003-08-05 11:14:42 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/tables/Makefile.am
+   M /trunk/nabi/tables/keyboard/2qwerty
+   A /trunk/nabi/tables/keyboard/32qwerty
+   A /trunk/nabi/tables/keyboard/39qwerty
+   A /trunk/nabi/tables/keyboard/3fqwerty
+
+세벌식 자판 파일 추가
+
+------------------------------------------------------------------------
+r41 | krisna | 2003-08-05 11:13:09 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/themes
+   A /trunk/nabi/themes/.cvsignore
+   M /trunk/nabi/themes/KingSejong
+   A /trunk/nabi/themes/KingSejong/.cvsignore
+   M /trunk/nabi/themes/MSWindows
+   A /trunk/nabi/themes/MSWindows/.cvsignore
+   M /trunk/nabi/themes/Mac
+   A /trunk/nabi/themes/Mac/.cvsignore
+   M /trunk/nabi/themes/Onion
+   A /trunk/nabi/themes/Onion/.cvsignore
+   M /trunk/nabi/themes/SimplyRed
+   A /trunk/nabi/themes/SimplyRed/.cvsignore
+   M /trunk/nabi/themes/keyboard
+   A /trunk/nabi/themes/keyboard/.cvsignore
+
+cvsignore 리스트 추가
+
+------------------------------------------------------------------------
+r40 | krisna | 2003-08-05 11:11:29 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+gettext: textdomain설정
+
+------------------------------------------------------------------------
+r39 | krisna | 2003-08-05 11:10:53 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+LOCALEDIR 설정을 config.h 에서 Makefile.am으로 옮김
+
+------------------------------------------------------------------------
+r38 | krisna | 2003-08-05 11:10:11 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+
+디버그 메세지 제거
+
+------------------------------------------------------------------------
+r37 | krisna | 2003-08-05 11:09:48 +0900 (Tue, 05 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+about 메뉴 구현
+
+------------------------------------------------------------------------
+r36 | krisna | 2003-08-04 18:06:33 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+메뉴 모양 수정, 메뉴와 설정 값을 서로 sync
+
+------------------------------------------------------------------------
+r35 | krisna | 2003-08-04 17:57:43 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r34 | krisna | 2003-08-04 17:55:21 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+pref 메뉴 스트링 수정
+
+------------------------------------------------------------------------
+r33 | krisna | 2003-08-04 17:42:13 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ko.po
+
+번역 업데이트
+
+------------------------------------------------------------------------
+r32 | krisna | 2003-08-04 17:38:34 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+pref 메뉴 추가, 탭크기 조정
+
+------------------------------------------------------------------------
+r31 | krisna | 2003-08-04 17:16:54 +0900 (Mon, 04 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+   A /trunk/nabi/src/keyboard.h
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+키보드 로딩과 메뉴 선택 구현
+
+------------------------------------------------------------------------
+r30 | krisna | 2003-08-01 18:16:57 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+   M /trunk/nabi/src/ui.c
+
+키보드 맵 로딩 부분 작성중
+
+------------------------------------------------------------------------
+r29 | krisna | 2003-08-01 16:38:04 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/server.c
+
+안쓰는 변수 삭제
+
+------------------------------------------------------------------------
+r28 | krisna | 2003-08-01 16:37:33 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.h
+
+빠진 함수 nabi_ic_commit_unicode 선언 추가
+
+------------------------------------------------------------------------
+r27 | krisna | 2003-08-01 16:37:08 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ic.c
+
+디버그 메세지 프린트 제거
+
+------------------------------------------------------------------------
+r26 | krisna | 2003-08-01 16:36:29 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/automata.c
+
+compose 관련 버그 수정
+
+------------------------------------------------------------------------
+r25 | krisna | 2003-08-01 10:44:38 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+   M /trunk/nabi/src/ui.c
+
+테마 기능 완성
+
+------------------------------------------------------------------------
+r24 | krisna | 2003-08-01 09:34:04 +0900 (Fri, 01 Aug 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+테마 설정 창 추가
+
+------------------------------------------------------------------------
+r23 | krisna | 2003-07-31 14:08:49 +0900 (Thu, 31 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+메뉴 업데이트 작업중
+
+------------------------------------------------------------------------
+r22 | krisna | 2003-07-30 15:42:50 +0900 (Wed, 30 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/Makefile.am
+
+po 디렉토리 컴파일 순서를 맨 뒤로
+
+------------------------------------------------------------------------
+r21 | krisna | 2003-07-30 15:42:13 +0900 (Wed, 30 Jul 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/tables
+   A /trunk/nabi/tables/Makefile.am
+   A /trunk/nabi/tables/compose
+   A /trunk/nabi/tables/compose/default
+   A /trunk/nabi/tables/keyboard
+   A /trunk/nabi/tables/keyboard/2qwerty
+
+키보드 테이블과 컴포즈 테이블 추가
+
+------------------------------------------------------------------------
+r20 | krisna | 2003-07-30 14:52:00 +0900 (Wed, 30 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+default-icons.h 추가
+
+------------------------------------------------------------------------
+r19 | krisna | 2003-07-30 14:39:46 +0900 (Wed, 30 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/configure.in
+   A /trunk/nabi/themes/KingSejong/Makefile.am
+   A /trunk/nabi/themes/MSWindows/Makefile.am
+   A /trunk/nabi/themes/Mac/Makefile.am
+   M /trunk/nabi/themes/Makefile.am
+   A /trunk/nabi/themes/Onion/Makefile.am
+   A /trunk/nabi/themes/SimplyRed/Makefile.am
+   A /trunk/nabi/themes/keyboard/Makefile.am
+
+테마 디렉토리별로 Makefile.am을 따로 만들어 버림
+
+------------------------------------------------------------------------
+r18 | krisna | 2003-07-30 13:57:50 +0900 (Wed, 30 Jul 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/config.rpath
+
+for gettextize
+
+------------------------------------------------------------------------
+r17 | krisna | 2003-07-29 17:24:07 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+기본 아이콘 크기 24로 수정
+
+------------------------------------------------------------------------
+r16 | krisna | 2003-07-29 17:04:24 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/src/default-icons.h
+
+기본 테마 아이콘 추가
+
+------------------------------------------------------------------------
+r15 | krisna | 2003-07-29 17:01:58 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/Makefile.am
+   M /trunk/nabi/configure.in
+   A /trunk/nabi/themes
+   A /trunk/nabi/themes/KingSejong
+   A /trunk/nabi/themes/KingSejong/README
+   A /trunk/nabi/themes/KingSejong/english.png
+   A /trunk/nabi/themes/KingSejong/hangul.png
+   A /trunk/nabi/themes/KingSejong/none.png
+   A /trunk/nabi/themes/MSWindows
+   A /trunk/nabi/themes/MSWindows/english.png
+   A /trunk/nabi/themes/MSWindows/hangul.png
+   A /trunk/nabi/themes/MSWindows/none.png
+   A /trunk/nabi/themes/Mac
+   A /trunk/nabi/themes/Mac/README
+   A /trunk/nabi/themes/Mac/english.png
+   A /trunk/nabi/themes/Mac/hangul.png
+   A /trunk/nabi/themes/Mac/none.png
+   A /trunk/nabi/themes/Makefile.am
+   A /trunk/nabi/themes/Onion
+   A /trunk/nabi/themes/Onion/README
+   A /trunk/nabi/themes/Onion/english.png
+   A /trunk/nabi/themes/Onion/hangul.png
+   A /trunk/nabi/themes/Onion/none.png
+   A /trunk/nabi/themes/SimplyRed
+   A /trunk/nabi/themes/SimplyRed/english.png
+   A /trunk/nabi/themes/SimplyRed/hangul.png
+   A /trunk/nabi/themes/SimplyRed/none.png
+   A /trunk/nabi/themes/keyboard
+   A /trunk/nabi/themes/keyboard/README
+   A /trunk/nabi/themes/keyboard/english.png
+   A /trunk/nabi/themes/keyboard/hangul.png
+   A /trunk/nabi/themes/keyboard/none.png
+
+테마 기능 지원
+
+------------------------------------------------------------------------
+r14 | krisna | 2003-07-29 16:47:16 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/handler.c
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/nabi.h
+   M /trunk/nabi/src/server.c
+   M /trunk/nabi/src/server.h
+
+한/영 모드 정보 기능 지원
+
+------------------------------------------------------------------------
+r13 | krisna | 2003-07-29 16:47:00 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/ui.c
+
+테마지원, 한/영 모드 정보 기능 지원
+
+------------------------------------------------------------------------
+r12 | krisna | 2003-07-29 16:46:09 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/Makefile.am
+
+테마 지원
+
+------------------------------------------------------------------------
+r11 | krisna | 2003-07-29 11:09:39 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+X 환경과 관련된 GDK 매크로를 올바른 것으로 수정
+
+------------------------------------------------------------------------
+r10 | krisna | 2003-07-29 10:22:03 +0900 (Tue, 29 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/src/main.c
+
+gtk_widget_realize를 강제 실행하는 대신 콜백으로 처리함
+
+------------------------------------------------------------------------
+r9 | krisna | 2003-07-28 21:49:31 +0900 (Mon, 28 Jul 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi/src/gettext.h
+
+gettextize
+
+------------------------------------------------------------------------
+r8 | krisna | 2003-07-28 21:48:44 +0900 (Mon, 28 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/po/ChangeLog
+   M /trunk/nabi/po/POTFILES.in
+
+po 디렉토리 업데이트
+
+------------------------------------------------------------------------
+r7 | krisna | 2003-07-28 21:39:28 +0900 (Mon, 28 Jul 2003) | 1 line
+Changed paths:
+   D /trunk/nabi/m4/Makefile
+   D /trunk/nabi/m4/Makefile.in
+
+�����������
+------------------------------------------------------------------------
+r6 | krisna | 2003-07-28 21:37:37 +0900 (Mon, 28 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/Makefile.am
+   M /trunk/nabi/configure.in
+   A /trunk/nabi/m4
+   A /trunk/nabi/m4/ChangeLog
+   A /trunk/nabi/m4/Makefile
+   A /trunk/nabi/m4/Makefile.am
+   A /trunk/nabi/m4/Makefile.in
+   A /trunk/nabi/m4/codeset.m4
+   A /trunk/nabi/m4/gettext.m4
+   A /trunk/nabi/m4/glibc21.m4
+   A /trunk/nabi/m4/iconv.m4
+   A /trunk/nabi/m4/intdiv0.m4
+   A /trunk/nabi/m4/inttypes-pri.m4
+   A /trunk/nabi/m4/inttypes.m4
+   A /trunk/nabi/m4/inttypes_h.m4
+   A /trunk/nabi/m4/isc-posix.m4
+   A /trunk/nabi/m4/lcmessage.m4
+   A /trunk/nabi/m4/lib-ld.m4
+   A /trunk/nabi/m4/lib-link.m4
+   A /trunk/nabi/m4/lib-prefix.m4
+   A /trunk/nabi/m4/nls.m4
+   A /trunk/nabi/m4/po.m4
+   A /trunk/nabi/m4/progtest.m4
+   A /trunk/nabi/m4/stdint_h.m4
+   A /trunk/nabi/m4/uintmax_t.m4
+   A /trunk/nabi/m4/ulonglong.m4
+   A /trunk/nabi/po/LINGUAS
+   A /trunk/nabi/po/Makefile.in.in
+   A /trunk/nabi/po/Makevars
+   A /trunk/nabi/po/Rules-quot
+   A /trunk/nabi/po/boldquot.sed
+   A /trunk/nabi/po/en@boldquot.header
+   A /trunk/nabi/po/en@quot.header
+   A /trunk/nabi/po/insert-header.sin
+   A /trunk/nabi/po/quot.sed
+   A /trunk/nabi/po/remove-potcdate.sed
+   A /trunk/nabi/po/remove-potcdate.sin
+   M /trunk/nabi/src/Makefile.am
+   M /trunk/nabi/src/ic.c
+   M /trunk/nabi/src/main.c
+   D /trunk/nabi/src/nls.h
+   M /trunk/nabi/src/ui.c
+
+gettextize
+
+------------------------------------------------------------------------
+r5 | krisna | 2003-07-28 21:33:48 +0900 (Mon, 28 Jul 2003) | 2 lines
+Changed paths:
+   M /trunk/nabi/AUTHORS
+
+저자 주소
+
+------------------------------------------------------------------------
+r2 | krisna | 2003-07-28 16:00:15 +0900 (Mon, 28 Jul 2003) | 2 lines
+Changed paths:
+   A /trunk/nabi
+   A /trunk/nabi/.cvsignore
+   A /trunk/nabi/AUTHORS
+   A /trunk/nabi/COPYING
+   A /trunk/nabi/ChangeLog
+   A /trunk/nabi/IMdkit
+   A /trunk/nabi/IMdkit/FrameMgr.c
+   A /trunk/nabi/IMdkit/FrameMgr.h
+   A /trunk/nabi/IMdkit/IMConn.c
+   A /trunk/nabi/IMdkit/IMMethod.c
+   A /trunk/nabi/IMdkit/IMValues.c
+   A /trunk/nabi/IMdkit/IMdkit.h
+   A /trunk/nabi/IMdkit/Makefile.am
+   A /trunk/nabi/IMdkit/Xi18n.h
+   A /trunk/nabi/IMdkit/Xi18nX.h
+   A /trunk/nabi/IMdkit/XimFunc.h
+   A /trunk/nabi/IMdkit/XimProto.h
+   A /trunk/nabi/IMdkit/doc
+   A /trunk/nabi/IMdkit/doc/API.text
+   A /trunk/nabi/IMdkit/doc/CHANGELOG
+   A /trunk/nabi/IMdkit/doc/README
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/IC.c
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/IC.h
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/Imakefile
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/Makefile.pu
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/README
+   A /trunk/nabi/IMdkit/doc/Xi18n_sample/sampleIM.c
+   A /trunk/nabi/IMdkit/i18nAttr.c
+   A /trunk/nabi/IMdkit/i18nClbk.c
+   A /trunk/nabi/IMdkit/i18nIMProto.c
+   A /trunk/nabi/IMdkit/i18nIc.c
+   A /trunk/nabi/IMdkit/i18nMethod.c
+   A /trunk/nabi/IMdkit/i18nPtHdr.c
+   A /trunk/nabi/IMdkit/i18nUtil.c
+   A /trunk/nabi/IMdkit/i18nX.c
+   A /trunk/nabi/Makefile.am
+   A /trunk/nabi/NEWS
+   A /trunk/nabi/README
+   A /trunk/nabi/configure.in
+   A /trunk/nabi/po
+   A /trunk/nabi/po/ChangeLog
+   A /trunk/nabi/po/POTFILES.in
+   A /trunk/nabi/po/ko.po
+   A /trunk/nabi/src
+   A /trunk/nabi/src/.cvsignore
+   A /trunk/nabi/src/Makefile.am
+   A /trunk/nabi/src/automata.c
+   A /trunk/nabi/src/eggtrayicon.c
+   A /trunk/nabi/src/eggtrayicon.h
+   A /trunk/nabi/src/handler.c
+   A /trunk/nabi/src/hangul.c
+   A /trunk/nabi/src/hangul.h
+   A /trunk/nabi/src/ic.c
+   A /trunk/nabi/src/ic.h
+   A /trunk/nabi/src/main.c
+   A /trunk/nabi/src/nabi.h
+   A /trunk/nabi/src/nls.h
+   A /trunk/nabi/src/server.c
+   A /trunk/nabi/src/server.h
+   A /trunk/nabi/src/ucs2ksc.h
+   A /trunk/nabi/src/ui.c
+
+Initial revision
+
+------------------------------------------------------------------------

@@ -10,13 +10,11 @@ testclients = \
 	test/gtk1.c	\
 	test/qt.cpp
 
-EXTRA_DIST = config.rpath $(nabilogo_DATA) $(testclients)
+EXTRA_DIST = config.rpath $(nabilogo_DATA) $(testclients) ChangeLog.0
 
+.PHONY: log
 log:
-	lastrevision=`head -n 2 ChangeLog | egrep -o '^r[0-9]+' | cut -c 2-`; \
 	unset LC_ALL; \
 	export LANG=C ; \
 	export LC_CTYPE=ko_KR.UTF-8 ; \
-	mv -f ChangeLog ChangeLog.old ; \
-	svn log -v --incremental -r HEAD:`expr $${lastrevision} + 1` > ChangeLog ; \
-	cat ChangeLog.old >> ChangeLog
+	svn log -v > ChangeLog
