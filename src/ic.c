@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <string.h>
+#include <ctype.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -47,6 +48,42 @@ static void  nabi_ic_hic_on_translate(HangulInputContext* hic,
 static bool  nabi_ic_hic_on_transition(HangulInputContext* hic,
 			 ucschar c, const ucschar* preedit, void* data);
 
+static gboolean
+is_syllable_boundary(ucschar prev, ucschar next)
+{
+    if (hangul_is_choseong(prev)) {
+        if (hangul_is_choseong(next))
+            return FALSE;
+        if (hangul_is_jungseong(next))
+            return FALSE;
+    } else if (hangul_is_jungseong(prev)) {
+        if (hangul_is_jungseong(next))
+            return FALSE;
+        if (hangul_is_jongseong(next))
+            return FALSE;
+    } else if (hangul_is_jongseong(prev)) {
+        if (hangul_is_jongseong(next))
+            return FALSE;
+    }
+
+    return TRUE;
+}
+
+static const ucschar*
+ustr_syllable_iter_prev(const ucschar* iter, const ucschar* begin)
+{
+    if (iter > begin)
+	iter--;
+
+    while (iter > begin) {
+	ucschar prev = *(iter - 1);
+	ucschar curr = *iter;
+	if (is_syllable_boundary(prev, curr))
+	    break;
+	iter--;
+    }
+    return iter;
+}
 
 static inline GArray*
 nabi_u4str_append(GArray* str, const GArray* s)
@@ -68,6 +105,18 @@ nabi_u4str_clear(GArray* str)
 {
     if (str->len > 0)
 	g_array_remove_range(str, 0, str->len);
+}
+
+static const ucschar*
+nabi_u4str_begin(GArray* str)
+{
+    return (const ucschar*)str->data;
+}
+
+static const ucschar*
+nabi_u4str_end(GArray* str)
+{
+    return &g_array_index(str, const ucschar, str->len);
 }
 
 static inline GArray*
@@ -97,6 +146,16 @@ nabi_u4str_append_ucs4(GArray* str, const ucschar* s, gint len)
     }
 
     return str;
+}
+
+static void
+nabi_u4str_append_utf8(GArray* str, const char* utf8)
+{
+    while (*utf8 != '\0') {
+	gunichar c = g_utf8_get_char(utf8);
+	g_array_append_vals(str, &c, 1);
+	utf8 = g_utf8_next_char(utf8);
+    }
 }
 
 static inline gchar*
@@ -348,6 +407,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->status_attr.base_font = NULL;
 
     ic->candidate = NULL;
+    ic->client_text = NULL;
 
     ic->toplevel = NULL;
 
@@ -414,6 +474,11 @@ nabi_ic_destroy(NabiIC *ic)
     if (ic->candidate != NULL) {
 	nabi_candidate_delete(ic->candidate);
 	ic->candidate = NULL;
+    }
+
+    if (ic->client_text != NULL) {
+	g_array_free(ic->client_text, TRUE);
+	ic->client_text = NULL;
     }
 
     if (ic->toplevel != NULL) {
@@ -1364,21 +1429,18 @@ nabi_ic_get_hic_preedit_string(NabiIC *ic)
 }
 
 static char*
-nabi_ic_get_candidate_string(NabiIC *ic)
+nabi_ic_get_preedit_string(NabiIC *ic)
 {
     char* ret;
     const ucschar* u;
     GArray* str;
-    int n;
 
     str = nabi_u4str_new(ic->preedit.str);
 
     u = hangul_ic_get_preedit_string(ic->hic);
     nabi_u4str_append_ucs4(str, u, -1);
 
-    n = hangul_jamos_to_syllables((ucschar*)str->data, str->len,
-				  (ucschar*)str->data, str->len);
-    ret = nabi_u4str_to_utf8(str, n);
+    ret = nabi_u4str_to_utf8(str, str->len);
     g_array_free(str, TRUE);
     return ret;
 }
@@ -1804,6 +1866,40 @@ nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
     return True;
 }
 
+static void
+nabi_ic_request_client_text(NabiIC* ic)
+{
+    IMStrConvCBStruct data;
+    data.major_code        = XIM_STR_CONVERSION;
+    data.minor_code        = 0;
+    data.connect_id        = ic->connection->id;
+    data.icid              = ic->id;
+    data.strconv.position  = (XIMStringConversionPosition)0;
+    data.strconv.direction = XIMBackwardChar;
+    data.strconv.operation = XIMStringConversionRetrieval;
+    data.strconv.factor    = 10;
+    data.strconv.text      = NULL;
+
+    IMCallCallback(nabi_server->xims, (XPointer)&data);
+}
+
+static void
+nabi_ic_delete_client_text(NabiIC* ic, size_t len)
+{
+    IMStrConvCBStruct data;
+    data.major_code        = XIM_STR_CONVERSION;
+    data.minor_code        = 0;
+    data.connect_id        = ic->connection->id;
+    data.icid              = ic->id;
+    data.strconv.position  = (XIMStringConversionPosition)0;
+    data.strconv.direction = XIMBackwardChar;
+    data.strconv.operation = XIMStringConversionSubstitution;
+    data.strconv.factor    = len;
+    data.strconv.text      = NULL;
+
+    IMCallCallback(nabi_server->xims, (XPointer)&data);
+}
+
 Bool
 nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 {
@@ -1829,7 +1925,15 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 
     /* candiate */
     if (nabi_server_is_candidate_key(nabi_server, keysym, state)) {
-	return nabi_ic_popup_candidate_window(ic);
+	Bool res;
+	char* key;
+
+	nabi_ic_request_client_text(ic);
+
+	key = nabi_ic_get_preedit_string(ic);
+	res = nabi_ic_popup_candidate_window(ic, key);
+	g_free(key);
+	return res;
     }
 
     /* forward key event and commit current string if any state is on */
@@ -1890,11 +1994,12 @@ nabi_ic_candidate_commit_cb(NabiCandidate *candidate,
 }
 
 Bool
-nabi_ic_popup_candidate_window (NabiIC *ic)
+nabi_ic_popup_candidate_window (NabiIC *ic, const char* key)
 {
     Window parent = 0;
-    char* key_text;
     HanjaList* list;
+    char* p;
+    char* normalized;
 
     if (ic->focus_window != 0)
 	parent = ic->focus_window;
@@ -1904,11 +2009,28 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
     if (ic->candidate != NULL)
 	nabi_candidate_delete(ic->candidate);
 
-    key_text = nabi_ic_get_candidate_string(ic);
-    list = hanja_table_match_prefix(nabi_server->symbol_table, key_text);
+    p = strrchr(key, ' ');
+    if (p != NULL)
+	key = p;
+    
+    while (isspace(*key) || ispunct(*key))
+	key++;
+
+    if (key[0] == '\0')
+	return True;
+
+    /* candidate 검색을 위한 스트링이 자모형일 수도 있으므로 normalized하여
+     * hanja table에서 검색을 해야 한다. */
+    normalized = g_utf8_normalize(key, -1,
+				  G_NORMALIZE_DEFAULT_COMPOSE);
+    if (normalized == NULL)
+	return True;
+
+    nabi_log(6, "lookup string: %s\n", normalized);
+    list = hanja_table_match_suffix(nabi_server->symbol_table, normalized);
 
     if (list == NULL)
-	list = hanja_table_match_prefix(nabi_server->hanja_table, key_text);
+	list = hanja_table_match_suffix(nabi_server->hanja_table, normalized);
 
     if (list != NULL) {
 	int i, valid_list_length = 0;
@@ -1934,18 +2056,16 @@ nabi_ic_popup_candidate_window (NabiIC *ic)
 	}
 
 	if (valid_list_length > 0) {
-	    ic->candidate = nabi_candidate_new(key_text, 9,
+	    ic->candidate = nabi_candidate_new(key, 9,
 				    list, valid_list, valid_list_length,
 				    parent, &nabi_ic_candidate_commit_cb, ic);
-	    g_free(key_text);
-	    return True;
 	} else {
 	    hanja_list_delete(list);
 	}
     }
+    g_free(normalized);
 
-    g_free(key_text);
-    return False;
+    return True;
 }
 
 void
@@ -1966,22 +2086,64 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
     if (key != NULL)
 	keylen = g_utf8_strlen(key, -1);
 
-    /* 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를 지운다.*/
-    while (keylen > 0 && ic->preedit.str->len > 0) {
-	int n = hangul_syllable_len((ucschar*)ic->preedit.str->data,
-				    ic->preedit.str->len);
-	nabi_u4str_erase(ic->preedit.str, 0, n);
-	keylen--;
+    /* candidate를 입력하려면 원래 텍스트에서 candidate로 교체될 부분을
+     * 지우고 commit 하여야 한다.
+     * 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를 지운다.
+     * libhangul의 suffix 방식으로 매칭하는 것이므로 뒤쪽부터 한 음절씩 지워
+     * 나간다.
+     * candidate string의 구조는
+     *
+     *  client_text + nabi_ic_preedit_str + hangul_ic_preedit_str
+     *
+     * 과 같으므로 뒤쪽부터 순서대로 지운다.*/
+    /* hangul_ic_preedit_str */
+    if (keylen > 0) {
+	if (!hangul_ic_is_empty(ic->hic)) {
+	    hangul_ic_reset(ic->hic);
+	    keylen--;
+	}
     }
 
-    /* 아직도 keylen이 남았다면 hic에 있는 글자까지 지워야 하는 경우다 */
-    if (keylen > 0) {
-	hangul_ic_reset(ic->hic);
+    /* nabi_ic_preedit_str */
+    if (ic->preedit.str != NULL) {
+	const ucschar* begin = nabi_u4str_begin(ic->preedit.str);
+	const ucschar* iter = nabi_u4str_end(ic->preedit.str);
+	while (keylen > 0 && ic->preedit.str->len > 0) {
+	    guint pos;
+	    guint n;
+	    iter = ustr_syllable_iter_prev(iter, begin);
+	    pos = iter - begin;
+	    n = ic->preedit.str->len - pos;
+	    nabi_u4str_erase(ic->preedit.str, pos, n);
+	    keylen--;
+	}
+    }
+
+    /* client_text */
+    if (ic->client_text != NULL) {
+	const ucschar* begin = nabi_u4str_begin(ic->client_text);
+	const ucschar* end = nabi_u4str_end(ic->client_text);
+	const ucschar* iter = end;
+	while (keylen > 0 && iter > begin) {
+	    iter = ustr_syllable_iter_prev(iter, begin);
+	    keylen--;
+	}
+	nabi_ic_delete_client_text(ic, end - iter);
     }
 
     if (strlen(value) > 0) {
+	char* preedit_left = NULL;
 	char* modified_value;
 	char* candidate;
+
+	/* nabi ic의 preedit string이 남아 있으면 그것도 commit해야지 
+	 * 그렇지 않으면 한자로 변환되지 않은 preedit string은 한자 변환후
+	 * commit된 스트링뒤에서 나타나게 된다. */
+	if (ic->preedit.str->len > 0) {
+	    preedit_left = nabi_u4str_to_utf8(ic->preedit.str, -1);
+	} else {
+	    preedit_left = g_strdup("");
+	}
 
 	if (nabi_server->use_simplified_chinese) {
 	    modified_value = nabi_traditional_to_simplified(value);
@@ -1994,19 +2156,48 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	}
 
 	if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
-	    candidate = g_strdup_printf("%s(%s)", modified_value, key);
+	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, modified_value, key);
 	else if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
-	    candidate = g_strdup_printf("%s(%s)", key, modified_value);
+	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, key, modified_value);
 	else
-	    candidate = g_strdup_printf("%s", modified_value);
+	    candidate = g_strdup_printf("%s%s", preedit_left, modified_value);
 
 	nabi_ic_commit_utf8(ic, candidate);
 
+	g_free(preedit_left);
 	g_free(modified_value);
 	g_free(candidate);
     }
 
+    if (ic->preedit.str != NULL)
+	nabi_u4str_clear(ic->preedit.str);
+    if (ic->client_text != NULL)
+	nabi_u4str_clear(ic->client_text);
     nabi_ic_preedit_update(ic);
+}
+
+void
+nabi_ic_process_string_conversion_reply(NabiIC* ic, const char* text)
+{
+    char* key;
+    char* preedit;
+
+    if (text == NULL)
+	return;
+
+    if (ic->client_text == NULL)
+	ic->client_text = nabi_u4str_new(NULL);
+
+    nabi_u4str_clear(ic->client_text);
+    nabi_u4str_append_utf8(ic->client_text, text); 
+
+    preedit = nabi_ic_get_preedit_string(ic);
+    key = g_strconcat(text, preedit, NULL);
+
+    nabi_ic_popup_candidate_window(ic, key);
+
+    g_free(preedit);
+    g_free(key);
 }
 
 /* vim: set ts=8 sw=4 sts=4 : */

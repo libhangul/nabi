@@ -450,7 +450,7 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 }
 
 NabiCandidate*
-nabi_candidate_new(char *label_str,
+nabi_candidate_new(const char *label_str,
 		   int n_per_page,
 		   HanjaList *list,
 		   const Hanja **valid_list,

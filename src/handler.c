@@ -291,6 +291,41 @@ nabi_handler_preedit_caret_reply(XIMS ims, IMPreeditCBStruct *data)
     return False;
 }
 
+static Bool
+nabi_handler_str_conversion_reply(XIMS ims, IMStrConvCBStruct *data)
+{
+    XIMStringConversionText *text;
+    NabiIC* ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
+
+    nabi_log(1, "string conversion reply: id = %d-%d\n",
+	    (int)data->connect_id, (int)data->icid);
+
+    if (ic == NULL)
+	return True;
+
+    text = data->strconv.text;
+    if (text != NULL && text->length > 0 && text->string.mbs != NULL) {
+	char* utf8 = NULL;
+
+	if (text->encoding_is_wchar) {
+	    char* mbs = g_new0(char, text->length * 6);
+	    wcstombs(mbs, text->string.wcs, text->length * 6);
+	    utf8 = g_locale_to_utf8(mbs, -1, NULL, NULL, NULL);
+	    g_free(mbs);
+	} else {
+	    utf8 = g_locale_to_utf8(text->string.mbs, -1, NULL, NULL, NULL);
+	}
+
+	if (utf8 != NULL) {
+	    nabi_log(2, "string conversion: retrieved string: %s\n", utf8);
+	    nabi_ic_process_string_conversion_reply(ic, utf8);
+	    g_free(utf8);
+	}
+    }
+
+    return True;
+}
+
 Bool
 nabi_handler(XIMS ims, IMProtocol *data)
 {
@@ -321,6 +356,8 @@ nabi_handler(XIMS ims, IMProtocol *data)
 	return nabi_handler_preedit_start_reply(ims, &data->preedit_callback);
     case XIM_PREEDIT_CARET_REPLY:
 	return nabi_handler_preedit_caret_reply(ims, &data->preedit_callback);
+    case XIM_STR_CONVERSION_REPLY:
+	return nabi_handler_str_conversion_reply(ims, &data->strconv_callback);
     default:
 	nabi_log(1, "Unhandled XIM Protocol: %s\n",
 		 get_xim_protocol_name(data->major_code));

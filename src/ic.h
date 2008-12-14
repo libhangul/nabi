@@ -117,6 +117,8 @@ struct _NabiIC {
 
     /* hanja or symbol select window */
     NabiCandidate*	candidate;
+
+    GArray*             client_text;
 };
 
 NabiConnection* nabi_connection_create(CARD16 id, const char* encoding);
@@ -160,7 +162,7 @@ Bool    nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state);
 void    nabi_ic_flush(NabiIC *ic);
 void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
 
-Bool    nabi_ic_popup_candidate_window(NabiIC *ic);
+Bool    nabi_ic_popup_candidate_window(NabiIC *ic, const char* key);
 void    nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja);
 
 #endif /* _NABIIC_H_ */

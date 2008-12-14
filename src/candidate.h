@@ -43,7 +43,7 @@ struct _NabiCandidate {
     HanjaList *hanja_list;
 };
 
-NabiCandidate*     nabi_candidate_new(char *label_str,
+NabiCandidate*     nabi_candidate_new(const char *label_str,
 		   	              int n_per_page,
 			              HanjaList* list,
 			              const Hanja** valid_list,
