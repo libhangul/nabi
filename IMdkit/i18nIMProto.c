@@ -102,6 +102,7 @@ static XimFrameRec xpcs_fr[] =
     _FRAME(BIT16), 		/* length of string in bytes */
     _FRAME(BARRAY), 		/* string */
     _PAD4(2),
+    _FRAME(EOL),
 };
 
 static XimFrameRec ext_fr[] =
@@ -171,6 +172,15 @@ xim_externaldef XimFrameRec input_styles_fr[] =
     _FRAME(ITER), 		/* XIMStyle list */
     _FRAME(POINTER),
     _PTR(inputstyle_fr),
+    _FRAME(EOL),
+};
+
+xim_externaldef XimFrameRec values_list_fr[] = 
+{
+    _FRAME(BIT16), 		/* number of list */
+    _FRAME(ITER),
+    _FRAME(POINTER),
+    _PTR(xpcs_fr),
     _FRAME(EOL),
 };
 
@@ -612,7 +622,6 @@ xim_externaldef XimFrameRec str_conversion_reply_fr[] =
 {
     _FRAME(BIT16), 		/* input-method-ID */
     _FRAME(BIT16), 		/* input-context-ID */
-    _FRAME(BIT32), 		/* XIMStringConversionFeedback */
     _FRAME(BIT16), 		/* length of the retrieved string */
     _FRAME(BARRAY), 		/* retrieved string */
     _PAD4(2),

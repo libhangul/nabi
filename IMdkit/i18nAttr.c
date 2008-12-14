@@ -51,7 +51,8 @@ typedef struct
 IMListOfAttr Default_IMattr[] =
 {
     {XNQueryInputStyle,   XimType_XIMStyles},
-/*    {XNQueryIMValuesList, XimType_XIMValuesList},	*/
+    {XNQueryIMValuesList, XimType_XIMValuesList},
+    {XNQueryICValuesList, XimType_XIMValuesList},
     {(char *) NULL, (CARD16) 0}
 };
 
@@ -74,6 +75,12 @@ IMListOfAttr Default_ICattr[] =
     {XNSpotLocation,            XimType_XPoint},
     {XNLineSpace,               XimType_CARD32},
     {XNPreeditState,            XimType_CARD32},
+    {XNPreeditStartCallback,    XimType_CARD32},
+    {XNPreeditDoneCallback,     XimType_CARD32},
+    {XNPreeditDrawCallback,     XimType_CARD32},
+    {XNPreeditCaretCallback,    XimType_CARD32},
+    {XNStringConversionCallback, XimType_CARD32},
+    {XNStringConversion,        XimType_CARD32},
     {XNSeparatorofNestedList,   XimType_SeparatorOfNestedList},
     {(char *) NULL, (CARD16) 0}
 };

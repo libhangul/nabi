@@ -165,7 +165,9 @@ PERFORMANCE OF THIS SOFTWARE.
 #define XimType_XIMHotKeyTriggers	15
 #define XimType_XIMHotKeyState		16
 #define XimType_XIMStringConversion	17
-#define XimType_XIMValuesList		18
+#define XimType_XIMPreeditState		18
+#define XimType_XIMResetState		19
+#define XimType_XIMValuesList		20
 #define	XimType_NEST			0x7FFF
 
 /*

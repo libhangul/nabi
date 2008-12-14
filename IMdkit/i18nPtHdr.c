@@ -43,6 +43,7 @@ extern void DebugLog(int deflevel, int inplevel, char *fmt, ...);
 #include <stdlib.h>
 #include <sys/param.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #ifndef NEED_EVENTS
 #define NEED_EVENTS
 #endif
@@ -661,8 +662,105 @@ static void GetIMValueFromName (Xi18n i18n_core,
         /*endif*/
     }
     /*endif*/
-
     else if (strcmp (name, XNQueryIMValuesList) == 0) {
+	FrameMgr fm;
+	extern XimFrameRec values_list_fr[];
+	unsigned char *data = NULL;
+	unsigned int i;
+	int str_size;
+	int total_size;
+	XIMAttr *im_attr;
+	unsigned int count_values;
+
+	count_values = i18n_core->address.im_attr_num;
+	im_attr = i18n_core->address.xim_attr;
+
+	fm = FrameMgrInit (values_list_fr,
+			   NULL,
+			   _Xi18nNeedSwap (i18n_core, connect_id));
+
+	/* set iteration count for ic values list */
+	FrameMgrSetIterCount (fm, count_values);
+
+	/* set length of BARRAY item in ic_values_list_fr */
+	for (i = 0; i < count_values;  i++)
+	{
+	    str_size = im_attr[i].length;
+	    FrameMgrSetSize (fm, str_size);
+	}
+
+	total_size = FrameMgrGetTotalSize (fm);
+	*length = total_size;
+
+	if (buf != NULL) {
+            data = (unsigned char *) malloc (total_size);
+            if (data == NULL)
+                return;
+
+            memset (data, 0, total_size);
+            FrameMgrSetBuffer (fm, data);
+
+            FrameMgrPutToken (fm, count_values);
+            for (i = 0; i < count_values; i++) {
+		str_size = FrameMgrGetSize (fm);
+                FrameMgrPutToken (fm, str_size);
+                FrameMgrPutToken (fm, im_attr[i].name);
+	    }
+
+            memmove (buf, data, total_size);
+            FrameMgrFree (fm);
+	    free(data);
+	}
+
+    }
+    else if (strcmp (name, XNQueryICValuesList) == 0) {
+	FrameMgr fm;
+	extern XimFrameRec values_list_fr[];
+	unsigned char *data = NULL;
+	unsigned int i;
+	int str_size;
+	int total_size;
+	XICAttr *ic_attr;
+	unsigned int count_values;
+
+	count_values = i18n_core->address.ic_attr_num;
+	ic_attr = i18n_core->address.xic_attr;
+	fm = FrameMgrInit (values_list_fr,
+			   NULL,
+			   _Xi18nNeedSwap (i18n_core, connect_id));
+
+	/* set iteration count for ic values list */
+	FrameMgrSetIterCount (fm, count_values);
+
+	/* set length of BARRAY item in ic_values_list_fr */
+	for (i = 0; i < count_values;  i++)
+	{
+	    str_size = ic_attr[i].length;
+	    FrameMgrSetSize (fm, str_size);
+	}
+
+	total_size = FrameMgrGetTotalSize (fm);
+	*length = total_size;
+
+	if (buf != NULL) {
+            data = (unsigned char *) malloc (total_size);
+            if (data == NULL)
+                return;
+
+            memset (data, 0, total_size);
+            FrameMgrSetBuffer (fm, data);
+
+            FrameMgrPutToken (fm, count_values);
+            for (i = 0; i < count_values; i++) {
+		str_size = FrameMgrGetSize (fm);
+                FrameMgrPutToken (fm, str_size);
+                FrameMgrPutToken (fm, ic_attr[i].name);
+	    }
+
+            memmove (buf, data, total_size);
+            FrameMgrFree (fm);
+	    free(data);
+	}
     }
 }
 
@@ -1654,6 +1752,26 @@ void PreeditCaretReplyMessageProc (XIMS ims,
     /*endif*/
 }
 
+static char* ctstombs(Display* display, char* compound_text, size_t len)
+{
+    char **list = NULL;
+    char *ret = NULL;
+    int count = 0;
+    XTextProperty text_prop;
+
+    text_prop.value = (unsigned char*)compound_text;
+    text_prop.encoding = XInternAtom(display, "COMPOUND_TEXT", False);
+    text_prop.format = 8;
+    text_prop.nitems = len;
+
+    XmbTextPropertyToTextList(display, &text_prop, &list, &count);
+    if (list != NULL)
+	ret = strdup(list[0]);
+    XFreeStringList(list);
+
+    return ret;
+}
+
 void StrConvReplyMessageProc (XIMS ims,
                               IMProtocol *call_data,
                               unsigned char *p)
@@ -1663,14 +1781,11 @@ void StrConvReplyMessageProc (XIMS ims,
     extern XimFrameRec str_conversion_reply_fr[];
     IMStrConvCBStruct *strconv_CB =
 	(IMStrConvCBStruct *) &call_data->strconv_callback;
-    XIMStringConversionText *text =
-	(XIMStringConversionText *) &strconv_CB->strconv;
+    XIMStringConversionText text = { 0, NULL, False, { NULL } };
     CARD16 connect_id = call_data->any.connect_id;
     CARD16 input_method_ID;
+    CARD16 length;
     int i;
-
-    /* Implementation is not completed yet */
-    return;
 
     fm = FrameMgrInit (str_conversion_reply_fr,
                        (char *) p,
@@ -1679,30 +1794,45 @@ void StrConvReplyMessageProc (XIMS ims,
     FrameMgrGetToken (fm, input_method_ID);
     FrameMgrGetToken (fm, strconv_CB->icid);
 
-    FrameMgrGetToken (fm, text->length);
-    /* TODO: treat padding */
-    if (text->length > 0) {
-	int length_in_byte;
+    FrameMgrGetToken (fm, length);
+    if (length > 0) {
+	int feedback_length;
 	char *str;
 	XIMStringConversionFeedback feedback;
 	
-	length_in_byte = sizeof(wchar_t) * (text->length);
-	FrameMgrSetSize (fm, length_in_byte);
+	FrameMgrSetSize (fm, length);
 	FrameMgrGetToken (fm, str);
-	text->string.mbs = (char *)malloc(length_in_byte);
-	memcpy(text->string.mbs, str, length_in_byte);
-	for (i = 0; i < text->length; i++) {
-	    FrameMgrGetToken (fm, feedback);
-	    text->feedback[i] = feedback;
+
+	text.encoding_is_wchar = False;
+	text.string.mbs = ctstombs(i18n_core->address.dpy, str, length);
+	text.length = strlen(text.string.mbs);
+
+	FrameMgrGetToken (fm, feedback_length);
+	feedback_length /= sizeof(CARD32);
+
+	/* sizeof(XIMStringConversionFeedback) may not 4 */
+	text.feedback = malloc(feedback_length 
+				* sizeof(XIMStringConversionFeedback));
+	if (text.feedback != NULL) {
+	    for (i = 0; i < feedback_length; i++) {
+		FrameMgrGetToken (fm, feedback);
+		text.feedback[i] = feedback;
+	    }
 	}
     }
 
     FrameMgrFree (fm);
 
+    strconv_CB->strconv.text = &text;
     if (i18n_core->address.improto) {
-        if (!(i18n_core->address.improto(ims, call_data)))
-            return;
+        i18n_core->address.improto(ims, call_data);
     }
+
+    if (length > 0) {
+	free(text.string.mbs);
+	free(text.feedback);
+    }
+
     return;
 }
 
@@ -1953,8 +2083,13 @@ void _Xi18nMessageHandler (XIMS ims,
 #ifdef DEBUG
 	DebugLog(3, verbose, "-- XIM_STR_CONVERSION_REPLY\n");
 #endif
+	nabi_log(6, "XIM_STR_CONVERSION_REPLY(cid=%x)\n", connect_id);
         StrConvReplyMessageProc (ims, &call_data, p1);
         break;
+    default:
+	nabi_log(3, "unhandled XIM message: %d:%d\n",
+		    hdr->major_opcode, hdr->minor_opcode);
+	break;
     }
     /*endswitch*/
 }

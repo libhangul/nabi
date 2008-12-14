@@ -506,7 +506,12 @@ int _Xi18nStringConversionCallback (XIMS ims, IMProtocol *call_data)
     free (reply);
 
     /* XIM_STR_CONVERSION is a syncronous protocol,
-       so should wait here for XIM_STR_CONVERSION_REPLY. */
+       so should wait here for XIM_STR_CONVERSION_REPLY.
+       But if XIM waits for a reply here, it would make xim 
+       unusable to other clients.
+       So it would be better not to wait here.
+       XIM can deal with it in the IMProtocol handler, when
+       XIM_STR_CONVERSION_REPLY message is received.
     if (i18n_core->methods.wait (ims,
                                  connect_id,
                                  XIM_STR_CONVERSION_REPLY,
@@ -514,6 +519,6 @@ int _Xi18nStringConversionCallback (XIMS ims, IMProtocol *call_data)
     {
         return False;
     }
-    /*endif*/
+    */
     return True;
 }

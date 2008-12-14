@@ -40,6 +40,8 @@ IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 extern Xi18nClient *_Xi18nFindClient(Xi18n, CARD16);
 extern Xi18nClient *_Xi18nNewClient(Xi18n);
 extern void _Xi18nDeleteClient(Xi18n, CARD16);
+extern void _Xi18nMessageHandler (XIMS, CARD16, unsigned char *, Bool *);
+
 static Bool WaitXConnectMessage(Display*, Window,
                                 XEvent*, XPointer);
 static Bool WaitXIMProtocol(Display*, Window, XEvent*, XPointer);
@@ -394,6 +396,10 @@ static Bool Xi18nXWait (XIMS ims,
                 &&
                 (hdr->minor_opcode == minor_opcode))
             {
+		Bool delete = True;
+		_Xi18nMessageHandler (ims, connect_id_ret, packet, &delete);
+		if (delete)
+		    free (packet);
                 return True;
             }
             else if (hdr->major_opcode == XIM_ERROR)
