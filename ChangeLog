@@ -1,4 +1,31 @@
 ------------------------------------------------------------------------
+r721 | krisna | 2008-12-13 13:30:06 +0900 (Sat, 13 Dec 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/configure.ac
+
+0.99.3 release
+
+------------------------------------------------------------------------
+r720 | krisna | 2008-12-13 13:22:47 +0900 (Sat, 13 Dec 2008) | 2 lines
+Changed paths:
+   M /nabi/trunk/NEWS
+
+문서 업데이트: 0.99.3 릴리스 준비
+
+------------------------------------------------------------------------
+r719 | krisna | 2008-12-13 13:22:10 +0900 (Sat, 13 Dec 2008) | 6 lines
+Changed paths:
+   M /nabi/trunk/ChangeLog
+   A /nabi/trunk/ChangeLog.0
+   M /nabi/trunk/Makefile.am
+
+ChangeLog 생성 룰 수정:
+ * ChangeLog를 svn의 로그를 사용하기로 함
+   이전의 로그는 ChangeLog.0로 옮김
+   svn log로 부터 ChangeLog 다시 생성, 앞으로는 svn log로만 관리
+ * Makefile.am에서 ChangeLog 생성하는 룰를 간단하게 바꿈
+
+------------------------------------------------------------------------
 r718 | krisna | 2008-12-13 01:32:50 +0900 (Sat, 13 Dec 2008) | 2 lines
 Changed paths:
    M /nabi/trunk/po/de.po
