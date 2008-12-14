@@ -30,6 +30,7 @@
 #include "../IMdkit/Xi18n.h"
 
 #include "candidate.h"
+#include "ustring.h"
 
 typedef struct _PreeditAttributes PreeditAttributes;
 typedef struct _StatusAttributes StatusAttributes;
@@ -57,7 +58,7 @@ struct _NabiToplevel {
 };
 
 struct _PreeditAttributes {
-    GArray*         str;
+    UString*        str;
     GdkWindow*      window;         /* where to draw the preedit string */
     int             width;          /* preedit area width */
     int             height;         /* preedit area height */
@@ -118,7 +119,7 @@ struct _NabiIC {
     /* hanja or symbol select window */
     NabiCandidate*	candidate;
 
-    GArray*             client_text;
+    UString*            client_text;
 };
 
 NabiConnection* nabi_connection_create(CARD16 id, const char* encoding);
