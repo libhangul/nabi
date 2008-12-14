@@ -42,12 +42,15 @@ public:
     static void preeditDoneCallback(XIM xim, XPointer client_data, XPointer data);
     static void preeditDrawCallback(XIM xim, XPointer client_data, XPointer data);
     static void preeditCaretCallback(XIM xim, XPointer client_data, XPointer data);
+    
+    // string conversion callback
+    static void stringConversionCallback(XIM xim, XPointer client_data, XPointer data);
 
 private:
     // for XIM interaction
     void openIM();
     void closeIM();
-    void createIC();
+    void createIC(bool useStringConversion);
     void destroyIC();
 
     void setPreeditString(const wchar_t *str, int pos, int length);
@@ -150,7 +153,24 @@ void TextView::openIM()
     destroy.client_data = (XPointer)this;
     XSetIMValues(m_im, XNDestroyCallback, &destroy, NULL);
 
-    createIC();
+    bool useStringConversion = false;
+
+    XIMValuesList* ic_values = NULL;
+    XGetIMValues(m_im,
+		 XNQueryICValuesList, &ic_values,
+		 NULL);
+    
+    if (ic_values != NULL) {
+	for (int i = 0; i < ic_values->count_values; i++) {
+	    if (strcmp(ic_values->supported_values[i],
+		       XNStringConversionCallback) == 0) {
+		useStringConversion = true;
+		break;
+	    }
+	}
+    }
+
+    createIC(useStringConversion);
 }
 
 void TextView::closeIM(void)
@@ -161,7 +181,7 @@ void TextView::closeIM(void)
     printf("XIM is closed\n");
 }
 
-void TextView::createIC(void)
+void TextView::createIC(bool useStringConversion)
 {
     if (m_im == NULL)
 	return;
@@ -245,6 +265,13 @@ void TextView::createIC(void)
 	XGetICValues(m_ic, XNFilterEvents, &fevent, NULL);
 	unsigned long mask = ExposureMask | KeyPressMask | FocusChangeMask;
 	XSelectInput(m_display, m_window, mask | fevent);
+
+	if (useStringConversion) {
+	    XIMCallback strconv;
+	    strconv.callback    = stringConversionCallback;
+	    strconv.client_data = (XPointer)this;
+	    XSetICValues(m_ic, XNStringConversionCallback, &strconv, NULL);
+	}
 
 	printf("XIC is created\n");
     } else {
@@ -719,6 +746,72 @@ void TextView::preeditCaretCallback(XIM xim, XPointer user_data, XPointer data)
 	break;
     }
     textview->draw();
+}
+
+void TextView::stringConversionCallback(XIM xim, XPointer client_data, XPointer data)
+{
+    short position;
+    TextView *textview = reinterpret_cast<TextView*>(client_data);
+
+    XIMStringConversionCallbackStruct* strconv;
+    strconv = reinterpret_cast<XIMStringConversionCallbackStruct*>(data);
+
+    position = (short)strconv->position;
+
+    printf("position:  %d\n", position);
+    printf("direction: %d\n", strconv->direction);
+    printf("operation: %d\n", strconv->operation);
+    printf("factor:    %d\n", strconv->factor);
+
+    std::wstring* curline = textview->m_text[textview->m_caret.y];
+
+    ssize_t begin = textview->m_caret.x + position;
+    size_t end = begin;
+
+    if (strconv->direction == XIMBackwardChar) {
+	begin -= strconv->factor;
+    } else if (strconv->direction == XIMForwardChar) {
+	end += strconv->factor;
+    } else if (strconv->direction == XIMBackwardWord) {
+    } else if (strconv->direction == XIMForwardWord) {
+    }
+
+    if (begin < 0)
+	begin = 0;
+    if (begin > curline->length())
+	begin = curline->length();
+
+    if (end > curline->length())
+	end = curline->length();
+
+    if (strconv->operation == XIMStringConversionRetrieval) {
+	std::wstring ret;
+	if (end > begin)
+	    ret.assign(*curline, begin, end - begin);
+
+	if (!ret.empty()) {
+	    XIMStringConversionText* text;
+	    text = (XIMStringConversionText*)malloc(sizeof(*text));
+	    if (text != NULL) {
+		size_t size_in_bytes;
+		text->length = ret.length();
+		text->feedback = NULL;
+		text->encoding_is_wchar = True;
+		size_in_bytes = sizeof(wchar_t) * (text->length + 1);
+		text->string.wcs = (wchar_t*)malloc(size_in_bytes);
+		if (text->string.wcs != NULL) {
+		    memcpy(text->string.wcs, ret.c_str(), size_in_bytes);
+		    strconv->text = text;
+		} else {
+		    free(text);
+		}
+	    }
+	}
+    } else if (strconv->operation == XIMStringConversionSubstitution) {
+	if (end > begin)
+	    curline->erase(begin, end - begin);
+	    textview->m_caret.x = begin;
+    }
 }
 
 int
