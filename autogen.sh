@@ -1,5 +1,6 @@
 #!/bin/sh
 
+touch ChangeLog
 glib-gettextize
 aclocal
 autoheader
