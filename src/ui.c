@@ -77,7 +77,6 @@ static GtkWidget *preference_dialog = NULL;
 
 static void nabi_app_load_base_icons();
 static void nabi_app_update_tooltips();
-static void nabi_app_update_keyboard_button();
 
 static void nabi_state_icon_load(NabiStateIcon* state, int w, int h);
 
@@ -883,9 +882,6 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
 
     nabi_app_set_hangul_keyboard(id);
     nabi_app_save_config();
-
-    nabi_app_update_keyboard_button();
-    nabi_app_update_tooltips();
 }
 
 static void
@@ -1380,12 +1376,22 @@ nabi_app_show_palette(gboolean state)
 void
 nabi_app_set_hangul_keyboard(const char *id)
 {
-    nabi_server_set_hangul_keyboard(nabi_server, id);
     g_free(nabi->config->hangul_keyboard);
     if (id == NULL)
 	nabi->config->hangul_keyboard = NULL;
     else
 	nabi->config->hangul_keyboard = g_strdup(id);
+
+    nabi_server_set_hangul_keyboard(nabi_server, id);
+
+    // palette의 메뉴 버튼 업데이트
+    if (nabi->keyboard_button != NULL) {
+	const char* name;
+	name = nabi_server_get_current_keyboard_name(nabi_server);
+	gtk_button_set_label(GTK_BUTTON(nabi->keyboard_button), _(name));
+    }
+
+    nabi_app_update_tooltips();
 }
 
 void
@@ -1393,16 +1399,6 @@ nabi_app_save_config()
 {
     if (nabi != NULL && nabi->config != NULL)
 	nabi_config_save(nabi->config);
-}
-
-static void
-nabi_app_update_keyboard_button()
-{
-    if (nabi->keyboard_button != NULL) {
-	const char* name;
-	name = nabi_server_get_current_keyboard_name(nabi_server);
-	gtk_button_set_label(GTK_BUTTON(nabi->keyboard_button), _(name));
-    }
 }
 
 static void
