@@ -1210,6 +1210,7 @@ nabi_app_create_palette(void)
     gtk_window_move(GTK_WINDOW(handlebox), nabi->config->x, nabi->config->y);
     gtk_window_set_keep_above(GTK_WINDOW(handlebox), TRUE);
     gtk_window_stick(GTK_WINDOW(handlebox));
+    gtk_window_set_accept_focus(GTK_WINDOW(handlebox), FALSE);
     g_signal_connect_after(G_OBJECT(handlebox), "realize",
 	    		   G_CALLBACK(on_palette_realized), NULL);
     g_signal_connect(G_OBJECT(handlebox), "destroy",
