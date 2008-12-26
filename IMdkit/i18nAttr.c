@@ -78,7 +78,6 @@ IMListOfAttr Default_ICattr[] =
     {XNPreeditStartCallback,    XimType_CARD32},
     {XNPreeditDoneCallback,     XimType_CARD32},
     {XNPreeditDrawCallback,     XimType_CARD32},
-    {XNPreeditCaretCallback,    XimType_CARD32},
     {XNStringConversionCallback, XimType_CARD32},
     {XNStringConversion,        XimType_CARD32},
     {XNSeparatorofNestedList,   XimType_SeparatorOfNestedList},
