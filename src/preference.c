@@ -225,11 +225,12 @@ on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
 	gtk_tree_model_get(model, &iter, THEMES_LIST_NAME, &theme, -1);
 	nabi_app_set_theme(theme);
 	g_free(theme);
+	nabi_log(4, "preference: set theme: %s\n", config->theme);
     }
 }
 
 static GtkWidget*
-create_theme_page(void)
+create_theme_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
@@ -260,6 +261,7 @@ create_theme_page(void)
     g_object_unref(G_OBJECT(model));
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(treeview), FALSE);
     gtk_container_add(GTK_CONTAINER(scrolledwindow), treeview);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-theme", treeview);
 
     /* theme icons */
     /* state None */
@@ -325,6 +327,8 @@ on_hangul_keyboard_changed(GtkComboBox *widget, gpointer data)
 
     if (keyboards[i].id != NULL) {
 	nabi_app_set_hangul_keyboard(keyboards[i].id);
+
+	nabi_log(4, "preference: set hagul keyboard: %s\n", config->hangul_keyboard);
     }
 }
 
@@ -337,11 +341,13 @@ on_latin_keyboard_changed(GtkComboBox *widget, gpointer data)
 	g_free(config->latin_keyboard);
 	config->latin_keyboard = g_strdup(item->name);
 	nabi_server_set_keyboard_layout(nabi_server, item->name);
+
+	nabi_log(4, "preference: set latin keyboard: %s\n", config->latin_keyboard);
     }
 }
 
 static GtkWidget*
-create_keyboard_page(void)
+create_keyboard_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
@@ -367,6 +373,7 @@ create_keyboard_page(void)
 	}
     }
     gtk_size_group_add_widget(size_group, combo_box);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-hangul-keyboard", combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_hangul_keyboard_changed), NULL);
     hangul_keyboard_list_combo = combo_box;
@@ -391,6 +398,7 @@ create_keyboard_page(void)
 	i++;
     }
     gtk_size_group_add_widget(size_group, combo_box);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-latin-keyboard", combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_latin_keyboard_changed), NULL);
 
@@ -495,6 +503,8 @@ update_trigger_keys_setting(GtkTreeModel *model)
     config->trigger_keys = g_strjoinv(",", keys);
     nabi_server_set_trigger_keys(nabi_server, keys);
     g_strfreev(keys);
+
+    nabi_log(4, "preference: set trigger keys: %s\n", config->trigger_keys);
 }
 
 static void
@@ -507,7 +517,7 @@ update_off_keys_setting(GtkTreeModel *model)
     nabi_server_set_off_keys(nabi_server, keys);
     g_strfreev(keys);
 
-    nabi_log(4, "set off keys: %s\n", config->off_keys);
+    nabi_log(4, "preference: set off keys: %s\n", config->off_keys);
 }
 
 static void
@@ -631,11 +641,11 @@ update_candidate_keys_setting(GtkTreeModel *model)
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
 
-    nabi_log(4, "set candidate keys: %s\n", config->candidate_keys);
+    nabi_log(4, "preference: set candidate keys: %s\n", config->candidate_keys);
 }
 
 static GtkWidget*
-create_hangul_page(void)
+create_hangul_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
@@ -670,6 +680,7 @@ create_hangul_page(void)
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-trigger-keys", model);
     g_signal_connect_after(G_OBJECT(model), "row-changed",
 			   G_CALLBACK(update_trigger_keys_setting), NULL);
     g_signal_connect_after(G_OBJECT(model), "row-deleted",
@@ -722,6 +733,7 @@ create_hangul_page(void)
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     off_key_model = model;
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-off-keys", model);
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
     g_signal_connect_after(G_OBJECT(model), "row-changed",
 			   G_CALLBACK(update_off_keys_setting), NULL);
@@ -790,6 +802,8 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 	config->candidate_font = g_strdup(font);
 	nabi_server_set_candidate_font(nabi_server, font);
 	candidate_font_button_set_labels(button, font);
+	nabi_log(4, "preference: set candidate font: %s\n", config->candidate_font);
+	g_free(font);
     }
     gtk_widget_destroy(dialog);
 }
@@ -801,10 +815,12 @@ on_simplified_chinese_toggled(GtkToggleButton* button, gpointer data)
 
     config->use_simplified_chinese = flag;
     nabi_server_set_simplified_chinese(nabi_server, flag);
+
+    nabi_log(4, "preference: set use simplified chinese: %d\n", flag);
 }
 
 static GtkWidget*
-create_candidate_page(void)
+create_candidate_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
@@ -833,6 +849,7 @@ create_candidate_page(void)
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
     gtk_container_add(GTK_CONTAINER(button), hbox);
     candidate_font_button_set_labels(button, config->candidate_font);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-candidate-font", button);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
     item = create_pref_item(_("Hanja Font"), button, FALSE, FALSE);
@@ -851,6 +868,7 @@ create_candidate_page(void)
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     candidate_key_model = model;
     gtk_box_pack_start(GTK_BOX(vbox), widget, TRUE, TRUE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-candidate-keys", model);
     g_signal_connect_after(G_OBJECT(model), "row-changed",
 			   G_CALLBACK(update_candidate_keys_setting), NULL);
     g_signal_connect_after(G_OBJECT(model), "row-deleted",
@@ -879,6 +897,7 @@ create_candidate_page(void)
     button = gtk_check_button_new_with_label(_("Use simplified chinese"));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->use_simplified_chinese);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-simplified-chinese", button);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_simplified_chinese_toggled), NULL);
 
@@ -896,6 +915,8 @@ on_xim_name_changed(GtkEntry* entry, gpointer data)
     g_free(config->xim_name);
     config->xim_name = g_strdup(name);
     nabi_server_set_xim_name(nabi_server, name);
+
+    nabi_log(4, "preference: set xim name: %s\n", name);
 }
 
 static void
@@ -905,6 +926,8 @@ on_event_flow_button_toggled(GtkToggleButton *button, gpointer data)
 
     config->use_dynamic_event_flow = flag;
     nabi_server_set_dynamic_event_flow(nabi_server, flag);
+
+    nabi_log(4, "preference: set use dynamic event flow: %d\n", flag);
 }
 
 static void
@@ -914,6 +937,8 @@ on_commit_by_word_button_toggled(GtkToggleButton *button, gpointer data)
 
     config->commit_by_word = flag;
     nabi_server_set_commit_by_word(nabi_server, flag);
+
+    nabi_log(4, "preference: set commit by word: %d\n", flag);
 }
 
 static void
@@ -923,6 +948,8 @@ on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
 
     config->auto_reorder = flag;
     nabi_server_set_auto_reorder(nabi_server, flag);
+
+    nabi_log(4, "preference: set auto reorder: %d\n", flag);
 }
 
 static void
@@ -952,6 +979,9 @@ on_input_mode_option_changed(GtkComboBox* combo_box, gpointer data)
     g_free(config->input_mode_option);
     config->input_mode_option = input_mode_option_str;
     nabi_server_set_input_mode_option(nabi_server, input_mode_option);
+
+    nabi_log(4, "preference: set input mode option: %s\n",
+	     config->input_mode_option);
 }
 
 static void
@@ -963,10 +993,12 @@ on_preedit_font_changed(GtkFontButton* widget, gpointer data)
     g_free(config->preedit_font);
     config->preedit_font = g_strdup(font_desc);
     nabi_server_set_preedit_font(nabi_server, font_desc);
+
+    nabi_log(4, "preference: set preedit font: %s\n", config->preedit_font);
 }
 
 static GtkWidget*
-create_advanced_page(void)
+create_advanced_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
@@ -994,6 +1026,7 @@ create_advanced_page(void)
     gtk_entry_set_width_chars(GTK_ENTRY(entry), 16);
     gtk_entry_set_text(GTK_ENTRY(entry), config->xim_name);
     gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 6);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-xim-name", entry);
     g_signal_connect(G_OBJECT(entry), "changed",
 		     G_CALLBACK(on_xim_name_changed), NULL);
 
@@ -1004,6 +1037,7 @@ create_advanced_page(void)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->use_dynamic_event_flow);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-dynamic-event-flow", button);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_event_flow_button_toggled), NULL);
 
@@ -1014,6 +1048,7 @@ create_advanced_page(void)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->commit_by_word);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-commit-by-word", button);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_commit_by_word_button_toggled), NULL);
 
@@ -1024,6 +1059,7 @@ create_advanced_page(void)
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			         config->auto_reorder);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-auto-reorder", button);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_auto_reorder_button_toggled), NULL);
 
@@ -1056,6 +1092,7 @@ create_advanced_page(void)
 				NABI_INPUT_MODE_PER_TOPLEVEL);
 
     gtk_box_pack_start(GTK_BOX(hbox), combo_box, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-input-mode-option", combo_box);
 
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_input_mode_option_changed), NULL);
@@ -1068,10 +1105,139 @@ create_advanced_page(void)
 
     button = gtk_font_button_new_with_font(config->preedit_font);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-preedit-font", button);
     g_signal_connect(G_OBJECT(button), "font-set",
 		     G_CALLBACK(on_preedit_font_changed), NULL);
 
     return page;
+}
+
+static void
+on_preference_reset(GtkWidget *button, gpointer data)
+{
+    GObject *dialog = G_OBJECT(data);
+    gpointer p;
+    GtkTreeModel* model;
+    GtkTreeIter iter;
+    GtkTreePath *path;
+    GList* list;
+    const NabiHangulKeyboard* keyboards;
+    int i;
+
+    // theme
+    p = g_object_get_data(dialog, "nabi-pref-theme");
+    if (p != NULL) {
+	model = gtk_tree_view_get_model(GTK_TREE_VIEW(p));
+	path = search_text_in_model(model, THEMES_LIST_NAME, "Jini");
+	if (path != NULL) {
+	    gtk_tree_view_set_cursor (GTK_TREE_VIEW(p), path, NULL, FALSE);
+	    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(p),
+					path, NULL, TRUE, 0.5, 0.0);
+	    gtk_tree_path_free(path);
+	}
+    }
+    nabi_app_set_theme("Jini");
+
+    // keyboard
+    p = g_object_get_data(dialog, "nabi-pref-hangul-keyboard");
+    if (p != NULL) {
+	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
+	for (i = 0; keyboards[i].id != NULL; i++) {
+	    if (strcmp(keyboards[i].id, DEFAULT_KEYBOARD) == 0) {
+		gtk_combo_box_set_active(GTK_COMBO_BOX(p), i);
+		break;
+	    }
+	}
+    }
+    nabi_app_set_hangul_keyboard(DEFAULT_KEYBOARD);
+ 
+    p = g_object_get_data(dialog, "nabi-pref-latin-keyboard");
+    if (p != NULL) {
+	i = 0;
+	list = nabi_server->layouts;
+	while (list != NULL) {
+	    NabiKeyboardLayout* layout = list->data;
+	    if (layout != NULL) {
+		if (strcmp(layout->name, "none") == 0) {
+		    gtk_combo_box_set_active(GTK_COMBO_BOX(p), i);
+		    break;
+		}
+	    }
+	    list = g_list_next(list);
+	    i++;
+	}
+    }
+
+    // hangul
+    p = g_object_get_data(dialog, "nabi-pref-trigger-keys");
+    if (p != NULL) {
+	gtk_list_store_clear(GTK_LIST_STORE(p));
+	gtk_list_store_append(GTK_LIST_STORE(p), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(p), &iter, 0, "Hangul", -1);
+	gtk_list_store_append(GTK_LIST_STORE(p), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(p), &iter, 0, "Shift+space", -1);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-off-keys");
+    if (p != NULL) {
+	gtk_list_store_clear(GTK_LIST_STORE(p));
+	gtk_list_store_append(GTK_LIST_STORE(p), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(p), &iter, 0, "Escape", -1);
+    }
+
+    // hanja
+    p = g_object_get_data(dialog, "nabi-pref-candidate-font");
+    if (p != NULL) {
+	candidate_font_button_set_labels(GTK_WIDGET(p), "Sans 14");
+    }
+    g_free(config->candidate_font);
+    config->candidate_font = g_strdup("Sans 14");
+
+    p = g_object_get_data(dialog, "nabi-pref-candidate-keys");
+    if (p != NULL) {
+	gtk_list_store_clear(GTK_LIST_STORE(p));
+	gtk_list_store_append(GTK_LIST_STORE(p), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(p), &iter, 0, "Hangul_Hanja", -1);
+	gtk_list_store_append(GTK_LIST_STORE(p), &iter);
+	gtk_list_store_set(GTK_LIST_STORE(p), &iter, 0, "F9", -1);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-simplified-chinese");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
+    }
+
+    // advanced
+    p = g_object_get_data(dialog, "nabi-pref-xim-name");
+    if (p != NULL) {
+	gtk_entry_set_text(GTK_ENTRY(p), PACKAGE);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-use-dynamic-event-flow");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), TRUE);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-commit-by-word");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-auto-reorder");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), TRUE);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-input-mode-option");
+    if (p != NULL) {
+	gtk_combo_box_set_active(GTK_COMBO_BOX(p), NABI_INPUT_MODE_PER_TOPLEVEL);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-preedit-font");
+    if (p != NULL) {
+	gtk_font_button_set_font_name(GTK_FONT_BUTTON(p), "Sans 9");
+	g_signal_emit_by_name(p, "font-set", NULL);
+    }
 }
 
 static void
@@ -1085,6 +1251,34 @@ on_preference_destroy(GtkWidget *dialog, gpointer data)
     candidate_key_model = NULL;
 }
 
+static GtkWidget* reset_button_create(void)
+{
+    GtkWidget *button;
+    GtkWidget *box;
+    GtkWidget *align;
+    GtkWidget *label;
+    GtkWidget *image;
+    gint image_spacing = 3;
+
+    button = gtk_button_new();
+    gtk_widget_style_get(GTK_WIDGET(button), "image-spacing", &image_spacing, NULL);
+
+    box = gtk_hbox_new(FALSE, image_spacing);
+
+    image = gtk_image_new_from_stock(GTK_STOCK_REFRESH, GTK_ICON_SIZE_BUTTON);
+    gtk_box_pack_start(GTK_BOX(box), image, FALSE, FALSE, 0);
+
+    label = gtk_label_new_with_mnemonic(_("_Reset"));
+    gtk_label_set_mnemonic_widget(GTK_LABEL(label), button);
+    gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
+
+    align = gtk_alignment_new(0.5, 0.5, 0, 0);
+    gtk_container_add(GTK_CONTAINER(button), align);
+    gtk_container_add(GTK_CONTAINER(align), box);
+
+    return button;
+}
+
 GtkWidget*
 preference_window_create(void)
 {
@@ -1092,13 +1286,15 @@ preference_window_create(void)
     GtkWidget *vbox;
     GtkWidget *notebook;
     GtkWidget *label;
+    GtkWidget *button;
     GtkWidget *child;
+    GtkWidget *action_area;
     GList *list;
 
     config = nabi->config;
 
     dialog = gtk_dialog_new_with_buttons(_("Nabi Preferences"),
-					 NULL,
+					 GTK_WINDOW(nabi->palette),
 					 GTK_DIALOG_MODAL | GTK_DIALOG_NO_SEPARATOR,
 					 GTK_STOCK_CLOSE,
 					 GTK_RESPONSE_CLOSE,
@@ -1110,28 +1306,28 @@ preference_window_create(void)
 
     /* icons */
     label = gtk_label_new(_("Tray"));
-    child = create_theme_page();
+    child = create_theme_page(dialog);
     gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
     if (nabi_server != NULL) {
 	/* keyboard */
 	label = gtk_label_new(_("Keyboard"));
-	child = create_keyboard_page();
+	child = create_keyboard_page(dialog);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
 	/* key */
 	label = gtk_label_new(_("Hangul"));
-	child = create_hangul_page();
+	child = create_hangul_page(dialog);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
 	/* candidate */
 	label = gtk_label_new(_("Hanja"));
-	child = create_candidate_page();
+	child = create_candidate_page(dialog);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
 
 	/* advanced */
 	label = gtk_label_new(_("Advanced"));
-	child = create_advanced_page();
+	child = create_advanced_page(dialog);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), child, label);
     }
 
@@ -1145,13 +1341,22 @@ preference_window_create(void)
     gtk_window_set_default_size(GTK_WINDOW(dialog), 300, 300);
     gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CLOSE);
 
-    list = gtk_container_get_children(GTK_CONTAINER(GTK_DIALOG(dialog)->action_area));
+    action_area = GTK_DIALOG(dialog)->action_area;
+    gtk_button_box_set_layout(GTK_BUTTON_BOX(action_area), GTK_BUTTONBOX_END);
+
+    list = gtk_container_get_children(GTK_CONTAINER(action_area));
     if (list != NULL) {
 	GList *child = g_list_last(list);
 	if (child != NULL && child->data != NULL)
 	    gtk_widget_grab_focus(GTK_WIDGET(child->data));
 	g_list_free(list);
     }
+
+    button = reset_button_create();
+    gtk_box_pack_end(GTK_BOX(action_area), button, FALSE, FALSE, 0);
+    gtk_button_box_set_child_secondary(GTK_BUTTON_BOX(action_area), button, TRUE);
+    g_signal_connect(G_OBJECT(button), "clicked",
+		     G_CALLBACK(on_preference_reset), dialog);
 
     gtk_widget_show_all(dialog);
 
