@@ -302,9 +302,6 @@ create_theme_page(GtkWidget* dialog)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
-    g_signal_connect(G_OBJECT(selection), "changed",
-		     G_CALLBACK(on_icon_list_selection_changed), NULL);
-
     path = search_text_in_model(model, THEMES_LIST_NAME, config->theme);
     if (path) {
 	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
@@ -312,6 +309,11 @@ create_theme_page(GtkWidget* dialog)
 				    path, NULL, TRUE, 0.5, 0.0);
 	gtk_tree_path_free(path);
     }
+
+    // 현재 theme를 선택한후 signal을 연결한다.
+    // 그렇지 않으면 UI를 초기화하는 과정에서 아래 콜백이 불리게 된다.
+    g_signal_connect(G_OBJECT(selection), "changed",
+		     G_CALLBACK(on_icon_list_selection_changed), NULL);
 
     return page;
 }
