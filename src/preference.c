@@ -29,6 +29,7 @@
 
 #include "nabi.h"
 #include "server.h"
+#include "preference.h"
 
 #include "keycapturedialog.h"
 #include "debug.h"
