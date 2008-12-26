@@ -41,6 +41,7 @@
 #include "server.h"
 #include "conf.h"
 #include "handlebox.h"
+#include "preference.h"
 
 #include "default-icons.h"
 
@@ -70,10 +71,6 @@ typedef struct _NabiTrayIcon {
     EggTrayIcon*   widget;
     NabiStateIcon* state;
 } NabiTrayIcon;
-
-/* from preference.c */
-GtkWidget* preference_window_create(void);
-void preference_window_update(void);
 
 static GtkWidget *about_dialog = NULL;
 static GtkWidget *preference_dialog = NULL;
@@ -570,6 +567,11 @@ on_tray_icon_button_press(GtkWidget *widget,
     static GtkWidget *menu = NULL;
 
     if (event->type == GDK_BUTTON_PRESS) {
+	if (preference_dialog != NULL) {
+	    gtk_window_present(GTK_WINDOW(preference_dialog));
+	    return TRUE;
+	}
+
 	if (menu != NULL)
 	    gtk_widget_destroy(menu);
 	menu = create_tray_icon_menu();
@@ -880,7 +882,6 @@ on_menu_keyboard(GtkWidget *widget, gpointer data)
     const char* id = (const char*)data;
 
     nabi_app_set_hangul_keyboard(id);
-    preference_window_update();
     nabi_app_save_config();
 
     nabi_app_update_keyboard_button();

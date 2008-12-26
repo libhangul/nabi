@@ -43,7 +43,6 @@ enum {
 };
 
 static NabiConfig* config = NULL;
-static GtkWidget *hangul_keyboard_list_combo = NULL;
 static GtkTreeModel* trigger_key_model = NULL;
 static GtkTreeModel* off_key_model = NULL;
 static GtkTreeModel* candidate_key_model = NULL;
@@ -376,7 +375,6 @@ create_keyboard_page(GtkWidget* dialog)
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-hangul-keyboard", combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_hangul_keyboard_changed), NULL);
-    hangul_keyboard_list_combo = combo_box;
 
     item = create_pref_item(_("Hangul keyboard"), combo_box, FALSE, FALSE);
     gtk_box_pack_start(GTK_BOX(page), item, FALSE, TRUE, 0);
@@ -1245,7 +1243,6 @@ on_preference_destroy(GtkWidget *dialog, gpointer data)
 {
     nabi_app_save_config();
 
-    hangul_keyboard_list_combo = NULL;
     trigger_key_model = NULL;
     off_key_model = NULL;
     candidate_key_model = NULL;
@@ -1361,20 +1358,4 @@ preference_window_create(void)
     gtk_widget_show_all(dialog);
 
     return dialog;
-}
-
-void
-preference_window_update(void)
-{
-    /* hangul keyboard list update */
-    if (hangul_keyboard_list_combo != NULL) {
-	int i;
-	const NabiHangulKeyboard* keyboards;
-	keyboards = nabi_server_get_hangul_keyboard_list(nabi_server);
-	for (i = 0; keyboards[i].name != NULL; i++) {
-	    if (strcmp(config->hangul_keyboard, keyboards[i].id) == 0) {
-		gtk_combo_box_set_active(GTK_COMBO_BOX(hangul_keyboard_list_combo), i);
-	    }
-	}
-    }
 }
