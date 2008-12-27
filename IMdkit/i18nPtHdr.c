@@ -758,9 +758,9 @@ static void GetIMValueFromName (Xi18n i18n_core,
 	    }
 
             memmove (buf, data, total_size);
-            FrameMgrFree (fm);
 	    free(data);
 	}
+	FrameMgrFree (fm);
     }
 }
 
