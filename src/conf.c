@@ -58,6 +58,7 @@ const static struct config_item config_items[] = {
     { "offkeys",            CONFIG_STR,  OFFSET(off_keys)                 },
     { "candidatekeys",      CONFIG_STR,  OFFSET(candidate_keys)           },
     { "output_mode",        CONFIG_STR,  OFFSET(output_mode)              },
+    { "default_input_mode", CONFIG_STR,  OFFSET(default_input_mode)       },
     { "input_mode_scope",   CONFIG_STR,  OFFSET(input_mode_scope)         },
     { "preedit_font",       CONFIG_STR,  OFFSET(preedit_font)             },
     { "preedit_foreground", CONFIG_STR,  OFFSET(preedit_fg)               },
@@ -201,6 +202,7 @@ nabi_config_new()
     config->candidate_format = g_strdup("hanja");
 
     config->output_mode = g_strdup("syllable");
+    config->default_input_mode = g_strdup("direct");
     config->input_mode_scope = g_strdup("per_toplevel");
 
     config->preedit_font = g_strdup("Sans 9");
@@ -232,6 +234,7 @@ nabi_config_delete(NabiConfig* config)
     g_free(config->candidate_keys);
 
     g_free(config->output_mode);
+    g_free(config->default_input_mode);
     g_free(config->input_mode_scope);
 
     g_free(config->preedit_font);

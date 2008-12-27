@@ -340,6 +340,15 @@ nabi_app_setup_server(void)
     nabi_server_set_simplified_chinese(nabi_server,
 				       nabi->config->use_simplified_chinese);
 
+    option = nabi->config->default_input_mode;
+    if (strcmp(option, "compose") == 0) {
+	nabi_server_set_default_input_mode(nabi_server,
+					   NABI_INPUT_MODE_COMPOSE);
+    } else {
+	nabi_server_set_default_input_mode(nabi_server,
+					   NABI_INPUT_MODE_DIRECT);
+    }
+
     option = nabi->config->input_mode_scope;
     if (strcmp(option, "per_desktop") == 0) {
 	nabi_server_set_input_mode_scope(nabi_server,

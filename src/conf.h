@@ -43,6 +43,7 @@ struct _NabiConfig {
     /* xim server option */
     gchar*	    xim_name;
     gchar*          output_mode;
+    gchar*          default_input_mode;
     gchar*          input_mode_scope;
     gboolean        use_dynamic_event_flow;
     gboolean        commit_by_word;

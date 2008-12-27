@@ -117,7 +117,7 @@ nabi_connection_create(CARD16 id, const char* locale)
 
     conn = g_new(NabiConnection, 1);
     conn->id = id;
-    conn->mode = NABI_INPUT_MODE_DIRECT;
+    conn->mode = nabi_server->default_input_mode;
     conn->cd = (GIConv)-1;
     if (locale != NULL) {
 	char* encoding = strchr(locale, '.');
@@ -239,7 +239,7 @@ nabi_toplevel_new(Window id)
     NabiToplevel* toplevel = g_new(NabiToplevel, 1);
 
     toplevel->id = id;
-    toplevel->mode = NABI_INPUT_MODE_DIRECT;
+    toplevel->mode = nabi_server->default_input_mode;
     toplevel->ref = 1;
 
     return toplevel;
@@ -273,7 +273,7 @@ nabi_ic_init_values(NabiIC *ic)
     ic->resource_name = NULL;
     ic->resource_class = NULL;
 
-    ic->mode = NABI_INPUT_MODE_DIRECT;
+    ic->mode = nabi_server->default_input_mode;
 
     /* preedit attr */
     ic->preedit.str = ustring_new();

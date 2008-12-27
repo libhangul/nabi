@@ -159,7 +159,8 @@ nabi_server_new(Display* display, int screen, const char *name)
     server->dynamic_event_flow = True;
     server->commit_by_word = False;
     server->auto_reorder = True;
-    server->input_mode = NABI_INPUT_MODE_DIRECT;
+    server->default_input_mode = NABI_INPUT_MODE_DIRECT;
+    server->input_mode = server->default_input_mode;
     server->input_mode_scope = NABI_INPUT_MODE_PER_TOPLEVEL;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
 
@@ -937,6 +938,13 @@ nabi_server_set_auto_reorder(NabiServer* server, Bool flag)
 {
     if (server != NULL)
 	server->auto_reorder = flag;
+}
+
+void
+nabi_server_set_default_input_mode(NabiServer* server, NabiInputMode mode)
+{
+    if (server != NULL)
+	server->default_input_mode = mode;
 }
 
 void

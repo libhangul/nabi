@@ -954,6 +954,24 @@ on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
 }
 
 static void
+on_default_input_mode_button_toggled(GtkToggleButton *button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    g_free(config->default_input_mode);
+    if (flag) {
+	config->default_input_mode = g_strdup("compose");
+	nabi_server_set_default_input_mode(nabi_server, NABI_INPUT_MODE_COMPOSE);
+    } else {
+	config->default_input_mode = g_strdup("direct");
+	nabi_server_set_default_input_mode(nabi_server, NABI_INPUT_MODE_DIRECT);
+    }
+
+    nabi_log(4, "preference: set default input mode: %s\n",
+		config->default_input_mode);
+}
+
+static void
 on_input_mode_scope_changed(GtkComboBox* combo_box, gpointer data)
 {
     NabiInputModeScope input_mode_scope;
@@ -1063,6 +1081,19 @@ create_advanced_page(GtkWidget* dialog)
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-auto-reorder", button);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(on_auto_reorder_button_toggled), NULL);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    button = gtk_check_button_new_with_label(_("Start in hangul mode"));
+    if (strcmp(config->default_input_mode, "compose") == 0)
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+    else
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-default-input-mode", button);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_default_input_mode_button_toggled), NULL);
 
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
@@ -1227,6 +1258,11 @@ on_preference_reset(GtkWidget *button, gpointer data)
     p = g_object_get_data(dialog, "nabi-pref-auto-reorder");
     if (p != NULL) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), TRUE);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-default-input-mode");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
     }
 
     p = g_object_get_data(dialog, "nabi-pref-input-mode-option");
