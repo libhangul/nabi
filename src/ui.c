@@ -528,8 +528,8 @@ on_palette_destroyed(GtkWidget *widget, gpointer data)
 {
     gtk_main_quit();
 
-    if (nabi_tray != NULL && nabi_tray->widget != NULL) {
-	gtk_widget_destroy(GTK_WIDGET(nabi_tray->widget));
+    if (nabi_tray != NULL) {
+	nabi_tray_icon_destroy(nabi_tray);
     }
 
     remove_event_filter();
@@ -1197,7 +1197,8 @@ static void
 nabi_tray_icon_destroy(NabiTrayIcon* tray)
 {
     // widget만 destroy하면 destroy signal에서 나머지 delete 처리를 한다.
-    gtk_widget_destroy(GTK_WIDGET(tray->widget));
+    if (tray->widget != NULL)
+	gtk_widget_destroy(GTK_WIDGET(tray->widget));
 }
 
 static void
@@ -1381,7 +1382,8 @@ nabi_app_set_theme(const gchar *name)
     g_string_assign(nabi->config->theme, name);
 
     nabi_app_load_base_icons();
-    nabi_tray_load_icons(nabi_tray, nabi->icon_size);
+    if (nabi_tray != NULL)
+	nabi_tray_load_icons(nabi_tray, nabi->icon_size);
 }
 
 void
