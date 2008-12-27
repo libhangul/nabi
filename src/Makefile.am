@@ -24,7 +24,7 @@ nabi_SOURCES = \
 	conf.h conf.c \
 	handler.c \
 	ui.c \
-	preference.c \
+	preference.h preference.c \
 	handlebox.h handlebox.c \
 	sctc.h util.h util.c \
 	ustring.h ustring.c \
