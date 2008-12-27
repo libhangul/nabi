@@ -74,6 +74,7 @@ typedef struct _NabiTrayIcon {
 
 static GtkWidget *about_dialog = NULL;
 static GtkWidget *preference_dialog = NULL;
+static GtkWidget *hide_palette_menuitem = NULL;
 
 static void nabi_app_load_base_icons();
 static void nabi_app_update_tooltips();
@@ -886,7 +887,13 @@ on_menu_show_palette(GtkWidget *widget, gpointer data)
 static void
 on_menu_hide_palette(GtkWidget *widget, gpointer data)
 {
-    nabi_app_show_palette(FALSE);
+    // tray icon을 사용하지 않는 상태에서는 palette를 hide하면 모든 ui가
+    // 화면에서 사라져 nabi를 컨트롤할 수 없게 된다.
+    // 그래서 tray icon을 사용하는 경우가 아니면 아래 함수가 작동하지 
+    // 않도록 한다.
+    if (nabi->config->use_tray_icon) {
+	nabi_app_show_palette(FALSE);
+    }
 }
 
 static void
@@ -1308,6 +1315,7 @@ nabi_app_create_palette(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_hide_palette), menuitem);
+    hide_palette_menuitem = menuitem;
 
     menuitem = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
@@ -1390,6 +1398,11 @@ void
 nabi_app_use_tray_icon(gboolean use)
 {
     nabi->config->use_tray_icon = use;
+
+    // tray icon이 없는 상태에서 hide palette 메뉴를 작동시키면 tray icon도
+    // 없고 palette도 없게 되므로 nabi를 컨트롤 할수 없게 된다. 따라서 
+    // tray icon이 있는 상태에서만 hide palette 메뉴를 사용할수 있게 한다.
+    gtk_widget_set_sensitive(hide_palette_menuitem, use);
 
     if (use) {
 	if (nabi_tray == NULL) {
