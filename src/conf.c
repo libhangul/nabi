@@ -84,10 +84,10 @@ nabi_config_get_int(NabiConfig* config, size_t offset)
     return (int*)((char*)(config) + offset);
 }
 
-static inline char**
+static inline GString**
 nabi_config_get_str(NabiConfig* config, size_t offset)
 {
-    return (char**)((char*)(config) + offset);
+    return (GString**)((char*)(config) + offset);
 }
 
 static void
@@ -116,13 +116,12 @@ nabi_config_set_int(NabiConfig* config, guint offset, gchar* value)
 static void
 nabi_config_set_str(NabiConfig* config, guint offset, gchar* value)
 {
-    char **member = nabi_config_get_str(config, offset);
+    GString **member = nabi_config_get_str(config, offset);
 
-    g_free(*member);
     if (value == NULL)
-	*member = g_strdup("");
+	g_string_assign(*member, "");
     else
-	*member = g_strdup(value);
+	g_string_assign(*member, value);
 }
 
 static void
@@ -147,10 +146,10 @@ nabi_config_write_int(NabiConfig* config, FILE* file, gchar* key, guint offset)
 static void
 nabi_config_write_str(NabiConfig* config, FILE* file, gchar* key, guint offset)
 {
-    char **member = nabi_config_get_str(config, offset);
+    GString **member = nabi_config_get_str(config, offset);
 
     if (*member != NULL)
-	fprintf(file, "%s=%s\n", key, *member);
+	fprintf(file, "%s=%s\n", key, (*member)->str);
 }
 
 static void
@@ -187,27 +186,27 @@ nabi_config_new()
     config->y = 0;
     config->show_palette = FALSE;
     config->palette_height = 24;
-    config->xim_name = g_strdup(PACKAGE);
-    config->theme = g_strdup("Jini");
+    config->xim_name = g_string_new(PACKAGE);
+    config->theme = g_string_new("Jini");
 
-    config->hangul_keyboard = g_strdup(DEFAULT_KEYBOARD);
-    config->latin_keyboard = g_strdup("none");
-    config->keyboard_layouts_file = g_strdup("keyboard_layouts");
+    config->hangul_keyboard = g_string_new(DEFAULT_KEYBOARD);
+    config->latin_keyboard = g_string_new("none");
+    config->keyboard_layouts_file = g_string_new("keyboard_layouts");
 
-    config->trigger_keys = g_strdup("Hangul,Shift+space");
-    config->off_keys = g_strdup("Escape");
-    config->candidate_keys = g_strdup("Hangul_Hanja,F9");
+    config->trigger_keys = g_string_new("Hangul,Shift+space");
+    config->off_keys = g_string_new("Escape");
+    config->candidate_keys = g_string_new("Hangul_Hanja,F9");
 
-    config->candidate_font = g_strdup("Sans 14");
-    config->candidate_format = g_strdup("hanja");
+    config->candidate_font = g_string_new("Sans 14");
+    config->candidate_format = g_string_new("hanja");
 
-    config->output_mode = g_strdup("syllable");
-    config->default_input_mode = g_strdup("direct");
-    config->input_mode_scope = g_strdup("per_toplevel");
+    config->output_mode = g_string_new("syllable");
+    config->default_input_mode = g_string_new("direct");
+    config->input_mode_scope = g_string_new("per_toplevel");
 
-    config->preedit_font = g_strdup("Sans 9");
-    config->preedit_fg = g_strdup("#000000");
-    config->preedit_bg = g_strdup("#FFFFFF");
+    config->preedit_font = g_string_new("Sans 9");
+    config->preedit_fg = g_string_new("#000000");
+    config->preedit_bg = g_string_new("#FFFFFF");
 
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
@@ -221,28 +220,28 @@ nabi_config_new()
 void
 nabi_config_delete(NabiConfig* config)
 {
-    g_free(config->xim_name);
+    g_string_free(config->xim_name, TRUE);
 
-    g_free(config->theme);
+    g_string_free(config->theme, TRUE);
 
-    g_free(config->hangul_keyboard);
-    g_free(config->latin_keyboard);
-    g_free(config->keyboard_layouts_file);
+    g_string_free(config->hangul_keyboard, TRUE);
+    g_string_free(config->latin_keyboard, TRUE);
+    g_string_free(config->keyboard_layouts_file, TRUE);
 
-    g_free(config->trigger_keys);
-    g_free(config->off_keys);
-    g_free(config->candidate_keys);
+    g_string_free(config->trigger_keys, TRUE);
+    g_string_free(config->off_keys, TRUE);
+    g_string_free(config->candidate_keys, TRUE);
 
-    g_free(config->output_mode);
-    g_free(config->default_input_mode);
-    g_free(config->input_mode_scope);
+    g_string_free(config->output_mode, TRUE);
+    g_string_free(config->default_input_mode, TRUE);
+    g_string_free(config->input_mode_scope, TRUE);
 
-    g_free(config->preedit_font);
-    g_free(config->preedit_fg);
-    g_free(config->preedit_bg);
+    g_string_free(config->preedit_font, TRUE);
+    g_string_free(config->preedit_fg, TRUE);
+    g_string_free(config->preedit_bg, TRUE);
 
-    g_free(config->candidate_font);
-    g_free(config->candidate_format);
+    g_string_free(config->candidate_font, TRUE);
+    g_string_free(config->candidate_format, TRUE);
 
     g_free(config);
 }

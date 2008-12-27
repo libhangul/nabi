@@ -44,11 +44,10 @@ nabi_candidate_on_format(GtkWidget* widget, gpointer data)
 {
     if (data != NULL &&
 	gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) {
-	if (strcmp(nabi->config->candidate_format, (const char*)data) != 0) {
-	    g_free(nabi->config->candidate_format);
-	    nabi->config->candidate_format = g_strdup((const char*)data);
+	if (strcmp(nabi->config->candidate_format->str, (const char*)data) != 0) {
+	    g_string_assign(nabi->config->candidate_format, (const char*)data);
 	    nabi_log(4, "candidate_format_changed: %s\n",
-			nabi->config->candidate_format);
+			nabi->config->candidate_format->str);
 	}
     }
 }
@@ -367,20 +366,20 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 
     button = gtk_radio_button_new_with_label(NULL, _("hanja"));
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
-    if (strcmp(nabi->config->candidate_format, "hanja") == 0)
+    if (strcmp(nabi->config->candidate_format->str, "hanja") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(nabi_candidate_on_format), "hanja");
 
     button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hanja(hangul)"));
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
-    if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
+    if (strcmp(nabi->config->candidate_format->str, "hanja(hangul)") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(nabi_candidate_on_format), "hanja(hangul)");
     button = gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(button), _("hangul(hanja)"));
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, TRUE, 6);
-    if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
+    if (strcmp(nabi->config->candidate_format->str, "hangul(hanja)") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     g_signal_connect(G_OBJECT(button), "toggled",
 		     G_CALLBACK(nabi_candidate_on_format), "hangul(hanja)");

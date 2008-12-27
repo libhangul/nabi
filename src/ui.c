@@ -108,7 +108,7 @@ load_colors(void)
     colormap = gdk_colormap_get_system();
 
     /* preedit foreground */
-    gdk_color_parse(nabi->config->preedit_fg, &color);
+    gdk_color_parse(nabi->config->preedit_fg->str, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
 	nabi_server->preedit_fg = color;
@@ -122,7 +122,7 @@ load_colors(void)
     }
 
     /* preedit background */
-    gdk_color_parse(nabi->config->preedit_bg, &color);
+    gdk_color_parse(nabi->config->preedit_bg->str, &color);
     ret = gdk_colormap_alloc_color(colormap, &color, FALSE, TRUE);
     if (ret)
 	nabi_server->preedit_bg = color;
@@ -140,20 +140,22 @@ static void
 set_up_keyboard(void)
 {
     /* keyboard layout */
-    if (g_path_is_absolute(nabi->config->keyboard_layouts_file)) {
+    if (g_path_is_absolute(nabi->config->keyboard_layouts_file->str)) {
 	nabi_server_load_keyboard_layout(nabi_server,
-					 nabi->config->keyboard_layouts_file);
+				     nabi->config->keyboard_layouts_file->str);
     } else {
 	char* filename = g_build_filename(NABI_DATA_DIR,
-				  nabi->config->keyboard_layouts_file, NULL);
+			      nabi->config->keyboard_layouts_file->str, NULL);
 	nabi_server_load_keyboard_layout(nabi_server,
 					 filename);
 	g_free(filename);
     }
-    nabi_server_set_keyboard_layout(nabi_server, nabi->config->latin_keyboard);
+    nabi_server_set_keyboard_layout(nabi_server,
+				    nabi->config->latin_keyboard->str);
 
     /* set keyboard */
-    nabi_server_set_hangul_keyboard(nabi_server, nabi->config->hangul_keyboard);
+    nabi_server_set_hangul_keyboard(nabi_server,
+				    nabi->config->hangul_keyboard->str);
 }
 
 void
@@ -282,9 +284,9 @@ set_up_output_mode(void)
 
     mode = NABI_OUTPUT_SYLLABLE;
     if (nabi->config->output_mode != NULL) {
-	if (g_ascii_strcasecmp(nabi->config->output_mode, "jamo") == 0) {
+	if (g_ascii_strcasecmp(nabi->config->output_mode->str, "jamo") == 0) {
 	    mode = NABI_OUTPUT_JAMO;
-	} else if (g_ascii_strcasecmp(nabi->config->output_mode, "manual") == 0) {
+	} else if (g_ascii_strcasecmp(nabi->config->output_mode->str, "manual") == 0) {
 	    mode = NABI_OUTPUT_MANUAL;
 	}
     }
@@ -326,13 +328,14 @@ nabi_app_setup_server(void)
     set_up_keyboard();
     load_colors();
     set_up_output_mode();
-    keys = g_strsplit(nabi->config->trigger_keys, ",", 0);
+    keys = g_strsplit(nabi->config->trigger_keys->str, ",", 0);
     nabi_server_set_trigger_keys(nabi_server, keys);
     g_strfreev(keys);
-    keys = g_strsplit(nabi->config->candidate_keys, ",", 0);
+    keys = g_strsplit(nabi->config->candidate_keys->str, ",", 0);
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
-    nabi_server_set_candidate_font(nabi_server, nabi->config->candidate_font);
+    nabi_server_set_candidate_font(nabi_server,
+				nabi->config->candidate_font->str);
     nabi_server_set_dynamic_event_flow(nabi_server,
 				       nabi->config->use_dynamic_event_flow);
     nabi_server_set_commit_by_word(nabi_server, nabi->config->commit_by_word);
@@ -340,7 +343,7 @@ nabi_app_setup_server(void)
     nabi_server_set_simplified_chinese(nabi_server,
 				       nabi->config->use_simplified_chinese);
 
-    option = nabi->config->default_input_mode;
+    option = nabi->config->default_input_mode->str;
     if (strcmp(option, "compose") == 0) {
 	nabi_server_set_default_input_mode(nabi_server,
 					   NABI_INPUT_MODE_COMPOSE);
@@ -349,7 +352,7 @@ nabi_app_setup_server(void)
 					   NABI_INPUT_MODE_DIRECT);
     }
 
-    option = nabi->config->input_mode_scope;
+    option = nabi->config->input_mode_scope->str;
     if (strcmp(option, "per_desktop") == 0) {
 	nabi_server_set_input_mode_scope(nabi_server,
 					  NABI_INPUT_MODE_PER_DESKTOP);
@@ -364,7 +367,7 @@ nabi_app_setup_server(void)
 					  NABI_INPUT_MODE_PER_TOPLEVEL);
     }
 
-    nabi_server_set_preedit_font(nabi_server, nabi->config->preedit_font);
+    nabi_server_set_preedit_font(nabi_server, nabi->config->preedit_font->str);
 }
 
 void
@@ -950,7 +953,7 @@ create_tray_icon_menu(void)
 	    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	    g_signal_connect(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_keyboard), (gpointer)id);
-	    if (strcmp(id, nabi->config->hangul_keyboard) == 0)
+	    if (strcmp(id, nabi->config->hangul_keyboard->str) == 0)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem),
 					       TRUE);
 	    i++;
@@ -1100,7 +1103,7 @@ static void
 nabi_app_load_base_icons()
 {
     gboolean error = FALSE;
-    const char* theme = nabi->config->theme;
+    const char* theme = nabi->config->theme->str;
 
     if (none_pixbuf != NULL)
 	g_object_unref(G_OBJECT(none_pixbuf));
@@ -1130,8 +1133,7 @@ nabi_app_load_base_icons()
 	gtk_dialog_run(GTK_DIALOG(message));
 	gtk_widget_destroy(message);
 
-	g_free(nabi->config->theme);
-	nabi->config->theme = g_strdup("Jini");
+	g_string_assign(nabi->config->theme, "Jini");
     }
 }
 
@@ -1238,7 +1240,7 @@ nabi_app_create_palette(void)
     gtk_widget_show(nabi_palette->state->widget);
 
     current_keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
-				    nabi->config->hangul_keyboard);
+				    nabi->config->hangul_keyboard->str);
     if (current_keyboard_name != NULL) {
 	const NabiHangulKeyboard* keyboards;
 
@@ -1366,8 +1368,7 @@ nabi_palette_destroy(NabiPalette* palette)
 void
 nabi_app_set_theme(const gchar *name)
 {
-    g_free(nabi->config->theme);
-    nabi->config->theme = g_strdup(name);
+    g_string_assign(nabi->config->theme, name);
 
     nabi_app_load_base_icons();
     nabi_tray_load_icons(nabi_tray, nabi->icon_size);
@@ -1386,11 +1387,10 @@ nabi_app_show_palette(gboolean state)
 void
 nabi_app_set_hangul_keyboard(const char *id)
 {
-    g_free(nabi->config->hangul_keyboard);
     if (id == NULL)
-	nabi->config->hangul_keyboard = NULL;
+	g_string_assign(nabi->config->hangul_keyboard, DEFAULT_KEYBOARD);
     else
-	nabi->config->hangul_keyboard = g_strdup(id);
+	g_string_assign(nabi->config->hangul_keyboard, id);
 
     nabi_server_set_hangul_keyboard(nabi_server, id);
 
@@ -1418,7 +1418,7 @@ nabi_app_update_tooltips()
 	const char* keyboard_name;
 	char tip_text[256];
 	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
-					    nabi->config->hangul_keyboard);
+					    nabi->config->hangul_keyboard->str);
 	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
 
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(nabi->tooltips), nabi->tray_icon,

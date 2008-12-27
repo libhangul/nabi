@@ -90,7 +90,7 @@ main(int argc, char *argv[])
 	if (nabi->xim_name != NULL)
 	    xim_name = nabi->xim_name;
 	else
-	    xim_name = nabi->config->xim_name;
+	    xim_name = nabi->config->xim_name->str;
 
 	if (nabi_server_is_running(xim_name)) {
 	    nabi_log(1, "xim %s is already running\n", xim_name);

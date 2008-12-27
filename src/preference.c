@@ -225,7 +225,7 @@ on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
 	gtk_tree_model_get(model, &iter, THEMES_LIST_NAME, &theme, -1);
 	nabi_app_set_theme(theme);
 	g_free(theme);
-	nabi_log(4, "preference: set theme: %s\n", config->theme);
+	nabi_log(4, "preference: set theme: %s\n", config->theme->str);
     }
 }
 
@@ -302,7 +302,7 @@ create_theme_page(GtkWidget* dialog)
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
     gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 
-    path = search_text_in_model(model, THEMES_LIST_NAME, config->theme);
+    path = search_text_in_model(model, THEMES_LIST_NAME, config->theme->str);
     if (path) {
 	gtk_tree_view_set_cursor (GTK_TREE_VIEW(treeview), path, NULL, FALSE);
 	gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(treeview),
@@ -330,7 +330,8 @@ on_hangul_keyboard_changed(GtkComboBox *widget, gpointer data)
     if (keyboards[i].id != NULL) {
 	nabi_app_set_hangul_keyboard(keyboards[i].id);
 
-	nabi_log(4, "preference: set hagul keyboard: %s\n", config->hangul_keyboard);
+	nabi_log(4, "preference: set hagul keyboard: %s\n",
+		    config->hangul_keyboard->str);
     }
 }
 
@@ -340,11 +341,11 @@ on_latin_keyboard_changed(GtkComboBox *widget, gpointer data)
     int i = gtk_combo_box_get_active(widget);
     NabiKeyboardLayout* item = g_list_nth_data(nabi_server->layouts, i);
     if (item != NULL) {
-	g_free(config->latin_keyboard);
-	config->latin_keyboard = g_strdup(item->name);
+	g_string_assign(config->latin_keyboard, item->name);
 	nabi_server_set_keyboard_layout(nabi_server, item->name);
 
-	nabi_log(4, "preference: set latin keyboard: %s\n", config->latin_keyboard);
+	nabi_log(4, "preference: set latin keyboard: %s\n",
+		    config->latin_keyboard->str);
     }
 }
 
@@ -370,7 +371,7 @@ create_keyboard_page(GtkWidget* dialog)
     for (i = 0; keyboards[i].name != NULL; i++) {
 	gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box),
 				  _(keyboards[i].name));
-	if (strcmp(config->hangul_keyboard, keyboards[i].id) == 0) {
+	if (strcmp(config->hangul_keyboard->str, keyboards[i].id) == 0) {
 	    gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	}
     }
@@ -391,7 +392,7 @@ create_keyboard_page(GtkWidget* dialog)
 	NabiKeyboardLayout* layout = list->data;
 	if (layout != NULL) {
 	    gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), layout->name);
-	    if (strcmp(config->latin_keyboard, layout->name) == 0) {
+	    if (strcmp(config->latin_keyboard->str, layout->name) == 0) {
 		gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
 	    }
 	}
@@ -498,27 +499,32 @@ create_key_list_string_array(GtkTreeModel* model)
 static void
 update_trigger_keys_setting(GtkTreeModel *model)
 {
+    char *joined;
     char **keys = create_key_list_string_array(model);
 
-    g_free(config->trigger_keys);
-    config->trigger_keys = g_strjoinv(",", keys);
+    joined = g_strjoinv(",", keys);
+    g_string_assign(config->trigger_keys, joined);
     nabi_server_set_trigger_keys(nabi_server, keys);
+    g_free(joined);
     g_strfreev(keys);
 
-    nabi_log(4, "preference: set trigger keys: %s\n", config->trigger_keys);
+    nabi_log(4, "preference: set trigger keys: %s\n",
+		config->trigger_keys->str);
 }
 
 static void
 update_off_keys_setting(GtkTreeModel *model)
 {
+    char *joined;
     char **keys = create_key_list_string_array(model);
 
-    g_free(config->off_keys);
-    config->off_keys = g_strjoinv(",", keys);
+    joined = g_strjoinv(",", keys);
+    g_string_assign(config->off_keys, joined);
     nabi_server_set_off_keys(nabi_server, keys);
+    g_free(joined);
     g_strfreev(keys);
 
-    nabi_log(4, "preference: set off keys: %s\n", config->off_keys);
+    nabi_log(4, "preference: set off keys: %s\n", config->off_keys->str);
 }
 
 static void
@@ -635,14 +641,17 @@ on_key_list_remove_button_clicked(GtkWidget *widget,
 static void
 update_candidate_keys_setting(GtkTreeModel *model)
 {
+    char *joined;
     char **keys = create_key_list_string_array(model);
 
-    g_free(config->candidate_keys);
-    config->candidate_keys = g_strjoinv(",", keys);
+    joined = g_strjoinv(",", keys);
+    g_string_assign(config->candidate_keys, joined);
     nabi_server_set_candidate_keys(nabi_server, keys);
+    g_free(joined);
     g_strfreev(keys);
 
-    nabi_log(4, "preference: set candidate keys: %s\n", config->candidate_keys);
+    nabi_log(4, "preference: set candidate keys: %s\n",
+		config->candidate_keys->str);
 }
 
 static GtkWidget*
@@ -677,7 +686,7 @@ create_hangul_page(GtkWidget* dialog)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    widget = create_key_list_widget(config->trigger_keys);
+    widget = create_key_list_widget(config->trigger_keys->str);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     gtk_box_pack_start(GTK_BOX(vbox2), widget, TRUE, TRUE, 0);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
@@ -730,7 +739,7 @@ create_hangul_page(GtkWidget* dialog)
     vbox2 = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox2, TRUE, TRUE, 0);
 
-    widget = create_key_list_widget(config->off_keys);
+    widget = create_key_list_widget(config->off_keys->str);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     off_key_model = model;
@@ -789,7 +798,7 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 
     dialog = gtk_font_selection_dialog_new(_("Select hanja font"));
     gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dialog),
-					    config->candidate_font);
+					    config->candidate_font->str);
     gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dialog),
 					       "訓民正音 훈민정음");
     gtk_widget_show_all(dialog);
@@ -799,12 +808,11 @@ on_candidate_font_button_clicked(GtkWidget *button, gpointer data)
 
     if (result == GTK_RESPONSE_OK) {
 	char *font = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dialog));
-	g_free(config->candidate_font);
-	config->candidate_font = g_strdup(font);
+	g_string_assign(config->candidate_font, font);
 	nabi_server_set_candidate_font(nabi_server, font);
 	candidate_font_button_set_labels(button, font);
-	nabi_log(4, "preference: set candidate font: %s\n", config->candidate_font);
-	g_free(font);
+	nabi_log(4, "preference: set candidate font: %s\n",
+		    config->candidate_font->str);
     }
     gtk_widget_destroy(dialog);
 }
@@ -849,7 +857,7 @@ create_candidate_page(GtkWidget* dialog)
     g_object_set_data(G_OBJECT(button), "size_label", label);
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 5);
     gtk_container_add(GTK_CONTAINER(button), hbox);
-    candidate_font_button_set_labels(button, config->candidate_font);
+    candidate_font_button_set_labels(button, config->candidate_font->str);
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-candidate-font", button);
     g_signal_connect(G_OBJECT(button), "clicked",
 		     G_CALLBACK(on_candidate_font_button_clicked), NULL);
@@ -864,7 +872,7 @@ create_candidate_page(GtkWidget* dialog)
     vbox = gtk_vbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), vbox, TRUE, TRUE, 0);
 
-    widget = create_key_list_widget(config->candidate_keys);
+    widget = create_key_list_widget(config->candidate_keys->str);
     treeview = g_object_get_data(G_OBJECT(widget), "treeview");
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(treeview));
     candidate_key_model = model;
@@ -913,8 +921,7 @@ on_xim_name_changed(GtkEntry* entry, gpointer data)
 {
     const char* name = gtk_entry_get_text(GTK_ENTRY(entry));
 
-    g_free(config->xim_name);
-    config->xim_name = g_strdup(name);
+    g_string_assign(config->xim_name, name);
     nabi_server_set_xim_name(nabi_server, name);
 
     nabi_log(4, "preference: set xim name: %s\n", name);
@@ -958,17 +965,16 @@ on_default_input_mode_button_toggled(GtkToggleButton *button, gpointer data)
 {
     gboolean flag = gtk_toggle_button_get_active(button);
 
-    g_free(config->default_input_mode);
     if (flag) {
-	config->default_input_mode = g_strdup("compose");
+	g_string_assign(config->default_input_mode, "compose");
 	nabi_server_set_default_input_mode(nabi_server, NABI_INPUT_MODE_COMPOSE);
     } else {
-	config->default_input_mode = g_strdup("direct");
+	g_string_assign(config->default_input_mode, "direct");
 	nabi_server_set_default_input_mode(nabi_server, NABI_INPUT_MODE_DIRECT);
     }
 
     nabi_log(4, "preference: set default input mode: %s\n",
-		config->default_input_mode);
+		config->default_input_mode->str);
 }
 
 static void
@@ -995,12 +1001,11 @@ on_input_mode_scope_changed(GtkComboBox* combo_box, gpointer data)
 	break;
     }
 
-    g_free(config->input_mode_scope);
-    config->input_mode_scope = input_mode_scope_str;
+    g_string_assign(config->input_mode_scope, input_mode_scope_str);
     nabi_server_set_input_mode_scope(nabi_server, input_mode_scope);
 
     nabi_log(4, "preference: set input mode option: %s\n",
-	     config->input_mode_scope);
+		config->input_mode_scope->str);
 }
 
 static void
@@ -1009,11 +1014,11 @@ on_preedit_font_changed(GtkFontButton* widget, gpointer data)
     const char* font_desc;
     font_desc = gtk_font_button_get_font_name(widget);
 
-    g_free(config->preedit_font);
-    config->preedit_font = g_strdup(font_desc);
+    g_string_assign(config->preedit_font, font_desc);
     nabi_server_set_preedit_font(nabi_server, font_desc);
 
-    nabi_log(4, "preference: set preedit font: %s\n", config->preedit_font);
+    nabi_log(4, "preference: set preedit font: %s\n",
+		config->preedit_font->str);
 }
 
 static GtkWidget*
@@ -1043,7 +1048,7 @@ create_advanced_page(GtkWidget* dialog)
 
     entry = gtk_entry_new();
     gtk_entry_set_width_chars(GTK_ENTRY(entry), 16);
-    gtk_entry_set_text(GTK_ENTRY(entry), config->xim_name);
+    gtk_entry_set_text(GTK_ENTRY(entry), config->xim_name->str);
     gtk_box_pack_start(GTK_BOX(hbox), entry, FALSE, FALSE, 6);
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-xim-name", entry);
     g_signal_connect(G_OBJECT(entry), "changed",
@@ -1086,7 +1091,7 @@ create_advanced_page(GtkWidget* dialog)
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
     button = gtk_check_button_new_with_label(_("Start in hangul mode"));
-    if (strcmp(config->default_input_mode, "compose") == 0)
+    if (strcmp(config->default_input_mode->str, "compose") == 0)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
     else
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
@@ -1110,13 +1115,13 @@ create_advanced_page(GtkWidget* dialog)
 			NABI_INPUT_MODE_PER_TOPLEVEL, _("per toplevel"));
     gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
 			NABI_INPUT_MODE_PER_IC, _("per context"));
-    if (strcmp(config->input_mode_scope, "per_desktop") == 0)
+    if (strcmp(config->input_mode_scope->str, "per_desktop") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				 NABI_INPUT_MODE_PER_DESKTOP);
-    else if (strcmp(config->input_mode_scope, "per_application") == 0)
+    else if (strcmp(config->input_mode_scope->str, "per_application") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_APPLICATION);
-    else if (strcmp(config->input_mode_scope, "per_context") == 0)
+    else if (strcmp(config->input_mode_scope->str, "per_context") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_IC);
     else
@@ -1135,7 +1140,7 @@ create_advanced_page(GtkWidget* dialog)
     label = gtk_label_new(_("Preedit string font: "));
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-    button = gtk_font_button_new_with_font(config->preedit_font);
+    button = gtk_font_button_new_with_font(config->preedit_font->str);
     gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-preedit-font", button);
     g_signal_connect(G_OBJECT(button), "font-set",
@@ -1222,8 +1227,7 @@ on_preference_reset(GtkWidget *button, gpointer data)
     if (p != NULL) {
 	candidate_font_button_set_labels(GTK_WIDGET(p), "Sans 14");
     }
-    g_free(config->candidate_font);
-    config->candidate_font = g_strdup("Sans 14");
+    g_string_assign(config->candidate_font, "Sans 14");
 
     p = g_object_get_data(dialog, "nabi-pref-candidate-keys");
     if (p != NULL) {

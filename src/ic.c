@@ -2079,9 +2079,9 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	    modified_value = g_strdup(value);
 	}
 
-	if (strcmp(nabi->config->candidate_format, "hanja(hangul)") == 0)
+	if (strcmp(nabi->config->candidate_format->str, "hanja(hangul)") == 0)
 	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, modified_value, key);
-	else if (strcmp(nabi->config->candidate_format, "hangul(hanja)") == 0)
+	else if (strcmp(nabi->config->candidate_format->str, "hangul(hanja)") == 0)
 	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, key, modified_value);
 	else
 	    candidate = g_strdup_printf("%s%s", preedit_left, modified_value);

@@ -27,37 +27,37 @@ struct _NabiConfig {
     gint            x;
     gint            y;
 
-    gchar*          theme;
+    GString*        theme;
     gint            palette_height;
     gboolean        show_palette;
 
-    gchar*          trigger_keys;
-    gchar*          off_keys;
-    gchar*          candidate_keys;
+    GString*        trigger_keys;
+    GString*        off_keys;
+    GString*        candidate_keys;
 
     /* keyboard option */
-    gchar*          hangul_keyboard;
-    gchar*          latin_keyboard;
-    gchar*          keyboard_layouts_file;
+    GString*        hangul_keyboard;
+    GString*        latin_keyboard;
+    GString*        keyboard_layouts_file;
 
     /* xim server option */
-    gchar*	    xim_name;
-    gchar*          output_mode;
-    gchar*          default_input_mode;
-    gchar*          input_mode_scope;
+    GString*        xim_name;
+    GString*        output_mode;
+    GString*        default_input_mode;
+    GString*        input_mode_scope;
     gboolean        use_dynamic_event_flow;
     gboolean        commit_by_word;
     gboolean        auto_reorder;
     gboolean        use_simplified_chinese;
 
     /* candidate options */
-    gchar*	    candidate_font;
-    gchar*          candidate_format;
+    GString*        candidate_font;
+    GString*        candidate_format;
 
     /* preedit attribute */
-    gchar*	    preedit_font;
-    gchar*          preedit_fg;
-    gchar*          preedit_bg;
+    GString*        preedit_font;
+    GString*        preedit_fg;
+    GString*        preedit_bg;
 };
 
 NabiConfig* nabi_config_new();
