@@ -1028,7 +1028,7 @@ on_input_mode_scope_changed(GtkComboBox* combo_box, gpointer data)
     g_string_assign(config->input_mode_scope, input_mode_scope_str);
     nabi_server_set_input_mode_scope(nabi_server, input_mode_scope);
 
-    nabi_log(4, "preference: set input mode option: %s\n",
+    nabi_log(4, "preference: set input mode scope: %s\n",
 		config->input_mode_scope->str);
 }
 
@@ -1127,7 +1127,7 @@ create_advanced_page(GtkWidget* dialog)
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-    label = gtk_label_new(_("Input mode option: "));
+    label = gtk_label_new(_("Input mode scope: "));
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
     combo_box = gtk_combo_box_new_text();
