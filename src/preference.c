@@ -229,6 +229,16 @@ on_icon_list_selection_changed(GtkTreeSelection *selection, gpointer data)
     }
 }
 
+static void
+on_use_tray_icon_button_toggled(GtkToggleButton* button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    nabi_app_use_tray_icon(flag);
+
+    nabi_log(4, "preference: set use tray icon: %d\n", flag);
+}
+
 static GtkWidget*
 create_theme_page(GtkWidget* dialog)
 {
@@ -236,6 +246,8 @@ create_theme_page(GtkWidget* dialog)
     GtkWidget *item;
     GtkWidget *scrolledwindow;
     GtkWidget *treeview;
+    GtkWidget *vbox;
+    GtkWidget *button;
     GtkTreeModel *model;
     GtkTreeViewColumn *column;
     GtkCellRenderer *renderer;
@@ -252,7 +264,11 @@ create_theme_page(GtkWidget* dialog)
     gtk_container_set_border_width(GTK_CONTAINER(scrolledwindow), 0);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrolledwindow),
 					GTK_SHADOW_IN);
-    item = create_pref_item(_("Tray icons"), scrolledwindow, TRUE, TRUE);
+
+    vbox = gtk_vbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), scrolledwindow, TRUE, TRUE, 0);
+
+    item = create_pref_item(_("Tray icons"), vbox, TRUE, TRUE);
     gtk_box_pack_start(GTK_BOX(page), item, TRUE, TRUE, 0);
 
     /* loading themes list */
@@ -314,6 +330,14 @@ create_theme_page(GtkWidget* dialog)
     // 그렇지 않으면 UI를 초기화하는 과정에서 아래 콜백이 불리게 된다.
     g_signal_connect(G_OBJECT(selection), "changed",
 		     G_CALLBACK(on_icon_list_selection_changed), NULL);
+
+    button = gtk_check_button_new_with_label(_("Use tray icon"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->use_tray_icon);
+    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 6);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-tray-icon", button);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_use_tray_icon_button_toggled), NULL);
 
     return page;
 }
@@ -1174,6 +1198,11 @@ on_preference_reset(GtkWidget *button, gpointer data)
 	}
     }
     nabi_app_set_theme("Jini");
+
+    p = g_object_get_data(dialog, "nabi-pref-use-tray-icon");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), TRUE);
+    }
 
     // keyboard
     p = g_object_get_data(dialog, "nabi-pref-hangul-keyboard");

@@ -30,6 +30,7 @@ struct _NabiConfig {
     GString*        theme;
     gint            palette_height;
     gboolean        show_palette;
+    gboolean        use_tray_icon;
 
     GString*        trigger_keys;
     GString*        off_keys;

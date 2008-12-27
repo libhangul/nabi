@@ -50,6 +50,7 @@ const static struct config_item config_items[] = {
     { "y",                  CONFIG_INT,  OFFSET(y)                        },
     { "show_palette",       CONFIG_BOOL, OFFSET(show_palette)             },
     { "palette_height",     CONFIG_INT,  OFFSET(palette_height)           },
+    { "use_tray_icon",      CONFIG_BOOL, OFFSET(use_tray_icon)            },
     { "theme",              CONFIG_STR,  OFFSET(theme)                    },
     { "hangul_keyboard",    CONFIG_STR,  OFFSET(hangul_keyboard)          },
     { "latin_keyboard",     CONFIG_STR,  OFFSET(latin_keyboard)           },
@@ -186,6 +187,7 @@ nabi_config_new()
     config->y = 0;
     config->show_palette = FALSE;
     config->palette_height = 24;
+    config->use_tray_icon = TRUE;
     config->xim_name = g_string_new(PACKAGE);
     config->theme = g_string_new("Jini");
 

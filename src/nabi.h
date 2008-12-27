@@ -57,6 +57,7 @@ void nabi_app_quit(void);
 void nabi_app_free(void);
 void nabi_app_save_config(void);
 void nabi_app_set_theme(const char *name);
+void nabi_app_use_tray_icon(gboolean use);
 void nabi_app_show_palette(gboolean state);
 void nabi_app_set_hangul_keyboard(const char *id);
 

@@ -85,8 +85,9 @@ static void nabi_palette_show(NabiPalette* palette);
 static void nabi_palette_hide(NabiPalette* palette);
 static void nabi_palette_destroy(NabiPalette* palette);
 
-static gboolean nabi_create_tray_icon(gpointer data);
+static gboolean nabi_tray_icon_create(gpointer data);
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
+static void nabi_tray_icon_destroy(NabiTrayIcon* tray);
 
 static void remove_event_filter();
 static GtkWidget* create_tray_icon_menu(void);
@@ -517,7 +518,8 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
     nabi_tray = NULL;
     nabi_log(1, "tray icon is destroyed\n");
 
-    nabi_palette->source_id = g_idle_add(nabi_create_tray_icon, NULL);
+    if (nabi->config->use_tray_icon)
+	nabi_palette->source_id = g_idle_add(nabi_tray_icon_create, NULL);
     nabi_palette_show(nabi_palette);
 }
 
@@ -1138,7 +1140,7 @@ nabi_app_load_base_icons()
 }
 
 static gboolean
-nabi_create_tray_icon(gpointer data)
+nabi_tray_icon_create(gpointer data)
 {
     NabiTrayIcon* tray;
     GtkWidget *eventbox;
@@ -1189,6 +1191,13 @@ nabi_create_tray_icon(gpointer data)
     gtk_widget_show(GTK_WIDGET(tray->widget));
 
     return FALSE;
+}
+
+static void
+nabi_tray_icon_destroy(NabiTrayIcon* tray)
+{
+    // widget만 destroy하면 destroy signal에서 나머지 delete 처리를 한다.
+    gtk_widget_destroy(GTK_WIDGET(tray->widget));
 }
 
 static void
@@ -1311,7 +1320,8 @@ nabi_app_create_palette(void)
     g_signal_connect(G_OBJECT(button), "pressed",
 		     G_CALLBACK(on_palette_item_pressed), menu);
 
-    g_idle_add(nabi_create_tray_icon, NULL);
+    if (nabi->config->use_tray_icon)
+	g_idle_add(nabi_tray_icon_create, NULL);
 
     return handlebox;
 }
@@ -1372,6 +1382,22 @@ nabi_app_set_theme(const gchar *name)
 
     nabi_app_load_base_icons();
     nabi_tray_load_icons(nabi_tray, nabi->icon_size);
+}
+
+void
+nabi_app_use_tray_icon(gboolean use)
+{
+    nabi->config->use_tray_icon = use;
+
+    if (use) {
+	if (nabi_tray == NULL) {
+	    nabi_tray_icon_create(NULL);
+	}
+    } else {
+	if (nabi_tray != NULL) {
+	    nabi_tray_icon_destroy(nabi_tray);
+	}
+    }
 }
 
 void
