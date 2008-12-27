@@ -160,7 +160,7 @@ nabi_server_new(Display* display, int screen, const char *name)
     server->commit_by_word = False;
     server->auto_reorder = True;
     server->input_mode = NABI_INPUT_MODE_DIRECT;
-    server->input_mode_option = NABI_INPUT_MODE_PER_TOPLEVEL;
+    server->input_mode_scope = NABI_INPUT_MODE_PER_TOPLEVEL;
     server->output_mode = NABI_OUTPUT_SYLLABLE;
 
     /* hanja */
@@ -896,7 +896,7 @@ nabi_server_toggle_input_mode(NabiServer* server)
     if (server == NULL)
 	return;
 
-    if (server->input_mode_option == NABI_INPUT_MODE_PER_DESKTOP) {
+    if (server->input_mode_scope == NABI_INPUT_MODE_PER_DESKTOP) {
 	if (server->input_mode == NABI_INPUT_MODE_DIRECT) {
 	    server->input_mode = NABI_INPUT_MODE_COMPOSE;
 	    nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_COMPOSE);
@@ -940,10 +940,10 @@ nabi_server_set_auto_reorder(NabiServer* server, Bool flag)
 }
 
 void
-nabi_server_set_input_mode_option(NabiServer* server, NabiInputModeOption flag)
+nabi_server_set_input_mode_scope(NabiServer* server, NabiInputModeScope scope)
 {
     if (server != NULL)
-	server->input_mode_option = flag;
+	server->input_mode_scope = scope;
 }
 
 void

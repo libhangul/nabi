@@ -1211,7 +1211,7 @@ nabi_ic_set_focus(NabiIC* ic)
 {
     NabiInputMode mode = ic->mode;
 
-    switch (nabi_server->input_mode_option) {
+    switch (nabi_server->input_mode_scope) {
     case NABI_INPUT_MODE_PER_DESKTOP:
 	mode = nabi_server->input_mode;
 	break;
@@ -1235,7 +1235,7 @@ nabi_ic_set_focus(NabiIC* ic)
 void
 nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 {
-    switch (nabi_server->input_mode_option) {
+    switch (nabi_server->input_mode_scope) {
     case NABI_INPUT_MODE_PER_DESKTOP:
 	nabi_server->input_mode = mode;
 	break;

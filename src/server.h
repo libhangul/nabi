@@ -63,7 +63,7 @@ typedef enum {
     NABI_INPUT_MODE_PER_APPLICATION,
     NABI_INPUT_MODE_PER_TOPLEVEL,
     NABI_INPUT_MODE_PER_IC
-} NabiInputModeOption;
+} NabiInputModeScope;
 
 enum {
     NABI_MODE_INFO_NONE,
@@ -121,7 +121,7 @@ struct _NabiServer {
     Bool                    show_status;
     Bool                    use_simplified_chinese;
     NabiInputMode           input_mode;
-    NabiInputModeOption     input_mode_option;
+    NabiInputModeScope      input_mode_scope;
     GdkColor                preedit_fg;
     GdkColor                preedit_bg;
 
@@ -175,8 +175,8 @@ void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
 void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
-void        nabi_server_set_input_mode_option(NabiServer* server,
-					      NabiInputModeOption flag);
+void        nabi_server_set_input_mode_scope(NabiServer* server,
+					     NabiInputModeScope scope);
 void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_get_ic          (NabiServer *server,

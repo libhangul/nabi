@@ -954,35 +954,35 @@ on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
 }
 
 static void
-on_input_mode_option_changed(GtkComboBox* combo_box, gpointer data)
+on_input_mode_scope_changed(GtkComboBox* combo_box, gpointer data)
 {
-    NabiInputModeOption input_mode_option;
-    char* input_mode_option_str = NULL;
+    NabiInputModeScope input_mode_scope;
+    char* input_mode_scope_str = NULL;
 
-    input_mode_option = (NabiInputModeOption)gtk_combo_box_get_active(combo_box);
+    input_mode_scope = (NabiInputModeScope)gtk_combo_box_get_active(combo_box);
     
-    switch (input_mode_option) {
+    switch (input_mode_scope) {
     case NABI_INPUT_MODE_PER_DESKTOP:
-	input_mode_option_str = g_strdup("per_desktop");
+	input_mode_scope_str = g_strdup("per_desktop");
 	break;
     case NABI_INPUT_MODE_PER_APPLICATION:
-	input_mode_option_str = g_strdup("per_application");
+	input_mode_scope_str = g_strdup("per_application");
 	break;
     case NABI_INPUT_MODE_PER_IC:
-	input_mode_option_str = g_strdup("per_context");
+	input_mode_scope_str = g_strdup("per_context");
 	break;
     case NABI_INPUT_MODE_PER_TOPLEVEL:
     default:
-	input_mode_option_str = g_strdup("per_toplevel");
+	input_mode_scope_str = g_strdup("per_toplevel");
 	break;
     }
 
-    g_free(config->input_mode_option);
-    config->input_mode_option = input_mode_option_str;
-    nabi_server_set_input_mode_option(nabi_server, input_mode_option);
+    g_free(config->input_mode_scope);
+    config->input_mode_scope = input_mode_scope_str;
+    nabi_server_set_input_mode_scope(nabi_server, input_mode_scope);
 
     nabi_log(4, "preference: set input mode option: %s\n",
-	     config->input_mode_option);
+	     config->input_mode_scope);
 }
 
 static void
@@ -1079,13 +1079,13 @@ create_advanced_page(GtkWidget* dialog)
 			NABI_INPUT_MODE_PER_TOPLEVEL, _("per toplevel"));
     gtk_combo_box_insert_text(GTK_COMBO_BOX(combo_box),
 			NABI_INPUT_MODE_PER_IC, _("per context"));
-    if (strcmp(config->input_mode_option, "per_desktop") == 0)
+    if (strcmp(config->input_mode_scope, "per_desktop") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				 NABI_INPUT_MODE_PER_DESKTOP);
-    else if (strcmp(config->input_mode_option, "per_application") == 0)
+    else if (strcmp(config->input_mode_scope, "per_application") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_APPLICATION);
-    else if (strcmp(config->input_mode_option, "per_context") == 0)
+    else if (strcmp(config->input_mode_scope, "per_context") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_IC);
     else
@@ -1096,7 +1096,7 @@ create_advanced_page(GtkWidget* dialog)
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-input-mode-option", combo_box);
 
     g_signal_connect(G_OBJECT(combo_box), "changed",
-		     G_CALLBACK(on_input_mode_option_changed), NULL);
+		     G_CALLBACK(on_input_mode_scope_changed), NULL);
 
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
