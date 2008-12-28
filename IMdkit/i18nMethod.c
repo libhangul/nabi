@@ -779,6 +779,12 @@ static Status xi18n_closeIM(XIMS ims)
     Xi18n i18n_core = ims->protocol;
     Display *dpy = i18n_core->address.dpy;
 
+    /* remove all client connections */
+    while (i18n_core->address.clients != NULL) {
+	int connect_id = i18n_core->address.clients->connect_id;
+	i18n_core->methods.disconnect(ims, connect_id);
+    }
+
     DeleteXi18nAtom(i18n_core);
     if (!i18n_core->methods.end (ims))
         return False;

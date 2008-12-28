@@ -425,7 +425,7 @@ static Bool Xi18nXDisconnect (XIMS ims, CARD16 connect_id)
 		        x_client->accept_win,
                         WaitXIMProtocol,
 		        (XPointer)ims);
-    XFree (x_client);
+    free (x_client);
     _Xi18nDeleteClient (i18n_core, connect_id);
     return True;
 }
