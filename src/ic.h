@@ -85,6 +85,13 @@ struct _PreeditAttributes {
     XIMPreeditState state;          /* preedit state */
     Bool            start;          /* preedit start */
     int		    prev_length;    /* previous preedit string length */
+
+    gboolean        has_start_cb;   /* whether XNPreeditStartCallback
+				     * registered */
+    gboolean        has_draw_cb;    /* whether XNPreeditDrawCallback 
+				     * registered */
+    gboolean        has_done_cb;    /* whether XNPreeditDoneCallback 
+				     * registered */
 };
 
 struct _StatusAttributes {
@@ -120,6 +127,9 @@ struct _NabiIC {
     NabiCandidate*	candidate;
 
     UString*            client_text;
+
+    gboolean            has_str_conv_cb;  /* whether XNStringConversionCallback
+					   * registered */
 };
 
 NabiConnection* nabi_connection_create(CARD16 id, const char* encoding);

@@ -305,6 +305,9 @@ nabi_ic_init_values(NabiIC *ic)
     ic->preedit.state = XIMPreeditEnable;
     ic->preedit.start = False;
     ic->preedit.prev_length = 0;
+    ic->preedit.has_start_cb = FALSE;
+    ic->preedit.has_draw_cb = FALSE;
+    ic->preedit.has_done_cb = FALSE;
 
     /* status attributes */
     ic->status_attr.area.x = 0;
@@ -330,6 +333,8 @@ nabi_ic_init_values(NabiIC *ic)
     ic->client_text = NULL;
 
     ic->toplevel = NULL;
+
+    ic->has_str_conv_cb = FALSE;
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
     hangul_ic_connect_callback(ic->hic, "translate",
@@ -992,7 +997,7 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    Window w = *(CARD32*)attr->value;
 	    nabi_ic_set_focus_window(ic, w);
 	} else if (streql(XNStringConversionCallback, attr->name)) {
-	    // ignore
+	    ic->has_str_conv_cb = TRUE;
 	} else {
 	    nabi_log(1, "set unknown ic attribute: %s\n", attr->name);
 	}
@@ -1024,11 +1029,11 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    nabi_log(5, "set ic value: id = %d-%d, fontset = %s\n",
 		     ic->id, ic->connection->id, fontset);
 	} else if (streql(XNPreeditStartCallback, attr->name)) {
-	    // ignore
+	    ic->preedit.has_start_cb = TRUE;
 	} else if (streql(XNPreeditDrawCallback, attr->name)) {
-	    // ignore
+	    ic->preedit.has_draw_cb = TRUE;
 	} else if (streql(XNPreeditDoneCallback, attr->name)) {
-	    // ignore
+	    ic->preedit.has_done_cb = TRUE;
 	} else {
 	    nabi_log(1, "set unknown preedit attribute: %s\n", attr->name);
 	}
@@ -1317,14 +1322,16 @@ nabi_ic_preedit_start(NabiIC *ic)
     }
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	IMPreeditCBStruct preedit_data;
+	if (ic->preedit.has_start_cb) {
+	    IMPreeditCBStruct preedit_data;
 
-	preedit_data.major_code = XIM_PREEDIT_START;
-	preedit_data.minor_code = 0;
-	preedit_data.connect_id = ic->connection->id;
-	preedit_data.icid = ic->id;
-	preedit_data.todo.return_value = 0;
-	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
+	    preedit_data.major_code = XIM_PREEDIT_START;
+	    preedit_data.minor_code = 0;
+	    preedit_data.connect_id = ic->connection->id;
+	    preedit_data.icid = ic->id;
+	    preedit_data.todo.return_value = 0;
+	    IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
+	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	if (ic->preedit.window == NULL)
 	    nabi_ic_preedit_window_new(ic);
@@ -1345,14 +1352,16 @@ nabi_ic_preedit_done(NabiIC *ic)
 	return;
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	IMPreeditCBStruct preedit_data;
+	if (ic->preedit.has_done_cb) {
+	    IMPreeditCBStruct preedit_data;
 
-	preedit_data.major_code = XIM_PREEDIT_DONE;
-	preedit_data.minor_code = 0;
-	preedit_data.connect_id = ic->connection->id;
-	preedit_data.icid = ic->id;
-	preedit_data.todo.return_value = 0;
-	IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
+	    preedit_data.major_code = XIM_PREEDIT_DONE;
+	    preedit_data.minor_code = 0;
+	    preedit_data.connect_id = ic->connection->id;
+	    preedit_data.icid = ic->id;
+	    preedit_data.todo.return_value = 0;
+	    IMCallCallback(nabi_server->xims, (XPointer)&preedit_data);
+	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditArea) {
@@ -1471,29 +1480,31 @@ nabi_ic_preedit_update(NabiIC *ic)
 	     ic->connection->id, ic->id, normal, hilight);
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	char *compound_text;
-	XIMText text;
-	IMPreeditCBStruct data;
+	if (ic->preedit.has_draw_cb) {
+	    char *compound_text;
+	    XIMText text;
+	    IMPreeditCBStruct data;
 
-	compound_text = utf8_to_compound_text(preedit);
+	    compound_text = utf8_to_compound_text(preedit);
 
-	data.major_code = XIM_PREEDIT_DRAW;
-	data.minor_code = 0;
-	data.connect_id = ic->connection->id;
-	data.icid = ic->id;
-	data.todo.draw.caret = preedit_len;
-	data.todo.draw.chg_first = 0;
-	data.todo.draw.chg_length = ic->preedit.prev_length;
-	data.todo.draw.text = &text;
+	    data.major_code = XIM_PREEDIT_DRAW;
+	    data.minor_code = 0;
+	    data.connect_id = ic->connection->id;
+	    data.icid = ic->id;
+	    data.todo.draw.caret = preedit_len;
+	    data.todo.draw.chg_first = 0;
+	    data.todo.draw.chg_length = ic->preedit.prev_length;
+	    data.todo.draw.text = &text;
 
-	text.feedback = nabi_ic_preedit_feedback_new(normal_len, hilight_len);
-	text.encoding_is_wchar = False;
-	text.string.multi_byte = compound_text;
-	text.length = strlen(compound_text);
+	    text.feedback = nabi_ic_preedit_feedback_new(normal_len, hilight_len);
+	    text.encoding_is_wchar = False;
+	    text.string.multi_byte = compound_text;
+	    text.length = strlen(compound_text);
 
-	IMCallCallback(nabi_server->xims, (XPointer)&data);
-	g_free(text.feedback);
-	XFree(compound_text);
+	    IMCallCallback(nabi_server->xims, (XPointer)&data);
+	    g_free(text.feedback);
+	    XFree(compound_text);
+	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_show(ic);
 	nabi_ic_preedit_draw_string(ic, preedit, normal, hilight);
@@ -1518,28 +1529,30 @@ nabi_ic_preedit_clear(NabiIC *ic)
 	return;
 
     if (ic->input_style & XIMPreeditCallbacks) {
-	XIMText text;
-	XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
-	IMPreeditCBStruct data;
+	if (ic->preedit.has_draw_cb) {
+	    XIMText text;
+	    XIMFeedback feedback[4] = { XIMReverse, 0, 0, 0 };
+	    IMPreeditCBStruct data;
 
-	nabi_log(3, "clear preedit: id = %d-%d\n",
-		 ic->connection->id, ic->id);
+	    nabi_log(3, "clear preedit: id = %d-%d\n",
+		     ic->connection->id, ic->id);
 
-	data.major_code = XIM_PREEDIT_DRAW;
-	data.minor_code = 0;
-	data.connect_id = ic->connection->id;
-	data.icid = ic->id;
-	data.todo.draw.caret = 0;
-	data.todo.draw.chg_first = 0;
-	data.todo.draw.chg_length = ic->preedit.prev_length;
-	data.todo.draw.text = &text;
+	    data.major_code = XIM_PREEDIT_DRAW;
+	    data.minor_code = 0;
+	    data.connect_id = ic->connection->id;
+	    data.icid = ic->id;
+	    data.todo.draw.caret = 0;
+	    data.todo.draw.chg_first = 0;
+	    data.todo.draw.chg_length = ic->preedit.prev_length;
+	    data.todo.draw.text = &text;
 
-	text.feedback = feedback;
-	text.encoding_is_wchar = False;
-	text.string.multi_byte = NULL;
-	text.length = 0;
+	    text.feedback = feedback;
+	    text.encoding_is_wchar = False;
+	    text.string.multi_byte = NULL;
+	    text.length = 0;
 
-	IMCallCallback(nabi_server->xims, (XPointer)&data);
+	    IMCallCallback(nabi_server->xims, (XPointer)&data);
+	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditArea) {
@@ -1823,35 +1836,44 @@ nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
 static void
 nabi_ic_request_client_text(NabiIC* ic)
 {
-    IMStrConvCBStruct data;
-    data.major_code        = XIM_STR_CONVERSION;
-    data.minor_code        = 0;
-    data.connect_id        = ic->connection->id;
-    data.icid              = ic->id;
-    data.strconv.position  = (XIMStringConversionPosition)0;
-    data.strconv.direction = XIMBackwardChar;
-    data.strconv.operation = XIMStringConversionRetrieval;
-    data.strconv.factor    = 10;
-    data.strconv.text      = NULL;
+    if (ic->has_str_conv_cb) {
+	IMStrConvCBStruct data;
+	data.major_code        = XIM_STR_CONVERSION;
+	data.minor_code        = 0;
+	data.connect_id        = ic->connection->id;
+	data.icid              = ic->id;
+	data.strconv.position  = (XIMStringConversionPosition)0;
+	data.strconv.direction = XIMBackwardChar;
+	data.strconv.operation = XIMStringConversionRetrieval;
+	data.strconv.factor    = 10;
+	data.strconv.text      = NULL;
 
-    IMCallCallback(nabi_server->xims, (XPointer)&data);
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
+	nabi_log(3, "request client text: id = %d-%d\n",
+		    ic->connection->id, ic->id);
+    }
 }
 
 static void
 nabi_ic_delete_client_text(NabiIC* ic, size_t len)
 {
-    IMStrConvCBStruct data;
-    data.major_code        = XIM_STR_CONVERSION;
-    data.minor_code        = 0;
-    data.connect_id        = ic->connection->id;
-    data.icid              = ic->id;
-    data.strconv.position  = (XIMStringConversionPosition)0;
-    data.strconv.direction = XIMBackwardChar;
-    data.strconv.operation = XIMStringConversionSubstitution;
-    data.strconv.factor    = len;
-    data.strconv.text      = NULL;
+    if (ic->has_str_conv_cb) {
+	IMStrConvCBStruct data;
+	data.major_code        = XIM_STR_CONVERSION;
+	data.minor_code        = 0;
+	data.connect_id        = ic->connection->id;
+	data.icid              = ic->id;
+	data.strconv.position  = (XIMStringConversionPosition)0;
+	data.strconv.direction = XIMBackwardChar;
+	data.strconv.operation = XIMStringConversionSubstitution;
+	data.strconv.factor    = len;
+	data.strconv.text      = NULL;
 
-    IMCallCallback(nabi_server->xims, (XPointer)&data);
+	IMCallCallback(nabi_server->xims, (XPointer)&data);
+	nabi_log(3, "delete client text: id = %d-%d, pos = %d, len = %d\n",
+		    ic->connection->id, ic->id,
+		    data.strconv.position, data.strconv.factor);
+    }
 }
 
 Bool
