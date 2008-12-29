@@ -974,69 +974,89 @@ nabi_ic_set_area(NabiIC *ic, XRectangle *rect)
 void
 nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 {
-    XICAttribute *ic_attr = data->ic_attr;
-    XICAttribute *preedit_attr = data->preedit_attr;
-    XICAttribute *status_attr = data->status_attr;
+    XICAttribute *attr;
     CARD16 i;
     
     if (ic == NULL)
 	return;
 
-    for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
-	if (streql(XNInputStyle, ic_attr->name)) {
-	    ic->input_style = *(INT32*)ic_attr->value;
-	} else if (streql(XNClientWindow, ic_attr->name)) {
-	    nabi_ic_set_client_window(ic, *(Window*)ic_attr->value);
-	} else if (streql(XNFocusWindow, ic_attr->name)) {
-	    nabi_ic_set_focus_window(ic, *(Window*)ic_attr->value);
+    attr = data->ic_attr;
+    for (i = 0; i < data->ic_attr_num; i++, attr++) {
+	if (streql(XNInputStyle, attr->name)) {
+	    CARD32 style = *(CARD32*)attr->value;
+	    ic->input_style = style;
+	} else if (streql(XNClientWindow, attr->name)) {
+	    Window w = *(CARD32*)attr->value;
+	    nabi_ic_set_client_window(ic, w);
+	} else if (streql(XNFocusWindow, attr->name)) {
+	    Window w = *(CARD32*)attr->value;
+	    nabi_ic_set_focus_window(ic, w);
+	} else if (streql(XNStringConversionCallback, attr->name)) {
+	    // ignore
 	} else {
-	    nabi_log(1, "set unknown ic attribute: %s\n",
-		     ic_attr->name);
+	    nabi_log(1, "set unknown ic attribute: %s\n", attr->name);
 	}
     }
     
-    for (i = 0; i < data->preedit_attr_num; i++, preedit_attr++) {
-	if (streql(XNSpotLocation, preedit_attr->name)) {
-	    nabi_ic_set_spot(ic, (XPoint*)preedit_attr->value);
-	} else if (streql(XNForeground, preedit_attr->name)) {
-	    nabi_ic_set_preedit_foreground(ic,
-		    *(unsigned long*)preedit_attr->value);
-	} else if (streql(XNBackground, preedit_attr->name)) {
-	    nabi_ic_set_preedit_background(ic,
-		    *(unsigned long*)preedit_attr->value);
-	} else if (streql(XNArea, preedit_attr->name)) {
-	    nabi_ic_set_area(ic, (XRectangle*)preedit_attr->value);
-	} else if (streql(XNLineSpace, preedit_attr->name)) {
-	    ic->preedit.line_space = *(CARD32*)preedit_attr->value;
-	} else if (streql(XNPreeditState, preedit_attr->name)) {
-	    ic->preedit.state = *(XIMPreeditState*)preedit_attr->value;
-	} else if (streql(XNFontSet, preedit_attr->name)) {
-	    nabi_ic_load_preedit_fontset(ic, (char*)preedit_attr->value);
+    attr = data->preedit_attr;
+    for (i = 0; i < data->preedit_attr_num; i++, attr++) {
+	if (streql(XNSpotLocation, attr->name)) {
+	    XPoint* point = (XPoint*)attr->value;
+	    nabi_ic_set_spot(ic, point);
+	} else if (streql(XNForeground, attr->name)) {
+	    CARD32 color = *(CARD32*)attr->value;
+	    nabi_ic_set_preedit_foreground(ic, color);
+	} else if (streql(XNBackground, attr->name)) {
+	    CARD32 color = *(CARD32*)attr->value;
+	    nabi_ic_set_preedit_background(ic, color);
+	} else if (streql(XNArea, attr->name)) {
+	    XRectangle* rect = (XRectangle*)attr->value;
+	    nabi_ic_set_area(ic, rect);
+	} else if (streql(XNLineSpace, attr->name)) {
+	    CARD32 line_space = *(CARD32*)attr->value;
+	    ic->preedit.line_space = line_space;
+	} else if (streql(XNPreeditState, attr->name)) {
+	    CARD32 state = *(CARD32*)attr->value;
+	    ic->preedit.state = state;
+	} else if (streql(XNFontSet, attr->name)) {
+	    char* fontset = (char*)attr->value;
+	    nabi_ic_load_preedit_fontset(ic, fontset);
 	    nabi_log(5, "set ic value: id = %d-%d, fontset = %s\n",
-		     ic->id, ic->connection->id, (char*)preedit_attr->value);
+		     ic->id, ic->connection->id, fontset);
+	} else if (streql(XNPreeditStartCallback, attr->name)) {
+	    // ignore
+	} else if (streql(XNPreeditDrawCallback, attr->name)) {
+	    // ignore
+	} else if (streql(XNPreeditDoneCallback, attr->name)) {
+	    // ignore
 	} else {
-	    nabi_log(1, "set unknown preedit attribute: %s\n",
-			    preedit_attr->name);
+	    nabi_log(1, "set unknown preedit attribute: %s\n", attr->name);
 	}
     }
     
-    for (i = 0; i < data->status_attr_num; i++, status_attr++) {
-	if (streql(XNArea, status_attr->name)) {
-	    ic->status_attr.area = *(XRectangle*)status_attr->value;
-	} else if (streql(XNAreaNeeded, status_attr->name)) {
-	    ic->status_attr.area_needed = *(XRectangle*)status_attr->value;
-	} else if (streql(XNForeground, status_attr->name)) {
-	    ic->status_attr.foreground = *(unsigned long*)status_attr->value;
-	} else if (streql(XNBackground, status_attr->name)) {
-	    ic->status_attr.background = *(unsigned long*)status_attr->value;
-	} else if (streql(XNLineSpace, status_attr->name)) {
-	    ic->status_attr.line_space = *(CARD32*)status_attr->value;
-	} else if (streql(XNFontSet, status_attr->name)) {
-	    nabi_free(ic->status_attr.base_font);
-	    ic->status_attr.base_font = strdup((char*)status_attr->value);
+    attr = data->status_attr;
+    for (i = 0; i < data->status_attr_num; i++, attr++) {
+	if (streql(XNArea, attr->name)) {
+	    XRectangle* rect = (XRectangle*)attr->value;
+	    ic->status_attr.area = *rect;
+	} else if (streql(XNAreaNeeded, attr->name)) {
+	    XRectangle* rect = (XRectangle*)attr->value;
+	    ic->status_attr.area_needed = *rect;
+	} else if (streql(XNForeground, attr->name)) {
+	    CARD32 color = *(CARD32*)attr->value;
+	    ic->status_attr.foreground = color;
+	} else if (streql(XNBackground, attr->name)) {
+	    CARD32 color = *(CARD32*)attr->value;
+	    ic->status_attr.background = color;
+	} else if (streql(XNLineSpace, attr->name)) {
+	    CARD32 line_space = *(CARD32*)attr->value;
+	    ic->status_attr.line_space = line_space;
+	} else if (streql(XNFontSet, attr->name)) {
+	    char* fontset = (char*)attr->value;
+	    g_free(ic->status_attr.base_font);
+	    ic->status_attr.base_font = g_strdup(fontset);
 	} else {
-	    nabi_log(1, "set unknown status attributes: %s\n",
-		     status_attr->name);
+	    nabi_log(1, "set unknown status attributes: %s\n", attr->name);
 	}
     }
 }
@@ -1044,123 +1064,134 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 void
 nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 {
-    XICAttribute *ic_attr = data->ic_attr;
-    XICAttribute *preedit_attr = data->preedit_attr;
-    XICAttribute *status_attr = data->status_attr;
+    XICAttribute *attr;
     CARD16 i;
 
     if (ic == NULL)
 	return;
     
-    for (i = 0; i < data->ic_attr_num; i++, ic_attr++) {
-	if (streql(XNFilterEvents, ic_attr->name)) {
-	    ic_attr->value = (void *)malloc(sizeof(CARD32));
-	    *(CARD32*)ic_attr->value = KeyPressMask | KeyReleaseMask;
-	    ic_attr->value_length = sizeof(CARD32);
-	} else if (streql(XNInputStyle, ic_attr->name)) {
-	    ic_attr->value = (void *)malloc(sizeof(INT32));
-	    *(INT32*)ic_attr->value = ic->input_style;
-	    ic_attr->value_length = sizeof(INT32);
-	} else if (streql(XNSeparatorofNestedList, ic_attr->name)) {
-	    /* FIXME: what do I do here? */
-	    ;
-	} else if (streql(XNPreeditState, ic_attr->name)) {
+    attr = data->ic_attr;
+    for (i = 0; i < data->ic_attr_num; i++, attr++) {
+	if (streql(XNFilterEvents, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = KeyPressMask | KeyReleaseMask;
+	} else if (streql(XNInputStyle, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->input_style;
+	} else if (streql(XNPreeditState, attr->name)) {
 	    /* some java applications need XNPreeditState attribute in
 	     * IC attribute instead of Preedit attributes
 	     * so we support XNPreeditState attr here */
-	    ic_attr->value = (void *)malloc(sizeof(XIMPreeditState));
-	    *(XIMPreeditState*)ic_attr->value = ic->preedit.state;
-	    ic_attr->value_length = sizeof(XIMPreeditState);
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->preedit.state;
+	} else if (streql(XNSeparatorofNestedList, attr->name)) {
+	    // ignore
 	} else {
-	    nabi_log(1, "get unknown ic attributes: %s\n",
-		ic_attr->name);
+	    nabi_log(1, "get unknown ic attributes: %s\n", attr->name);
 	}
+
+	if (attr->value == NULL)
+	    attr->value_length = 0;
     }
     
-    for (i = 0; i < data->preedit_attr_num; i++, preedit_attr++) {
-	if (streql(XNArea, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)preedit_attr->value = ic->preedit.area;
-	    preedit_attr->value_length = sizeof(XRectangle);
-	} else if (streql(XNAreaNeeded, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)preedit_attr->value = ic->preedit.area_needed;
-	    preedit_attr->value_length = sizeof(XRectangle);
-	} else if (streql(XNSpotLocation, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(XPoint));
-	    *(XPoint*)preedit_attr->value = ic->preedit.spot;
-	    preedit_attr->value_length = sizeof(XPoint);
-	} else if (streql(XNForeground, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value = ic->preedit.foreground;
-	    preedit_attr->value_length = sizeof(long);
-	} else if (streql(XNBackground, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value = ic->preedit.background;
-	    preedit_attr->value_length = sizeof(long);
-	} else if (streql(XNLineSpace, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)preedit_attr->value = ic->preedit.line_space;
-	    preedit_attr->value_length = sizeof(long);
-	} else if (streql(XNPreeditState, preedit_attr->name)) {
-	    preedit_attr->value = (void *)malloc(sizeof(XIMPreeditState));
-	    *(XIMPreeditState*)preedit_attr->value = ic->preedit.state;
-	    preedit_attr->value_length = sizeof(XIMPreeditState);
-	} else if (streql(XNFontSet, preedit_attr->name)) {
-	    CARD16 base_len = (CARD16)strlen(ic->preedit.base_font);
-	    int total_len = sizeof(CARD16) + (CARD16)base_len;
-	    char *p;
-
-	    preedit_attr->value = (void *)malloc(total_len);
-	    p = (char *)preedit_attr->value;
-	    memmove(p, &base_len, sizeof(CARD16));
-	    p += sizeof(CARD16);
-	    strncpy(p, ic->preedit.base_font, base_len);
-	    preedit_attr->value_length = total_len;
+    attr = data->preedit_attr;
+    for (i = 0; i < data->preedit_attr_num; i++, attr++) {
+	if (streql(XNArea, attr->name)) {
+	    attr->value_length = sizeof(XRectangle);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(XRectangle*)attr->value = ic->preedit.area;
+	} else if (streql(XNAreaNeeded, attr->name)) {
+	    attr->value_length = sizeof(XRectangle);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(XRectangle*)attr->value = ic->preedit.area_needed;
+	} else if (streql(XNSpotLocation, attr->name)) {
+	    attr->value_length = sizeof(XPoint);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(XPoint*)attr->value = ic->preedit.spot;
+	} else if (streql(XNForeground, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->preedit.foreground;
+	} else if (streql(XNBackground, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->preedit.background;
+	} else if (streql(XNLineSpace, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->preedit.line_space;
+	} else if (streql(XNPreeditState, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->preedit.state;
+	} else if (streql(XNFontSet, attr->name)) {
+	    attr->value_length = strlen(ic->preedit.base_font) + 1;
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		strncpy(attr->value, ic->preedit.base_font, attr->value_length);
 	} else {
-	    g_print("Nabi: get unknown preedit attributes: %s\n",
-		preedit_attr->name);
+	    nabi_log(1, "get unknown preedit attributes: %s\n", attr->name);
 	}
+
+	if (attr->value == NULL)
+	    attr->value_length = 0;
     }
 
-    for (i = 0; i < data->status_attr_num; i++, status_attr++) {
-	if (streql(XNArea, status_attr->name)) {
-	    status_attr->value = (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)status_attr->value = ic->status_attr.area;
-	    status_attr->value_length = sizeof(XRectangle);
-	} else if (streql(XNAreaNeeded, status_attr->name)) {
-	    status_attr->value = (void *)malloc(sizeof(XRectangle));
-	    *(XRectangle*)status_attr->value = ic->status_attr.area_needed;
-	    status_attr->value_length = sizeof(XRectangle);
-	} else if (streql(XNForeground, status_attr->name)) {
-	    status_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)status_attr->value = ic->status_attr.foreground;
-	    status_attr->value_length = sizeof(long);
-	} else if (streql(XNBackground, status_attr->name)) {
-	    status_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)status_attr->value = ic->status_attr.background;
-	    status_attr->value_length = sizeof(long);
-	} else if (streql(XNLineSpace, status_attr->name)) {
-	    status_attr->value = (void *)malloc(sizeof(long));
-	    *(long*)status_attr->value = ic->status_attr.line_space;
-	    status_attr->value_length = sizeof(long);
-	} else if (streql(XNFontSet, status_attr->name)) {
-	    CARD16 base_len = (CARD16)strlen(ic->status_attr.base_font);
-	    int total_len = sizeof(CARD16) + (CARD16)base_len;
-	    char *p;
-
-	    status_attr->value = (void *)malloc(total_len);
-	    p = (char *)status_attr->value;
-	    memmove(p, &base_len, sizeof(CARD16));
-	    p += sizeof(CARD16);
-	    strncpy(p, ic->status_attr.base_font, base_len);
-	    status_attr->value_length = total_len;
+    attr = data->status_attr;
+    for (i = 0; i < data->status_attr_num; i++, attr++) {
+	if (streql(XNArea, attr->name)) {
+	    attr->value_length = sizeof(XRectangle);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(XRectangle*)attr->value = ic->status_attr.area;
+	} else if (streql(XNAreaNeeded, attr->name)) {
+	    attr->value_length = sizeof(XRectangle);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(XRectangle*)attr->value = ic->status_attr.area_needed;
+	} else if (streql(XNForeground, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->status_attr.foreground;
+	} else if (streql(XNBackground, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->status_attr.background;
+	} else if (streql(XNLineSpace, attr->name)) {
+	    attr->value_length = sizeof(CARD32);
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		*(CARD32*)attr->value = ic->status_attr.line_space;
+	} else if (streql(XNFontSet, attr->name)) {
+	    attr->value_length = strlen(ic->status_attr.base_font) + 1;
+	    attr->value = malloc(attr->value_length);
+	    if (attr->value != NULL)
+		strncpy(attr->value, ic->preedit.base_font, attr->value_length);
 	} else {
-	    g_print("Nabi: get unknown status attributes: %s\n",
-		status_attr->name);
+	    nabi_log(1, "get unknown status attributes: %s\n", attr->name);
 	}
+
+	if (attr->value == NULL)
+	    attr->value_length = 0;
     }
 }
+
+#undef streql
 
 static char *utf8_to_compound_text(const char *utf8)
 {
