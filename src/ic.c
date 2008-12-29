@@ -330,10 +330,11 @@ nabi_ic_init_values(NabiIC *ic)
     ic->status_attr.base_font = NULL;
 
     ic->candidate = NULL;
-    ic->client_text = NULL;
 
     ic->toplevel = NULL;
 
+    ic->client_text = NULL;
+    ic->wait_for_client_text = FALSE;
     ic->has_str_conv_cb = FALSE;
 
     ic->hic = hangul_ic_new(nabi_server->hangul_keyboard);
@@ -1837,6 +1838,7 @@ static void
 nabi_ic_request_client_text(NabiIC* ic)
 {
     if (ic->has_str_conv_cb) {
+	ic->wait_for_client_text = TRUE;
 	IMStrConvCBStruct data;
 	data.major_code        = XIM_STR_CONVERSION;
 	data.minor_code        = 0;
@@ -2162,6 +2164,13 @@ nabi_ic_process_string_conversion_reply(NabiIC* ic, const char* text)
     if (text == NULL)
 	return;
 
+    //  gtk2의 xim module은 XIMStringConversionSubstitution에도 
+    //  string을 보내온다. 그런 경우에 무시하기 위해서 client text를 요구한 
+    //  경우에만 candidate window를 띄우고 아니면 무시한다.
+    if (!ic->wait_for_client_text)
+	return;
+
+    ic->wait_for_client_text = FALSE;
     if (ic->client_text == NULL)
 	ic->client_text = ustring_new();
 

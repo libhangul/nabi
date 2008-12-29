@@ -127,7 +127,8 @@ struct _NabiIC {
     NabiCandidate*	candidate;
 
     UString*            client_text;
-
+    gboolean            wait_for_client_text; /* whether this ic requested
+					       * client text */
     gboolean            has_str_conv_cb;  /* whether XNStringConversionCallback
 					   * registered */
 };
@@ -175,6 +176,8 @@ void    nabi_ic_reset(NabiIC *ic, IMResetICStruct *data);
 
 Bool    nabi_ic_popup_candidate_window(NabiIC *ic, const char* key);
 void    nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja);
+
+void    nabi_ic_process_string_conversion_reply(NabiIC* ic, const char* text);
 
 #endif /* _NABIIC_H_ */
 /* vim: set ts=8 sw=4 sts=4 : */
