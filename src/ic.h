@@ -113,7 +113,7 @@ struct _NabiIC {
     Window              focus_window;     /* focus window */
     char*               resource_name;    /* resource name */
     char*               resource_class;   /* resource class */
-    StatusAttributes    status_attr;      /* status attributes */
+    StatusAttributes    status;           /* status attributes */
     PreeditAttributes   preedit;          /* preedit attributes */
 
     NabiConnection*     connection;
