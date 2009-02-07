@@ -1187,7 +1187,7 @@ nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data)
 	    attr->value_length = strlen(ic->status.base_font) + 1;
 	    attr->value = malloc(attr->value_length);
 	    if (attr->value != NULL)
-		strncpy(attr->value, ic->preedit.base_font, attr->value_length);
+		strncpy(attr->value, ic->status.base_font, attr->value_length);
 	} else {
 	    nabi_log(1, "get unknown status attributes: %s\n", attr->name);
 	}
