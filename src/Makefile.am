@@ -30,6 +30,10 @@ nabi_SOURCES = \
 	ustring.h ustring.c \
 	main.c
 
-nabi_LDFLAGS = @LIBHANGUL_LIBS@ @X_LIBS@ @X_PRE_LIBS@ -lX11 @GTK_LIBS@ 
-nabi_LDADD = ../IMdkit/libXimd.a
-
+nabi_LDADD = \
+	../IMdkit/libXimd.a \
+	@GTK_LIBS@ \
+	@X_LIBS@ \
+	@X_PRE_LIBS@ \
+	-lX11 \
+	@LIBHANGUL_LIBS@
