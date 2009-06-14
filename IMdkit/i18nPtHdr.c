@@ -1922,100 +1922,72 @@ void _Xi18nMessageHandler (XIMS ims,
     switch (call_data.major_code)
     {
     case XIM_CONNECT:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_CONNECT\n");
-#endif
+	nabi_log(5, "XIM_CONNECT: cid: %d\n", connect_id);
         ConnectMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_DISCONNECT:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_DISCONNECT\n");
-#endif
+	nabi_log(5, "XIM_DISCONNECT: cid: %d\n", connect_id);
         DisConnectMessageProc (ims, &call_data);
         break;
 
     case XIM_OPEN:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_OPEN\n");
-#endif
+	nabi_log(5, "XIM_OPEN: cid: %d\n", connect_id);
         OpenMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_CLOSE:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_CLOSE\n");
-#endif
+	nabi_log(5, "XIM_CLOSE: cid: %d\n", connect_id);
         CloseMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_QUERY_EXTENSION:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_QUERY_EXTENSION\n");
-#endif
+	nabi_log(5, "XIM_QUERY_EXTENSION: cid: %d\n", connect_id);
         QueryExtensionMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_GET_IM_VALUES:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_GET_IM_VALUES\n");
-#endif
+	nabi_log(5, "XIM_GET_IM_VALUES: cid: %d\n", connect_id);
         GetIMValuesMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_CREATE_IC:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_CREATE_IC\n");
-#endif
+	nabi_log(5, "XIM_CREATE_IC: cid: %d\n", connect_id);
         CreateICMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_SET_IC_VALUES:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_SET_IC_VALUES\n");
-#endif
+	nabi_log(5, "XIM_SET_IC_VALUES: cid: %d\n", connect_id);
         SetICValuesMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_GET_IC_VALUES:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_GET_IC_VALUES\n");
-#endif
+	nabi_log(5, "XIM_GET_IC_VALUES: cid: %d\n", connect_id);
         GetICValuesMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_SET_IC_FOCUS:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_SET_IC_FOCUS\n");
-#endif
+	nabi_log(5, "XIM_SET_IC_FOCUS: cid: %d\n", connect_id);
         SetICFocusMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_UNSET_IC_FOCUS:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_UNSET_IC_FOCUS\n");
-#endif
+	nabi_log(5, "XIM_UNSET_IC_FOCUS: cid: %d\n", connect_id);
         UnsetICFocusMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_DESTROY_IC:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_DESTROY_IC\n");
-#endif
+	nabi_log(5, "XIM_DESTROY_IC: cid: %d\n", connect_id);
         DestroyICMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_RESET_IC:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_RESET_IC\n");
-#endif
+	nabi_log(5, "XIM_RESET_IC: cid: %d\n", connect_id);
         ResetICMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_FORWARD_EVENT:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_FORWARD_EVENT\n");
-#endif
+	nabi_log(5, "XIM_FORWARD_EVENT: cid: %d\n", connect_id);
         if (client->sync == True)
         {
 	    nabi_log(6, "XIM_FORWARD_EVENT(cid=%x: sync, add to queue\n", connect_id);
@@ -2030,62 +2002,47 @@ void _Xi18nMessageHandler (XIMS ims,
         break;
 
     case XIM_EXTENSION:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_EXTENSION\n");
-#endif
+	nabi_log(5, "XIM_EXTENSION: cid: %d\n", connect_id);
         ExtensionMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_SYNC:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_SYNC\n");
-#endif
+	nabi_log(5, "XIM_SYNC: cid: %d\n", connect_id);
         break;
 
     case XIM_SYNC_REPLY:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_SYNC_REPLY\n");
-#endif
-	nabi_log(6, "XIM_SYNC_REPLY(cid=%x) process queue\n", connect_id);
+	nabi_log(5, "XIM_SYNC_REPLY: cid: %d, process queue\n", connect_id);
         SyncReplyMessageProc (ims, &call_data, p1);
         ProcessQueue (ims, connect_id);
         break;
 
     case XIM_TRIGGER_NOTIFY:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_TRIGGER_NOTIFY\n");
-#endif
+	nabi_log(5, "XIM_TRIGGER_NOTIFY: cid: %d\n", connect_id);
         TriggerNotifyMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_ENCODING_NEGOTIATION:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_ENCODING_NEGOTIATION\n");
-#endif
+	nabi_log(5, "XIM_ENCODING_NEGOTIATION: cid: %d\n", connect_id);
         EncodingNegotiatonMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_PREEDIT_START_REPLY:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_PREEDIT_START_REPLY\n");
-#endif
+	nabi_log(5, "XIM_PREEDIT_START_REPLY: cid: %d\n", connect_id);
         PreeditStartReplyMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_PREEDIT_CARET_REPLY:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_PREEDIT_CARET_REPLY\n");
-#endif
+	nabi_log(5, "XIM_PREEDIT_CARET_REPLY: cid: %d\n", connect_id);
         PreeditCaretReplyMessageProc (ims, &call_data, p1);
         break;
 
     case XIM_STR_CONVERSION_REPLY:
-#ifdef DEBUG
-	DebugLog(3, verbose, "-- XIM_STR_CONVERSION_REPLY\n");
-#endif
-	nabi_log(6, "XIM_STR_CONVERSION_REPLY(cid=%x)\n", connect_id);
+	nabi_log(5, "XIM_STR_CONVERSION_REPLY: cid: %d\n", connect_id);
         StrConvReplyMessageProc (ims, &call_data, p1);
         break;
+    case XIM_ERROR:
+	nabi_log(3, "XIM_ERROR: cid: %d\n", connect_id);
+	break;
     default:
 	nabi_log(3, "unhandled XIM message: %d:%d\n",
 		    hdr->major_opcode, hdr->minor_opcode);
