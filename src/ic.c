@@ -1294,11 +1294,28 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     switch (mode) {
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_flush(ic);
-	nabi_ic_preedit_done(ic);
 	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_DIRECT);
+	nabi_ic_preedit_done(ic);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
-	nabi_ic_preedit_start(ic);
+	/* 전에는 여기서 nabi_ic_preedit_start()함수를 불렀는데
+	 * gvim에서 문제가 생겨서 키 입력이 시작될때 preedit start를 부르도록
+	 * 수정했다. #305259
+	 * gvim에서 :이나 /입력할때 영문 상태로 바꾸기위해서
+	 * xic를 destroy했다가 create하는데, 
+	 * 그런데 focus 이벤트에서 preedit start 콜백을 부르면 
+	 * xim client에서는 두번째 XCreateIC() 안에서 xim server로부터 응답을
+	 * 기다리다가 방금전 focus 이벤트에서 보냈던 preedit start callback을
+	 * 받아 이제 처리하게 된다. 이것은 방금전에 destroy된 IC의 것임에도
+	 * xlib에서는 그 응답을 받아서 preedit_start callback을 처리하는데
+	 * gvim의 preedit start callback에서는 다시 XIC를 create한다.
+	 * 따라서 XCreateIC() 함수안에서 다시 XCreateIC()를 부른 상황이 되는데
+	 * 이러면 첫번째 XCreateIC()의 응답이 먼처 처리되어야 하는데, 그렇지
+	 * 못하고 두번째 XCreateIC() 함수의 응답을 기다리게 되면서 xim
+	 * client 가 block 된다.
+	 * 이 문제를 쉽게 해결하기 위해서 preedit start 프로토콜을
+	 * 아무 키입력이나 시작했을 때에 보내는 방식으로 바꾼다.
+	 */
 	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_COMPOSE);
 	break;
     default:
@@ -1313,6 +1330,8 @@ nabi_ic_preedit_start(NabiIC *ic)
 {
     if (ic->preedit.start)
 	return;
+
+    nabi_log(5, "preedit start: %d-%d\n", ic->connection->id, ic->id);
 
     if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
@@ -1351,6 +1370,8 @@ nabi_ic_preedit_done(NabiIC *ic)
 {
     if (!ic->preedit.start)
 	return;
+
+    nabi_log(5, "preedit done: %d-%d\n", ic->connection->id, ic->id);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	if (ic->preedit.has_done_cb) {
@@ -1479,6 +1500,9 @@ nabi_ic_preedit_update(NabiIC *ic)
 
     nabi_log(3, "update preedit: id = %d-%d, preedit = '%s' + '%s'\n",
 	     ic->connection->id, ic->id, normal, hilight);
+    
+    if (!ic->preedit.start)
+	nabi_ic_preedit_start(ic);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	if (ic->preedit.has_draw_cb) {
