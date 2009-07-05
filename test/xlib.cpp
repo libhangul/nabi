@@ -815,7 +815,7 @@ void TextView::stringConversionCallback(XIM xim, XPointer client_data, XPointer 
 
     if (begin < 0)
 	begin = 0;
-    if (begin > curline->length())
+    if ((size_t)begin > curline->length())
 	begin = curline->length();
 
     if (end > curline->length())
@@ -823,7 +823,7 @@ void TextView::stringConversionCallback(XIM xim, XPointer client_data, XPointer 
 
     if (strconv->operation == XIMStringConversionRetrieval) {
 	std::wstring ret;
-	if (end > begin)
+	if (end > (size_t)begin)
 	    ret.assign(*curline, begin, end - begin);
 
 	if (!ret.empty()) {
@@ -845,7 +845,7 @@ void TextView::stringConversionCallback(XIM xim, XPointer client_data, XPointer 
 	    }
 	}
     } else if (strconv->operation == XIMStringConversionSubstitution) {
-	if (end > begin)
+	if (end > (size_t)begin)
 	    curline->erase(begin, end - begin);
 	    textview->m_caret.x = begin;
     }
@@ -883,7 +883,7 @@ main(int argc, char *argv[])
     printf("modifiers: %s\n", modifiers);
 
     int inputStyle = XIMPreeditCallbacks;
-    char *title = "XIM client - On the spot";
+    const char *title = "XIM client - On the spot";
     if (argc >= 2) {
 	if (strcmp(argv[1], "-on") == 0) {
 	    inputStyle = XIMPreeditCallbacks | XIMStatusCallbacks;
