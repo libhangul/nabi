@@ -42,6 +42,10 @@ public:
     static void preeditDoneCallback(XIM xim, XPointer client_data, XPointer data);
     static void preeditDrawCallback(XIM xim, XPointer client_data, XPointer data);
     static void preeditCaretCallback(XIM xim, XPointer client_data, XPointer data);
+
+    static void statusStartCallback(XIM xim, XPointer client_data, XPointer data);
+    static void statusDoneCallback(XIM xim, XPointer client_data, XPointer data);
+    static void statusDrawCallback(XIM xim, XPointer client_data, XPointer data);
     
     // string conversion callback
     static void stringConversionCallback(XIM xim, XPointer client_data, XPointer data);
@@ -199,18 +203,36 @@ void TextView::createIC(bool useStringConversion)
 	preedit_draw.client_data = (XPointer)this;
 	preedit_caret.callback = preeditCaretCallback;
 	preedit_caret.client_data = (XPointer)this;
-	XVaNestedList attr = XVaCreateNestedList(0,
+	XVaNestedList p_attr = XVaCreateNestedList(0,
 				 XNPreeditStartCallback, &preedit_start,
 				 XNPreeditDoneCallback,  &preedit_done,
 				 XNPreeditDrawCallback,  &preedit_draw,
 				 XNPreeditCaretCallback, &preedit_caret,
 				 NULL);
+
+	XIMCallback status_start;
+	XIMCallback status_done;
+	XIMCallback status_draw;
+	status_start.callback = statusStartCallback;
+	status_start.client_data = (XPointer)this;
+	status_done.callback = statusDoneCallback;
+	status_done.client_data = (XPointer)this;
+	status_draw.callback = statusDrawCallback;
+	status_draw.client_data = (XPointer)this;
+	XVaNestedList s_attr = XVaCreateNestedList(0,
+				 XNStatusStartCallback, &status_start,
+				 XNStatusDoneCallback,  &status_done,
+				 XNStatusDrawCallback,  &status_draw,
+				 NULL);
+
 	m_ic = XCreateIC(m_im, 
 			 XNInputStyle, XIMPreeditCallbacks,
 			 XNClientWindow, m_window,
-			 XNPreeditAttributes, attr,
+			 XNPreeditAttributes, p_attr,
+			 XNStatusAttributes, s_attr,
 			 NULL);
-	XFree(attr);
+	XFree(p_attr);
+	XFree(s_attr);
     } else if ((m_inputStyle & XIMPreeditPosition) == XIMPreeditPosition) {
 	XRectangle area;
 	area.x = 0;
@@ -748,6 +770,21 @@ void TextView::preeditCaretCallback(XIM xim, XPointer user_data, XPointer data)
     textview->draw();
 }
 
+void TextView::statusStartCallback(XIM xim, XPointer user_data, XPointer data)
+{
+    printf("status start\n");
+}
+
+void TextView::statusDoneCallback(XIM xim, XPointer user_data, XPointer data)
+{
+    printf("status done\n");
+}
+
+void TextView::statusDrawCallback(XIM xim, XPointer user_data, XPointer data)
+{
+    printf("status draw\n");
+}
+
 void TextView::stringConversionCallback(XIM xim, XPointer client_data, XPointer data)
 {
     short position;
@@ -849,7 +886,7 @@ main(int argc, char *argv[])
     char *title = "XIM client - On the spot";
     if (argc >= 2) {
 	if (strcmp(argv[1], "-on") == 0) {
-	    inputStyle = XIMPreeditCallbacks;
+	    inputStyle = XIMPreeditCallbacks | XIMStatusCallbacks;
 	    title = "XIM client - On the spot";
 	} else if (strcmp(argv[1], "-over") == 0) {
 	    inputStyle = XIMPreeditPosition;
