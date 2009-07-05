@@ -1,6 +1,6 @@
-AC_INIT(nabi, 0.99.3, http://kldp.net/projects/nabi/)
+AC_INIT(nabi, 0.99.4, http://kldp.net/projects/nabi/)
 
-AM_INIT_AUTOMAKE(nabi, 0.99.3)
+AM_INIT_AUTOMAKE(nabi, 0.99.4)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
