@@ -4,6 +4,9 @@ CFLAGS = -I/usr/X11R6/include -Wall -g
 CXXFLAGS = -I/usr/X11R6/include -Wall -g
 LIBS = -L/usr/X11R6/lib -lX11
 
+QT4_CXXFLAGS = $(shell pkg-config --cflags QtGui)
+QT4_LIBS = $(shell pkg-config --libs QtGui)
+
 all: xlib gtk gtk1 qt xim_filter.so
 
 clean:
@@ -23,3 +26,6 @@ qt: qt.cpp
 
 xim_filter.so: xim_filter.c
 	gcc -Wall -g -shared -fPIC xim_filter.c -o xim_filter.so -ldl
+
+qt4: qt4.cpp
+	g++ -Wall -g -O0 $(QT4_CXXFLAGS) $< -o $@ $(QT4_LIBS)
