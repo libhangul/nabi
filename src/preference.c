@@ -1017,7 +1017,7 @@ on_input_mode_scope_changed(GtkComboBox* combo_box, gpointer data)
 	input_mode_scope_str = g_strdup("per_application");
 	break;
     case NABI_INPUT_MODE_PER_IC:
-	input_mode_scope_str = g_strdup("per_context");
+	input_mode_scope_str = g_strdup("per_ic");
 	break;
     case NABI_INPUT_MODE_PER_TOPLEVEL:
     default:
@@ -1145,7 +1145,7 @@ create_advanced_page(GtkWidget* dialog)
     else if (strcmp(config->input_mode_scope->str, "per_application") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_APPLICATION);
-    else if (strcmp(config->input_mode_scope->str, "per_context") == 0)
+    else if (strcmp(config->input_mode_scope->str, "per_ic") == 0)
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box),
 				NABI_INPUT_MODE_PER_IC);
     else
