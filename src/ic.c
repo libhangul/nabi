@@ -503,7 +503,7 @@ nabi_ic_create_pango_layout(NabiIC *ic, const char* text)
 
     pango_context_set_font_description(context, nabi_server->preedit_font);
     pango_context_set_base_dir(context, PANGO_DIRECTION_LTR);
-    pango_context_set_language(context, pango_language_get_default());
+    pango_context_set_language(context, pango_language_from_string("ko"));
 
     layout = pango_layout_new(context);
     if (text != NULL)
