@@ -55,6 +55,7 @@ static NabiHangulKeyboard hangul_keyboard_list[] = {
     { "39", N_("3 set 390") },
     { "3s", N_("3 set no-shift") },
     { "3y", N_("3 set yetguel") },
+    { "ro", N_("Romaja") },
     { NULL, NULL }
 };
 

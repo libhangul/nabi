@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-05 13:50+0900\n"
+"POT-Creation-Date: 2009-10-16 22:54+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
@@ -57,6 +57,10 @@ msgstr "세벌식 순아래"
 #: src/server.c:57
 msgid "3 set yetguel"
 msgstr "세벌식 옛글"
+
+#: src/server.c:58
+msgid "Romaja"
+msgstr "로마자"
 
 #: src/ui.c:636
 msgid "XIM Server is not running"
