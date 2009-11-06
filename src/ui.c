@@ -1046,10 +1046,13 @@ static void
 install_event_filter(GtkWidget *widget)
 {
     GdkScreen *screen;
+    GdkEventMask mask;
 
     screen = gdk_drawable_get_screen(GDK_DRAWABLE(widget->window));
     nabi->root_window = gdk_screen_get_root_window(screen);
-    gdk_window_set_events(nabi->root_window, GDK_PROPERTY_CHANGE_MASK);
+
+    mask = gdk_window_get_events(nabi->root_window);
+    gdk_window_set_events(nabi->root_window, mask | GDK_PROPERTY_CHANGE_MASK);
     gdk_window_add_filter(nabi->root_window, root_window_event_filter, NULL);
 }
 
