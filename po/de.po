@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-16 22:54+0900\n"
+"POT-Creation-Date: 2009-11-07 13:58+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -151,7 +151,7 @@ msgstr "Tastaturstatistik"
 msgid "_Show palette"
 msgstr "Zeige Hinweis"
 
-#: src/ui.c:1133
+#: src/ui.c:1136
 msgid ""
 "<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
 "\n"
@@ -167,20 +167,20 @@ msgstr ""
 "Vorgabe zurückgesetzt.\n"
 "Bitte ändern Sie das Schema."
 
-#: src/ui.c:1140
+#: src/ui.c:1143
 msgid "Nabi: error message"
 msgstr "Nabi: Fehlermeldung"
 
-#: src/ui.c:1314
+#: src/ui.c:1317
 msgid "_Hide palette"
 msgstr "Hinweis ausblenden"
 
-#: src/ui.c:1463
+#: src/ui.c:1466
 #, c-format
 msgid "Nabi: %s"
 msgstr "Nabi: Zeichensatz: %s"
 
-#: src/ui.c:1467
+#: src/ui.c:1470
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
