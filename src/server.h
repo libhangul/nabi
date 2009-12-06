@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003-2008 Choe Hwanjin
+ * Copyright (C) 2003-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,6 +119,7 @@ struct _NabiServer {
     Bool                    commit_by_word;
     Bool                    auto_reorder;
     Bool                    show_status;
+    Bool                    hanja_mode;
     Bool                    use_simplified_chinese;
     NabiInputMode           default_input_mode;
     NabiInputMode           input_mode;
@@ -176,6 +177,7 @@ void        nabi_server_set_dynamic_event_flow(NabiServer* server, Bool flag);
 void        nabi_server_set_xim_name(NabiServer* server, const char* name);
 void        nabi_server_set_commit_by_word(NabiServer* server, Bool flag);
 void        nabi_server_set_auto_reorder(NabiServer* server, Bool flag);
+void        nabi_server_set_hanja_mode(NabiServer* server, Bool flag);
 void        nabi_server_set_default_input_mode(NabiServer* server,
 					       NabiInputMode mode);
 void        nabi_server_set_input_mode_scope(NabiServer* server,

@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003-2008 Choe Hwanjin
+ * Copyright (C) 2003-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -361,7 +361,7 @@ nabi_candidate_create_window(NabiCandidate *candidate)
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, TRUE, 0);
 
-    label = gtk_label_new(candidate->label);
+    label = GTK_WIDGET(candidate->label);
     gtk_box_pack_start(GTK_BOX(hbox), label, TRUE, TRUE, 6);
 
     button = gtk_radio_button_new_with_label(NULL, _("hanja"));
@@ -467,7 +467,7 @@ nabi_candidate_new(const char *label_str,
     candidate->n = 0;
     candidate->data = NULL;
     candidate->parent = parent;
-    candidate->label = g_strdup(label_str);
+    candidate->label = GTK_LABEL(gtk_label_new(label_str));
     candidate->store = NULL;
     candidate->treeview = NULL;
     candidate->commit = commit;
@@ -484,6 +484,7 @@ nabi_candidate_new(const char *label_str,
 	candidate->n_per_page = candidate->n;
 
     nabi_candidate_create_window(candidate);
+    nabi_candidate_update_cursor(candidate);
 
     return candidate;
 }
@@ -584,7 +585,35 @@ nabi_candidate_delete(NabiCandidate *candidate)
     hanja_list_delete(candidate->hanja_list);
     gtk_grab_remove(candidate->window);
     gtk_widget_destroy(candidate->window);
-    g_free(candidate->label);
     g_free(candidate->data);
     g_free(candidate);
+}
+
+void
+nabi_candidate_set_hanja_list(NabiCandidate *candidate,
+			    HanjaList* list,
+			    const Hanja** valid_list,
+			    int valid_list_length)
+{
+    const char* label;
+
+    if (candidate == NULL)
+	return;
+
+    if (list == NULL)
+	return;
+
+    hanja_list_delete(candidate->hanja_list);
+    g_free(candidate->data);
+
+    candidate->hanja_list = list;
+    candidate->data = valid_list;
+    candidate->n = valid_list_length;
+    candidate->current = 0;
+
+    label = hanja_list_get_key(list);
+    gtk_label_set_label(candidate->label, label);
+
+    nabi_candidate_update_list(candidate);
+    nabi_candidate_update_cursor(candidate);
 }

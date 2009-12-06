@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2007-2008 Choe Hwanjin
+ * Copyright (C) 2007-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -70,6 +70,7 @@ const static struct config_item config_items[] = {
     { "commit_by_word",     CONFIG_BOOL, OFFSET(commit_by_word)           },
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
     { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
+    { "hanja_mode",         CONFIG_BOOL, OFFSET(hanja_mode)               },
     { NULL,                 0,           0                                }
 };
 
@@ -213,6 +214,7 @@ nabi_config_new()
     config->use_dynamic_event_flow = TRUE;
     config->commit_by_word = FALSE;
     config->auto_reorder = TRUE;
+    config->hanja_mode = FALSE;
 
     config->use_simplified_chinese = FALSE;
 

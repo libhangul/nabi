@@ -160,6 +160,7 @@ nabi_server_new(Display* display, int screen, const char *name)
     server->dynamic_event_flow = True;
     server->commit_by_word = False;
     server->auto_reorder = True;
+    server->hanja_mode = False;
     server->default_input_mode = NABI_INPUT_MODE_DIRECT;
     server->input_mode = server->default_input_mode;
     server->input_mode_scope = NABI_INPUT_MODE_PER_TOPLEVEL;
@@ -953,6 +954,13 @@ nabi_server_set_input_mode_scope(NabiServer* server, NabiInputModeScope scope)
 {
     if (server != NULL)
 	server->input_mode_scope = scope;
+}
+
+void
+nabi_server_set_hanja_mode(NabiServer* server, Bool flag)
+{
+    if (server != NULL)
+	server->hanja_mode = flag;
 }
 
 void

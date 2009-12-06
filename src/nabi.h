@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003-2008 Choe Hwanjin
+ * Copyright (C) 2003-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,7 @@ void nabi_app_save_config(void);
 void nabi_app_set_theme(const char *name);
 void nabi_app_use_tray_icon(gboolean use);
 void nabi_app_show_palette(gboolean state);
+void nabi_app_set_hanja_mode(gboolean state);
 void nabi_app_set_hangul_keyboard(const char *id);
 
 GtkWidget* nabi_app_create_palette(void);

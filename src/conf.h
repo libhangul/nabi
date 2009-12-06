@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2007-2008 Choe Hwanjin
+ * Copyright (C) 2007-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ struct _NabiConfig {
     gboolean        commit_by_word;
     gboolean        auto_reorder;
     gboolean        use_simplified_chinese;
+    gboolean        hanja_mode;
 
     /* candidate options */
     GString*        candidate_font;

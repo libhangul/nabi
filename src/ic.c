@@ -41,13 +41,15 @@
 #include "ustring.h"
 #include "nabi.h"
 
-static void nabi_ic_preedit_configure(NabiIC *ic);
+static void  nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
 static char* nabi_ic_get_flush_string(NabiIC *ic);
 static void  nabi_ic_hic_on_translate(HangulInputContext* hic,
                          int ascii, ucschar* c, void* data);
 static bool  nabi_ic_hic_on_transition(HangulInputContext* hic,
 			 ucschar c, const ucschar* preedit, void* data);
+static Bool  nabi_ic_update_candidate_window(NabiIC *ic);
+
 
 static gboolean
 is_syllable_boundary(ucschar prev, ucschar next)
@@ -82,6 +84,19 @@ ustr_syllable_iter_prev(const ucschar* iter, const ucschar* begin)
 	if (is_syllable_boundary(prev, curr))
 	    break;
 	iter--;
+    }
+    return iter;
+}
+
+static const ucschar*
+ustr_syllable_iter_next(const ucschar* iter, const ucschar* end)
+{
+    while (iter < end) {
+	ucschar curr = iter[0];
+	ucschar next = iter[1];
+	iter++;
+	if (is_syllable_boundary(curr, next))
+	    break;
     }
     return iter;
 }
@@ -1491,6 +1506,11 @@ nabi_ic_preedit_update(NabiIC *ic)
     preedit_len = normal_len + hilight_len;
 
     if (preedit_len <= 0) {
+	if (ic->candidate != NULL) {
+	    nabi_candidate_delete(ic->candidate);
+	    ic->candidate = NULL;
+	}
+
 	nabi_ic_preedit_clear(ic);
 	g_free(normal);
 	g_free(hilight);
@@ -1626,7 +1646,8 @@ nabi_ic_commit_utf8(NabiIC *ic, const char *utf8_str)
 Bool
 nabi_ic_commit(NabiIC *ic)
 {
-    if (nabi_server->commit_by_word) {
+    if (nabi_server->commit_by_word ||
+	nabi_server->hanja_mode) {
 	const ucschar *str = hangul_ic_get_commit_string(ic->hic);
 
 	ustring_append_ucs4(ic->preedit.str, str, -1);
@@ -1766,26 +1787,19 @@ nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
 
     switch (keyval) {
     case XK_Up:
-    case XK_k:
 	nabi_candidate_prev(ic->candidate);
 	break;
     case XK_Down:
-    case XK_j:
 	nabi_candidate_next(ic->candidate);
 	break;
     case XK_Left:
-    case XK_h:
     case XK_Page_Up:
-    case XK_BackSpace:
     case XK_KP_Subtract:
 	nabi_candidate_prev_page(ic->candidate);
 	break;
     case XK_Right:
-    case XK_l:
-    case XK_space:
     case XK_Page_Down:
     case XK_KP_Add:
-    case XK_Tab:
 	nabi_candidate_next_page(ic->candidate);
 	break;
     case XK_Escape:
@@ -1846,13 +1860,34 @@ nabi_ic_candidate_process(NabiIC* ic, KeySym keyval)
 	hanja = nabi_candidate_get_nth(ic->candidate, 8);
 	break;
     default:
-	return False;
+	if (nabi_server->hanja_mode) {
+	    return False;
+	} else {
+	    switch (keyval) {
+	    case XK_k:
+		nabi_candidate_prev(ic->candidate);
+		break;
+	    case XK_j:
+		nabi_candidate_next(ic->candidate);
+		break;
+	    case XK_h:
+		nabi_candidate_prev_page(ic->candidate);
+		break;
+	    case XK_l:
+	    case XK_space:
+	    case XK_Tab:
+		nabi_candidate_next_page(ic->candidate);
+		break;
+	    default:
+		return False;
+	    }
+	}
     }
 
-    if (hanja != 0) {
+    if (hanja != NULL) {
 	nabi_ic_insert_candidate(ic, hanja);
-	nabi_candidate_delete(ic->candidate);
-	ic->candidate = NULL;
+	nabi_ic_preedit_update(ic);
+	nabi_ic_update_candidate_window(ic);
     }
 
     return True;
@@ -1908,7 +1943,13 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
     Bool ret;
 
     if (ic->candidate) {
-	return nabi_ic_candidate_process(ic, keysym);
+	ret = nabi_ic_candidate_process(ic, keysym);
+	if (nabi_server->hanja_mode) {
+	    if (ret)
+		return ret;
+	} else {
+	    return ret;
+	}
     }
 
     /* if shift is pressed, we dont commit current string 
@@ -1927,15 +1968,9 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 
     /* candiate */
     if (nabi_server_is_candidate_key(nabi_server, keysym, state)) {
-	Bool res;
-	char* key;
-
 	nabi_ic_request_client_text(ic);
-
-	key = nabi_ic_get_preedit_string(ic);
-	res = nabi_ic_popup_candidate_window(ic, key);
-	g_free(key);
-	return res;
+	nabi_ic_update_candidate_window(ic);
+	return True;
     }
 
     /* forward key event and commit current string if any state is on */
@@ -1974,7 +2009,19 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 
 	nabi_ic_commit(ic);
 	nabi_ic_preedit_update(ic);
+
+	if (nabi_server->hanja_mode) {
+	    nabi_ic_update_candidate_window(ic);
+	}
+
 	return ret;
+    }
+
+    if (nabi_server->hanja_mode) {
+	if (ic->candidate != NULL) {
+	    nabi_candidate_delete(ic->candidate);
+	    ic->candidate = NULL;
+	}
     }
 
     nabi_ic_flush(ic);
@@ -1992,25 +2039,31 @@ nabi_ic_candidate_commit_cb(NabiCandidate *candidate,
 
     ic = (NabiIC*)data;
     nabi_ic_insert_candidate(ic, hanja);
-    nabi_candidate_delete(candidate);
+    nabi_ic_preedit_update(ic);
+    nabi_ic_update_candidate_window(ic);
+}
+
+static void
+nabi_ic_close_candidate_window(NabiIC* ic)
+{
+    nabi_candidate_delete(ic->candidate);
     ic->candidate = NULL;
 }
 
-Bool
-nabi_ic_popup_candidate_window (NabiIC *ic, const char* key)
+static Bool
+nabi_ic_update_candidate_window_with_key(NabiIC *ic, const char* key)
 {
     Window parent = 0;
     HanjaList* list;
     char* p;
     char* normalized;
+    int valid_list_length = 0;
+    const Hanja **valid_list = NULL;
 
     if (ic->focus_window != 0)
 	parent = ic->focus_window;
     else if (ic->client_window != 0)
 	parent = ic->client_window;
-
-    if (ic->candidate != NULL)
-	nabi_candidate_delete(ic->candidate);
 
     p = strrchr(key, ' ');
     if (p != NULL)
@@ -2019,26 +2072,45 @@ nabi_ic_popup_candidate_window (NabiIC *ic, const char* key)
     while (isspace(*key) || ispunct(*key))
 	key++;
 
-    if (key[0] == '\0')
+    if (key[0] == '\0') {
+	nabi_ic_close_candidate_window(ic);
 	return True;
+    }
 
     /* candidate 검색을 위한 스트링이 자모형일 수도 있으므로 normalized하여
      * hanja table에서 검색을 해야 한다. */
     normalized = g_utf8_normalize(key, -1,
 				  G_NORMALIZE_DEFAULT_COMPOSE);
-    if (normalized == NULL)
+    if (normalized == NULL) {
+	nabi_ic_close_candidate_window(ic);
 	return True;
+    }
 
     nabi_log(6, "lookup string: %s\n", normalized);
-    list = hanja_table_match_suffix(nabi_server->symbol_table, normalized);
+    if (nabi_server->hanja_mode && ic->client_text == NULL)
+	list = hanja_table_match_prefix(nabi_server->symbol_table, normalized);
+    else if (nabi_server->commit_by_word && ic->client_text == NULL)
+	list = hanja_table_match_prefix(nabi_server->symbol_table, normalized);
+    else
+	list = hanja_table_match_suffix(nabi_server->symbol_table, normalized);
 
-    if (list == NULL)
-	list = hanja_table_match_suffix(nabi_server->hanja_table, normalized);
+    if (list == NULL) {
+	if (nabi_server->hanja_mode && ic->client_text == NULL)
+	    list = hanja_table_match_prefix(nabi_server->hanja_table,
+					    normalized);
+	else if (nabi_server->commit_by_word && ic->client_text == NULL)
+	    list = hanja_table_match_prefix(nabi_server->hanja_table,
+					    normalized);
+	else
+	    list = hanja_table_match_suffix(nabi_server->hanja_table,
+					    normalized);
+    }
 
     if (list != NULL) {
-	int i, valid_list_length = 0;
+	int i;
 	int n = hanja_list_get_size(list);
-	const Hanja **valid_list = g_new(const Hanja*, n);
+
+	valid_list = g_new(const Hanja*, n);
 
 	if (nabi_connection_need_check_charset(ic->connection)) {
 	    int j;
@@ -2057,18 +2129,35 @@ nabi_ic_popup_candidate_window (NabiIC *ic, const char* key)
 	    }
 	    valid_list_length = n;
 	}
-
-	if (valid_list_length > 0) {
-	    ic->candidate = nabi_candidate_new(key, 9,
-				    list, valid_list, valid_list_length,
-				    parent, &nabi_ic_candidate_commit_cb, ic);
-	} else {
-	    hanja_list_delete(list);
-	}
     }
+
+    if (valid_list_length > 0) {
+	if (ic->candidate != NULL) {
+	    nabi_candidate_set_hanja_list(ic->candidate,
+				list, valid_list, valid_list_length);
+	} else {
+	    ic->candidate = nabi_candidate_new(key, 9,
+				list, valid_list, valid_list_length,
+				parent, &nabi_ic_candidate_commit_cb, ic);
+	}
+    } else {
+	nabi_ic_close_candidate_window(ic);
+    }
+
     g_free(normalized);
 
     return True;
+}
+
+static Bool
+nabi_ic_update_candidate_window(NabiIC *ic)
+{
+    Bool res;
+    char* key = nabi_ic_get_preedit_string(ic);
+    res = nabi_ic_update_candidate_window_with_key(ic, key);
+    g_free(key);
+
+    return res;
 }
 
 void
@@ -2089,49 +2178,79 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
     if (key != NULL)
 	keylen = g_utf8_strlen(key, -1);
 
-    /* candidate를 입력하려면 원래 텍스트에서 candidate로 교체될 부분을
-     * 지우고 commit 하여야 한다.
-     * 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를 지운다.
-     * libhangul의 suffix 방식으로 매칭하는 것이므로 뒤쪽부터 한 음절씩 지워
-     * 나간다.
-     * candidate string의 구조는
-     *
-     *  client_text + nabi_ic_preedit_str + hangul_ic_preedit_str
-     *
-     * 과 같으므로 뒤쪽부터 순서대로 지운다.*/
-    /* hangul_ic_preedit_str */
-    if (keylen > 0) {
-	if (!hangul_ic_is_empty(ic->hic)) {
-	    hangul_ic_reset(ic->hic);
-	    keylen--;
-	}
-    }
-
-    /* nabi_ic_preedit_str */
-    if (ic->preedit.str != NULL) {
-	const ucschar* begin = ustring_begin(ic->preedit.str);
-	const ucschar* iter = ustring_end(ic->preedit.str);
-	while (keylen > 0 && ustring_length(ic->preedit.str) > 0) {
-	    guint pos;
+    if ((nabi_server->hanja_mode && ic->client_text == NULL) ||
+	(nabi_server->commit_by_word && ic->client_text == NULL)) {
+	/* 한자 모드나 단어 단위 입력에서는 prefix 방식으로 매칭하여 변환하므로
+	 * 앞에서부터 preedit text를 지워 나간다.
+	 * 그러나 client text가 있을 때에는 suffix 방식으로 검색해야 한다. */
+	if (ic->preedit.str != NULL &&
+	    ic->preedit.str->len > 0) {
+	    const ucschar* begin = ustring_begin(ic->preedit.str);
+	    const ucschar* end   = ustring_end(ic->preedit.str);
+	    const ucschar* iter  = begin;
 	    guint n;
-	    iter = ustr_syllable_iter_prev(iter, begin);
-	    pos = iter - begin;
-	    n = ustring_length(ic->preedit.str) - pos;
-	    ustring_erase(ic->preedit.str, pos, n);
-	    keylen--;
-	}
-    }
 
-    /* client_text */
-    if (ic->client_text != NULL) {
-	const ucschar* begin = ustring_begin(ic->client_text);
-	const ucschar* end = ustring_end(ic->client_text);
-	const ucschar* iter = end;
-	while (keylen > 0 && iter > begin) {
-	    iter = ustr_syllable_iter_prev(iter, begin);
-	    keylen--;
+	    while (keylen > 0 && iter < end) {
+		iter = ustr_syllable_iter_next(iter, end);
+		keylen--;
+	    }
+
+	    n = iter - begin;
+	    if (n > 0)
+		ustring_erase(ic->preedit.str, 0, n);
 	}
-	nabi_ic_delete_client_text(ic, end - iter);
+
+	if (keylen > 0) {
+	    if (!hangul_ic_is_empty(ic->hic)) {
+		hangul_ic_reset(ic->hic);
+		keylen--;
+	    }
+	}
+    } else {
+	/* candidate를 입력하려면 원래 텍스트에서 candidate로 교체될 부분을
+	 * 지우고 commit 하여야 한다.
+	 * 입력이 자모스트링으로 된 경우를 대비하여 syllable 단위로 글자를
+	 * 지운다.  libhangul의 suffix 방식으로 매칭하는 것이므로 뒤쪽부터 한
+	 * 음절씩 지워 나간다.
+	 * candidate string의 구조는
+	 *
+	 *  client_text + nabi_ic_preedit_str + hangul_ic_preedit_str
+	 *
+	 * 과 같으므로 뒤쪽부터 순서대로 지운다.*/
+	/* hangul_ic_preedit_str */
+	if (keylen > 0) {
+	    if (!hangul_ic_is_empty(ic->hic)) {
+		hangul_ic_reset(ic->hic);
+		keylen--;
+	    }
+	}
+
+	/* nabi_ic_preedit_str */
+	if (ic->preedit.str != NULL) {
+	    const ucschar* begin = ustring_begin(ic->preedit.str);
+	    const ucschar* iter = ustring_end(ic->preedit.str);
+	    while (keylen > 0 && ustring_length(ic->preedit.str) > 0) {
+		guint pos;
+		guint n;
+		iter = ustr_syllable_iter_prev(iter, begin);
+		pos = iter - begin;
+		n = ustring_length(ic->preedit.str) - pos;
+		ustring_erase(ic->preedit.str, pos, n);
+		keylen--;
+	    }
+	}
+
+	/* client_text */
+	if (ic->client_text != NULL) {
+	    const ucschar* begin = ustring_begin(ic->client_text);
+	    const ucschar* end = ustring_end(ic->client_text);
+	    const ucschar* iter = end;
+	    while (keylen > 0 && iter > begin) {
+		iter = ustr_syllable_iter_prev(iter, begin);
+		keylen--;
+	    }
+	    nabi_ic_delete_client_text(ic, end - iter);
+	}
     }
 
     if (strlen(value) > 0) {
@@ -2144,6 +2263,9 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	 * commit된 스트링뒤에서 나타나게 된다. */
 	if (ustring_length(ic->preedit.str) > 0) {
 	    preedit_left = ustring_to_utf8(ic->preedit.str, -1);
+	    if (!nabi_server->hanja_mode && !nabi_server->commit_by_word) {
+		ustring_clear(ic->preedit.str);
+	    }
 	} else {
 	    preedit_left = g_strdup("");
 	}
@@ -2158,12 +2280,28 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	    modified_value = g_strdup(value);
 	}
 
-	if (strcmp(nabi->config->candidate_format->str, "hanja(hangul)") == 0)
-	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, modified_value, key);
-	else if (strcmp(nabi->config->candidate_format->str, "hangul(hanja)") == 0)
-	    candidate = g_strdup_printf("%s%s(%s)", preedit_left, key, modified_value);
-	else
-	    candidate = g_strdup_printf("%s%s", preedit_left, modified_value);
+	if (strcmp(nabi->config->candidate_format->str, "hanja(hangul)") == 0) {
+	    if (nabi_server->hanja_mode || nabi_server->commit_by_word)
+		candidate = g_strdup_printf("%s(%s)",
+				modified_value, key);
+	    else
+		candidate = g_strdup_printf("%s%s(%s)",
+				preedit_left, modified_value, key);
+	} else if (strcmp(nabi->config->candidate_format->str, "hangul(hanja)") == 0) {
+	    if (nabi_server->hanja_mode || nabi_server->commit_by_word)
+		candidate = g_strdup_printf("%s(%s)",
+				key, modified_value);
+	    else
+		candidate = g_strdup_printf("%s%s(%s)",
+				preedit_left, key, modified_value);
+	} else {
+	    if (nabi_server->hanja_mode || nabi_server->commit_by_word)
+		candidate = g_strdup_printf("%s",
+				modified_value);
+	    else
+		candidate = g_strdup_printf("%s%s",
+				preedit_left, modified_value);
+	}
 
 	nabi_ic_commit_utf8(ic, candidate);
 
@@ -2172,11 +2310,8 @@ nabi_ic_insert_candidate(NabiIC *ic, const Hanja* hanja)
 	g_free(candidate);
     }
 
-    if (ic->preedit.str != NULL)
-	ustring_clear(ic->preedit.str);
     if (ic->client_text != NULL)
 	ustring_clear(ic->client_text);
-    nabi_ic_preedit_update(ic);
 }
 
 void
@@ -2204,7 +2339,7 @@ nabi_ic_process_string_conversion_reply(NabiIC* ic, const char* text)
     preedit = nabi_ic_get_preedit_string(ic);
     key = g_strconcat(text, preedit, NULL);
 
-    nabi_ic_popup_candidate_window(ic, key);
+    nabi_ic_update_candidate_window_with_key(ic, key);
 
     g_free(preedit);
     g_free(key);

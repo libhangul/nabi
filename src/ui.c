@@ -64,6 +64,7 @@ typedef struct _NabiStateIcon {
 typedef struct _NabiPalette {
     GtkWidget*     widget;
     NabiStateIcon* state;
+    GtkToggleButton* hanja_mode_button;
     guint          source_id;
 } NabiPalette;
 
@@ -85,6 +86,7 @@ static void nabi_palette_update_state(NabiPalette* palette, int state);
 static void nabi_palette_show(NabiPalette* palette);
 static void nabi_palette_hide(NabiPalette* palette);
 static void nabi_palette_destroy(NabiPalette* palette);
+static void nabi_palette_update_hanja_mode(NabiPalette* palette, gboolean state);
 
 static gboolean nabi_tray_icon_create(gpointer data);
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
@@ -885,6 +887,15 @@ on_menu_show_palette(GtkWidget *widget, gpointer data)
 }
 
 static void
+on_menu_hanja_mode(GtkWidget *widget, gpointer data)
+{
+    gboolean state;
+    state = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+    nabi_app_set_hanja_mode(state);
+    nabi_palette_update_hanja_mode(nabi_palette, state);
+}
+
+static void
 on_menu_hide_palette(GtkWidget *widget, gpointer data)
 {
     // tray icon을 사용하지 않는 상태에서는 palette를 hide하면 모든 ui가
@@ -943,6 +954,14 @@ create_tray_icon_menu(void)
 				   nabi->config->show_palette);
     g_signal_connect_swapped(G_OBJECT(menuitem), "toggled",
 			     G_CALLBACK(on_menu_show_palette), menuitem);
+
+    /* hanja mode */
+    menuitem = gtk_check_menu_item_new_with_mnemonic(_("_Hanja mode"));
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
+    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem),
+				   nabi->config->hanja_mode);
+    g_signal_connect_swapped(G_OBJECT(menuitem), "toggled",
+			     G_CALLBACK(on_menu_hanja_mode), menuitem);
 
     /* separator */
     menuitem = gtk_separator_menu_item_new();
@@ -1219,6 +1238,14 @@ on_palette_item_pressed(GtkWidget* widget, gpointer data)
 	    0, gtk_get_current_event_time());
 }
 
+static void
+on_palette_hanja_mode_toggled(GtkToggleButton* button, gpointer data)
+{
+    gboolean state;
+    state = gtk_toggle_button_get_active(button);
+    nabi_app_set_hanja_mode(state);
+}
+
 GtkWidget*
 nabi_app_create_palette(void)
 {
@@ -1234,6 +1261,7 @@ nabi_app_create_palette(void)
     nabi_palette = g_new(NabiPalette, 1);
     nabi_palette->widget = NULL;
     nabi_palette->state = NULL;
+    nabi_palette->hanja_mode_button = NULL;
     nabi_palette->source_id = 0;
 
     handlebox = nabi_handle_box_new();
@@ -1289,6 +1317,16 @@ nabi_app_create_palette(void)
 			     G_CALLBACK(on_palette_item_pressed), menu);
 	}
     }
+
+    button = gtk_toggle_button_new_with_label(_("Hanja mode"));
+    gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			nabi->config->hanja_mode);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_palette_hanja_mode_toggled), NULL);
+    gtk_widget_show(button);
+    nabi_palette->hanja_mode_button = GTK_TOGGLE_BUTTON(button);
 
     image = gtk_image_new_from_stock(GTK_STOCK_PROPERTIES, GTK_ICON_SIZE_MENU);
     button = gtk_button_new();
@@ -1367,6 +1405,13 @@ nabi_palette_update_state(NabiPalette* palette, int state)
 }
 
 static void
+nabi_palette_update_hanja_mode(NabiPalette* palette, gboolean state)
+{
+    if (palette != NULL)
+	gtk_toggle_button_set_active(palette->hanja_mode_button, state);
+}
+
+static void
 nabi_palette_destroy(NabiPalette* palette)
 {
     if (palette != NULL) {
@@ -1426,6 +1471,13 @@ nabi_app_show_palette(gboolean state)
 	nabi_palette_show(nabi_palette);
     else
 	nabi_palette_hide(nabi_palette);
+}
+
+void
+nabi_app_set_hanja_mode(gboolean state)
+{
+    nabi->config->hanja_mode = state;
+    nabi_server_set_hanja_mode(nabi_server, state);
 }
 
 void

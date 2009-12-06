@@ -1,5 +1,5 @@
 /* Nabi - X Input Method server for hangul
- * Copyright (C) 2003-2008 Choe Hwanjin
+ * Copyright (C) 2003-2009 Choe Hwanjin
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ typedef void (*NabiCandidateCommitFunc)(NabiCandidate*, const Hanja*, gpointer);
 struct _NabiCandidate {
     GtkWidget *window;
     Window parent;
-    gchar *label;
+    GtkLabel *label;
     GtkListStore *store;
     GtkWidget *treeview;
     const Hanja **data;
@@ -60,5 +60,9 @@ void               nabi_candidate_next_page(NabiCandidate *candidate);
 const Hanja*       nabi_candidate_get_current(NabiCandidate *candidate);
 const Hanja*       nabi_candidate_get_nth(NabiCandidate *candidate, int n);
 void               nabi_candidate_delete(NabiCandidate *candidate);
+void               nabi_candidate_set_hanja_list(NabiCandidate *candidate,
+						 HanjaList* list,
+						 const Hanja** valid_list,
+						 int valid_list_length);
 
 #endif /* _NABICANDIDATE_H_ */
