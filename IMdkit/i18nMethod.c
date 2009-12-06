@@ -508,7 +508,8 @@ static int SetXi18nSelectionOwner(Xi18n i18n_core)
     int forse = False;
     char buf[256];
 
-    (void)sprintf(buf, "@server=%s", i18n_core->address.im_name);
+    (void)snprintf(buf, sizeof(buf), "@server=%s", i18n_core->address.im_name);
+    buf[sizeof(buf) - 1] = '\0';
     if ((atom = XInternAtom(dpy, buf, False)) == 0)
         return False;
     i18n_core->address.selection = atom;
@@ -596,7 +597,8 @@ static int DeleteXi18nAtom(Xi18n i18n_core)
     int found;
     char buf[256];
 
-    (void)sprintf(buf, "@server=%s", i18n_core->address.im_name);
+    (void)snprintf(buf, sizeof(buf), "@server=%s", i18n_core->address.im_name);
+    buf[sizeof(buf) - 1] = '\0';
     if ((atom = XInternAtom(dpy, buf, False)) == 0)
         return False;
     i18n_core->address.selection = atom;
@@ -698,7 +700,7 @@ static void ReturnSelectionNotify (Xi18n i18n_core, XSelectionRequestEvent *ev)
 {
     XEvent event;
     Display *dpy = i18n_core->address.dpy;
-    char buf[256];
+    char buf[4096];
 
     event.type = SelectionNotify;
     event.xselection.requestor = ev->requestor;
@@ -708,11 +710,13 @@ static void ReturnSelectionNotify (Xi18n i18n_core, XSelectionRequestEvent *ev)
     event.xselection.property = ev->property;
     if (ev->target == i18n_core->address.Localename)
     {
-        sprintf (buf, "@locale=%s", i18n_core->address.im_locale);
+        snprintf (buf, sizeof(buf), "@locale=%s", i18n_core->address.im_locale);
+	buf[sizeof(buf) - 1] = '\0';
     }
     else if (ev->target == i18n_core->address.Transportname)
     {
-        sprintf (buf, "@transport=%s", i18n_core->address.im_addr);
+        snprintf (buf, sizeof(buf), "@transport=%s", i18n_core->address.im_addr);
+	buf[sizeof(buf) - 1] = '\0';
     }
     /*endif*/
     XChangeProperty (dpy,

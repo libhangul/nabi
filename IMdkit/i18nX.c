@@ -251,14 +251,15 @@ static Bool Xi18nXEnd(XIMS ims)
     return True;
 }
 
-static char *MakeNewAtom (CARD16 connect_id, char *atomName)
+static char *MakeNewAtom (CARD16 connect_id, char *atomName, size_t atomNameLen)
 {
     static int sequence = 0;
     
-    sprintf (atomName,
+    snprintf (atomName, atomNameLen - 1,
              "_server%d_%d",
              connect_id,
              ((sequence > 20)  ?  (sequence = 0)  :  sequence++));
+    atomName[atomNameLen - 1] = '\0';
     return atomName;
 }
 
@@ -280,7 +281,7 @@ static Bool Xi18nXSend (XIMS ims,
     if (length > XCM_DATA_LIMIT)
     {
         Atom atom;
-        char atomName[16];
+        char atomName[32];
         Atom actual_type_ret;
         int actual_format_ret;
         int return_code;
@@ -290,7 +291,7 @@ static Bool Xi18nXSend (XIMS ims,
 
         event.xclient.format = 32;
         atom = XInternAtom (i18n_core->address.dpy,
-                            MakeNewAtom (connect_id, atomName),
+                            MakeNewAtom (connect_id, atomName,sizeof(atomName)),
                             False);
         return_code = XGetWindowProperty (i18n_core->address.dpy,
                                           x_client->client_win,
