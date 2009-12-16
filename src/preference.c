@@ -554,6 +554,8 @@ update_off_keys_setting(GtkTreeModel *model)
 static void
 on_key_list_add_button_clicked(GtkWidget *widget, gpointer data)
 {
+    GtkWidget *toplevel;
+    GtkWindow *parent = NULL;
     GtkWidget *dialog;
     gchar* title;
     gchar* message;
@@ -562,7 +564,11 @@ on_key_list_add_button_clicked(GtkWidget *widget, gpointer data)
     title = g_object_get_data(G_OBJECT(widget), "dialog-title");
     message = g_object_get_data(G_OBJECT(widget), "dialog-message");
 
-    dialog = key_capture_dialog_new(title, NULL, "", message);
+    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(widget));
+    if (GTK_WIDGET_TOPLEVEL(toplevel))
+	parent = GTK_WINDOW(toplevel);
+
+    dialog = key_capture_dialog_new(title, parent, "", message);
 
 run:
     result = gtk_dialog_run(GTK_DIALOG(dialog));

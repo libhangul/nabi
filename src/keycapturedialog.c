@@ -24,20 +24,6 @@
 
 static char key_label_text[256] = { '\0', };
 
-static void
-key_capture_dialog_grab(GtkWidget *dialog)
-{
-    gdk_pointer_grab(GTK_WIDGET(dialog)->window, TRUE, GDK_BUTTON_PRESS_MASK, NULL, NULL, GDK_CURRENT_TIME);
-    gdk_keyboard_grab(GTK_WIDGET(dialog)->window, TRUE, GDK_CURRENT_TIME);
-}
-
-static void
-key_capture_dialog_ungrab(GtkWidget *dialog)
-{
-    gdk_keyboard_ungrab(GDK_CURRENT_TIME);
-    gdk_pointer_ungrab(GDK_CURRENT_TIME);
-}
-
 static gboolean
 on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
 {
@@ -77,33 +63,6 @@ on_key_press(GtkWidget *widget, GdkEventKey *event, gpointer data)
     gtk_window_present(GTK_WINDOW(widget));
 
     return TRUE;
-}
-
-static gboolean
-on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data)
-{
-    int width = 0, height = 0;
-
-    gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
-    if (event->x < 0 || event->y < 0 ||
-	event->x > width || event->y > height) {
-	gtk_dialog_response(GTK_DIALOG(widget), GTK_RESPONSE_CANCEL);
-	return TRUE;
-    }
-    return FALSE;
-}
-
-static gboolean
-on_focus(GtkWidget *widget, GdkEventFocus *event, gpointer data)
-{
-    key_capture_dialog_grab(widget);
-    return TRUE;
-}
-
-static void
-on_close(GtkWidget *widget, gpointer data)
-{
-    key_capture_dialog_ungrab(widget);
 }
 
 GtkWidget*
@@ -175,12 +134,6 @@ key_capture_dialog_new(const gchar *title,
 
     g_signal_connect(G_OBJECT(dialog), "key-press-event",
 		     G_CALLBACK(on_key_press), dialog);
-    g_signal_connect(G_OBJECT(dialog), "button-press-event",
-		     G_CALLBACK(on_button_press), dialog);
-    g_signal_connect(G_OBJECT(dialog), "focus-in-event",
-		     G_CALLBACK(on_focus), NULL);
-    g_signal_connect(G_OBJECT(dialog), "close",
-		     G_CALLBACK(on_close), NULL);
 
     return dialog;
 }
