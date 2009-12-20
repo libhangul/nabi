@@ -533,6 +533,10 @@ nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *preedit,
 {
     GdkGC *normal_gc;
     GdkGC *hilight_gc;
+    PangoContext *context;
+    const PangoFontDescription *desc;
+    PangoFontMetrics *metrics;
+    int ascent;
     PangoLayout *normal_l;
     PangoLayout *hilight_l;
     PangoRectangle normal_r = { 0, 0, 12, 12 };
@@ -560,11 +564,15 @@ nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *preedit,
 	gdk_colormap_query_color(colormap, ic->preedit.background, &bg);
     }
 
-    ic->preedit.ascent = ABS(normal_r.y);
+    context = pango_layout_get_context(hilight_l);
+    desc = pango_layout_get_font_description(hilight_l);
+    metrics = pango_context_get_metrics(context, desc,
+				 pango_language_from_string("ko"));
+
+    ascent = pango_font_metrics_get_ascent(metrics);
+    ic->preedit.ascent = PANGO_PIXELS(ascent);
     ic->preedit.descent = normal_r.height - ic->preedit.ascent;
 
-    ic->preedit.spot.x = 0;
-    ic->preedit.spot.y = 0;
     ic->preedit.width = normal_r.width + hilight_r.height + 3;
     ic->preedit.height = MAX(normal_r.height, hilight_r.height) + 3;
     nabi_ic_preedit_configure(ic);
@@ -576,12 +584,18 @@ nabi_ic_preedit_gdk_draw_string(NabiIC *ic, char *preedit,
     gdk_draw_layout_with_colors(ic->preedit.window, hilight_gc,
 				1 + normal_r.width, 1, hilight_l, &bg, &fg);
 
+    if (normal_r.width > 0) {
+	int w = normal_r.width + hilight_r.width;
+	int h = MAX(normal_r.height, hilight_r.height);
+	gdk_draw_line(ic->preedit.window, normal_gc, 1, h, 1 + w, h);
+    }
+
     g_object_unref(G_OBJECT(normal_l));
     g_object_unref(G_OBJECT(hilight_l));
 }
 
 static void
-nabi_ic_preedit_draw_string(NabiIC *ic, char* preedit,
+nabi_ic_preedit_x11_draw_string(NabiIC *ic, char* preedit,
 			    char *normal, char* hilight)
 {
     GC normal_gc;
@@ -675,7 +689,10 @@ nabi_ic_preedit_draw(NabiIC *ic)
 
     size = strlen(preedit);
     if (ic->input_style & XIMPreeditPosition) {
-	nabi_ic_preedit_draw_string(ic, preedit, normal, hilight);
+	if (ic->preedit.font_set != NULL)
+	    nabi_ic_preedit_x11_draw_string(ic, preedit, normal, hilight);
+	else
+	    nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
     } else if (ic->input_style & XIMPreeditArea) {
 	nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
     } else if (ic->input_style & XIMPreeditNothing) {
@@ -744,8 +761,8 @@ nabi_ic_preedit_configure(NabiIC *ic)
 	w = ic->preedit.width;
 	h = ic->preedit.height;
     } else if (ic->input_style & XIMPreeditNothing) {
-	x = ic->preedit.spot.x;
-	y = ic->preedit.spot.y - ic->preedit.ascent;
+	x = 0;
+	y = 0;
 	w = ic->preedit.width;
 	h = ic->preedit.height;
     }
@@ -797,6 +814,8 @@ nabi_ic_preedit_window_new(NabiIC *ic)
     gint mask;
     guint connect_id;
     guint ic_id;
+    GdkColor fg = { 0, 0, 0, 0 };
+    GdkColor bg = { 0, 0, 0, 0 };
 
     if (ic->focus_window != 0)
 	parent = gdk_window_foreign_new(ic->focus_window);
@@ -818,7 +837,10 @@ nabi_ic_preedit_window_new(NabiIC *ic)
     mask = GDK_WA_X | GDK_WA_Y | GDK_WA_NOREDIR;
 
     ic->preedit.window = gdk_window_new(parent, &attr, mask);
-    gdk_window_set_background(ic->preedit.window, &(nabi_server->preedit_bg));
+
+    fg.pixel = ic->preedit.foreground;
+    bg.pixel = ic->preedit.background;
+    gdk_window_set_background(ic->preedit.window, &bg);
 
     if (ic->preedit.normal_gc != NULL)
 	g_object_unref(G_OBJECT(ic->preedit.normal_gc));
@@ -827,12 +849,12 @@ nabi_ic_preedit_window_new(NabiIC *ic)
 	g_object_unref(G_OBJECT(ic->preedit.hilight_gc));
 
     ic->preedit.normal_gc = gdk_gc_new(ic->preedit.window);
-    gdk_gc_set_foreground(ic->preedit.normal_gc, &(nabi_server->preedit_fg));
-    gdk_gc_set_background(ic->preedit.normal_gc, &(nabi_server->preedit_bg));
+    gdk_gc_set_foreground(ic->preedit.normal_gc, &fg);
+    gdk_gc_set_background(ic->preedit.normal_gc, &bg);
 
     ic->preedit.hilight_gc = gdk_gc_new(ic->preedit.window);
-    gdk_gc_set_foreground(ic->preedit.hilight_gc, &(nabi_server->preedit_bg));
-    gdk_gc_set_background(ic->preedit.hilight_gc, &(nabi_server->preedit_fg));
+    gdk_gc_set_foreground(ic->preedit.hilight_gc, &bg);
+    gdk_gc_set_background(ic->preedit.hilight_gc, &fg);
 
     /* install our preedit window event filter */
     connect_id = ic->connection->id;
@@ -1552,7 +1574,10 @@ nabi_ic_preedit_update(NabiIC *ic)
 	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_show(ic);
-	nabi_ic_preedit_draw_string(ic, preedit, normal, hilight);
+	if (ic->preedit.font_set != NULL)
+	    nabi_ic_preedit_x11_draw_string(ic, preedit, normal, hilight);
+	else
+	    nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
     } else if (ic->input_style & XIMPreeditArea) {
 	nabi_ic_preedit_show(ic);
 	nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
