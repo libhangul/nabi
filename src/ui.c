@@ -956,7 +956,7 @@ create_tray_icon_menu(void)
 			     G_CALLBACK(on_menu_show_palette), menuitem);
 
     /* hanja mode */
-    menuitem = gtk_check_menu_item_new_with_mnemonic(_("_Hanja mode"));
+    menuitem = gtk_check_menu_item_new_with_mnemonic(_("_Hanja Lock"));
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menuitem),
 				   nabi->config->hanja_mode);
@@ -1318,7 +1318,7 @@ nabi_app_create_palette(void)
 	}
     }
 
-    button = gtk_toggle_button_new_with_label(_("Hanja mode"));
+    button = gtk_toggle_button_new_with_label(_("Hanja Lock"));
     gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NONE);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
 			nabi->config->hanja_mode);
