@@ -66,6 +66,44 @@
 0x007b 0x005f   # XK_braceleft          -> XK_underscore
 0x007d 0x002b   # XK_braceright         -> XK_plus
 
+[Colemak]
+0x003a 0x006f   # XK_colon              -> XK_o
+0x003b 0x004f   # XK_semicolon          -> XK_O
+0x0044 0x0053   # XK_D                  -> XK_S
+0x0045 0x0046   # XK_E                  -> XK_F
+0x0046 0x0054   # XK_F                  -> XK_T
+0x0046 0x0059   # XK_F                  -> XK_Y
+0x0047 0x0044   # XK_G                  -> XK_D
+0x0049 0x0055   # XK_I                  -> XK_U
+0x004a 0x004e   # XK_J                  -> XK_N
+0x004b 0x0045   # XK_K                  -> XK_E
+0x004c 0x0049   # XK_L                  -> XK_I
+0x004e 0x004b   # XK_N                  -> XK_K
+0x004f 0x0059   # XK_O                  -> XK_Y
+0x0050 0x003b   # XK_P                  -> XK_semicolon
+0x0052 0x0050   # XK_R                  -> XK_P
+0x0053 0x0052   # XK_S                  -> XK_R
+0x0054 0x0047   # XK_T                  -> XK_G
+0x0055 0x004c   # XK_U                  -> XK_L
+0x0059 0x004a   # XK_Y                  -> XK_J
+0x0064 0x0073   # XK_d                  -> XK_s
+0x0065 0x0066   # XK_e                  -> XK_f
+0x0066 0x0074   # XK_f                  -> XK_t
+0x0066 0x0079   # XK_f                  -> XK_y
+0x0067 0x0064   # XK_g                  -> XK_d
+0x0069 0x0075   # XK_i                  -> XK_u
+0x006a 0x006e   # XK_j                  -> XK_n
+0x006b 0x0065   # XK_k                  -> XK_e
+0x006c 0x0069   # XK_l                  -> XK_i
+0x006e 0x006b   # XK_n                  -> XK_k
+0x006f 0x0079   # XK_o                  -> XK_y
+0x0070 0x003a   # XK_p                  -> XK_colon
+0x0072 0x0070   # XK_r                  -> XK_p
+0x0073 0x0072   # XK_s                  -> XK_r
+0x0074 0x0067   # XK_t                  -> XK_g
+0x0075 0x006c   # XK_u                  -> XK_l
+0x0079 0x006a   # XK_y                  -> XK_j
+
 [French]
 0x0021 0x002f   # XK_exclam             -> XK_slash
 0x0022 0x0033   # XK_quotedbl           -> XK_3
