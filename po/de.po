@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-27 15:44+0900\n"
+"POT-Creation-Date: 2010-01-02 21:26+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -111,12 +111,12 @@ msgid "About Nabi"
 msgstr "Über Nabi"
 
 #: src/ui.c:776
-#, c-format
+#, fuzzy, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
 "\n"
-"Copyright (C) 2003-2008 Choe Hwanjin"
+"Copyright (C) 2003-2010 Choe Hwanjin"
 msgstr ""
 "<span size=\"large\">Eine einfache Eingabemethode für koreanische Zeichen</"
 "span>\n"
