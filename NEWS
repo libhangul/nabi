@@ -1,3 +1,12 @@
+나비 0.99.7
+ * 한자 전용 모드 구현
+ * 어플리케이션과 nabi의 locale이 달라도 UTF-8 이면 한글입력이
+   가능하도록 함
+ * X window에서 fontset을 생성할 수 없을때에도 preedit string을 그릴 수 
+   있도록 함 (#315002)
+ * Colemak 자판 지원 (http://kldp.net/projects/nabi/forum/309771)
+ * 버그 수정
+
 나비 0.99.6
  * 버그수정: [#305368] 알림영역에 들어가지 않는 문제
    최근 버젼의 배포판에서 자동으로 알림영역(Notification Area)에 들어가지
