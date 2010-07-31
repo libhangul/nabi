@@ -24,7 +24,6 @@
 #endif
 
 #include <X11/Xlib.h>
-#include <wchar.h>
 #include <time.h>
 
 #include <glib.h>

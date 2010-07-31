@@ -168,7 +168,6 @@ void    nabi_ic_status_done(NabiIC *ic);
 void    nabi_ic_status_update(NabiIC *ic);
 
 Bool    nabi_ic_commit(NabiIC *ic);
-Bool    nabi_ic_commit_keyval(NabiIC *ic, wchar_t ch, KeySym keyval);
 
 Bool    nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state);
 void    nabi_ic_flush(NabiIC *ic);
