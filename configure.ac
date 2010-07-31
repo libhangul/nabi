@@ -1,10 +1,11 @@
 AC_INIT(nabi, 0.99.7, http://kldp.net/projects/nabi/)
+AM_INIT_AUTOMAKE([])
 
-AM_INIT_AUTOMAKE(nabi, 0.99.7)
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
 AC_PROG_CC
+AM_PROG_CC_C_O
 AC_OBJEXT
 AC_PROG_RANLIB
 AC_PROG_INSTALL
