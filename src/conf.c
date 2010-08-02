@@ -71,6 +71,7 @@ const static struct config_item config_items[] = {
     { "auto_reorder",       CONFIG_BOOL, OFFSET(auto_reorder)             },
     { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
     { "hanja_mode",         CONFIG_BOOL, OFFSET(hanja_mode)               },
+    { "ignore_app_fontset", CONFIG_BOOL, OFFSET(ignore_app_fontset)       },
     { NULL,                 0,           0                                }
 };
 
@@ -215,8 +216,8 @@ nabi_config_new()
     config->commit_by_word = FALSE;
     config->auto_reorder = TRUE;
     config->hanja_mode = FALSE;
-
     config->use_simplified_chinese = FALSE;
+    config->ignore_app_fontset = FALSE;
 
     return config;
 }

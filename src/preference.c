@@ -991,6 +991,17 @@ on_auto_reorder_button_toggled(GtkToggleButton *button, gpointer data)
 }
 
 static void
+on_ignore_app_fontset_button_toggled(GtkToggleButton *button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    config->ignore_app_fontset = flag;
+    nabi_server_set_ignore_app_fontset(nabi_server, flag);
+
+    nabi_log(4, "preference: set ignore app fontset: %d\n", flag);
+}
+
+static void
 on_default_input_mode_button_toggled(GtkToggleButton *button, gpointer data)
 {
     gboolean flag = gtk_toggle_button_get_active(button);
@@ -1176,6 +1187,17 @@ create_advanced_page(GtkWidget* dialog)
     g_signal_connect(G_OBJECT(button), "font-set",
 		     G_CALLBACK(on_preedit_font_changed), NULL);
 
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    button = gtk_check_button_new_with_label(_("Ignore fontset information from the client"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->ignore_app_fontset);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-ignore-app-fontset", button);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_ignore_app_fontset_button_toggled), NULL);
+
     return page;
 }
 
@@ -1313,6 +1335,11 @@ on_preference_reset(GtkWidget *button, gpointer data)
     if (p != NULL) {
 	gtk_font_button_set_font_name(GTK_FONT_BUTTON(p), "Sans 9");
 	g_signal_emit_by_name(p, "font-set", NULL);
+    }
+
+    p = g_object_get_data(dialog, "nabi-pref-ignore-app-fonset");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
     }
 }
 

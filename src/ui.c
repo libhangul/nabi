@@ -372,6 +372,8 @@ nabi_app_setup_server(void)
     }
 
     nabi_server_set_preedit_font(nabi_server, nabi->config->preedit_font->str);
+    nabi_server_set_ignore_app_fontset(nabi_server,
+				      nabi->config->ignore_app_fontset);
 }
 
 void

@@ -51,6 +51,7 @@ struct _NabiConfig {
     gboolean        auto_reorder;
     gboolean        use_simplified_chinese;
     gboolean        hanja_mode;
+    gboolean        ignore_app_fontset;
 
     /* candidate options */
     GString*        candidate_font;

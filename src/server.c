@@ -369,6 +369,7 @@ nabi_server_new(Display* display, int screen, const char *name)
     /* options */
     server->show_status = False;
     server->use_simplified_chinese = False;
+    server->ignore_app_fontset = False;
     server->preedit_fg.pixel = 0;
     server->preedit_fg.red = 0xffff;
     server->preedit_fg.green = 0;
@@ -1162,6 +1163,13 @@ nabi_server_set_simplified_chinese(NabiServer* server, Bool state)
 {
     if (server != NULL)
 	server->use_simplified_chinese = state;
+}
+
+void
+nabi_server_set_ignore_app_fontset(NabiServer* server, Bool state)
+{
+    if (server != NULL)
+	server->ignore_app_fontset = state;
 }
 
 void

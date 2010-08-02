@@ -120,6 +120,7 @@ struct _NabiServer {
     Bool                    show_status;
     Bool                    hanja_mode;
     Bool                    use_simplified_chinese;
+    Bool                    ignore_app_fontset;
     NabiInputMode           default_input_mode;
     NabiInputMode           input_mode;
     NabiInputModeScope      input_mode_scope;
@@ -182,6 +183,7 @@ void        nabi_server_set_default_input_mode(NabiServer* server,
 void        nabi_server_set_input_mode_scope(NabiServer* server,
 					     NabiInputModeScope scope);
 void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
+void        nabi_server_set_ignore_app_fontset(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_get_ic          (NabiServer *server,
 					 CARD16 connect_id, CARD16 icid);

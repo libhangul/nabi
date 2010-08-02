@@ -689,7 +689,8 @@ nabi_ic_preedit_draw(NabiIC *ic)
 
     size = strlen(preedit);
     if (ic->input_style & XIMPreeditPosition) {
-	if (ic->preedit.font_set != NULL)
+	if (!nabi_server->ignore_app_fontset &&
+	    ic->preedit.font_set != NULL)
 	    nabi_ic_preedit_x11_draw_string(ic, preedit, normal, hilight);
 	else
 	    nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
@@ -1063,7 +1064,9 @@ nabi_ic_set_values(NabiIC *ic, IMChangeICStruct *data)
 	    ic->preedit.state = state;
 	} else if (streql(XNFontSet, attr->name)) {
 	    char* fontset = (char*)attr->value;
-	    nabi_ic_load_preedit_fontset(ic, fontset);
+	    if (!nabi_server->ignore_app_fontset) {
+		nabi_ic_load_preedit_fontset(ic, fontset);
+	    }
 	    nabi_log(5, "set ic value: id = %d-%d, fontset = %s\n",
 		     ic->id, ic->connection->id, fontset);
 	} else if (streql(XNPreeditStartCallback, attr->name)) {
@@ -1574,7 +1577,8 @@ nabi_ic_preedit_update(NabiIC *ic)
 	}
     } else if (ic->input_style & XIMPreeditPosition) {
 	nabi_ic_preedit_show(ic);
-	if (ic->preedit.font_set != NULL)
+	if (!nabi_server->ignore_app_fontset &&
+	    ic->preedit.font_set != NULL)
 	    nabi_ic_preedit_x11_draw_string(ic, preedit, normal, hilight);
 	else
 	    nabi_ic_preedit_gdk_draw_string(ic, preedit, normal, hilight);
