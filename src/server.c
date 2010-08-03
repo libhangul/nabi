@@ -465,14 +465,17 @@ void
 nabi_server_set_mode_info(NabiServer *server, int state)
 {
     long data;
+    Window root;
+    Atom property;
+    Atom type;
 
     if (server == NULL)
 	return;
 
     data = state;
-    Window root = RootWindow(server->display, server->screen);
-    Atom property = XInternAtom(server->display, "_HANGUL_INPUT_MODE", FALSE);
-    Atom type = XInternAtom(server->display, "INTEGER", FALSE);
+    root = RootWindow(server->display, server->screen);
+    property = XInternAtom(server->display, "_HANGUL_INPUT_MODE", FALSE);
+    type = XInternAtom(server->display, "INTEGER", FALSE);
 
     XChangeProperty(server->display, root, property, type, 
 		    32, PropModeReplace, (unsigned char*)&data, 1);

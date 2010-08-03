@@ -205,10 +205,11 @@ nabi_connection_destroy_ic(NabiConnection* conn, NabiIC* ic)
 NabiIC*
 nabi_connection_get_ic(NabiConnection* conn, CARD16 id)
 {
+    GSList* item;
     if (conn == NULL || id == 0)
 	return NULL;
 
-    GSList* item = conn->ic_list;
+    item = conn->ic_list;
     while (item != NULL) {
 	NabiIC* ic = (NabiIC*)item->data;
 	if (ic->id == id)
@@ -1926,8 +1927,9 @@ static void
 nabi_ic_request_client_text(NabiIC* ic)
 {
     if (ic->has_str_conv_cb) {
-	ic->wait_for_client_text = TRUE;
 	IMStrConvCBStruct data;
+
+	ic->wait_for_client_text = TRUE;
 	data.major_code        = XIM_STR_CONVERSION;
 	data.minor_code        = 0;
 	data.connect_id        = ic->connection->id;
