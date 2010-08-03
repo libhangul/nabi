@@ -1,7 +1,7 @@
 
 noinst_LIBRARIES = libXimd.a
 
-libXimd_a_CFLAGS = @X_CFLAGS@
+libXimd_a_CFLAGS = $(X_CFLAGS)
 
 libXimd_a_SOURCES = \
 	FrameMgr.c \

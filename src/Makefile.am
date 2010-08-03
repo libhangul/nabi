@@ -1,12 +1,12 @@
 
 bin_PROGRAMS = nabi
 nabi_CFLAGS = \
-	@X_CFLAGS@ \
-	@GTK_CFLAGS@ \
-	@LIBHANGUL_CFLAGS@ \
-	-DLOCALEDIR=\"${localedir}\" \
-	-DNABI_DATA_DIR=\"@NABI_DATA_DIR@\" \
-	-DNABI_THEMES_DIR=\"@NABI_THEMES_DIR@\"
+	$(X_CFLAGS) \
+	$(GTK_CFLAGS) \
+	$(LIBHANGUL_CFLAGS) \
+	-DLOCALEDIR=\"$(localedir)\" \
+	-DNABI_DATA_DIR=\"$(NABI_DATA_DIR)\" \
+	-DNABI_THEMES_DIR=\"$(NABI_THEMES_DIR)\"
 
 nabi_SOURCES = \
 	nabi.h \
@@ -32,8 +32,8 @@ nabi_SOURCES = \
 
 nabi_LDADD = \
 	../IMdkit/libXimd.a \
-	@GTK_LIBS@ \
-	@X_LIBS@ \
-	@X_PRE_LIBS@ \
+	$(GTK_LIBS) \
+	$(X_LIBS) \
+	$(X_PRE_LIBS) \
 	-lX11 \
-	@LIBHANGUL_LIBS@
+	$(LIBHANGUL_LIBS)
