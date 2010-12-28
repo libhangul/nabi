@@ -191,7 +191,7 @@ nabi_config_new()
     config->palette_height = 24;
     config->use_tray_icon = TRUE;
     config->xim_name = g_string_new(PACKAGE);
-    config->theme = g_string_new("Jini");
+    config->theme = g_string_new(DEFAULT_THEME);
 
     config->hangul_keyboard = g_string_new(DEFAULT_KEYBOARD);
     config->latin_keyboard = g_string_new("none");

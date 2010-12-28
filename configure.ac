@@ -88,6 +88,21 @@ case "$with_default_keyboard" in
 	;;
 esac
 
+# default theme
+AC_MSG_CHECKING([for default theme name])
+AC_ARG_WITH(default-theme, [  --with-default-theme=[THEME]   default icon theme])
+if test -n "$with_default_theme"; then
+    if test ! -d "themes/$with_default_theme"; then
+	AC_MSG_NOTICE([there is no such theme directory: $with_default_theme, use default])
+	with_default_theme="Jini"
+    fi
+else
+    with_default_theme="Jini"
+fi
+
+AC_MSG_RESULT([$with_default_theme])
+AC_DEFINE_UNQUOTED(DEFAULT_THEME, "$with_default_theme", [Define default icon theme])
+
 if test "$enable_debug" = "yes"; then
     AC_DEFINE(NABI_DEBUG, 1, [Define to 1 if you want to use debug code])
     CFLAGS="$CFLAGS -Wall -g"

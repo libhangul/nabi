@@ -1217,7 +1217,7 @@ on_preference_reset(GtkWidget *button, gpointer data)
     p = g_object_get_data(dialog, "nabi-pref-theme");
     if (p != NULL) {
 	model = gtk_tree_view_get_model(GTK_TREE_VIEW(p));
-	path = search_text_in_model(model, THEMES_LIST_NAME, "Jini");
+	path = search_text_in_model(model, THEMES_LIST_NAME, DEFAULT_THEME);
 	if (path != NULL) {
 	    gtk_tree_view_set_cursor (GTK_TREE_VIEW(p), path, NULL, FALSE);
 	    gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(p),
@@ -1225,7 +1225,7 @@ on_preference_reset(GtkWidget *button, gpointer data)
 	    gtk_tree_path_free(path);
 	}
     }
-    nabi_app_set_theme("Jini");
+    nabi_app_set_theme(DEFAULT_THEME);
 
     p = g_object_get_data(dialog, "nabi-pref-use-tray-icon");
     if (p != NULL) {

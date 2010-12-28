@@ -1166,7 +1166,7 @@ nabi_app_load_base_icons()
 	gtk_dialog_run(GTK_DIALOG(message));
 	gtk_widget_destroy(message);
 
-	g_string_assign(nabi->config->theme, "Jini");
+	g_string_assign(nabi->config->theme, DEFAULT_THEME);
     }
 }
 
