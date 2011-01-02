@@ -48,16 +48,6 @@ struct KeySymPair {
     KeySym value;
 };
 
-static NabiHangulKeyboard hangul_keyboard_list[] = {
-    { "2",  N_("2 set") },
-    { "32", N_("3 set with 2 set layout") },
-    { "3f", N_("3 set final") },
-    { "39", N_("3 set 390") },
-    { "3s", N_("3 set no-shift") },
-    { "3y", N_("3 set yetguel") },
-    { "ro", N_("Romaja") },
-    { NULL, NULL }
-};
 
 /* from handler.c */
 Bool nabi_handler(XIMS ims, IMProtocol *call_data);
@@ -292,6 +282,8 @@ static char *nabi_locales[] = {
 NabiServer*
 nabi_server_new(Display* display, int screen, const char *name)
 {
+    unsigned i;
+    unsigned n;
     const char *charset;
     char *trigger_keys[3]   = { "Hangul", "Shift+space", NULL };
     char *off_keys[2]       = { "Escape", NULL };
@@ -333,7 +325,6 @@ nabi_server_new(Display* display, int screen, const char *name)
 	/* We add current locale to nabi support  locales array,
 	 * so whatever the locale string is, if its encoding is utf8,
 	 * nabi support the locale */
-	int i;
 	for (i = 0; server->locales[i] != NULL; i++)
 	    continue;
 	server->locales[i] = setlocale(LC_CTYPE, NULL);
@@ -349,7 +340,18 @@ nabi_server_new(Display* display, int screen, const char *name)
     server->layouts = NULL;
     server->layout = NULL;
     server->hangul_keyboard = NULL;
-    server->hangul_keyboard_list = hangul_keyboard_list;
+
+    /* init keyboard list from libhangul */
+    n = hangul_ic_get_n_keyboards();
+    server->hangul_keyboard_list = g_new(NabiHangulKeyboard, n + 1);
+    for (i = 0; i < n; ++i) {
+	const char* id = hangul_ic_get_keyboard_id(i);
+	const char* name = hangul_ic_get_keyboard_name(i);
+	server->hangul_keyboard_list[i].id = id;
+	server->hangul_keyboard_list[i].name= name;
+    }
+    server->hangul_keyboard_list[i].id = NULL;
+    server->hangul_keyboard_list[i].name= NULL;
 
     server->dynamic_event_flow = True;
     server->commit_by_word = False;
@@ -437,6 +439,9 @@ nabi_server_destroy(NabiServer *server)
     /* delete symbol table */
     if (server->symbol_table != NULL)
 	hanja_table_delete(server->symbol_table);
+
+    /* libhangul keyboard list */
+    g_free(server->hangul_keyboard_list);
 
     g_free(server->trigger_keys.keylist);
     g_free(server->candidate_keys.keylist);

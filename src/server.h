@@ -103,7 +103,7 @@ struct _NabiServer {
 
     /* hangul automata */
     char*                   hangul_keyboard;
-    const NabiHangulKeyboard* hangul_keyboard_list;
+    NabiHangulKeyboard*     hangul_keyboard_list;
 
     NabiOutputMode          output_mode;
 
