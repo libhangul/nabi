@@ -121,6 +121,7 @@ struct _NabiServer {
     Bool                    hanja_mode;
     Bool                    use_simplified_chinese;
     Bool                    ignore_app_fontset;
+    Bool                    use_system_keymap;
     NabiInputMode           default_input_mode;
     NabiInputMode           input_mode;
     NabiInputModeScope      input_mode_scope;
@@ -184,6 +185,7 @@ void        nabi_server_set_input_mode_scope(NabiServer* server,
 					     NabiInputModeScope scope);
 void        nabi_server_set_simplified_chinese(NabiServer* server, Bool state);
 void        nabi_server_set_ignore_app_fontset(NabiServer* server, Bool state);
+void        nabi_server_set_use_system_keymap(NabiServer* server, Bool state);
 
 NabiIC*     nabi_server_get_ic          (NabiServer *server,
 					 CARD16 connect_id, CARD16 icid);
@@ -204,6 +206,7 @@ void            nabi_server_remove_toplevel(NabiServer* server,
 Bool        nabi_server_is_locale_supported(NabiServer *server,
 					    const char *locale);
 Bool        nabi_server_is_valid_str    (NabiServer *server, const char* str);
+KeySym      nabi_server_lookup_keysym(NabiServer* server, XKeyEvent* event);
 KeySym      nabi_server_normalize_keysym(NabiServer *server,
 					 KeySym keysym, unsigned int state);
 void        nabi_server_log_key         (NabiServer *server,

@@ -72,6 +72,7 @@ const static struct config_item config_items[] = {
     { "use_simplified_chinese", CONFIG_BOOL, OFFSET(use_simplified_chinese) },
     { "hanja_mode",         CONFIG_BOOL, OFFSET(hanja_mode)               },
     { "ignore_app_fontset", CONFIG_BOOL, OFFSET(ignore_app_fontset)       },
+    { "use_system_keymap",  CONFIG_BOOL, OFFSET(use_system_keymap)        },
     { NULL,                 0,           0                                }
 };
 
@@ -218,6 +219,7 @@ nabi_config_new()
     config->hanja_mode = FALSE;
     config->use_simplified_chinese = FALSE;
     config->ignore_app_fontset = FALSE;
+    config->use_system_keymap = FALSE;
 
     return config;
 }
