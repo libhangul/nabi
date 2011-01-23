@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-01 20:31+0900\n"
+"POT-Creation-Date: 2011-01-23 13:25+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -39,34 +39,6 @@ msgstr "Ausrichtung"
 #: src/eggtrayicon.c:119
 msgid "The orientation of the tray."
 msgstr "Ausrichtung. der Ablage."
-
-#: src/server.c:52
-msgid "2 set"
-msgstr "두벌식/ 2-fach belegt"
-
-#: src/server.c:53
-msgid "3 set with 2 set layout"
-msgstr "세벌식 두벌 자판/ 3-fach belegt  mit 2-fach Anordnung"
-
-#: src/server.c:54
-msgid "3 set final"
-msgstr "세벌식 최종/ 3-fach endgültig"
-
-#: src/server.c:55
-msgid "3 set 390"
-msgstr "세벌식 390/ 3-fach 390"
-
-#: src/server.c:56
-msgid "3 set no-shift"
-msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
-
-#: src/server.c:57
-msgid "3 set yetguel"
-msgstr "세벌식 옛글/ 3-fach alte Schrift"
-
-#: src/server.c:58
-msgid "Romaja"
-msgstr ""
 
 #: src/ui.c:640
 msgid "XIM Server is not running"
@@ -318,84 +290,106 @@ msgid "Hanja Options"
 msgstr "한자/Hanja Optionen"
 
 #. advanced
-#: src/preference.c:1081 src/preference.c:1431
+#: src/preference.c:1092 src/preference.c:1458
 msgid "Advanced"
 msgstr "Feinheiten"
 
-#: src/preference.c:1087
+#: src/preference.c:1098
 msgid "XIM name:"
 msgstr "XIM Name:"
 
-#: src/preference.c:1101
+#: src/preference.c:1112
 msgid "Use dynamic event flow"
 msgstr "Dynamischen Ereignisfluss benutzen"
 
-#: src/preference.c:1112
+#: src/preference.c:1123
 msgid "Commit by word"
 msgstr "Bestätigung nach jedem Wort"
 
-#: src/preference.c:1123
+#: src/preference.c:1134
 msgid "Automatic reordering"
 msgstr "Automatische Neuanordnung"
 
-#: src/preference.c:1134
+#: src/preference.c:1145
 msgid "Start in hangul mode"
 msgstr ""
 
-#: src/preference.c:1147
+#: src/preference.c:1158
+msgid "Ignore fontset information from the client"
+msgstr ""
+
+#: src/preference.c:1169
+msgid "Use system keymap"
+msgstr ""
+
+#: src/preference.c:1180
 #, fuzzy
 msgid "Input mode scope: "
 msgstr "Auswahl des Eingabemodus"
 
-#: src/preference.c:1152
+#: src/preference.c:1185
 msgid "per desktop"
 msgstr "Pro Desktop"
 
-#: src/preference.c:1154
+#: src/preference.c:1187
 #, fuzzy
 msgid "per application"
 msgstr "Pro Programm"
 
-#: src/preference.c:1156
+#: src/preference.c:1189
 msgid "per toplevel"
 msgstr "Pro höchste Stufe"
 
-#: src/preference.c:1158
+#: src/preference.c:1191
 msgid "per context"
 msgstr "Pro Kontext"
 
-#: src/preference.c:1181
+#: src/preference.c:1214
 msgid "Preedit string font: "
 msgstr ""
 
-#: src/preference.c:1193
-msgid "Ignore fontset information from the client"
-msgstr ""
-
-#: src/preference.c:1373
+#: src/preference.c:1400
 msgid "_Reset"
 msgstr ""
 
-#: src/preference.c:1398
+#: src/preference.c:1425
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
 #. icons
-#: src/preference.c:1410
+#: src/preference.c:1437
 msgid "Tray"
 msgstr "Schaltfläche"
 
 #. keyboard
-#: src/preference.c:1416
+#: src/preference.c:1443
 msgid "Keyboard"
 msgstr "Tastatur"
 
 #. key
-#: src/preference.c:1421
+#: src/preference.c:1448
 msgid "Hangul"
 msgstr "한글/Hangul"
 
 #. candidate
-#: src/preference.c:1426
+#: src/preference.c:1453
 msgid "Hanja"
 msgstr "한자/Hanja"
+
+#~ msgid "2 set"
+#~ msgstr "두벌식/ 2-fach belegt"
+
+#~ msgid "3 set with 2 set layout"
+#~ msgstr "세벌식 두벌 자판/ 3-fach belegt  mit 2-fach Anordnung"
+
+#~ msgid "3 set final"
+#~ msgstr "세벌식 최종/ 3-fach endgültig"
+
+#~ msgid "3 set 390"
+#~ msgstr "세벌식 390/ 3-fach 390"
+
+#~ msgid "3 set no-shift"
+#~ msgstr "세벌식 순아래/ 3-fach ohne Umschalttaste"
+
+#~ msgid "3 set yetguel"
+#~ msgstr "세벌식 옛글/ 3-fach alte Schrift"

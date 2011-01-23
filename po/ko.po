@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.18\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-01 20:31+0900\n"
+"POT-Creation-Date: 2011-01-23 13:25+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
@@ -34,34 +34,6 @@ msgstr ""
 #: src/eggtrayicon.c:119
 msgid "The orientation of the tray."
 msgstr ""
-
-#: src/server.c:52
-msgid "2 set"
-msgstr "두벌식"
-
-#: src/server.c:53
-msgid "3 set with 2 set layout"
-msgstr "세벌식 두벌 자판"
-
-#: src/server.c:54
-msgid "3 set final"
-msgstr "세벌식 최종"
-
-#: src/server.c:55
-msgid "3 set 390"
-msgstr "세벌식 390"
-
-#: src/server.c:56
-msgid "3 set no-shift"
-msgstr "세벌식 순아래"
-
-#: src/server.c:57
-msgid "3 set yetguel"
-msgstr "세벌식 옛글"
-
-#: src/server.c:58
-msgid "Romaja"
-msgstr "로마자"
 
 #: src/ui.c:640
 msgid "XIM Server is not running"
@@ -303,82 +275,107 @@ msgid "Hanja Options"
 msgstr "한자 옵션"
 
 #. advanced
-#: src/preference.c:1081 src/preference.c:1431
+#: src/preference.c:1092 src/preference.c:1458
 msgid "Advanced"
 msgstr "고급"
 
-#: src/preference.c:1087
+#: src/preference.c:1098
 msgid "XIM name:"
 msgstr "XIM 이름:"
 
-#: src/preference.c:1101
+#: src/preference.c:1112
 msgid "Use dynamic event flow"
 msgstr "다이나믹 이벤트 처리 사용"
 
-#: src/preference.c:1112
+#: src/preference.c:1123
 msgid "Commit by word"
 msgstr "단어 단위로 입력"
 
-#: src/preference.c:1123
+#: src/preference.c:1134
 msgid "Automatic reordering"
 msgstr "자동 순서 교정"
 
-#: src/preference.c:1134
+#: src/preference.c:1145
 msgid "Start in hangul mode"
 msgstr "시작할때 한글 상태로"
 
-#: src/preference.c:1147
-msgid "Input mode scope: "
-msgstr "입력 상태 관리: "
-
-#: src/preference.c:1152
-msgid "per desktop"
-msgstr "데스크탑 마다 따로"
-
-#: src/preference.c:1154
-msgid "per application"
-msgstr "프로그램마다 따로"
-
-#: src/preference.c:1156
-msgid "per toplevel"
-msgstr "윈도우마다 따로"
-
 #: src/preference.c:1158
-msgid "per context"
-msgstr "입력창마다 따로"
-
-#: src/preference.c:1181
-msgid "Preedit string font: "
-msgstr "입력 중인 글자 글꼴: "
-
-#: src/preference.c:1193
 msgid "Ignore fontset information from the client"
 msgstr "프로그램의 폰트셋 정보를 무시함"
 
-#: src/preference.c:1373
+#: src/preference.c:1169
+msgid "Use system keymap"
+msgstr "시스템 키맵 사용"
+
+#: src/preference.c:1180
+msgid "Input mode scope: "
+msgstr "입력 상태 관리: "
+
+#: src/preference.c:1185
+msgid "per desktop"
+msgstr "데스크탑 마다 따로"
+
+#: src/preference.c:1187
+msgid "per application"
+msgstr "프로그램마다 따로"
+
+#: src/preference.c:1189
+msgid "per toplevel"
+msgstr "윈도우마다 따로"
+
+#: src/preference.c:1191
+msgid "per context"
+msgstr "입력창마다 따로"
+
+#: src/preference.c:1214
+msgid "Preedit string font: "
+msgstr "입력 중인 글자 글꼴: "
+
+#: src/preference.c:1400
 msgid "_Reset"
 msgstr "초기값으로(_R)"
 
-#: src/preference.c:1398
+#: src/preference.c:1425
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
 #. icons
-#: src/preference.c:1410
+#: src/preference.c:1437
 msgid "Tray"
 msgstr "트레이"
 
 #. keyboard
-#: src/preference.c:1416
+#: src/preference.c:1443
 msgid "Keyboard"
 msgstr "자판"
 
 #. key
-#: src/preference.c:1421
+#: src/preference.c:1448
 msgid "Hangul"
 msgstr "한글"
 
 #. candidate
-#: src/preference.c:1426
+#: src/preference.c:1453
 msgid "Hanja"
 msgstr "한자"
+
+#~ msgid "2 set"
+#~ msgstr "두벌식"
+
+#~ msgid "3 set with 2 set layout"
+#~ msgstr "세벌식 두벌 자판"
+
+#~ msgid "3 set final"
+#~ msgstr "세벌식 최종"
+
+#~ msgid "3 set 390"
+#~ msgstr "세벌식 390"
+
+#~ msgid "3 set no-shift"
+#~ msgstr "세벌식 순아래"
+
+#~ msgid "3 set yetguel"
+#~ msgstr "세벌식 옛글"
+
+#~ msgid "Romaja"
+#~ msgstr "로마자"
