@@ -1155,6 +1155,28 @@ create_advanced_page(GtkWidget* dialog)
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
+    button = gtk_check_button_new_with_label(_("Ignore fontset information from the client"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->ignore_app_fontset);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-ignore-app-fontset", button);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_ignore_app_fontset_button_toggled), NULL);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    button = gtk_check_button_new_with_label(_("Use system keymap"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->use_system_keymap);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-system-keymap", button);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_use_system_keymap_button_toggled), NULL);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
     label = gtk_label_new(_("Input mode scope: "));
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
@@ -1197,28 +1219,6 @@ create_advanced_page(GtkWidget* dialog)
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-preedit-font", button);
     g_signal_connect(G_OBJECT(button), "font-set",
 		     G_CALLBACK(on_preedit_font_changed), NULL);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-    button = gtk_check_button_new_with_label(_("Ignore fontset information from the client"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
-			         config->ignore_app_fontset);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-    g_object_set_data(G_OBJECT(dialog), "nabi-pref-ignore-app-fontset", button);
-    g_signal_connect(G_OBJECT(button), "toggled",
-		     G_CALLBACK(on_ignore_app_fontset_button_toggled), NULL);
-
-    hbox = gtk_hbox_new(FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
-
-    button = gtk_check_button_new_with_label(_("Use system keymap"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
-			         config->use_system_keymap);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-system-keymap", button);
-    g_signal_connect(G_OBJECT(button), "toggled",
-		     G_CALLBACK(on_use_system_keymap_button_toggled), NULL);
 
     return page;
 }
