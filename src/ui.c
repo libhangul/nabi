@@ -32,7 +32,13 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#if GTK_CHECK_VERSION(2, 16, 0)
+#define HAVE_GTK_STATUS_ICON 1
+#endif
+
+#if !defined(HAVE_GTK_STATUS_ICON)
 #include "eggtrayicon.h"
+#endif
 
 #include "debug.h"
 #include "gettext.h"
@@ -68,10 +74,16 @@ typedef struct _NabiPalette {
     guint          source_id;
 } NabiPalette;
 
+#if defined(HAVE_GTK_STATUS_ICON)
+typedef struct _NabiTrayIcon {
+    GtkStatusIcon* icon;
+} NabiTrayIcon;
+#else
 typedef struct _NabiTrayIcon {
     EggTrayIcon*   widget;
     NabiStateIcon* state;
 } NabiTrayIcon;
+#endif
 
 static GtkWidget *about_dialog = NULL;
 static GtkWidget *preference_dialog = NULL;
@@ -89,7 +101,9 @@ static void nabi_palette_destroy(NabiPalette* palette);
 static void nabi_palette_update_hanja_mode(NabiPalette* palette, gboolean state);
 
 static gboolean nabi_tray_icon_create(gpointer data);
+#if defined(HAVE_GTK_STATUS_ICON)
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
+#endif
 static void nabi_tray_icon_destroy(NabiTrayIcon* tray);
 
 static void remove_event_filter();
@@ -515,10 +529,22 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
     }
 }
 
+#if defined(HAVE_GTK_STATUS_ICON)
+static void
+on_status_icon_embedded(GObject* gobject, GParamSpec* paramspec,
+			     gpointer data)
+{
+    on_tray_icon_embedded(NULL, data);
+}
+#endif
+
 static void
 on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
+#if !defined(HAVE_GTK_STATUS_ICON)
     nabi_state_icon_destroy(nabi_tray->state);
+#endif
+
     g_free(nabi_tray);
     nabi_tray = NULL;
     nabi_log(1, "tray icon is destroyed\n");
@@ -577,6 +603,29 @@ nabi_menu_position_func(GtkMenu *menu,
 	*x = screen_width - menu_width;
 }
 
+#if defined(HAVE_GTK_STATUS_ICON)
+static void
+on_tray_icon_popup_menu(GtkStatusIcon *status_icon,
+			guint button,
+			guint activate_time,
+			gpointer data)
+{
+    static GtkWidget *menu = NULL;
+
+    if (preference_dialog != NULL) {
+	gtk_window_present(GTK_WINDOW(preference_dialog));
+	return;
+    }
+
+    if (menu != NULL)
+	gtk_widget_destroy(menu);
+
+    menu = create_tray_icon_menu();
+    gtk_menu_popup(GTK_MENU(menu), NULL, NULL,
+		   gtk_status_icon_position_menu, status_icon,
+		   button, activate_time);
+}
+#else
 static gboolean
 on_tray_icon_button_press(GtkWidget *widget,
 			  GdkEventButton *event,
@@ -601,7 +650,9 @@ on_tray_icon_button_press(GtkWidget *widget,
 
     return FALSE;
 }
+#endif
 
+#if !defined(HAVE_GTK_STATUS_ICON)
 static void
 on_tray_icon_size_allocate (GtkWidget *widget,
 			    GtkAllocation *allocation,
@@ -633,6 +684,7 @@ on_tray_icon_size_allocate (GtkWidget *widget,
 	nabi_tray_load_icons(nabi_tray, size);
     }
 }
+#endif /* !defined(HAVE_GTK_STATUS_ICON) */
 
 static void get_statistic_string(GString *str)
 {
@@ -1005,6 +1057,7 @@ create_tray_icon_menu(void)
     return menu;
 }
 
+#if !defined(HAVE_GTK_STATUS_ICON)
 static void
 nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size)
 {
@@ -1022,12 +1075,29 @@ nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size)
 
     nabi_state_icon_load(tray->state, w, h);
 }
+#endif
 
 static void
 nabi_tray_update_state(NabiTrayIcon* tray, int state)
 {
+#if defined(HAVE_GTK_STATUS_ICON)
+    if (tray != NULL) {
+	switch (state) {
+	case 1:
+	    gtk_status_icon_set_from_pixbuf(nabi_tray->icon, english_pixbuf);
+	    break;
+	case 2:
+	    gtk_status_icon_set_from_pixbuf(nabi_tray->icon, hangul_pixbuf);
+	    break;
+	default:
+	    gtk_status_icon_set_from_pixbuf(nabi_tray->icon, none_pixbuf);
+	    break;
+	}
+    }
+#else
     if (tray != NULL)
 	nabi_state_icon_update(tray->state, state);
+#endif
 }
 
 static GdkFilterReturn
@@ -1173,6 +1243,25 @@ nabi_app_load_base_icons()
 static gboolean
 nabi_tray_icon_create(gpointer data)
 {
+#if defined(HAVE_GTK_STATUS_ICON)
+    NabiTrayIcon* tray;
+
+    if (nabi_tray != NULL)
+	return FALSE;
+
+    tray = g_new(NabiTrayIcon, 1);
+    nabi_tray = tray;
+
+    tray->icon = gtk_status_icon_new();
+    g_signal_connect(G_OBJECT(tray->icon), "popup-menu",
+		     G_CALLBACK(on_tray_icon_popup_menu), NULL);
+
+    gtk_status_icon_set_from_pixbuf(tray->icon, none_pixbuf);
+    nabi_app_update_tooltips();
+
+    g_signal_connect(G_OBJECT(tray->icon), "notify::embedded",
+		     G_CALLBACK(on_status_icon_embedded), tray);
+#else
     NabiTrayIcon* tray;
     GtkWidget *eventbox;
     GtkTooltips *tooltips;
@@ -1220,6 +1309,7 @@ nabi_tray_icon_create(gpointer data)
     g_signal_connect(G_OBJECT(tray->widget), "destroy",
 		     G_CALLBACK(on_tray_icon_destroyed), tray);
     gtk_widget_show(GTK_WIDGET(tray->widget));
+#endif // defined(HAVE_GTK_STATUS_ICON)
 
     return FALSE;
 }
@@ -1227,9 +1317,16 @@ nabi_tray_icon_create(gpointer data)
 static void
 nabi_tray_icon_destroy(NabiTrayIcon* tray)
 {
+#if defined(HAVE_GTK_STATUS_ICON)
+    if (tray->icon != NULL) {
+	g_object_unref(tray->icon);
+	on_tray_icon_destroyed(NULL, NULL);
+    }
+#else
     // widget만 destroy하면 destroy signal에서 나머지 delete 처리를 한다.
     if (tray->widget != NULL)
 	gtk_widget_destroy(GTK_WIDGET(tray->widget));
+#endif
 }
 
 static void
@@ -1440,8 +1537,10 @@ nabi_app_set_theme(const gchar *name)
     g_string_assign(nabi->config->theme, name);
 
     nabi_app_load_base_icons();
+#if !defined(HAVE_GTK_STATUS_ICON)
     if (nabi_tray != NULL)
 	nabi_tray_load_icons(nabi_tray, nabi->icon_size);
+#endif
 }
 
 void
@@ -1512,6 +1611,16 @@ nabi_app_save_config()
 static void
 nabi_app_update_tooltips()
 {
+#if defined(HAVE_GTK_STATUS_ICON)
+    if (nabi_tray != NULL && nabi_tray->icon != NULL) {
+	const char* keyboard_name;
+	char tip_text[256];
+	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
+					    nabi->config->hangul_keyboard->str);
+	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
+	gtk_status_icon_set_tooltip_text(nabi_tray->icon, tip_text);
+    }
+#else
     if (nabi->tooltips != NULL) {
 	const char* keyboard_name;
 	char tip_text[256];
@@ -1524,6 +1633,7 @@ nabi_app_update_tooltips()
 			     _("Hangul input method: Nabi"
 			       " - You can input hangul using this program"));
     }
+#endif
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */
