@@ -101,7 +101,7 @@ static void nabi_palette_destroy(NabiPalette* palette);
 static void nabi_palette_update_hanja_mode(NabiPalette* palette, gboolean state);
 
 static gboolean nabi_tray_icon_create(gpointer data);
-#if defined(HAVE_GTK_STATUS_ICON)
+#if !defined(HAVE_GTK_STATUS_ICON)
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
 #endif
 static void nabi_tray_icon_destroy(NabiTrayIcon* tray);
