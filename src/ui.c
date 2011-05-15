@@ -82,6 +82,7 @@ typedef struct _NabiTrayIcon {
 typedef struct _NabiTrayIcon {
     EggTrayIcon*   widget;
     NabiStateIcon* state;
+    GtkTooltips*   tooltips;
 } NabiTrayIcon;
 #endif
 
@@ -90,7 +91,6 @@ static GtkWidget *preference_dialog = NULL;
 static GtkWidget *hide_palette_menuitem = NULL;
 
 static void nabi_app_load_base_icons();
-static void nabi_app_update_tooltips();
 
 static void nabi_state_icon_load(NabiStateIcon* state, int w, int h);
 
@@ -104,6 +104,7 @@ static gboolean nabi_tray_icon_create(gpointer data);
 #if !defined(HAVE_GTK_STATUS_ICON)
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
 #endif
+static void nabi_tray_icon_update_tooltips();
 static void nabi_tray_icon_destroy(NabiTrayIcon* tray);
 
 static void remove_event_filter();
@@ -1257,7 +1258,7 @@ nabi_tray_icon_create(gpointer data)
 		     G_CALLBACK(on_tray_icon_popup_menu), NULL);
 
     gtk_status_icon_set_from_pixbuf(tray->icon, none_pixbuf);
-    nabi_app_update_tooltips();
+    nabi_tray_icon_update_tooltips();
 
     g_signal_connect(G_OBJECT(tray->icon), "notify::embedded",
 		     G_CALLBACK(on_status_icon_embedded), tray);
@@ -1286,8 +1287,8 @@ nabi_tray_icon_create(gpointer data)
     nabi->tray_icon = eventbox;
 
     tooltips = gtk_tooltips_new();
-    nabi->tooltips = tooltips;
-    nabi_app_update_tooltips();
+    tray->tooltips = tooltips;
+    nabi_tray_icon_update_tooltips();
 
     orientation = egg_tray_icon_get_orientation(tray->widget);
     if (orientation == GTK_ORIENTATION_VERTICAL) {
@@ -1598,7 +1599,7 @@ nabi_app_set_hangul_keyboard(const char *id)
 	gtk_button_set_label(GTK_BUTTON(nabi->keyboard_button), _(name));
     }
 
-    nabi_app_update_tooltips();
+    nabi_tray_icon_update_tooltips();
 }
 
 void
@@ -1609,31 +1610,23 @@ nabi_app_save_config()
 }
 
 static void
-nabi_app_update_tooltips()
+nabi_tray_icon_update_tooltips()
 {
-#if defined(HAVE_GTK_STATUS_ICON)
     if (nabi_tray != NULL && nabi_tray->icon != NULL) {
 	const char* keyboard_name;
 	char tip_text[256];
 	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
 					    nabi->config->hangul_keyboard->str);
 	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
+#if defined(HAVE_GTK_STATUS_ICON)
 	gtk_status_icon_set_tooltip_text(nabi_tray->icon, tip_text);
-    }
 #else
-    if (nabi->tooltips != NULL) {
-	const char* keyboard_name;
-	char tip_text[256];
-	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
-					    nabi->config->hangul_keyboard->str);
-	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
-
-	gtk_tooltips_set_tip(GTK_TOOLTIPS(nabi->tooltips), nabi->tray_icon,
+	gtk_tooltips_set_tip(GTK_TOOLTIPS(nabi_tray->tooltips), nabi->tray_icon,
 			     tip_text,
 			     _("Hangul input method: Nabi"
 			       " - You can input hangul using this program"));
-    }
 #endif
+    }
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */
