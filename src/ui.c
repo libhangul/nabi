@@ -31,6 +31,7 @@
 #include <X11/keysym.h>
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
+#include <gdk/gdkx.h>
 
 #if GTK_CHECK_VERSION(2, 16, 0)
 #define HAVE_GTK_STATUS_ICON 1
