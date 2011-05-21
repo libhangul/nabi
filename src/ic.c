@@ -349,6 +349,8 @@ nabi_ic_init_values(NabiIC *ic)
 
     ic->toplevel = NULL;
 
+    ic->composing_started = FALSE;
+
     ic->client_text = NULL;
     ic->wait_for_client_text = FALSE;
     ic->has_str_conv_cb = FALSE;
@@ -1336,7 +1338,7 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
     case NABI_INPUT_MODE_DIRECT:
 	nabi_ic_flush(ic);
 	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_DIRECT);
-	nabi_ic_preedit_done(ic);
+	nabi_ic_end_composing(ic);
 	break;
     case NABI_INPUT_MODE_COMPOSE:
 	/* 전에는 여기서 nabi_ic_preedit_start()함수를 불렀는데
@@ -1358,6 +1360,7 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 	 * 아무 키입력이나 시작했을 때에 보내는 방식으로 바꾼다.
 	 */
 	nabi_server_set_mode_info(nabi_server, NABI_MODE_INFO_COMPOSE);
+	nabi_ic_start_composing(ic);
 	break;
     default:
 	break;
@@ -1367,12 +1370,14 @@ nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode)
 }
 
 void
-nabi_ic_preedit_start(NabiIC *ic)
+nabi_ic_start_composing(NabiIC *ic)
 {
-    if (ic->preedit.start)
+    if (ic->composing_started)
 	return;
 
-    nabi_log(5, "preedit start: %d-%d\n", ic->connection->id, ic->id);
+    nabi_log(3, "start composing: %d-%d\n", ic->connection->id, ic->id);
+
+    ic->composing_started = TRUE;
 
     if (nabi_server->dynamic_event_flow) {
 	IMPreeditStateStruct preedit_state;
@@ -1381,6 +1386,34 @@ nabi_ic_preedit_start(NabiIC *ic)
 	preedit_state.icid = ic->id;
 	IMPreeditStart(nabi_server->xims, (XPointer)&preedit_state);
     }
+}
+
+void
+nabi_ic_end_composing(NabiIC *ic)
+{
+    if (!ic->composing_started)
+	return;
+
+    nabi_log(3, "end composing: %d-%d\n", ic->connection->id, ic->id);
+
+    ic->composing_started = FALSE;
+
+    if (nabi_server->dynamic_event_flow) {
+	IMPreeditStateStruct preedit_state;
+
+	preedit_state.connect_id = ic->connection->id;
+	preedit_state.icid = ic->id;
+	IMPreeditEnd(nabi_server->xims, (XPointer)&preedit_state);
+    }
+}
+
+void
+nabi_ic_preedit_start(NabiIC *ic)
+{
+    if (ic->preedit.start)
+	return;
+
+    nabi_log(3, "preedit start: %d-%d\n", ic->connection->id, ic->id);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	if (ic->preedit.has_start_cb) {
@@ -1412,7 +1445,7 @@ nabi_ic_preedit_done(NabiIC *ic)
     if (!ic->preedit.start)
 	return;
 
-    nabi_log(5, "preedit done: %d-%d\n", ic->connection->id, ic->id);
+    nabi_log(3, "preedit done: %d-%d\n", ic->connection->id, ic->id);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	if (ic->preedit.has_done_cb) {
@@ -1431,14 +1464,6 @@ nabi_ic_preedit_done(NabiIC *ic)
 	nabi_ic_preedit_hide(ic);
     } else if (ic->input_style & XIMPreeditNothing) {
 	nabi_ic_preedit_hide(ic);
-    }
-
-    if (nabi_server->dynamic_event_flow) {
-	IMPreeditStateStruct preedit_state;
-
-	preedit_state.connect_id = ic->connection->id;
-	preedit_state.icid = ic->id;
-	IMPreeditEnd(nabi_server->xims, (XPointer)&preedit_state);
     }
 
     ic->preedit.start = False;
@@ -1541,14 +1566,18 @@ nabi_ic_preedit_update(NabiIC *ic)
 	g_free(normal);
 	g_free(hilight);
 	g_free(preedit);
+
+	if (ic->preedit.start)
+	    nabi_ic_preedit_done(ic);
+
 	return;
     }
 
-    nabi_log(3, "update preedit: id = %d-%d, preedit = '%s' + '%s'\n",
-	     ic->connection->id, ic->id, normal, hilight);
-    
     if (!ic->preedit.start)
 	nabi_ic_preedit_start(ic);
+
+    nabi_log(3, "update preedit: id = %d-%d, preedit = '%s' + '%s'\n",
+	     ic->connection->id, ic->id, normal, hilight);
 
     if (ic->input_style & XIMPreeditCallbacks) {
 	if (ic->preedit.has_draw_cb) {
@@ -1697,6 +1726,8 @@ nabi_ic_commit(NabiIC *ic)
 void
 nabi_ic_flush(NabiIC *ic)
 {
+    nabi_ic_preedit_done(ic);
+
     char* str = nabi_ic_get_flush_string(ic);
     if (str != NULL && strlen(str) > 0)
 	nabi_ic_commit_utf8(ic, str);

@@ -126,6 +126,7 @@ struct _NabiIC {
     /* hanja or symbol select window */
     NabiCandidate*	candidate;
 
+    gboolean            composing_started;
     UString*            client_text;
     gboolean            wait_for_client_text; /* whether this ic requested
 					       * client text */
@@ -157,6 +158,8 @@ CARD16  nabi_ic_get_id(NabiIC* ic);
 void    nabi_ic_set_focus(NabiIC *ic);
 
 void    nabi_ic_set_mode(NabiIC *ic, NabiInputMode mode);
+void    nabi_ic_start_composing(NabiIC *ic);
+void    nabi_ic_end_composing(NabiIC *ic);
 
 void    nabi_ic_preedit_start(NabiIC *ic);
 void    nabi_ic_preedit_done(NabiIC *ic);

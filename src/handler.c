@@ -167,7 +167,6 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
 
 	/* compose mode */
 	if (!ic->preedit.start) {
-	    nabi_ic_preedit_start(ic);
 	    nabi_ic_status_start(ic);
 	}
 	if (!nabi_ic_process_keyevent(ic, keysym, kevent->state))
