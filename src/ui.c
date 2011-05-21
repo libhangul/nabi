@@ -1538,7 +1538,14 @@ nabi_app_set_theme(const gchar *name)
     g_string_assign(nabi->config->theme, name);
 
     nabi_app_load_base_icons();
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if defined(HAVE_GTK_STATUS_ICON)
+    // 아이콘을 바꾸려면 현재 state를 알아야 한다.
+    // 그런데 state를 알아오려면 애매하고, 사실 테마가 바뀌는 순간에는
+    // text entry에 focus가 없을 것이므로 기본 상태 값으로 줘도
+    // 별 문제가 없을 것이다.
+    if (nabi_tray != NULL)
+	nabi_tray_update_state(nabi_tray, 0);
+#else
     if (nabi_tray != NULL)
 	nabi_tray_load_icons(nabi_tray, nabi->icon_size);
 #endif
