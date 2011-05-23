@@ -1726,9 +1726,11 @@ nabi_ic_commit(NabiIC *ic)
 void
 nabi_ic_flush(NabiIC *ic)
 {
+    char* str;
+
     nabi_ic_preedit_done(ic);
 
-    char* str = nabi_ic_get_flush_string(ic);
+    str = nabi_ic_get_flush_string(ic);
     if (str != NULL && strlen(str) > 0)
 	nabi_ic_commit_utf8(ic, str);
     g_free(str);
