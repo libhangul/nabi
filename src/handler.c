@@ -128,7 +128,7 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
     XKeyEvent *kevent;
     
     if (data->event.type != KeyPress) {
-	nabi_log(4, "forward event: id = %d-%d, key release\n",
+	nabi_log(4, "process event: id = %d-%d, key release\n",
 		    (int)data->connect_id, (int)data->icid);
 	IMForwardEvent(ims, (XPointer)data);
 	return True;
@@ -137,7 +137,7 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
     kevent = (XKeyEvent*)&data->event;
     keysym = nabi_server_lookup_keysym(nabi_server, kevent);
 
-    nabi_log(3, "forward event: id = %d-%d, keysym = 0x%x('%c')\n",
+    nabi_log(3, "process event: id = %d-%d, keysym = 0x%x('%c')\n",
 	     (int)data->connect_id, (int)data->icid,
 	     keysym, (keysym < 0x80) ? keysym : ' ');
 
