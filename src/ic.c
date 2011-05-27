@@ -1728,6 +1728,7 @@ nabi_ic_flush(NabiIC *ic)
 {
     char* str;
 
+    nabi_ic_preedit_clear(ic);
     nabi_ic_preedit_done(ic);
 
     str = nabi_ic_get_flush_string(ic);
