@@ -681,7 +681,6 @@ nabi_ic_preedit_x11_draw_string(NabiIC *ic, char* preedit,
 static void
 nabi_ic_preedit_draw(NabiIC *ic)
 {
-    int size;
     char* preedit;
     char* normal;
     char* hilight;
@@ -690,7 +689,6 @@ nabi_ic_preedit_draw(NabiIC *ic)
     hilight = nabi_ic_get_hic_preedit_string(ic);
     preedit = g_strconcat(normal, hilight, NULL);
 
-    size = strlen(preedit);
     if (ic->input_style & XIMPreeditPosition) {
 	if (!nabi_server->ignore_app_fontset &&
 	    ic->preedit.font_set != NULL)
