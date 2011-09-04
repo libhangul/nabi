@@ -137,11 +137,9 @@ nabi_handle_box_size_allocate (GtkWidget     *widget,
 
     bin = GTK_BIN (widget);
     if (bin->child && GTK_WIDGET_VISIBLE (bin->child)) {
-	GtkWidget *child;
 	GtkAllocation child_allocation;
 	guint border_width;
 
-	child = bin->child;
 	border_width = GTK_CONTAINER (widget)->border_width;
 
 	child_allocation.x = border_width;
