@@ -37,7 +37,7 @@
 #define HAVE_GTK_STATUS_ICON 1
 #endif
 
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if !HAVE_GTK_STATUS_ICON
 #include "eggtrayicon.h"
 #endif
 
@@ -75,7 +75,7 @@ typedef struct _NabiPalette {
     guint          source_id;
 } NabiPalette;
 
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
 typedef struct _NabiTrayIcon {
     GtkStatusIcon* icon;
 } NabiTrayIcon;
@@ -102,7 +102,7 @@ static void nabi_palette_destroy(NabiPalette* palette);
 static void nabi_palette_update_hanja_mode(NabiPalette* palette, gboolean state);
 
 static gboolean nabi_tray_icon_create(gpointer data);
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if !HAVE_GTK_STATUS_ICON
 static void nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size);
 #endif
 static void nabi_tray_icon_update_tooltips();
@@ -531,7 +531,7 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
     }
 }
 
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
 static void
 on_status_icon_embedded(GObject* gobject, GParamSpec* paramspec,
 			     gpointer data)
@@ -543,7 +543,7 @@ on_status_icon_embedded(GObject* gobject, GParamSpec* paramspec,
 static void
 on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
 {
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if !HAVE_GTK_STATUS_ICON
     nabi_state_icon_destroy(nabi_tray->state);
 #endif
 
@@ -605,7 +605,7 @@ nabi_menu_position_func(GtkMenu *menu,
 	*x = screen_width - menu_width;
 }
 
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
 static void
 on_tray_icon_popup_menu(GtkStatusIcon *status_icon,
 			guint button,
@@ -654,7 +654,7 @@ on_tray_icon_button_press(GtkWidget *widget,
 }
 #endif
 
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if !HAVE_GTK_STATUS_ICON
 static void
 on_tray_icon_size_allocate (GtkWidget *widget,
 			    GtkAllocation *allocation,
@@ -686,7 +686,7 @@ on_tray_icon_size_allocate (GtkWidget *widget,
 	nabi_tray_load_icons(nabi_tray, size);
     }
 }
-#endif /* !defined(HAVE_GTK_STATUS_ICON) */
+#endif /* !HAVE_GTK_STATUS_ICON */
 
 static void get_statistic_string(GString *str)
 {
@@ -1059,7 +1059,7 @@ create_tray_icon_menu(void)
     return menu;
 }
 
-#if !defined(HAVE_GTK_STATUS_ICON)
+#if !HAVE_GTK_STATUS_ICON
 static void
 nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size)
 {
@@ -1082,7 +1082,7 @@ nabi_tray_load_icons(NabiTrayIcon* tray, gint default_size)
 static void
 nabi_tray_update_state(NabiTrayIcon* tray, int state)
 {
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
     if (tray != NULL) {
 	switch (state) {
 	case 1:
@@ -1245,7 +1245,7 @@ nabi_app_load_base_icons()
 static gboolean
 nabi_tray_icon_create(gpointer data)
 {
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
     NabiTrayIcon* tray;
 
     if (nabi_tray != NULL)
@@ -1311,7 +1311,7 @@ nabi_tray_icon_create(gpointer data)
     g_signal_connect(G_OBJECT(tray->widget), "destroy",
 		     G_CALLBACK(on_tray_icon_destroyed), tray);
     gtk_widget_show(GTK_WIDGET(tray->widget));
-#endif // defined(HAVE_GTK_STATUS_ICON)
+#endif // HAVE_GTK_STATUS_ICON
 
     return FALSE;
 }
@@ -1319,7 +1319,7 @@ nabi_tray_icon_create(gpointer data)
 static void
 nabi_tray_icon_destroy(NabiTrayIcon* tray)
 {
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
     if (tray->icon != NULL) {
 	g_object_unref(tray->icon);
 	on_tray_icon_destroyed(NULL, NULL);
@@ -1539,7 +1539,7 @@ nabi_app_set_theme(const gchar *name)
     g_string_assign(nabi->config->theme, name);
 
     nabi_app_load_base_icons();
-#if defined(HAVE_GTK_STATUS_ICON)
+#if HAVE_GTK_STATUS_ICON
     // 아이콘을 바꾸려면 현재 state를 알아야 한다.
     // 그런데 state를 알아오려면 애매하고, 사실 테마가 바뀌는 순간에는
     // text entry에 focus가 없을 것이므로 기본 상태 값으로 줘도
@@ -1620,21 +1620,28 @@ nabi_app_save_config()
 static void
 nabi_tray_icon_update_tooltips()
 {
+#if HAVE_GTK_STATUS_ICON
     if (nabi_tray != NULL && nabi_tray->icon != NULL) {
 	const char* keyboard_name;
 	char tip_text[256];
 	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
 					    nabi->config->hangul_keyboard->str);
 	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
-#if defined(HAVE_GTK_STATUS_ICON)
 	gtk_status_icon_set_tooltip_text(nabi_tray->icon, tip_text);
-#else
+    }
+#else /* HAVE_GTK_STATUS_ICON */
+    if (nabi_tray != NULL && nabi_tray->tooltips != NULL) {
+	const char* keyboard_name;
+	char tip_text[256];
+	keyboard_name = nabi_server_get_keyboard_name_by_id(nabi_server,
+					    nabi->config->hangul_keyboard->str);
+	snprintf(tip_text, sizeof(tip_text), _("Nabi: %s"), _(keyboard_name));
 	gtk_tooltips_set_tip(GTK_TOOLTIPS(nabi_tray->tooltips), nabi->tray_icon,
 			     tip_text,
 			     _("Hangul input method: Nabi"
 			       " - You can input hangul using this program"));
-#endif
     }
+#endif /* HAVE_GTK_STATUS_ICON */
 }
 
 /* vim: set ts=8 sts=4 sw=4 : */
