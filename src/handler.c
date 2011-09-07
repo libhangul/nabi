@@ -134,16 +134,16 @@ nabi_handler_forward_event(XIMS ims, IMForwardEventStruct *data)
 	return True;
     }
 
+    ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
+    if (ic == NULL)
+	return True;
+
     kevent = (XKeyEvent*)&data->event;
-    keysym = nabi_server_lookup_keysym(nabi_server, kevent);
+    keysym = nabi_ic_lookup_keysym(ic, kevent);
 
     nabi_log(3, "process event: id = %d-%d, keysym = 0x%x('%c')\n",
 	     (int)data->connect_id, (int)data->icid,
 	     keysym, (keysym < 0x80) ? keysym : ' ');
-
-    ic = nabi_server_get_ic(nabi_server, data->connect_id, data->icid);
-    if (ic == NULL)
-	return True;
 
     if (ic->mode == NABI_INPUT_MODE_DIRECT) {
 	/* direct mode */

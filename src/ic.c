@@ -40,6 +40,7 @@
 #include "util.h"
 #include "ustring.h"
 #include "nabi.h"
+#include "keyboard-layout.h"
 
 static void  nabi_ic_preedit_configure(NabiIC *ic);
 static char* nabi_ic_get_hic_preedit_string(NabiIC *ic);
@@ -2000,6 +2001,36 @@ nabi_ic_delete_client_text(NabiIC* ic, size_t len)
     }
 }
 
+static KeySym
+nabi_ic_normalize_keysym(NabiIC* ic, KeySym keysym, unsigned int state)
+{
+    KeySym upper, lower;
+    bool need_normalize;
+
+    /* unicode keysym */
+    if ((keysym & 0xff000000) == 0x01000000)
+	keysym &= 0x00ffffff;
+
+    need_normalize = !hangul_ic_is_transliteration(ic->hic);
+    if (need_normalize) {
+	/* european mapping */
+	if (nabi_server->layout != NULL) {
+	    keysym = nabi_keyboard_layout_get_key(nabi_server->layout, keysym);
+	}
+
+	upper = keysym;
+	lower = keysym;
+	XConvertCase(keysym, &lower, &upper);
+
+	if (state & ShiftMask)
+	    keysym = upper;
+	else
+	    keysym = lower;
+    }
+
+    return keysym;
+}
+
 Bool
 nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 {
@@ -2066,7 +2097,7 @@ nabi_ic_process_keyevent(NabiIC* ic, KeySym keysym, unsigned int state)
 	return ret;
     }
 
-    keysym = nabi_server_normalize_keysym(nabi_server, keysym, state);
+    keysym = nabi_ic_normalize_keysym(ic, keysym, state);
     if (keysym >= XK_exclam && keysym <= XK_asciitilde) {
 	ret = hangul_ic_process(ic->hic, keysym);
 
@@ -2408,4 +2439,111 @@ nabi_ic_process_string_conversion_reply(NabiIC* ic, const char* text)
     g_free(key);
 }
 
+/* 이 테이블은 US layout을 기준으로 만든것이다.
+ * 그러나 keycode의 값은 하드웨어마다 다를 수 있으므로 
+ * 일반 PC 환경이 아닌 곳에서는 문제가 될지도 모른다. */
+static const unsigned int keymap[][2] = {
+    { XK_1,             XK_exclam         },  /* 10 */
+    { XK_2,             XK_at             },  /* 11 */
+    { XK_3,             XK_numbersign     },  /* 12 */
+    { XK_4,             XK_dollar         },  /* 13 */
+    { XK_5,             XK_percent        },  /* 14 */
+    { XK_6,             XK_asciicircum    },  /* 15 */
+    { XK_7,             XK_ampersand      },  /* 16 */
+    { XK_8,             XK_asterisk       },  /* 17 */
+    { XK_9,             XK_parenleft      },  /* 18 */
+    { XK_0,             XK_parenright     },  /* 19 */
+    { XK_minus,         XK_underscore     },  /* 20 */
+    { XK_equal,         XK_plus           },  /* 21 */
+    { XK_BackSpace,     XK_BackSpace      },  /* 22 */
+    { XK_Tab,           XK_Tab            },  /* 23 */
+    { XK_q,             XK_Q              },  /* 24 */
+    { XK_w,             XK_W              },  /* 25 */
+    { XK_e,             XK_E              },  /* 26 */
+    { XK_r,             XK_R              },  /* 27 */
+    { XK_t,             XK_T              },  /* 28 */
+    { XK_y,             XK_Y              },  /* 29 */
+    { XK_u,             XK_U              },  /* 30 */
+    { XK_i,             XK_I              },  /* 31 */
+    { XK_o,             XK_O              },  /* 32 */
+    { XK_p,             XK_P              },  /* 33 */
+    { XK_bracketleft,   XK_braceleft      },  /* 34 */
+    { XK_bracketright,  XK_braceright     },  /* 35 */
+    { XK_Return,        XK_Return         },  /* 36 */
+    { XK_Control_L,     XK_Control_L      },  /* 37 */
+    { XK_a,             XK_A              },  /* 38 */
+    { XK_s,             XK_S              },  /* 39 */
+    { XK_d,             XK_D              },  /* 40 */
+    { XK_f,             XK_F              },  /* 41 */
+    { XK_g,             XK_G              },  /* 42 */
+    { XK_h,             XK_H              },  /* 43 */
+    { XK_j,             XK_J              },  /* 44 */
+    { XK_k,             XK_K              },  /* 45 */
+    { XK_l,             XK_L              },  /* 46 */
+    { XK_semicolon,     XK_colon          },  /* 47 */
+    { XK_apostrophe,    XK_quotedbl       },  /* 48 */
+    { XK_grave,         XK_asciitilde     },  /* 49 */
+    { XK_Shift_L,       XK_Shift_L        },  /* 50 */
+    { XK_backslash,     XK_bar            },  /* 51 */
+    { XK_z,             XK_Z              },  /* 52 */
+    { XK_x,             XK_X              },  /* 53 */
+    { XK_c,             XK_C              },  /* 54 */
+    { XK_v,             XK_V              },  /* 55 */
+    { XK_b,             XK_B              },  /* 56 */
+    { XK_n,             XK_N              },  /* 57 */
+    { XK_m,             XK_M              },  /* 58 */
+    { XK_comma,         XK_less           },  /* 59 */
+    { XK_period,        XK_greater        },  /* 60 */
+    { XK_slash,         XK_question       },  /* 61 */
+};
+
+KeySym
+nabi_ic_lookup_keysym(NabiIC* ic, XKeyEvent* event)
+{
+    int index;
+    KeySym keysym;
+    bool is_transliteration;
+
+    is_transliteration = hangul_ic_is_transliteration(ic->hic);
+    if (is_transliteration) {
+	/* transliteration method인 경우에는 사용자의 자판 설정에서
+	 * 오는 값을 임의로 바꿔서는 안된다. 사용자 설정에 따르는 것이
+	 * 맞다. */
+	char buf[64];
+	XLookupString(event, buf, sizeof(buf), &keysym, NULL);
+    } else {
+	keysym = NoSymbol;
+	index = (event->state & ShiftMask) ? 1 : 0;
+
+	/* 자판 설정에 따른 변환 문제를 피하기 위해서 내장 keymap을 사용하여
+	 * keycode를 keysym으로 변환함 */
+	if (!nabi_server->use_system_keymap) {
+	    if (event->keycode >= 10 && event->keycode < 61)
+		keysym = keymap[event->keycode - 10][index];
+	}
+
+	/* XLookupString()을 사용하지 않고 XLookupKeysym()함수를
+	 * 사용한 것은 데스크탑에서 여러 언어 자판을 지원하기위해서 Xkb를
+	 * 사용하는 경우에 쉽게 처리하기 위한 방편이다.
+	 * Xkb를 사용하게 되면 keymap이 재정의되므로 XLookupString()의 리턴값은
+	 * 재정의된 키값을 얻게되어 각 언어(예를 들어 프랑스, 러시아 등)의
+	 * 자판에서 일반 qwerty 자판으로 변환을 해줘야 한다. 이 문제를 좀더 
+	 * 손쉽게 풀기 위해서 재정의된 자판이 아닌 첫번째 자판의 값을 직접
+	 * 가져오기 위해서 XLookupKeysym()함수를 사용한다. */
+	if (keysym == NoSymbol) {
+	    keysym = XLookupKeysym(event, index);
+	}
+
+	/* 그러나 이 함수를 사용하게되면 새로 정의된 키를 가져와야 되는 경우에
+	 * 못가져오는 수가 생긴다. 이를 피하기 위해서 XLookupKeysym() 함수가
+	 * 0을 리턴하면 XLookupString()으로 다시한번 시도하는 방식으로 
+	 * 처리한다. */
+	if (keysym == NoSymbol) {
+	    char buf[64];
+	    XLookupString(event, buf, sizeof(buf), &keysym, NULL);
+	}
+    }
+
+    return keysym;
+}
 /* vim: set ts=8 sw=4 sts=4 : */

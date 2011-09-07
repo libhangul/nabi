@@ -28,6 +28,7 @@ nabi_SOURCES = \
 	handlebox.h handlebox.c \
 	sctc.h util.h util.c \
 	ustring.h ustring.c \
+	keyboard-layout.h keyboard-layout.c \
 	main.c
 
 nabi_LDADD = \

@@ -35,20 +35,15 @@
 #include "../IMdkit/Xi18n.h"
 
 #include "ic.h"
+#include "keyboard-layout.h"
 
 typedef struct _NabiHangulKeyboard NabiHangulKeyboard;
-typedef struct _NabiKeyboardLayout NabiKeyboardLayout;
 typedef struct _NabiServer NabiServer;
 
 #define KEYBOARD_TABLE_SIZE 94
 struct _NabiHangulKeyboard {
     const gchar* id;
     const gchar* name;
-};
-
-struct _NabiKeyboardLayout {
-    char*  name;
-    GArray* table;
 };
 
 typedef enum {
@@ -206,9 +201,7 @@ void            nabi_server_remove_toplevel(NabiServer* server,
 Bool        nabi_server_is_locale_supported(NabiServer *server,
 					    const char *locale);
 Bool        nabi_server_is_valid_str    (NabiServer *server, const char* str);
-KeySym      nabi_server_lookup_keysym(NabiServer* server, XKeyEvent* event);
-KeySym      nabi_server_normalize_keysym(NabiServer *server,
-					 KeySym keysym, unsigned int state);
+
 void        nabi_server_log_key         (NabiServer *server,
 					 ucschar c,
 					 unsigned int state);
