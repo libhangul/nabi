@@ -1129,10 +1129,14 @@ root_window_event_filter (GdkXEvent *gxevent, GdkEvent *event, gpointer data)
 				    0, 32, 0,
 				    NULL, NULL, NULL,
 				    &buf);
-	    memcpy(&state, buf, sizeof(state));
-	    nabi_tray_update_state(nabi_tray, state);
-	    nabi_palette_update_state(nabi_palette, state);
-	    g_free(buf);
+	    if (ret) {
+		memcpy(&state, buf, sizeof(state));
+		nabi_tray_update_state(nabi_tray, state);
+		nabi_palette_update_state(nabi_palette, state);
+		g_free(buf);
+	    } else {
+		nabi_log(4, "Fail on getting property: gdk_property_get\n");
+	    }
 	}
 	break;
     default:
