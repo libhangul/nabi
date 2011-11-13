@@ -529,6 +529,8 @@ on_tray_icon_embedded(GtkWidget *widget, gpointer data)
     if (!nabi->config->show_palette) {
 	nabi_palette_hide(nabi_palette);
     }
+
+    gtk_widget_set_sensitive(hide_palette_menuitem, TRUE);
 }
 
 #if HAVE_GTK_STATUS_ICON
@@ -554,6 +556,8 @@ on_tray_icon_destroyed(GtkWidget *widget, gpointer data)
     if (nabi->config->use_tray_icon)
 	nabi_palette->source_id = g_idle_add(nabi_tray_icon_create, NULL);
     nabi_palette_show(nabi_palette);
+
+    gtk_widget_set_sensitive(hide_palette_menuitem, FALSE);
 }
 
 static void
@@ -958,7 +962,9 @@ on_menu_hide_palette(GtkWidget *widget, gpointer data)
     // 화면에서 사라져 nabi를 컨트롤할 수 없게 된다.
     // 그래서 tray icon을 사용하는 경우가 아니면 아래 함수가 작동하지 
     // 않도록 한다.
-    if (nabi->config->use_tray_icon) {
+    // 또한 tray icon 사용 설정과 관계없이 tray에 embed 되지 않은 상황
+    // 이라면 palette가 hide되면 안된다.
+    if (nabi->config->use_tray_icon && nabi_tray != NULL) {
 	nabi_app_show_palette(FALSE);
     }
 }
@@ -1457,6 +1463,9 @@ nabi_app_create_palette(void)
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
     g_signal_connect_swapped(G_OBJECT(menuitem), "activate",
 			     G_CALLBACK(on_menu_hide_palette), menuitem);
+    // tray에 embed되기 전까지는 무조건 hide 메뉴는 비활성화 해야
+    // 실수로라도 palette가 사라지는 것을 막을 수 있다.
+    gtk_widget_set_sensitive(menuitem, FALSE);
     hide_palette_menuitem = menuitem;
 
     menuitem = gtk_separator_menu_item_new();
