@@ -17,4 +17,12 @@ log:
 	unset LC_ALL; \
 	export LANG=C ; \
 	export LC_CTYPE=ko_KR.UTF-8 ; \
-	svn log -v > ChangeLog
+	git log --name-status --date=iso > ChangeLog
+
+dist-hook:
+	if test -d .git; then \
+		unset LC_ALL; \
+		export LANG=C ; \
+		export LC_CTYPE=ko_KR.UTF-8 ; \
+		git log --name-status --date=iso > $(distdir)/ChangeLog ; \
+	fi
