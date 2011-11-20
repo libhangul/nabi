@@ -18,7 +18,11 @@ stamp-h1
 po/Makefile.in.in
 po/POTFILES
 po/*.gmo
+po/*.pot
 src/nabi
+test/gtk
+test/xlib
+*.tar.gz
 */Makefile
 */Makefile.in
 */.deps
