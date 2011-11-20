@@ -373,11 +373,27 @@ on_latin_keyboard_changed(GtkComboBox *widget, gpointer data)
     }
 }
 
+static void
+on_use_system_keymap_button_toggled(GtkToggleButton *button, gpointer data)
+{
+    gboolean flag = gtk_toggle_button_get_active(button);
+
+    config->use_system_keymap = flag;
+    nabi_server_set_use_system_keymap(nabi_server, flag);
+
+    gtk_widget_set_sensitive(GTK_WIDGET(data), config->use_system_keymap);
+
+    nabi_log(4, "preference: set use system keymap: %d\n", flag);
+}
+
 static GtkWidget*
 create_keyboard_page(GtkWidget* dialog)
 {
     GtkWidget *page;
     GtkWidget *item;
+    GtkWidget *vbox;
+    GtkWidget *hbox;
+    GtkWidget *button;
     GtkWidget *combo_box;
     GtkSizeGroup* size_group;
     GList* list;
@@ -409,6 +425,17 @@ create_keyboard_page(GtkWidget* dialog)
 
 
     /* latin keyboard */
+    vbox = gtk_vbox_new(FALSE, 0);
+
+    hbox = gtk_hbox_new(FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+
+    button = gtk_check_button_new_with_label(_("Use system keymap"));
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
+			         config->use_system_keymap);
+    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-system-keymap", button);
+
     combo_box = gtk_combo_box_new_text();
     i = 0;
     list = nabi_server->layouts;
@@ -424,11 +451,16 @@ create_keyboard_page(GtkWidget* dialog)
 	i++;
     }
     gtk_size_group_add_widget(size_group, combo_box);
+    gtk_box_pack_start(GTK_BOX(vbox), combo_box, FALSE, FALSE, 0);
     g_object_set_data(G_OBJECT(dialog), "nabi-pref-latin-keyboard", combo_box);
     g_signal_connect(G_OBJECT(combo_box), "changed",
 		     G_CALLBACK(on_latin_keyboard_changed), NULL);
 
-    item = create_pref_item(_("English keyboard"), combo_box, FALSE, FALSE);
+    gtk_widget_set_sensitive(GTK_WIDGET(combo_box), config->use_system_keymap);
+    g_signal_connect(G_OBJECT(button), "toggled",
+		     G_CALLBACK(on_use_system_keymap_button_toggled), combo_box);
+
+    item = create_pref_item(_("English keyboard"), vbox, FALSE, FALSE);
     gtk_box_pack_start(GTK_BOX(page), item, FALSE, TRUE, 0);
 
     g_object_unref(G_OBJECT(size_group));
@@ -1002,17 +1034,6 @@ on_ignore_app_fontset_button_toggled(GtkToggleButton *button, gpointer data)
 }
 
 static void
-on_use_system_keymap_button_toggled(GtkToggleButton *button, gpointer data)
-{
-    gboolean flag = gtk_toggle_button_get_active(button);
-
-    config->use_system_keymap = flag;
-    nabi_server_set_use_system_keymap(nabi_server, flag);
-
-    nabi_log(4, "preference: set use system keymap: %d\n", flag);
-}
-
-static void
 on_default_input_mode_button_toggled(GtkToggleButton *button, gpointer data)
 {
     gboolean flag = gtk_toggle_button_get_active(button);
@@ -1166,14 +1187,6 @@ create_advanced_page(GtkWidget* dialog)
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
-    button = gtk_check_button_new_with_label(_("Use system keymap"));
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),
-			         config->use_system_keymap);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-    g_object_set_data(G_OBJECT(dialog), "nabi-pref-use-system-keymap", button);
-    g_signal_connect(G_OBJECT(button), "toggled",
-		     G_CALLBACK(on_use_system_keymap_button_toggled), NULL);
-
     hbox = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
 
@@ -1266,6 +1279,11 @@ on_preference_reset(GtkWidget *button, gpointer data)
 	}
     }
     nabi_app_set_hangul_keyboard(DEFAULT_KEYBOARD);
+
+    p = g_object_get_data(dialog, "nabi-pref-use-system-keymap");
+    if (p != NULL) {
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
+    }
  
     p = g_object_get_data(dialog, "nabi-pref-latin-keyboard");
     if (p != NULL) {
@@ -1360,11 +1378,6 @@ on_preference_reset(GtkWidget *button, gpointer data)
     }
 
     p = g_object_get_data(dialog, "nabi-pref-ignore-app-fonset");
-    if (p != NULL) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
-    }
-
-    p = g_object_get_data(dialog, "nabi-pref-use-system-keymap");
     if (p != NULL) {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(p), FALSE);
     }
