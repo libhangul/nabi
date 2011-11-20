@@ -2518,7 +2518,7 @@ nabi_ic_lookup_keysym(NabiIC* ic, XKeyEvent* event)
 	/* 자판 설정에 따른 변환 문제를 피하기 위해서 내장 keymap을 사용하여
 	 * keycode를 keysym으로 변환함 */
 	if (!nabi_server->use_system_keymap) {
-	    if (event->keycode >= 10 && event->keycode < 61)
+	    if (event->keycode >= 10 && event->keycode <= 61)
 		keysym = keymap[event->keycode - 10][index];
 	}
 
