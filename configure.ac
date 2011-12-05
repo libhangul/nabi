@@ -1,4 +1,4 @@
-AC_INIT(nabi, 0.99.10, http://kldp.net/projects/nabi/)
+AC_INIT(nabi, 0.99.10, http://code.google.com/p/nabi/)
 AM_INIT_AUTOMAKE([])
 
 AM_CONFIG_HEADER(config.h)
