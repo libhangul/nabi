@@ -795,6 +795,17 @@ on_about_statistics_clicked(GtkWidget *widget, gpointer parent)
     g_string_free(str, TRUE);
 }
 
+static const char*
+get_project_url()
+{
+    if (gtk_major_version > 2 ||
+	    (gtk_major_version == 2 && gtk_minor_version >= 18)) {
+	return "<a href=\"" PACKAGE_BUGREPORT "\">" PACKAGE_BUGREPORT "</a>";
+    } else {
+	return PACKAGE_BUGREPORT;
+    }
+}
+
 static void
 on_menu_about(GtkWidget *widget)
 {
@@ -809,6 +820,7 @@ on_menu_about(GtkWidget *widget)
     gchar *comment_str;
     gchar buf[256];
     const char *encoding = "";
+    const char *project_url;
 
     if (about_dialog != NULL) {
 	gtk_window_present(GTK_WINDOW(about_dialog));
@@ -831,12 +843,15 @@ on_menu_about(GtkWidget *widget)
     gtk_widget_show(image);
     g_free(image_filename);
 
+    project_url = get_project_url();
+
     comment = gtk_label_new(NULL);
     comment_str = g_strdup_printf(
 		    _("<span size=\"large\">An Easy Hangul XIM</span>\n"
 		      "version %s\n\n"
-		      "Copyright (C) 2003-2011 Choe Hwanjin"),
-		    VERSION);
+		      "Copyright (C) 2003-2011 Choe Hwanjin\n"
+		      "%s"),
+		    VERSION, project_url);
     gtk_label_set_markup(GTK_LABEL(comment), comment_str);
     gtk_label_set_justify(GTK_LABEL(comment), GTK_JUSTIFY_CENTER);
     gtk_box_pack_start(GTK_BOX(vbox), comment, FALSE, TRUE, 0);
