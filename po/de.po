@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-13 21:12+0900\n"
+"POT-Creation-Date: 2011-12-17 17:34+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
@@ -79,17 +79,18 @@ msgstr "종성/Jongseong"
 msgid "Nabi keypress statistics"
 msgstr "Tastenstatistik von Nabi"
 
-#: src/ui.c:818
+#: src/ui.c:830
 msgid "About Nabi"
 msgstr "Über Nabi"
 
-#: src/ui.c:836
+#: src/ui.c:850
 #, fuzzy, c-format
 msgid ""
 "<span size=\"large\">An Easy Hangul XIM</span>\n"
 "version %s\n"
 "\n"
-"Copyright (C) 2003-2011 Choe Hwanjin"
+"Copyright (C) 2003-2011 Choe Hwanjin\n"
+"%s"
 msgstr ""
 "<span size=\"large\">Eine einfache Eingabemethode für koreanische Zeichen</"
 "span>\n"
@@ -99,38 +100,38 @@ msgstr ""
 "Copyright © 2003-2008 최환진/Choe Hwanjin\n"
 "Deutsche Übersetzung: © 2006-2008  Niklaus Giger"
 
-#: src/ui.c:853
+#: src/ui.c:868
 msgid "<span weight=\"bold\">XIM name</span>: "
 msgstr "<span weight=\"bold\">XIM Name</span>: "
 
-#: src/ui.c:859
+#: src/ui.c:874
 msgid "<span weight=\"bold\">Locale</span>: "
 msgstr "<span weight=\"bold\">Locale (Ländereinstellung)</span>: "
 
-#: src/ui.c:865
+#: src/ui.c:880
 msgid "<span weight=\"bold\">Encoding</span>: "
 msgstr "<span weight=\"bold\">Encoding (Eingabe-Kodierung)</span>: "
 
-#: src/ui.c:871
+#: src/ui.c:886
 msgid "<span weight=\"bold\">Connected</span>: "
 msgstr "<span weight=\"bold\">Verbunden</span>: "
 
-#: src/ui.c:901
+#: src/ui.c:916
 msgid "Keypress Statistics"
 msgstr "Tastaturstatistik"
 
 #. palette menu
-#: src/ui.c:1013
+#: src/ui.c:1028
 msgid "_Show palette"
 msgstr "Zeige Hinweis"
 
 #. hanja mode
-#: src/ui.c:1021
+#: src/ui.c:1036
 #, fuzzy
 msgid "_Hanja Lock"
 msgstr "한자/Hanja Zeichensatz"
 
-#: src/ui.c:1239
+#: src/ui.c:1254
 msgid ""
 "<span size=\"x-large\" weight=\"bold\">Can't load tray icons</span>\n"
 "\n"
@@ -146,25 +147,25 @@ msgstr ""
 "Vorgabe zurückgesetzt.\n"
 "Bitte ändern Sie das Schema."
 
-#: src/ui.c:1246
+#: src/ui.c:1261
 msgid "Nabi: error message"
 msgstr "Nabi: Fehlermeldung"
 
-#: src/ui.c:1432
+#: src/ui.c:1447
 #, fuzzy
 msgid "Hanja Lock"
 msgstr "한자/Hanja Zeichensatz"
 
-#: src/ui.c:1466
+#: src/ui.c:1481
 msgid "_Hide palette"
 msgstr "Hinweis ausblenden"
 
-#: src/ui.c:1642 src/ui.c:1651
+#: src/ui.c:1657 src/ui.c:1666
 #, c-format
 msgid "Nabi: %s"
 msgstr "Nabi: Zeichensatz: %s"
 
-#: src/ui.c:1654
+#: src/ui.c:1669
 msgid "Hangul input method: Nabi - You can input hangul using this program"
 msgstr ""
 "Hangul Eingabehilfe: Nabi - Damit können Sie koreanische Zeichen eingeben."
@@ -178,15 +179,19 @@ msgstr "Icons für die Schaltfläche"
 msgid "Use tray icon"
 msgstr "Icons für die Schaltfläche"
 
-#: src/preference.c:407
+#: src/preference.c:423
 msgid "Hangul keyboard"
 msgstr "Hangul/koreanische Tastatur"
 
-#: src/preference.c:431
+#: src/preference.c:433
+msgid "Use system keymap"
+msgstr ""
+
+#: src/preference.c:463
 msgid "English keyboard"
 msgstr "englische Tastatur"
 
-#: src/preference.c:587
+#: src/preference.c:619
 msgid ""
 "This key is already registered for <span weight=\"bold\">trigger key</span>\n"
 "Please  select another key"
@@ -195,7 +200,7 @@ msgstr ""
 "gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
-#: src/preference.c:601
+#: src/preference.c:633
 msgid ""
 "This key is already registered for <span weight=\"bold\">off key</span>\n"
 "Please  select another key"
@@ -204,7 +209,7 @@ msgstr ""
 "gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
-#: src/preference.c:615
+#: src/preference.c:647
 msgid ""
 "This key is already registered for <span weight=\"bold\">candidate key</"
 "span>\n"
@@ -214,15 +219,15 @@ msgstr ""
 "span> gewählt.\n"
 "Bitte eine andere Taste auswählen."
 
-#: src/preference.c:710
+#: src/preference.c:742
 msgid "Trigger keys"
 msgstr "Umschalttasten"
 
-#: src/preference.c:732
+#: src/preference.c:764
 msgid "Select trigger key"
 msgstr "Bitte Umschalttaste auswählen"
 
-#: src/preference.c:733
+#: src/preference.c:765
 msgid ""
 "Press any key which you want to use as trigger key. The key you pressed is "
 "displayed below.\n"
@@ -232,19 +237,19 @@ msgstr ""
 "Die gedrückte Taste wird unten dargestellt.\n"
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
-#: src/preference.c:760
+#: src/preference.c:792
 msgid "* You should restart nabi to apply above option"
 msgstr "* Sie müssen Nabi neu starten, um diese Option zu aktivieren."
 
-#: src/preference.c:766
+#: src/preference.c:798
 msgid "Off keys"
 msgstr "Ausschalttaste."
 
-#: src/preference.c:786
+#: src/preference.c:818
 msgid "Select off key"
 msgstr "Bitte Ausschalttaste auswählen"
 
-#: src/preference.c:787
+#: src/preference.c:819
 msgid ""
 "Press any key which you want to use as off key. The key you pressed is "
 "displayed below.\n"
@@ -254,23 +259,23 @@ msgstr ""
 "Die gedrückte Taste wird unten dargestellt.\n"
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
-#: src/preference.c:829
+#: src/preference.c:861
 msgid "Select hanja font"
 msgstr "Wahl 한자/Hanja Zeichensatz"
 
-#: src/preference.c:894
+#: src/preference.c:926
 msgid "Hanja Font"
 msgstr "한자/Hanja Zeichensatz"
 
-#: src/preference.c:899
+#: src/preference.c:931
 msgid "Hanja keys"
 msgstr "한자/Hanja Tasten"
 
-#: src/preference.c:919
+#: src/preference.c:951
 msgid "Select candidate key"
 msgstr "Bitte \"Kandidatauswahl\" Taste auswählen"
 
-#: src/preference.c:920
+#: src/preference.c:952
 msgid ""
 "Press any key which you want to use as candidate key. The key you pressed is "
 "displayed below.\n"
@@ -281,98 +286,94 @@ msgstr ""
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
 #. options for candidate option
-#: src/preference.c:936
+#: src/preference.c:968
 msgid "Use simplified chinese"
 msgstr "Vereinfaches Chinesisch benutzen"
 
-#: src/preference.c:943
+#: src/preference.c:975
 msgid "Hanja Options"
 msgstr "한자/Hanja Optionen"
 
 #. advanced
-#: src/preference.c:1092 src/preference.c:1458
+#: src/preference.c:1113 src/preference.c:1471
 msgid "Advanced"
 msgstr "Feinheiten"
 
-#: src/preference.c:1098
+#: src/preference.c:1119
 msgid "XIM name:"
 msgstr "XIM Name:"
 
-#: src/preference.c:1112
+#: src/preference.c:1133
 msgid "Use dynamic event flow"
 msgstr "Dynamischen Ereignisfluss benutzen"
 
-#: src/preference.c:1123
+#: src/preference.c:1144
 msgid "Commit by word"
 msgstr "Bestätigung nach jedem Wort"
 
-#: src/preference.c:1134
+#: src/preference.c:1155
 msgid "Automatic reordering"
 msgstr "Automatische Neuanordnung"
 
-#: src/preference.c:1145
+#: src/preference.c:1166
 msgid "Start in hangul mode"
 msgstr ""
 
-#: src/preference.c:1158
+#: src/preference.c:1179
 msgid "Ignore fontset information from the client"
 msgstr ""
 
-#: src/preference.c:1169
-msgid "Use system keymap"
-msgstr ""
-
-#: src/preference.c:1180
+#: src/preference.c:1193
 #, fuzzy
 msgid "Input mode scope: "
 msgstr "Auswahl des Eingabemodus"
 
-#: src/preference.c:1185
+#: src/preference.c:1198
 msgid "per desktop"
 msgstr "Pro Desktop"
 
-#: src/preference.c:1187
+#: src/preference.c:1200
 #, fuzzy
 msgid "per application"
 msgstr "Pro Programm"
 
-#: src/preference.c:1189
+#: src/preference.c:1202
 msgid "per toplevel"
 msgstr "Pro höchste Stufe"
 
-#: src/preference.c:1191
+#: src/preference.c:1204
 msgid "per context"
 msgstr "Pro Kontext"
 
-#: src/preference.c:1214
+#: src/preference.c:1227
 msgid "Preedit string font: "
 msgstr ""
 
-#: src/preference.c:1400
+#: src/preference.c:1413
 msgid "_Reset"
 msgstr ""
 
-#: src/preference.c:1425
+#: src/preference.c:1438
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
 #. icons
-#: src/preference.c:1437
+#: src/preference.c:1450
 msgid "Tray"
 msgstr "Schaltfläche"
 
 #. keyboard
-#: src/preference.c:1443
+#: src/preference.c:1456
 msgid "Keyboard"
 msgstr "Tastatur"
 
 #. key
-#: src/preference.c:1448
+#: src/preference.c:1461
 msgid "Hangul"
 msgstr "한글/Hangul"
 
 #. candidate
-#: src/preference.c:1453
+#: src/preference.c:1466
 msgid "Hanja"
 msgstr "한자/Hanja"
 
