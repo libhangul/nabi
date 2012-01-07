@@ -12,6 +12,7 @@ main(int argc, char *argv[])
     GtkWidget *vbox;
     GtkWidget *entry;
     GtkWidget *textview;
+    GtkWidget *scrolled;
 
     gtk_init(&argc, &argv);
 
@@ -27,7 +28,13 @@ main(int argc, char *argv[])
     gtk_box_pack_start(GTK_BOX(vbox), entry, FALSE, TRUE, 0);
 
     textview = gtk_text_view_new();
-    gtk_box_pack_start(GTK_BOX(vbox), textview, TRUE, TRUE, 0);
+
+    scrolled = gtk_scrolled_window_new(NULL, NULL);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+	    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+    gtk_container_add(GTK_CONTAINER(scrolled), textview);
+
+    gtk_box_pack_start(GTK_BOX(vbox), scrolled, TRUE, TRUE, 0);
 
     gtk_widget_show_all(window);
 
