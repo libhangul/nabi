@@ -63,6 +63,14 @@ ubuntu_mono_light_DATA = \
     ubuntu-mono-light/hangul.png \
     ubuntu-mono-light/none.png
 
+malysdir = $(NABI_THEMES_DIR)/malys
+malys_DATA = \
+	malys/README \
+	malys/english.png \
+	malys/hangul.png \
+	malys/none.png \
+	$(NULL)
+
 EXTRA_DIST = \
 	$(simplyred_DATA) \
 	$(onion_DATA) \
@@ -72,4 +80,6 @@ EXTRA_DIST = \
 	$(tux_DATA) \
 	$(jini_DATA) \
 	$(ubuntu_mono_dark_DATA) \
-	$(ubuntu_mono_light_DATA)
+	$(ubuntu_mono_light_DATA) \
+	$(malys_DATA) \
+	$(NULL)
