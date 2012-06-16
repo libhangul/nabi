@@ -2013,8 +2013,8 @@ nabi_ic_normalize_keysym(NabiIC* ic, KeySym keysym, unsigned int state)
 
     need_normalize = !hangul_ic_is_transliteration(ic->hic);
     if (need_normalize) {
-	/* european mapping */
-	if (nabi_server->layout != NULL) {
+	/* for non-qwerty mapping */
+	if (nabi_server->use_system_keymap && nabi_server->layout != NULL) {
 	    keysym = nabi_keyboard_layout_get_key(nabi_server->layout, keysym);
 	}
 
