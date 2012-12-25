@@ -414,6 +414,15 @@ nabi_candidate_create_window(NabiCandidate *candidate)
 						      renderer,
 						      "text", COLUMN_COMMENT,
 						      NULL);
+
+    if (gtk_major_version > 2 ||
+	    (gtk_major_version == 2 && gtk_minor_version >= 8)) {
+	gint wrap_width = 250;
+	g_object_set(G_OBJECT(renderer),
+		"wrap-mode", PANGO_WRAP_WORD_CHAR,
+		"wrap-width", wrap_width, NULL);
+    }
+
     gtk_tree_view_append_column(GTK_TREE_VIEW(treeview), column);
 
     nabi_candidate_update_cursor(candidate);
