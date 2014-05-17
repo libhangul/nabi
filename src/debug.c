@@ -20,6 +20,8 @@
 #include <stdarg.h>
 #include <string.h>
 
+#include "debug.h"
+
 static FILE* output_device = NULL;
 static int log_level = 0;
 
@@ -30,7 +32,7 @@ nabi_log_set_level(int level)
 }
 
 int
-nabi_log_get_level(int level)
+nabi_log_get_level(void)
 {
     return log_level;
 }
