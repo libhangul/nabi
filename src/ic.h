@@ -154,6 +154,7 @@ void    nabi_ic_get_values(NabiIC *ic, IMChangeICStruct *data);
 
 Bool    nabi_ic_is_empty(NabiIC *ic);
 CARD16  nabi_ic_get_id(NabiIC* ic);
+KeySym  nabi_ic_lookup_keysym(NabiIC* ic, XKeyEvent* event);
 
 void    nabi_ic_set_focus(NabiIC *ic);
 

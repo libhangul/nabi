@@ -143,8 +143,8 @@ nabi_connection_create(CARD16 id, const char* locale)
 	    if (!strniequal(encoding, "UTF-8", 5) ||
 		!strniequal(encoding, "UTF8", 4)) {
 		conn->cd = g_iconv_open(encoding, "UTF-8");
-		nabi_log(3, "connection %d use encoding: %s (%x)\n",
-			    id, encoding, (int)conn->cd);
+		nabi_log(3, "connection %d use encoding: %s (%lx)\n",
+			    id, encoding, (unsigned long)conn->cd);
 	    }
 	}
     }
