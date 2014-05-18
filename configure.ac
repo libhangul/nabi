@@ -1,6 +1,7 @@
 AC_INIT(nabi, 1.0.0, http://code.google.com/p/nabi/)
 AM_INIT_AUTOMAKE([])
 
+AM_SILENT_RULES([yes])
 AM_CONFIG_HEADER(config.h)
 
 dnl Checks for programs
