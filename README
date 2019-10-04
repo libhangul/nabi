@@ -24,6 +24,9 @@ nabi의 소스는 여기에서 관리하지 않고 GitHub에서 관리하고 있
 빌드
 빌드 방법은 보통의 GNU build system을 사용한 오픈 소스 패키지와 동일합니다.
 
+(github 에서 소스를 다운 받은 경우 ./autogen.sh를 실행하여 configure를 생성합니다.)
+ $ ./autogen.sh
+
  $ ./configure --prefix=$PREFIX
  $ make
  # make install
