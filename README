@@ -5,7 +5,7 @@ nabi는 System Tray(Notification Area)를 지원하는 GTK+로 개발된 X Windo
 한글 입력기(XIM)입니다.
 
 프로젝트 사이트:
- http://code.google.com/p/nabi/
+ https://github.com/libhangul/nabi/wiki
 
 기능과 특징
  * 두벌식, 세벌식최종, 세벌식390 자판 지원
@@ -17,9 +17,9 @@ nabi는 System Tray(Notification Area)를 지원하는 GTK+로 개발된 X Windo
 nabi의 소스는 여기에서 관리하지 않고 GitHub에서 관리하고 있습니다.
 다음 명령으로 소스를 받으실 수 있습니다.
 
- $ git clone git://github.com/choehwanjin/nabi.git nabi
+ $ git clone https://github.com/libhangul/nabi.git nabi
 
-또는 http://github.com/choehwanjin/nabi 여기서 웹으로 브라우징해 볼 수 있습니다.
+또는 https://github.com/libhangul/nabi 여기서 웹으로 브라우징해 볼 수 있습니다.
 
 빌드
 빌드 방법은 보통의 GNU build system을 사용한 오픈 소스 패키지와 동일합니다.
