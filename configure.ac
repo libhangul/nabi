@@ -1,4 +1,4 @@
-AC_INIT(nabi, 1.0.0, http://code.google.com/p/nabi/)
+AC_INIT(nabi, 1.0.1, https://github.com/libhangul/nabi)
 AM_INIT_AUTOMAKE([])
 
 AM_SILENT_RULES([yes])
