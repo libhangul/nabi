@@ -140,7 +140,7 @@ void        nabi_server_destroy         (NabiServer* server);
 int         nabi_server_start           (NabiServer* server);
 int         nabi_server_stop            (NabiServer *server);
 
-Bool        nabi_server_is_running();
+Bool        nabi_server_is_running(const char* name);
 Bool        nabi_server_is_trigger_key  (NabiServer*  server,
                                          KeySym       key,
                                          unsigned int state);
