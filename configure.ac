@@ -2,7 +2,9 @@ AC_INIT(nabi, 1.0.1, https://github.com/libhangul/nabi)
 AM_INIT_AUTOMAKE([])
 
 AM_SILENT_RULES([yes])
-AM_CONFIG_HEADER(config.h)
+AM_MAINTAINER_MODE
+
+AC_CONFIG_HEADERS(config.h)
 
 dnl Checks for programs
 AC_PROG_CC
@@ -14,7 +16,6 @@ AC_PROG_INSTALL
 dnl Checks for header files.
 AC_PATH_X
 AC_HEADER_DIRENT
-AC_HEADER_STDC
 AC_CHECK_HEADERS([langinfo.h libintl.h locale.h stddef.h stdint.h stdlib.h string.h sys/param.h])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -110,11 +111,12 @@ if test "$enable_debug" = "yes"; then
     CXXFLAGS="$CXXFLAGS -Wall -g"
 fi
 
-AC_OUTPUT([
-Makefile
-IMdkit/Makefile
-src/Makefile
-tables/Makefile
-themes/Makefile
-po/Makefile.in 
+AC_CONFIG_FILES([
+    Makefile
+    IMdkit/Makefile
+    src/Makefile
+    tables/Makefile
+    themes/Makefile
+    po/Makefile.in
 ])
+AC_OUTPUT
