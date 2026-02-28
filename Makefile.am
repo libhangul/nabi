@@ -1,3 +1,5 @@
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = IMdkit src tables themes po
 
 nabilogodir = @NABI_DATA_DIR@
@@ -10,7 +12,7 @@ testclients = \
 	test/gtk1.c	\
 	test/qt.cpp
 
-EXTRA_DIST = config.rpath $(nabilogo_DATA) $(testclients) ChangeLog.0
+EXTRA_DIST = m4/ChangeLog  config.rpath $(nabilogo_DATA) $(testclients) ChangeLog.0
 
 .PHONY: log
 log:

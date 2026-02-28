@@ -49,9 +49,9 @@ PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0,,
 PKG_CHECK_MODULES(LIBHANGUL, libhangul >= 0.1.0,,
 		  AC_MSG_ERROR([nabi needs libhangul 0.1.0 or higher]))
 
-dnl gettext stuff
-ALL_LINGUAS="ko de"
-AM_GLIB_GNU_GETTEXT
+# gettext stuff
+AM_GNU_GETTEXT_REQUIRE_VERSION([0.19.8])
+AM_GNU_GETTEXT([external])
 
 GETTEXT_PACKAGE="$PACKAGE"
 AC_SUBST(GETTEXT_PACKAGE)

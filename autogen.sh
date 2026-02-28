@@ -1,7 +1,7 @@
 #!/bin/sh
 
 touch ChangeLog
-glib-gettextize --copy --force
+autopoint
 aclocal
 autoheader
 automake --add-missing --copy
