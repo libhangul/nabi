@@ -9,12 +9,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-26 17:31+0900\n"
+"Report-Msgid-Bugs-To: https://github.com/libhangul/nabi/\n"
+"POT-Creation-Date: 2026-02-28 09:21+0900\n"
 "PO-Revision-Date: 2008-03-23 18:27+0100\n"
 "Last-Translator: Niklaus Giger <niklaus.giger@member.fsf.org>\n"
 "Language-Team:  <ami-list@lists.kldp.net>\n"
-"Language: \n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -60,17 +60,14 @@ msgstr "Zurücktaste"
 msgid "Shift"
 msgstr "Grosstelltaste"
 
-#. choseong
 #: src/ui.c:717
 msgid "Choseong"
 msgstr "초성/Choseong"
 
-#. jungseong
 #: src/ui.c:731
 msgid "Jungseong"
 msgstr "중성/Jungseong"
 
-#. jongseong
 #: src/ui.c:752
 msgid "Jongseong"
 msgstr "종성/Jongseong"
@@ -120,12 +117,10 @@ msgstr "<span weight=\"bold\">Verbunden</span>: "
 msgid "Keypress Statistics"
 msgstr "Tastaturstatistik"
 
-#. palette menu
 #: src/ui.c:1030
 msgid "_Show palette"
 msgstr "Zeige Hinweis"
 
-#. hanja mode
 #: src/ui.c:1038
 #, fuzzy
 msgid "_Hanja Lock"
@@ -285,7 +280,6 @@ msgstr ""
 "möchten. Die gedrückte Taste wird unten dargestellt.\n"
 "Falls Sie sie benutzen wollen, drücken Sie \"Ok\" oder \"Abbrechen\""
 
-#. options for candidate option
 #: src/preference.c:968
 msgid "Use simplified chinese"
 msgstr "Vereinfaches Chinesisch benutzen"
@@ -294,7 +288,6 @@ msgstr "Vereinfaches Chinesisch benutzen"
 msgid "Hanja Options"
 msgstr "한자/Hanja Optionen"
 
-#. advanced
 #: src/preference.c:1113 src/preference.c:1471
 msgid "Advanced"
 msgstr "Feinheiten"
@@ -357,22 +350,18 @@ msgstr ""
 msgid "Nabi Preferences"
 msgstr "Einstellungen von Nabi"
 
-#. icons
 #: src/preference.c:1450
 msgid "Tray"
 msgstr "Schaltfläche"
 
-#. keyboard
 #: src/preference.c:1456
 msgid "Keyboard"
 msgstr "Tastatur"
 
-#. key
 #: src/preference.c:1461
 msgid "Hangul"
 msgstr "한글/Hangul"
 
-#. candidate
 #: src/preference.c:1466
 msgid "Hanja"
 msgstr "한자/Hanja"

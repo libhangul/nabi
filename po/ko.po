@@ -5,12 +5,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: nabi 0.99.11\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-26 17:31+0900\n"
+"Report-Msgid-Bugs-To: https://github.com/libhangul/nabi/\n"
+"POT-Creation-Date: 2026-02-28 09:21+0900\n"
 "PO-Revision-Date: 2004-07-27 22:03+0900\n"
 "Last-Translator: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
 "Language-Team: Choe Hwanjin <choe.hwanjin@gmail.com>\n"
-"Language: \n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -55,17 +55,14 @@ msgstr "백스페이스"
 msgid "Shift"
 msgstr "쉬프트"
 
-#. choseong
 #: src/ui.c:717
 msgid "Choseong"
 msgstr "초성"
 
-#. jungseong
 #: src/ui.c:731
 msgid "Jungseong"
 msgstr "중성"
 
-#. jongseong
 #: src/ui.c:752
 msgid "Jongseong"
 msgstr "종성"
@@ -113,12 +110,10 @@ msgstr "<span weight=\"bold\">연결된 수</span>: "
 msgid "Keypress Statistics"
 msgstr "키입력 통계"
 
-#. palette menu
 #: src/ui.c:1030
 msgid "_Show palette"
 msgstr "팔레트 보이기(_S)"
 
-#. hanja mode
 #: src/ui.c:1038
 msgid "_Hanja Lock"
 msgstr "한자 전용(_H)"
@@ -271,7 +266,6 @@ msgstr ""
 "그 키를 한자 변환키로 사용하시려면 \"확인\"을 누르시고 아니면 \"취소\"를 누르"
 "십시오."
 
-#. options for candidate option
 #: src/preference.c:968
 msgid "Use simplified chinese"
 msgstr "간체자로 입력"
@@ -280,7 +274,6 @@ msgstr "간체자로 입력"
 msgid "Hanja Options"
 msgstr "한자 옵션"
 
-#. advanced
 #: src/preference.c:1113 src/preference.c:1471
 msgid "Advanced"
 msgstr "고급"
@@ -341,22 +334,18 @@ msgstr "초기값으로(_R)"
 msgid "Nabi Preferences"
 msgstr "나비 설정"
 
-#. icons
 #: src/preference.c:1450
 msgid "Tray"
 msgstr "트레이"
 
-#. keyboard
 #: src/preference.c:1456
 msgid "Keyboard"
 msgstr "자판"
 
-#. key
 #: src/preference.c:1461
 msgid "Hangul"
 msgstr "한글"
 
-#. candidate
 #: src/preference.c:1466
 msgid "Hanja"
 msgstr "한자"
