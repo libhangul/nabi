@@ -17,10 +17,10 @@ log:
 	unset LC_ALL; \
 	export LANG=C ; \
 	export LC_CTYPE=ko_KR.UTF-8 ; \
-	git log --name-status --date=iso > ChangeLog
+	git log --name-status --date=iso > $(top_srcdir)/ChangeLog
 
 dist-hook:
-	if test -d .git; then \
+	if test -d $(top_srcdir)/.git; then \
 		unset LC_ALL; \
 		export LANG=C ; \
 		export LC_CTYPE=ko_KR.UTF-8 ; \
