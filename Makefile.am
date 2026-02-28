@@ -8,9 +8,13 @@ nabilogo_DATA = nabi.png nabi.svg nabi-about.png
 testclients = \
 	test/Makefile	\
 	test/xlib.cpp	\
+	test/xim_filter.c	\
 	test/gtk.c	\
 	test/gtk1.c	\
-	test/qt.cpp
+	test/qt.cpp	\
+	test/qt4.cpp	\
+	test/qt5.cpp	\
+	$(NULL)
 
 EXTRA_DIST = m4/ChangeLog  config.rpath $(nabilogo_DATA) $(testclients) ChangeLog.0
 
