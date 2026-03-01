@@ -4,37 +4,43 @@ Nabi 나비
 nabi는 System Tray(Notification Area)를 지원하는 GTK+로 개발된 X Window의
 한글 입력기(XIM)입니다.
 
-프로젝트 사이트:
- https://github.com/libhangul/nabi/wiki
+## 프로젝트 사이트
+ https://github.com/libhangul/nabi/wiki/
 
-기능과 특징
+## 기능과 특징
  * 두벌식, 세벌식최종, 세벌식390 자판 지원
  * libhangul을 이용하여 한자의 뜻까지 보여줌
  * Notification Area에 embed됨
  * imhangul의 한영 상태로 같이 나타냄
 
-소스
-nabi의 소스는 여기에서 관리하지 않고 GitHub에서 관리하고 있습니다.
+## 소스
+nabi의 소스는 GitHub에서 관리하고 있습니다.
 다음 명령으로 소스를 받으실 수 있습니다.
 
+```
  $ git clone https://github.com/libhangul/nabi.git nabi
+```
 
-또는 https://github.com/libhangul/nabi 여기서 웹으로 브라우징해 볼 수 있습니다.
+또는 https://github.com/libhangul/nabi/ 여기서 웹으로 브라우징해 볼 수 있습니다.
 
-빌드
+## 빌드
 빌드 방법은 보통의 GNU build system을 사용한 오픈 소스 패키지와 동일합니다.
 
 (github 에서 소스를 다운 받은 경우 ./autogen.sh를 실행하여 configure를 생성합니다.)
+```
  $ ./autogen.sh
 
  $ ./configure --prefix=$PREFIX
  $ make
  # make install
+```
 
 XIM으로 사용하기 위해서는 XMODIFIERS 환경 변수가 필요합니다.
 아래와 같이 설정하면 사용할 수 있습니다.
 
+```
 export XMODIFIERS="@im=nabi"
+```
 
 그러나 이런 환경 변수 설정을 유효하게 하는 것은 일반 사용자에게는 상당히
 까다로운 일로 배포판에서 제공하는 설정방법을 사용하시길 추천합니다.
@@ -42,17 +48,21 @@ export XMODIFIERS="@im=nabi"
 최근의 많은 배포판들은 im-switch를 가지고 있으므로 im-switch를 이용하여
 설정하는 것이 편리합니다.
 
+```
  $ im-switch -s nabi
+```
 
 이 명령을 실행하여 설정하면 됩니다.
 
 ------------------------
-For non-korean users.
+## For non-korean users.
 
 You should set XMODIFIERS environment variable before launching any XIM-aware
 application.
 
+```
 export XMODIFIERS="@im=nabi"
+```
 
 Put the line above in xinit script file, ie, ~/.xsession.
 See xinit man page.
@@ -60,4 +70,6 @@ See xinit man page.
 If you use debian, it is easy to use im-switcher.
 Install im-switch, and run it like below:
 
+```
  $ im-switch -s nabi
+```
