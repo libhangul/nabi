@@ -351,6 +351,9 @@ nabi_app_setup_server(void)
     keys = g_strsplit(nabi->config->trigger_keys->str, ",", 0);
     nabi_server_set_trigger_keys(nabi_server, keys);
     g_strfreev(keys);
+    keys = g_strsplit(nabi->config->off_keys->str, ",", 0);
+    nabi_server_set_off_keys(nabi_server, keys);
+    g_strfreev(keys);
     keys = g_strsplit(nabi->config->candidate_keys->str, ",", 0);
     nabi_server_set_candidate_keys(nabi_server, keys);
     g_strfreev(keys);
