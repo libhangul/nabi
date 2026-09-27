@@ -45,7 +45,7 @@ struct _NabiHandleBoxClass {
 };
 
 
-GType         nabi_handle_box_get_type             (void) G_GNUC_CONST;
+GType         nabi_handle_box_get_type             (void);
 GtkWidget*    nabi_handle_box_new                  (void);
 
 G_END_DECLS
