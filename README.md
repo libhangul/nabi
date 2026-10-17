@@ -18,22 +18,23 @@ nabi의 소스는 GitHub에서 관리하고 있습니다.
 다음 명령으로 소스를 받으실 수 있습니다.
 
 ```
- $ git clone https://github.com/libhangul/nabi.git nabi
+git clone https://github.com/libhangul/nabi.git nabi
 ```
 
 또는 https://github.com/libhangul/nabi/ 여기서 웹으로 브라우징해 볼 수 있습니다.
 
 ## 빌드
-빌드 방법은 보통의 GNU build system을 사용한 오픈 소스 패키지와 동일합니다.
+CMake를 사용하여 빌드하실 수 있습니다.
 
-(github 에서 소스를 다운 받은 경우 ./autogen.sh를 실행하여 configure를 생성합니다.)
 ```
- $ ./autogen.sh
+cmake -B build nabi -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/.local
+cmake --build build
+cmake --install build
+```
 
- $ ./configure --prefix=$PREFIX
- $ make
- # make install
-```
+더 자세한 빌드 방법은 CMake 문서를 참고하십시오.
+
+## 사용
 
 XIM으로 사용하기 위해서는 XMODIFIERS 환경 변수가 필요합니다.
 아래와 같이 설정하면 사용할 수 있습니다.
