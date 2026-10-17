@@ -67,3 +67,20 @@ nabi_traditional_to_simplified(const char* str)
 
     return g_string_free(ret, FALSE);
 }
+
+gchar*
+nabi_get_user_state_dir(void)
+{
+#if GLIB_CHECK_VERSION(2, 72, 0)
+    const gchar* dir = g_get_user_state_dir();
+    return g_strdup(dir);
+#else // GLIB_CHECK_VERSION(2, 72, 0)
+    const gchar* env = g_getenv("XDG_STATE_HOME");
+    if (env != NULL && env[0] != '\0') {
+        return g_strdup(env);
+    }
+
+    const char* home_dir = g_get_home_dir();
+    return g_build_filename(home_dir, ".local", "state", NULL);
+#endif // GLIB_CHECK_VERSION(2, 72, 0)
+}

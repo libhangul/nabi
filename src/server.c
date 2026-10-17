@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <locale.h>
@@ -40,6 +41,7 @@
 #include "server.h"
 #include "fontset.h"
 #include "hangul.h"
+#include "util.h"
 
 #define NABI_SYMBOL_TABLE NABI_DATA_DIR G_DIR_SEPARATOR_S "symbol.txt"
 
@@ -1106,16 +1108,20 @@ nabi_server_set_use_system_keymap(NabiServer* server, Bool state)
 void
 nabi_server_write_log(NabiServer *server)
 {
-    const gchar *homedir;
     gchar *filename;
     FILE *file;
 
     if (server->statistics.total <= 0)
 	return;
 
-    homedir = g_get_home_dir();
-    filename = g_build_filename(homedir, ".nabi", "nabi.log", NULL);
-    
+    gchar* user_state_dir = nabi_get_user_state_dir();
+    gchar* nabi_state_dir = g_build_filename(user_state_dir, "nabi");
+    g_mkdir_with_parents(nabi_state_dir, S_IRUSR | S_IWUSR | S_IXUSR);
+
+    filename = g_build_filename(nabi_state_dir, "nabi.log", NULL);
+    g_free(user_state_dir);
+    g_free(nabi_state_dir);
+
     file = fopen(filename, "a");
     if (file != NULL) {
 	int i, sum;

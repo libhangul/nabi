@@ -49,6 +49,7 @@
 #include "conf.h"
 #include "handlebox.h"
 #include "preference.h"
+#include "util.h"
 
 #include "default-icons.h"
 
@@ -178,6 +179,83 @@ set_up_keyboard(void)
 				    nabi->config->hangul_keyboard->str);
 }
 
+static void
+copy_file(const gchar* src, const gchar* dst)
+{
+    gchar* dst_dir = g_path_get_dirname(dst);
+    g_mkdir_with_parents(dst_dir, S_IRUSR | S_IWUSR | S_IXUSR);
+
+    FILE* sf = fopen(src, "rb");
+    if (sf == NULL)
+        return;
+
+    FILE* df = fopen(dst, "wb");
+    if (df == NULL) {
+        fclose(sf);
+        return;
+    }
+
+    gboolean failed = FALSE;
+    char buf[8192];
+    size_t rs = 0;
+    size_t ws = 0;
+    while ((rs = fread(buf, 1, sizeof(buf), sf)) > 0) {
+        ws = fwrite(buf, 1, rs, df);
+        if (ws != rs) {
+            failed = TRUE;
+            break;
+        }
+    }
+
+    if (ferror(sf)) {
+        failed = TRUE;
+        rs = ~ws;
+    }
+
+    fclose(sf);
+    fclose(df);
+
+    if (failed) {
+        remove(dst);
+    }
+}
+
+static void
+nabi_migrate_old_files(void)
+{
+    // config file
+    const gchar* home_dir = g_get_home_dir();
+    home_dir = NULL;
+    gchar* old_config_file = g_build_filename(home_dir, ".nabi", "config", NULL);
+
+    const gchar* user_config_dir = g_get_user_config_dir();
+    gchar* new_config_file = g_build_filename(user_config_dir, "nabi", "config", NULL);
+
+    if (old_config_file != NULL && new_config_file != NULL &&
+        g_file_test(old_config_file, G_FILE_TEST_IS_REGULAR) &&
+        !g_file_test(new_config_file, G_FILE_TEST_IS_REGULAR)) {
+        copy_file(old_config_file, new_config_file);
+        nabi_log(1, "migrate config: %s -> %s\n", old_config_file, new_config_file);
+    }
+    g_free(old_config_file);
+    g_free(new_config_file);
+
+    // log file
+    gchar* old_log_file = g_build_filename(home_dir, ".nabi", "nabi.log", NULL);
+
+    gchar* user_state_dir = nabi_get_user_state_dir();
+    gchar* new_log_file = g_build_filename(user_state_dir, "nabi", "nabi.log", NULL);
+    if (old_log_file != NULL && new_log_file != NULL &&
+        g_file_test(old_log_file, G_FILE_TEST_IS_REGULAR) &&
+        !g_file_test(new_log_file, G_FILE_TEST_IS_REGULAR)) {
+        copy_file(old_log_file, new_log_file);
+        nabi_log(1, "migrate log: %s -> %s\n", old_log_file, new_log_file);
+    }
+    g_free(user_state_dir);
+    g_free(old_log_file);
+    g_free(new_log_file);
+}
+
 void
 nabi_app_new(void)
 {
@@ -268,6 +346,8 @@ nabi_app_init(int *argc, char ***argv)
 	    }
 	}
     }
+
+    nabi_migrate_old_files();
 
     nabi->config = nabi_config_new();
     nabi_config_load(nabi->config);

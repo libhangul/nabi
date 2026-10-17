@@ -73,6 +73,7 @@ set(LOCALEDIR "${CMAKE_INSTALL_FULL_LOCALEDIR}")
 # Dependencies
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK REQUIRED IMPORTED_TARGET gtk+-2.0>=2.4.0)
+pkg_check_modules(GLIB REQUIRED IMPORTED_TARGET glib-2.0>=2.8.0)
 pkg_check_modules(LIBHANGUL REQUIRED IMPORTED_TARGET libhangul>=0.1.0)
 find_package(X11 REQUIRED)
 

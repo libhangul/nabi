@@ -19,6 +19,10 @@
 #ifndef nabi_util_h
 #define nabi_util_h
 
+#include <glib.h>
+
 char* nabi_traditional_to_simplified(const char* str);
+
+gchar* nabi_get_user_state_dir(void);
 
 #endif // nabi_util_h

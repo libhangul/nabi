@@ -258,14 +258,14 @@ nabi_config_load(NabiConfig* config)
 {
     gchar *line, *saved_position;
     gchar *key, *value;
-    const gchar* homedir;
     gchar* config_filename;
     gchar buf[256];
     FILE *file;
 
     /* load conf file */
-    homedir = g_get_home_dir();
-    config_filename = g_build_filename(homedir, ".nabi", "config", NULL);
+    const gchar* user_config_dir = g_get_user_config_dir();
+    config_filename = g_build_filename(user_config_dir, "nabi", "config", NULL);
+
     file = fopen(config_filename, "r");
     if (file == NULL) {
 	nabi_log(1, "Can't open config file: %s\n", config_filename);
@@ -289,13 +289,12 @@ void
 nabi_config_save(NabiConfig* config)
 {
     gint i;
-    const gchar* homedir;
     gchar* config_dir;
     gchar* config_filename;
     FILE *file;
 
-    homedir = g_get_home_dir();
-    config_dir = g_build_filename(homedir, ".nabi", NULL);
+    const gchar* user_config_dir = g_get_user_config_dir();
+    config_dir = g_build_filename(user_config_dir, "nabi", NULL);
 
     /* chech for nabi conf dir */
     if (!g_file_test(config_dir, G_FILE_TEST_EXISTS)) {
